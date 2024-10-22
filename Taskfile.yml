@@ -1,15 +1,16 @@
 version: "3"
+silent: true
 
 tasks:
-  # ---------------------------- ⚙️ Install dependencies ⚙️ ----------------------------
+  # ---------------------------- 📦 Dependency Management 📦 ----------------------------
 
   install:
     desc: "📦 Install dependencies for both front-end and back-end"
     deps:
-      - install:web
+      - install:frontend
       - install:backend
 
-  install:web:
+  install:frontend:
     desc: "📦 Install front-end dependencies"
     dir: web
     cmds:
@@ -21,15 +22,15 @@ tasks:
     cmds:
       - cargo fetch
 
-  # ---------------------------- 🧪 Run Tests 🧪 ----------------------------
+  # ---------------------------- 🧪 Testing Tasks 🧪 ----------------------------
 
   test:
     desc: "🧪 Run tests for both front-end and back-end"
     deps:
-      - test:web
+      - test:frontend
       - test:backend
 
-  test:web:
+  test:frontend:
     desc: "🧪 Run front-end tests"
     dir: web
     cmds:
@@ -44,32 +45,32 @@ tasks:
   # ---------------------------- 🛠️ Development Mode 🛠️ ----------------------------
 
   dev:
-    desc: "🚀 Run development servers for both front-end and back-end"
+    desc: "🚀 Start development servers for both front-end and back-end"
     deps:
-      - dev:web
+      - dev:frontend
       - dev:backend
 
-  dev:web:
-    desc: "🚀 Run front-end development server"
+  dev:frontend:
+    desc: "🚀 Start front-end development server"
     dir: web
     cmds:
       - pnpm run dev
 
   dev:backend:
-    desc: "🚀 Run back-end development server"
+    desc: "🚀 Start back-end development server"
     dir: backend
     cmds:
       - cargo run
 
-  # ---------------------------- 📦 Build for Production 📦 ----------------------------
+  # ---------------------------- 🏗️ Build for Production 🏗️ ----------------------------
 
   build:
     desc: "🏗️ Build both front-end and back-end for production"
     deps:
-      - build:web
+      - build:frontend
       - build:backend
 
-  build:web:
+  build:frontend:
     desc: "🏗️ Build front-end for production"
     dir: web
     cmds:
@@ -81,16 +82,44 @@ tasks:
     cmds:
       - cargo build --release
 
+  # ---------------------------- 🐳 Docker Management 🐳 ----------------------------
+
+  docker:build:
+    desc: "🐳 Build Docker image 'cirno'"
+    cmds:
+      - echo "🚧 Building Docker image 'cirno'..."
+      - docker build -t cirno .
+
+  docker:run:
+    desc: "🚀 Run Docker container 'cirno' in detached mode"
+    cmds:
+      - echo "🚀 Starting Docker container 'cirno' on port 8000..."
+      - docker run -d --network bridge -p 8000:8000 --name cirno_container cirno
+
+  docker:stop:
+    desc: "🛑 Stop and remove Docker container 'cirno_container'"
+    cmds:
+      - echo "🛑 Stopping Docker container 'cirno'..."
+      - docker stop cirno_container
+      - docker rm cirno_container
+
+  docker:clean:
+    desc: "🧹 Remove Docker image 'cirno'"
+    cmds:
+      - echo "🧹 Removing Docker image 'cirno'..."
+      - docker rmi cirno
+
   # ---------------------------- 🧹 Clean Build Artifacts 🧹 ----------------------------
 
   clean:
-    desc: "🧹 Clean dist, target, and tsbuildinfo files"
+    desc: "🧹 Clean all build artifacts for front-end, back-end, and Docker"
     deps:
-      - clean:web
+      - clean:frontend
       - clean:backend
+      - clean:docker
 
-  clean:web:
-    desc: "🧹 Clean front-end dist and tsbuildinfo files"
+  clean:frontend:
+    desc: "🧹 Clean front-end build artifacts"
     dir: web
     cmds:
       - rm -rf dist
@@ -98,7 +127,12 @@ tasks:
       - rm -f tsconfig.node.tsbuildinfo
 
   clean:backend:
-    desc: "🧹 Clean back-end target directory"
+    desc: "🧹 Clean back-end build artifacts"
     dir: backend
     cmds:
       - rm -rf target
+
+  clean:docker:
+    desc: "🧹 Remove Docker image 'cirno'"
+    cmds:
+      - docker rmi cirno
