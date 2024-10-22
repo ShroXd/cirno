@@ -1,0 +1,104 @@
+version: "3"
+
+tasks:
+  # ---------------------------- ⚙️ Install dependencies ⚙️ ----------------------------
+
+  install:
+    desc: "📦 Install dependencies for both front-end and back-end"
+    deps:
+      - install:web
+      - install:backend
+
+  install:web:
+    desc: "📦 Install front-end dependencies"
+    dir: web
+    cmds:
+      - pnpm install
+
+  install:backend:
+    desc: "📦 Install back-end dependencies"
+    dir: backend
+    cmds:
+      - cargo fetch
+
+  # ---------------------------- 🧪 Run Tests 🧪 ----------------------------
+
+  test:
+    desc: "🧪 Run tests for both front-end and back-end"
+    deps:
+      - test:web
+      - test:backend
+
+  test:web:
+    desc: "🧪 Run front-end tests"
+    dir: web
+    cmds:
+      - pnpm test
+
+  test:backend:
+    desc: "🧪 Run back-end tests"
+    dir: backend
+    cmds:
+      - cargo test
+
+  # ---------------------------- 🛠️ Development Mode 🛠️ ----------------------------
+
+  dev:
+    desc: "🚀 Run development servers for both front-end and back-end"
+    deps:
+      - dev:web
+      - dev:backend
+
+  dev:web:
+    desc: "🚀 Run front-end development server"
+    dir: web
+    cmds:
+      - pnpm run dev
+
+  dev:backend:
+    desc: "🚀 Run back-end development server"
+    dir: backend
+    cmds:
+      - cargo run
+
+  # ---------------------------- 📦 Build for Production 📦 ----------------------------
+
+  build:
+    desc: "🏗️ Build both front-end and back-end for production"
+    deps:
+      - build:web
+      - build:backend
+
+  build:web:
+    desc: "🏗️ Build front-end for production"
+    dir: web
+    cmds:
+      - pnpm run build
+
+  build:backend:
+    desc: "🏗️ Build back-end for production"
+    dir: backend
+    cmds:
+      - cargo build --release
+
+  # ---------------------------- 🧹 Clean Build Artifacts 🧹 ----------------------------
+
+  clean:
+    desc: "🧹 Clean dist, target, and tsbuildinfo files"
+    deps:
+      - clean:web
+      - clean:backend
+
+  clean:web:
+    desc: "🧹 Clean front-end dist and tsbuildinfo files"
+    dir: web
+    cmds:
+      - rm -rf dist
+      - rm -f tsconfig.app.tsbuildinfo
+      - rm -f tsconfig.node.tsbuildinfo
+
+  clean:backend:
+    desc: "🧹 Clean back-end target directory"
+    dir: backend
+    cmds:
+      - rm -rf target
