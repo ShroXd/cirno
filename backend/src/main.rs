@@ -32,7 +32,9 @@ async fn main() -> std::io::Result<()> {
 
     info!("Starting backend server");
     HttpServer::new(|| {
-        let mut app = App::new().route("/hello", web::get().to(hello));
+        let mut app = App::new()
+            .route("/hello", web::get().to(hello))
+            .service(routes::websocket_routes::ws_index);
 
         if !cfg!(debug_assertions) {
             app = app.service(Files::new("/", "./web/dist").index_file("index.html"));
