@@ -1,5 +1,7 @@
+use actix::prelude::*;
 use actix_files::Files;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actors::coordinator::Coordinator;
 use chrono::Local;
 use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
@@ -30,9 +32,14 @@ async fn main() -> std::io::Result<()> {
 
     tracing::subscriber::set_global_default(subscriber).expect("Failed to set tracing subscriber");
 
+    // Initialize coordinator and actors
+    info!("Starting coordinator actor");
+    let coordinator_addr = Coordinator::default().start();
+
     info!("Starting backend server");
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         let mut app = App::new()
+            .app_data(web::Data::new(coordinator_addr.clone()))
             .route("/hello", web::get().to(hello))
             .service(routes::websocket_routes::ws_index);
 

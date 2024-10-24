@@ -136,3 +136,14 @@ tasks:
     desc: "🧹 Remove Docker image 'cirno'"
     cmds:
       - docker rmi cirno
+
+  # ---------------------------- 🔧 Tooling Tasks 🔧 ----------------------------
+
+  regenerate-bindings:
+    desc: "🔄 Regenerate bindings type files by cleaning and running backend tests"
+    dir: web
+    cmds:
+      - echo "🧹 Cleaning web/src/bindings..."
+      - rm -rf src/bindings/*
+      - echo "🧪 Running backend tests to regenerate bindings..."
+      - cd ../backend && cargo test

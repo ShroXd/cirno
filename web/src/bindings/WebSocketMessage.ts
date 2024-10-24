@@ -2,4 +2,4 @@
 import type { PipelineAction } from "./PipelineAction";
 import type { System } from "./System";
 
-export type Message = { "PipelineAction": PipelineAction } | { "System": System };
+export type WebSocketMessage = { "PipelineAction": PipelineAction } | { "System": System };
