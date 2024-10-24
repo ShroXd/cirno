@@ -34,7 +34,7 @@ pub enum WebSocketMessage {
 
 #[derive(Debug)]
 pub struct WebSocketActor {
-    pub coordinator_addr: Addr<Coordinator>,
+    pub coordinator_addr: Addr<Coordinator<Self>>,
 }
 
 impl Actor for WebSocketActor {
@@ -88,8 +88,18 @@ impl Handler<WebSocketForwardMessage> for WebSocketActor {
     }
 }
 
-impl WebSocketActor {
-    pub fn new(coordinator_addr: Addr<Coordinator>) -> Self {
+pub trait WebSocketActorBehavior {
+    fn new(coordinator_addr: Addr<Coordinator<WebSocketActor>>) -> Self;
+    fn handle_pipeline_action(
+        &self,
+        action: PipelineAction,
+        _: &mut <WebSocketActor as Actor>::Context,
+    );
+    fn handle_system(&self, system: System, _: &mut <WebSocketActor as Actor>::Context);
+}
+
+impl WebSocketActorBehavior for WebSocketActor {
+    fn new(coordinator_addr: Addr<Coordinator<Self>>) -> Self {
         Self { coordinator_addr }
     }
 
@@ -103,12 +113,12 @@ impl WebSocketActor {
                 info!("WebSocket actor received play action");
 
                 // TODO: here is just a quick test, will be removed
-                // if let Err(e) = self
-                //     .coordinator_addr
-                //     .try_send(WebSocketForwardMessage::Send("from play".to_string()))
-                // {
-                //     error!("Failed to forward message to coordinator: {:?}", e);
-                // }
+                if let Err(e) = self
+                    .coordinator_addr
+                    .try_send(WebSocketForwardMessage::Send("from play".to_string()))
+                {
+                    error!("Failed to forward message to coordinator: {:?}", e);
+                }
             }
             PipelineAction::Pause => {
                 info!("WebSocket actor received pause action");

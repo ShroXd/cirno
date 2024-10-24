@@ -1,7 +1,7 @@
 use actix::prelude::*;
 use actix_files::Files;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
-use actors::coordinator::Coordinator;
+use actors::{coordinator::Coordinator, websocket_actor::WebSocketActor};
 use chrono::Local;
 use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
@@ -34,7 +34,7 @@ async fn main() -> std::io::Result<()> {
 
     // Initialize coordinator and actors
     info!("Starting coordinator actor");
-    let coordinator_addr = Coordinator::default().start();
+    let coordinator_addr = Coordinator::<WebSocketActor>::default().start();
 
     info!("Starting backend server");
     HttpServer::new(move || {
