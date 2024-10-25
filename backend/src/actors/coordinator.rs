@@ -5,12 +5,12 @@ use actix::Message;
 use dev::ToEnvelope;
 use tracing::*;
 
-use super::pipeline_actor::PipelineActor;
+use crate::services::stream::pipeline::Pipeline;
 
 #[derive(Clone, Debug)]
 pub struct Coordinator<T: Actor + Debug> {
     pub websocket_addr: Option<Addr<T>>,
-    pipeline_addr: Option<Addr<PipelineActor>>,
+    pipeline_addr: Option<Addr<Pipeline>>,
 }
 
 impl<T> Actor for Coordinator<T>

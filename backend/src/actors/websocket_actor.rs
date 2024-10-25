@@ -7,16 +7,8 @@ use tracing::*;
 use ts_rs::TS;
 
 use super::coordinator::{Coordinator, WebSocketForwardMessage};
+use super::pipeline_actor::PipelineAction;
 use crate::actors::coordinator::RegisterWebSocket;
-
-#[derive(Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub enum PipelineAction {
-    Play,
-    Pause,
-    Stop,
-    SetSource(String),
-}
 
 #[derive(Debug, Serialize, Deserialize, TS)]
 #[ts(export)]
