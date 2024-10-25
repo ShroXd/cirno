@@ -7,6 +7,7 @@ use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 mod actors;
+mod database;
 mod handlers;
 mod routes;
 mod services;

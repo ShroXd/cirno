@@ -154,3 +154,14 @@ tasks:
     cmds:
       - echo "📂 Running database setup script..."
       - ./database.sh
+
+  prepare-database:
+    desc: "🗂️ Set up DATABASE_URL and prepare the database schema"
+    cmds:
+      - |
+        echo "📂 Setting DATABASE_URL for the database..."
+        export DATABASE_URL="sqlite://$(pwd)/media_library.db"
+        echo "DATABASE_URL is set to: $DATABASE_URL"
+        cd backend
+        echo "🏗️ Running cargo sqlx prepare..."
+        cargo sqlx prepare
