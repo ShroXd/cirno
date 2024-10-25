@@ -9,6 +9,7 @@ use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 mod actors;
 mod handlers;
 mod routes;
+mod services;
 mod utils;
 
 async fn hello() -> impl Responder {
