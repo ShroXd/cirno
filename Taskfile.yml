@@ -147,3 +147,10 @@ tasks:
       - rm -rf src/bindings/*
       - echo "🧪 Running backend tests to regenerate bindings..."
       - cd ../backend && cargo test
+
+  create-database:
+    desc: "🗂️ Create the SQLite database file by running the setup script"
+    dir: scripts
+    cmds:
+      - echo "📂 Running database setup script..."
+      - ./database.sh
