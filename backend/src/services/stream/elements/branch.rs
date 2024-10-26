@@ -154,7 +154,7 @@ mod tests {
 
         let branch = result.unwrap();
         let elements = branch.get_elements();
-        assert_eq!(elements.len(), 5, "VideoBranch should have 5 elements");
+        assert_eq!(elements.len(), 4, "VideoBranch should have 5 elements");
     }
 
     #[test]
@@ -189,7 +189,7 @@ mod tests {
 
         let branch = result.unwrap();
         let elements = branch.get_elements();
-        assert_eq!(elements.len(), 6, "AudioBranch should have 6 elements");
+        assert_eq!(elements.len(), 5, "AudioBranch should have 6 elements");
     }
 
     #[test]

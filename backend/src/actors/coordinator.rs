@@ -10,7 +10,7 @@ use crate::services::stream::pipeline::Pipeline;
 #[derive(Clone, Debug)]
 pub struct Coordinator<T: Actor + Debug> {
     pub websocket_addr: Option<Addr<T>>,
-    pipeline_addr: Option<Addr<Pipeline>>,
+    pub pipeline_addr: Option<Addr<Pipeline>>,
 }
 
 impl<T> Actor for Coordinator<T>

@@ -3,6 +3,7 @@ use actix_files::Files;
 use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use actors::{coordinator::Coordinator, websocket_actor::WebSocketActor};
 use chrono::Local;
+use init::system_initializer::SystemInitializer;
 use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
@@ -35,9 +36,24 @@ async fn main() -> std::io::Result<()> {
 
     tracing::subscriber::set_global_default(subscriber).expect("Failed to set tracing subscriber");
 
+    // TODO: move logger initialization above to system initializer
+    let mut initializer = match SystemInitializer::new().await {
+        Ok(initializer) => initializer,
+        Err(e) => {
+            panic!("Failed to initialize system: {}", e);
+        }
+    };
+
+    if let Err(e) = initializer.run().await {
+        panic!("Failed to run system: {}", e);
+    }
+
     // Initialize coordinator and actors
+    // TODO: use better way to setup the actor address
     info!("Starting coordinator actor");
-    let coordinator_addr = Coordinator::<WebSocketActor>::default().start();
+    let mut coordinator = Coordinator::<WebSocketActor>::default();
+    coordinator.pipeline_addr = initializer.get_pipeline_addr();
+    let coordinator_addr = coordinator.start();
 
     info!("Starting backend server");
     HttpServer::new(move || {
