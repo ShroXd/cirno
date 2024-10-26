@@ -10,20 +10,6 @@ use super::coordinator::{Coordinator, WebSocketForwardMessage};
 use super::pipeline_actor::PipelineAction;
 use crate::actors::coordinator::RegisterWebSocket;
 
-#[derive(Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub enum System {
-    Log(String),
-}
-
-#[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "()")]
-#[ts(export)]
-pub enum WebSocketMessage {
-    PipelineAction(PipelineAction),
-    System(System),
-}
-
 #[derive(Debug)]
 pub struct WebSocketActor {
     pub coordinator_addr: Addr<Coordinator<Self>>,
@@ -47,6 +33,20 @@ impl Actor for WebSocketActor {
     fn stopped(&mut self, _: &mut Self::Context) {
         info!("WebSocket actor stopped");
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub enum System {
+    Log(String),
+}
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+#[ts(export)]
+pub enum WebSocketMessage {
+    PipelineAction(PipelineAction),
+    System(System),
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {

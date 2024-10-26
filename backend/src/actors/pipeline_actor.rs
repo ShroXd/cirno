@@ -7,6 +7,10 @@ use ts_rs::TS;
 
 use crate::services::stream::pipeline::Pipeline;
 
+impl Actor for Pipeline {
+    type Context = Context<Pipeline>;
+}
+
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
 #[ts(export)]
@@ -15,29 +19,6 @@ pub enum PipelineAction {
     Pause,
     Stop,
     SetSource(String),
-}
-
-// TODO: query duration with specific pipeline name
-#[derive(Debug, TS, Deserialize, Serialize, Message)]
-#[rtype(result = "u64")]
-pub struct QueryDuration;
-
-impl Actor for Pipeline {
-    type Context = Context<Pipeline>;
-}
-
-impl Handler<QueryDuration> for Pipeline {
-    type Result = u64;
-
-    fn handle(&mut self, _: QueryDuration, _: &mut Self::Context) -> Self::Result {
-        match self.query_duration() {
-            Ok(duration) => duration,
-            Err(e) => {
-                error!("Failed to query duration of the pipeline: {}", e);
-                return 0;
-            }
-        }
-    }
 }
 
 impl Handler<PipelineAction> for Pipeline {
@@ -70,6 +51,25 @@ impl Handler<PipelineAction> for Pipeline {
                 let source = self.source.get_element();
                 source.set_property("location", &new_file_path);
                 debug!("Set source to {:?}", new_file_path);
+            }
+        }
+    }
+}
+
+// TODO: query duration with specific pipeline name
+#[derive(Debug, TS, Deserialize, Serialize, Message)]
+#[rtype(result = "u64")]
+pub struct QueryDuration;
+
+impl Handler<QueryDuration> for Pipeline {
+    type Result = u64;
+
+    fn handle(&mut self, _: QueryDuration, _: &mut Self::Context) -> Self::Result {
+        match self.query_duration() {
+            Ok(duration) => duration,
+            Err(e) => {
+                error!("Failed to query duration of the pipeline: {}", e);
+                return 0;
             }
         }
     }
