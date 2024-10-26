@@ -11,7 +11,7 @@ use crate::actors::{
 pub async fn ws_index(
     r: HttpRequest,
     stream: web::Payload,
-    coordinator_addr: web::Data<Addr<Coordinator<WebSocketActor>>>,
+    coordinator_addr: web::Data<Addr<Coordinator>>,
 ) -> impl Responder {
     let ws_actor = WebSocketActor::new(coordinator_addr.get_ref().clone());
     ws::start(ws_actor, &r, stream)

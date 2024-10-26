@@ -1,17 +1,13 @@
-use actix::prelude::*;
-use actix::{Actor, Addr, Context, Handler, Message};
+use actix::{Actor, Context, Handler, Message};
 use anyhow::Error;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use ts_rs::TS;
 
-use super::coordinator::Coordinator;
 use crate::services::library_parser::scanner::{scan_media_library, MediaLibrary};
 
 #[derive(Debug)]
-pub struct ParserActor {
-    pub coordinator_addr: Addr<Coordinator<Self>>,
-}
+pub struct ParserActor;
 
 impl Actor for ParserActor {
     type Context = Context<Self>;
@@ -19,7 +15,7 @@ impl Actor for ParserActor {
 
 #[derive(Debug, TS, Deserialize, Serialize, Message)]
 #[rtype(result = "Result<MediaLibrary, Error>")]
-pub struct ScanMediaLibrary(String);
+pub struct ScanMediaLibrary(pub String);
 
 impl Handler<ScanMediaLibrary> for ParserActor {
     type Result = Result<MediaLibrary, Error>;

@@ -5,6 +5,7 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
+    actors::parser_actor::ParserActor,
     database::database::Database,
     services::stream::{
         elements::{
@@ -25,6 +26,7 @@ pub struct SystemInitializer {
 
     // Actor addresses
     pipeline_addr: Option<Addr<Pipeline>>,
+    parser_addr: Option<Addr<ParserActor>>,
 }
 
 impl SystemInitializer {
@@ -50,6 +52,7 @@ impl SystemInitializer {
             element_factory,
             hls_sink: Arc::new(hls_sink),
             pipeline_addr: None,
+            parser_addr: None,
         })
     }
 
@@ -62,8 +65,17 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
+    pub fn get_parser_addr(&self) -> Option<Addr<ParserActor>> {
+        match self.parser_addr.clone() {
+            Some(addr) => Some(addr),
+            None => panic!("Parser actor not started"),
+        }
+    }
+
+    #[instrument(skip(self))]
     pub async fn run(&mut self) -> Result<()> {
         self.init_database().await?;
+        self.init_parser().await?;
         self.init_pipeline().await?;
 
         Ok(())
@@ -129,6 +141,17 @@ impl SystemInitializer {
     async fn init_database(&self) -> Result<()> {
         info!("Initializing database");
         self.database.initialize_db().await?;
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    async fn init_parser(&mut self) -> Result<()> {
+        info!("Initializing parser");
+
+        let parser_actor = ParserActor {};
+        let addr = parser_actor.start();
+        self.parser_addr = Some(addr);
 
         Ok(())
     }

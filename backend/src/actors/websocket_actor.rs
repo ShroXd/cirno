@@ -8,11 +8,11 @@ use ts_rs::TS;
 
 use super::coordinator::{Coordinator, WebSocketForwardMessage};
 use super::pipeline_actor::PipelineAction;
-use crate::actors::coordinator::RegisterWebSocket;
+use crate::actors::coordinator::{ParserForwardMessage, RegisterWebSocket};
 
 #[derive(Debug)]
 pub struct WebSocketActor {
-    pub coordinator_addr: Addr<Coordinator<Self>>,
+    pub coordinator_addr: Addr<Coordinator>,
 }
 
 impl Actor for WebSocketActor {
@@ -41,12 +41,19 @@ pub enum System {
     Log(String),
 }
 
+#[derive(Debug, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub enum Parser {
+    Scan(String),
+}
+
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
 #[ts(export)]
 pub enum WebSocketMessage {
     PipelineAction(PipelineAction),
     System(System),
+    Parser(Parser),
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
@@ -62,6 +69,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
                         self.handle_pipeline_action(action, ctx)
                     }
                     WebSocketMessage::System(system) => self.handle_system(system, ctx),
+                    WebSocketMessage::Parser(parser) => self.handle_parser(parser, ctx),
                 },
                 Err(e) => {
                     error!("WebSocket actor received invalid message: {:?}", e);
@@ -81,17 +89,18 @@ impl Handler<WebSocketForwardMessage> for WebSocketActor {
 }
 
 pub trait WebSocketActorBehavior {
-    fn new(coordinator_addr: Addr<Coordinator<WebSocketActor>>) -> Self;
+    fn new(coordinator_addr: Addr<Coordinator>) -> Self;
     fn handle_pipeline_action(
         &self,
         action: PipelineAction,
         _: &mut <WebSocketActor as Actor>::Context,
     );
     fn handle_system(&self, system: System, _: &mut <WebSocketActor as Actor>::Context);
+    fn handle_parser(&self, parser: Parser, _: &mut <WebSocketActor as Actor>::Context);
 }
 
 impl WebSocketActorBehavior for WebSocketActor {
-    fn new(coordinator_addr: Addr<Coordinator<Self>>) -> Self {
+    fn new(coordinator_addr: Addr<Coordinator>) -> Self {
         Self { coordinator_addr }
     }
 
@@ -124,7 +133,28 @@ impl WebSocketActorBehavior for WebSocketActor {
 
     fn handle_system(&self, system: System, _: &mut <WebSocketActor as Actor>::Context) {
         match system {
-            System::Log(message) => info!("WebSocket actor received log message: {}", message),
+            System::Log(message) => info!(
+                "WebSocket actor received message for logger from stream: {}",
+                message
+            ),
+        }
+    }
+
+    fn handle_parser(&self, parser: Parser, _: &mut <WebSocketActor as Actor>::Context) {
+        match parser {
+            Parser::Scan(path) => {
+                info!(
+                    "WebSocket actor received message for parser from stream: {:?}",
+                    path
+                );
+
+                if let Err(e) = self
+                    .coordinator_addr
+                    .try_send(ParserForwardMessage::Scan(path))
+                {
+                    error!("Failed to forward message to coordinator: {:?}", e);
+                }
+            }
         }
     }
 }

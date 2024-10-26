@@ -51,8 +51,10 @@ async fn main() -> std::io::Result<()> {
     // Initialize coordinator and actors
     // TODO: use better way to setup the actor address
     info!("Starting coordinator actor");
-    let mut coordinator = Coordinator::<WebSocketActor>::default();
+    let mut coordinator = Coordinator::default();
     coordinator.pipeline_addr = initializer.get_pipeline_addr();
+    coordinator.parser_addr = initializer.get_parser_addr();
+
     let coordinator_addr = coordinator.start();
 
     info!("Starting backend server");
