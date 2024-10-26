@@ -57,17 +57,17 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
-    pub fn get_pipeline_addr(&self) -> Option<Addr<Pipeline>> {
+    pub fn get_pipeline_addr(&self) -> Addr<Pipeline> {
         match self.pipeline_addr.clone() {
-            Some(addr) => Some(addr),
+            Some(addr) => addr,
             None => panic!("Pipeline actor not started"),
         }
     }
 
     #[instrument(skip(self))]
-    pub fn get_parser_addr(&self) -> Option<Addr<ParserActor>> {
+    pub fn get_parser_addr(&self) -> Addr<ParserActor> {
         match self.parser_addr.clone() {
-            Some(addr) => Some(addr),
+            Some(addr) => addr,
             None => panic!("Parser actor not started"),
         }
     }
@@ -149,7 +149,7 @@ impl SystemInitializer {
     async fn init_parser(&mut self) -> Result<()> {
         info!("Initializing parser");
 
-        let parser_actor = ParserActor {};
+        let parser_actor = ParserActor::default();
         let addr = parser_actor.start();
         self.parser_addr = Some(addr);
 

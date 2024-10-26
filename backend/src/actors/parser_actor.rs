@@ -9,6 +9,12 @@ use crate::services::library_parser::scanner::{scan_media_library, MediaLibrary}
 #[derive(Debug)]
 pub struct ParserActor;
 
+impl Default for ParserActor {
+    fn default() -> Self {
+        Self {}
+    }
+}
+
 impl Actor for ParserActor {
     type Context = Context<Self>;
 }

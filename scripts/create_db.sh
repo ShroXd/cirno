@@ -3,8 +3,12 @@
 # Get the project root path dynamically (assumes the script is located in a subfolder of the project root)
 PROJECT_ROOT=$(dirname "$(realpath "$0")")/..
 
-# Define the database path relative to the project root
-DB_PATH="$PROJECT_ROOT/media_library.db"
+# Check if the first argument is provided, if not use the default path
+if [ -z "$1" ]; then
+    DB_PATH="$PROJECT_ROOT/backend/media_library.db"
+else
+    DB_PATH="$1"
+fi
 
 # Remove the existing database file if it exists
 if [ -f "$DB_PATH" ]; then

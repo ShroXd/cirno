@@ -1,18 +1,34 @@
 use actix::Addr;
-use actix_web::{get, web, HttpRequest, Responder};
+use actix_web::{error::ErrorInternalServerError, get, web, HttpRequest, Responder};
 use actix_web_actors::ws;
+use tracing::*;
 
-use crate::actors::{
-    coordinator::Coordinator,
-    websocket_actor::{WebSocketActor, WebSocketActorBehavior},
+use crate::{
+    actors::{
+        parser_actor::ParserActor,
+        websocket_actor::{WebSocketActor, WebSocketActorBehavior},
+    },
+    services::stream::pipeline::Pipeline,
 };
 
 #[get("/ws")]
 pub async fn ws_index(
     r: HttpRequest,
     stream: web::Payload,
-    coordinator_addr: web::Data<Addr<Coordinator>>,
+    pipeline_addr: web::Data<Addr<Pipeline>>,
+    parser_addr: web::Data<Addr<ParserActor>>,
 ) -> impl Responder {
-    let ws_actor = WebSocketActor::new(coordinator_addr.get_ref().clone());
-    ws::start(ws_actor, &r, stream)
+    info!("Starting websocket");
+    let ws_actor = WebSocketActor::new(
+        pipeline_addr.get_ref().clone(),
+        parser_addr.get_ref().clone(),
+    );
+
+    match ws::start(ws_actor, &r, stream) {
+        Ok(response) => Ok(response),
+        Err(e) => {
+            error!("Failed to start websocket: {:?}", e);
+            Err(ErrorInternalServerError("Failed to start websocket"))
+        }
+    }
 }

@@ -1,7 +1,5 @@
-use actix::prelude::*;
 use actix_files::Files;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
-use actors::{coordinator::Coordinator, websocket_actor::WebSocketActor};
+use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use chrono::Local;
 use init::system_initializer::SystemInitializer;
 use tracing::*;
@@ -48,19 +46,15 @@ async fn main() -> std::io::Result<()> {
         panic!("Failed to run system: {}", e);
     }
 
-    // Initialize coordinator and actors
-    // TODO: use better way to setup the actor address
-    info!("Starting coordinator actor");
-    let mut coordinator = Coordinator::default();
-    coordinator.pipeline_addr = initializer.get_pipeline_addr();
-    coordinator.parser_addr = initializer.get_parser_addr();
-
-    let coordinator_addr = coordinator.start();
+    let pipeline_addr = initializer.get_pipeline_addr();
+    let parser_addr = initializer.get_parser_addr();
 
     info!("Starting backend server");
     HttpServer::new(move || {
         let mut app = App::new()
-            .app_data(web::Data::new(coordinator_addr.clone()))
+            .wrap(Logger::default())
+            .app_data(web::Data::new(pipeline_addr.clone()))
+            .app_data(web::Data::new(parser_addr.clone()))
             .route("/hello", web::get().to(hello))
             .service(routes::websocket_routes::ws_index);
 

@@ -1,32 +1,29 @@
-use actix::AsyncContext;
-use actix::{Actor, Addr, Handler, Message, StreamHandler};
+use actix::{Actor, Addr, Message, StreamHandler};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
 use serde_json::from_str;
 use tracing::*;
 use ts_rs::TS;
 
-use super::coordinator::{Coordinator, WebSocketForwardMessage};
+use crate::actors::parser_actor::ScanMediaLibrary;
+use crate::services::stream::pipeline::Pipeline;
+
+use super::parser_actor::ParserActor;
 use super::pipeline_actor::PipelineAction;
-use crate::actors::coordinator::{ParserForwardMessage, RegisterWebSocket};
 
 #[derive(Debug)]
 pub struct WebSocketActor {
-    pub coordinator_addr: Addr<Coordinator>,
+    pub pipeline_addr: Option<Addr<Pipeline>>,
+    pub parser_addr: Option<Addr<ParserActor>>,
 }
 
 impl Actor for WebSocketActor {
     type Context = ws::WebsocketContext<Self>;
 
-    #[instrument(skip(self, ctx))]
-    fn started(&mut self, ctx: &mut Self::Context) {
+    #[instrument(skip(self))]
+    fn started(&mut self, _: &mut Self::Context) {
         info!("WebSocket actor started");
-
-        let self_addr = ctx.address().clone();
-
-        if let Err(e) = self.coordinator_addr.try_send(RegisterWebSocket(self_addr)) {
-            error!("Failed to register WebSocket actor: {:?}", e);
-        }
+        // TODO: consider if it's need to let pipeline & parser holds the address of websocket
     }
 
     #[instrument(skip(self))]
@@ -80,16 +77,8 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
     }
 }
 
-impl Handler<WebSocketForwardMessage> for WebSocketActor {
-    type Result = ();
-
-    fn handle(&mut self, msg: WebSocketForwardMessage, _: &mut Self::Context) {
-        info!("WebSocket actor received message: {:?}", msg);
-    }
-}
-
 pub trait WebSocketActorBehavior {
-    fn new(coordinator_addr: Addr<Coordinator>) -> Self;
+    fn new(pipeline_addr: Addr<Pipeline>, parser_addr: Addr<ParserActor>) -> Self;
     fn handle_pipeline_action(
         &self,
         action: PipelineAction,
@@ -100,8 +89,11 @@ pub trait WebSocketActorBehavior {
 }
 
 impl WebSocketActorBehavior for WebSocketActor {
-    fn new(coordinator_addr: Addr<Coordinator>) -> Self {
-        Self { coordinator_addr }
+    fn new(pipeline_addr: Addr<Pipeline>, parser_addr: Addr<ParserActor>) -> Self {
+        Self {
+            pipeline_addr: Some(pipeline_addr),
+            parser_addr: Some(parser_addr),
+        }
     }
 
     fn handle_pipeline_action(
@@ -112,14 +104,6 @@ impl WebSocketActorBehavior for WebSocketActor {
         match action {
             PipelineAction::Play => {
                 info!("WebSocket actor received play action");
-
-                // TODO: here is just a quick test, will be removed
-                if let Err(e) = self
-                    .coordinator_addr
-                    .try_send(WebSocketForwardMessage::Send("from play".to_string()))
-                {
-                    error!("Failed to forward message to coordinator: {:?}", e);
-                }
             }
             PipelineAction::Pause => {
                 info!("WebSocket actor received pause action");
@@ -148,11 +132,15 @@ impl WebSocketActorBehavior for WebSocketActor {
                     path
                 );
 
-                if let Err(e) = self
-                    .coordinator_addr
-                    .try_send(ParserForwardMessage::Scan(path))
-                {
-                    error!("Failed to forward message to coordinator: {:?}", e);
+                match self.parser_addr.as_ref() {
+                    Some(parser_addr) => {
+                        if let Err(e) = parser_addr.try_send(ScanMediaLibrary(path)) {
+                            error!("Failed to forward message to parser: {:?}", e);
+                        }
+                    }
+                    None => {
+                        error!("Parser address is not set");
+                    }
                 }
             }
         }
