@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id FROM episodes WHERE series_id = ? AND season_id = ? AND title = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "215495a6e8a14f3cae1e2eec89be1f8399a3d9adee27378d485e9e9ba7bd6238"
+}

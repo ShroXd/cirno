@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT OR IGNORE INTO tv_series_actors (series_id, actor_id) VALUES (?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "618d8f06185327731eb89dffcc54fd4de332a71d45ef5e5fe20f1a1e96defd27"
+}

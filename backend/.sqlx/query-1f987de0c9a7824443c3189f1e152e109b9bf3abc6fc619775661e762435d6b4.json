@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT OR IGNORE INTO episodes (series_id, season_id, title, original_title, plot, nfo_path, video_file_path, subtitle_file_path, thumb_image_url, thumb_image, season_number, episodes_number, runtime)\n         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 13
+    },
+    "nullable": []
+  },
+  "hash": "1f987de0c9a7824443c3189f1e152e109b9bf3abc6fc619775661e762435d6b4"
+}

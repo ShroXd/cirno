@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT OR IGNORE INTO tv_series (title, nfo_path, poster_path, fanart_path, country, year, plot, tmdb_id, imdb_id, wikidata_id, tvdb_id)\n         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 11
+    },
+    "nullable": []
+  },
+  "hash": "954ef418a4768d3220704a78a547c805f746b629cde79e372f7210ff5d5a5f0f"
+}

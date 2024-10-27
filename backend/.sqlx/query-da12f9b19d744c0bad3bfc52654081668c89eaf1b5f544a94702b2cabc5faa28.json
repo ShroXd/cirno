@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT OR IGNORE INTO actors (name, role, thumb, profile, tmdb_id) VALUES (?, ?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": []
+  },
+  "hash": "da12f9b19d744c0bad3bfc52654081668c89eaf1b5f544a94702b2cabc5faa28"
+}
