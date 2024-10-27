@@ -30,17 +30,17 @@ impl StreamBranch for VideoBranch {
     fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self> {
         let queue = factory.make("queue")?;
         let converter = factory.make("videoconvert")?;
-        // let encoder = factory.make("x264enc")?;
-        // let encoder = ElementFactory::make("x264enc")
-        //     .property_from_str("speed-preset", "superfast")
-        //     .build()
-        //     .map_err(|e| anyhow::anyhow!("Failed to create x264enc element: {}", e))?;
-        let encoder = ElementFactory::make("vtenc_h264")
-            .property("max-keyframe-interval", 30)
+        let encoder = factory.make("x264enc")?;
+        let encoder = ElementFactory::make("x264enc")
+            .property_from_str("speed-preset", "superfast")
+            .build()
+            .map_err(|e| anyhow::anyhow!("Failed to create x264enc element: {}", e))?;
+        // let encoder = ElementFactory::make("vtenc_h264")
+        //     .property("max-keyframe-interval", 30)
             // .property("max-keyframe-interval-duration", 2_000_000_000u64)
-            .property("realtime", true)
-            .property("allow-frame-reordering", false)
-            .build()?;
+            // .property("realtime", true)
+            // .property("allow-frame-reordering", false)
+            // .build()?;
         // encoder.set_property("bitrate", 8000u32);
 
         let parser = factory.make("h264parse")?;

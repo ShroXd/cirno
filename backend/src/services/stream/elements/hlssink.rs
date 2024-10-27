@@ -18,11 +18,11 @@ unsafe impl Send for HlsSinkImpl {}
 impl HlsSink for HlsSinkImpl {
     #[instrument]
     fn new() -> Result<Self> {
-        let element = ElementFactory::make("hlssink3")
+        let element = ElementFactory::make("hlssink2")
             .property("location", "./tmp/segment_%05d.ts")
             .property("playlist-location", "./tmp/event.m3u8")
             .property("target-duration", 10u32)
-            .property_from_str("playlist-type", "2")
+            // .property_from_str("playlist-type", "2")
             .build()
             .map_err(|e| anyhow::anyhow!("Failed to create hlssink element: {}", e))?;
 
