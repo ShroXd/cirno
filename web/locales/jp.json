@@ -1,0 +1,21 @@
+{
+  "translation": {
+    "common": {
+      "languageSelector": "言語",
+      "language": {
+        "en-US": "英語",
+        "zh-CN": "中国語",
+        "jp": "日本語"
+      }
+    },
+    "sidebar": {
+      "home": "ホーム",
+      "media": "メディア",
+      "favorites": "お気に入り",
+      "library": "ライブラリ",
+      "plugins": "プラグイン",
+      "test": "テスト",
+      "settings": "設定"
+    }
+  }
+}

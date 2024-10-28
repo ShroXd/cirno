@@ -1,11 +1,12 @@
-import { Button } from "@material-tailwind/react";
+import { HashRouter } from "react-router-dom";
 import "./App.css";
+import { Home } from "./pages/Home/Home";
 
 function App() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-screen">
-      <Button>Nice world</Button>
-    </div>
+    <HashRouter>
+      <Home />
+    </HashRouter>
   );
 }
 

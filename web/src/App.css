@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html,
+body {
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: 0.8px;
+
+  /* Disable page scroll and hide scrollbars */
+  width: 100%;
+  overflow: hidden;
+
+  /* Hide scrollbars for IE, Edge, and Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hide scrollbar for WebKit browsers (Chrome, Safari, Opera) */
+html::-webkit-scrollbar {
+  display: none;
+}

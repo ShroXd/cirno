@@ -1,0 +1,21 @@
+{
+  "translation": {
+    "common": {
+      "languageSelector": "Language",
+      "language": {
+        "en-US": "English",
+        "zh-CN": "Chinese",
+        "jp": "Japanese"
+      }
+    },
+    "sidebar": {
+      "home": "Home",
+      "media": "Media",
+      "favorites": "Favorites",
+      "library": "Library",
+      "plugins": "Plugins",
+      "test": "Test",
+      "settings": "Settings"
+    }
+  }
+}
