@@ -1,20 +1,18 @@
-use std::{
-    sync::{Arc, Mutex, RwLock},
-    time::Duration,
-};
-
 use anyhow::Result;
 use gstreamer::{
     glib::WeakRef, prelude::*, query, BusSyncReply, ClockTime, Element as GstElement, Format,
     GenericFormattedValue, Message as GstMessage, MessageView, Pipeline as GstPipeline, SeekFlags,
     State,
 };
+use std::{
+    sync::{Arc, Mutex, RwLock},
+    time::Duration,
+};
 use tokio::sync::mpsc::UnboundedReceiver;
 use tracing::*;
 
-use crate::services::stream::elements::decode::DecodebinSignal;
-
 use super::elements::{branch::StreamBranch, decode::Decoder, hlssink::HlsSink, source::Source};
+use crate::services::stream::elements::decode::DecodebinSignal;
 
 // TODO: 1. Avoid using Box<dyn Source>
 // TODO: 2. Each element should have more general type instead of using WebRtcElement or other specific elements

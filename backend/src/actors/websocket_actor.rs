@@ -5,11 +5,10 @@ use serde_json::from_str;
 use tracing::*;
 use ts_rs::TS;
 
-use crate::actors::parser_actor::ScanMediaLibrary;
-use crate::services::stream::pipeline::Pipeline;
-
 use super::parser_actor::ParserActor;
 use super::pipeline_actor::PipelineAction;
+use crate::actors::parser_actor::ScanMediaLibrary;
+use crate::services::stream::pipeline::Pipeline;
 
 #[derive(Debug)]
 pub struct WebSocketActor {
@@ -103,7 +102,14 @@ impl WebSocketActorBehavior for WebSocketActor {
     ) {
         match action {
             PipelineAction::Play => {
-                info!("WebSocket actor received play action");
+                debug!("WebSocket actor received play action");
+
+                if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
+                    debug!("WebSocket actor sending play action to pipeline");
+                    if let Err(e) = pipeline_addr.try_send(PipelineAction::Play) {
+                        error!("Failed to forward message to pipeline: {:?}", e);
+                    }
+                }
             }
             PipelineAction::Pause => {
                 info!("WebSocket actor received pause action");

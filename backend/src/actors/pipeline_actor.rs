@@ -27,6 +27,8 @@ impl Handler<PipelineAction> for Pipeline {
     fn handle(&mut self, msg: PipelineAction, _: &mut Self::Context) -> Self::Result {
         match msg {
             PipelineAction::Play => {
+                debug!("Pipeline actor received play action");
+
                 if let Err(e) = self.play() {
                     error!("Failed to play the pipeline: {}", e);
                 }

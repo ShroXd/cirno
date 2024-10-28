@@ -2,6 +2,11 @@ version: "3"
 silent: true
 
 tasks:
+  # TODO: add command to setup the project.
+  # 1. install rust
+  # 2. install gstreamer and related plugins
+  # 3. create tmp folder
+
   # ---------------------------- 📦 Dependency Management 📦 ----------------------------
 
   install:
@@ -136,6 +141,12 @@ tasks:
     desc: "🧹 Remove Docker image 'cirno'"
     cmds:
       - docker rmi cirno
+
+  clean:media-files:
+    desc: "🧹 Remove all media files under /backend/tmp folder"
+    dir: backend
+    cmds:
+      - rm -rf tmp/*
 
   # ---------------------------- 🔧 Tooling Tasks 🔧 ----------------------------
 
