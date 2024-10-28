@@ -3,9 +3,10 @@ silent: true
 
 tasks:
   # TODO: add command to setup the project.
-  # 1. install rust
-  # 2. install gstreamer and related plugins
-  # 3. create tmp folder
+  # 1. install taskfile runtime
+  # 2. install rust
+  # 3. install gstreamer and related plugins
+  # 4. create tmp folder
 
   # ---------------------------- 📦 Dependency Management 📦 ----------------------------
 

@@ -8,6 +8,7 @@ use ts_rs::TS;
 use super::parser_actor::ParserActor;
 use super::pipeline_actor::PipelineAction;
 use crate::actors::parser_actor::ScanMediaLibrary;
+use crate::process_pipeline_action;
 use crate::services::stream::pipeline::Pipeline;
 
 #[derive(Debug)]
@@ -101,22 +102,9 @@ impl WebSocketActorBehavior for WebSocketActor {
         _: &mut <WebSocketActor as Actor>::Context,
     ) {
         match action {
-            PipelineAction::Play => {
-                debug!("WebSocket actor received play action");
-
-                if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
-                    debug!("WebSocket actor sending play action to pipeline");
-                    if let Err(e) = pipeline_addr.try_send(PipelineAction::Play) {
-                        error!("Failed to forward message to pipeline: {:?}", e);
-                    }
-                }
-            }
-            PipelineAction::Pause => {
-                info!("WebSocket actor received pause action");
-            }
-            PipelineAction::Stop => {
-                info!("WebSocket actor received stop action");
-            }
+            PipelineAction::Play => process_pipeline_action!(self, Play),
+            PipelineAction::Pause => process_pipeline_action!(self, Pause),
+            PipelineAction::Stop => process_pipeline_action!(self, Stop),
             PipelineAction::SetSource(_) => {}
         }
     }

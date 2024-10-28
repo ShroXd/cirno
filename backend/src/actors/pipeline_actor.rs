@@ -34,11 +34,15 @@ impl Handler<PipelineAction> for Pipeline {
                 }
             }
             PipelineAction::Pause => {
+                debug!("Pipeline actor received pause action");
+
                 if let Err(e) = self.pause() {
                     error!("Failed to pause the pipeline: {}", e);
                 }
             }
             PipelineAction::Stop => {
+                debug!("Pipeline actor received stop action");
+
                 if let Err(e) = self.stop() {
                     error!("Failed to stop the pipeline: {}", e);
                 }
