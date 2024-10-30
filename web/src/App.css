@@ -17,6 +17,8 @@ body {
   /* Hide scrollbars for IE, Edge, and Firefox */
   -ms-overflow-style: none;
   scrollbar-width: none;
+
+  background-color: #f5f7f9;
 }
 
 /* Hide scrollbar for WebKit browsers (Chrome, Safari, Opera) */
