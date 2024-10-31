@@ -1,8 +1,10 @@
 use actix::prelude::*;
 use anyhow::Result;
+use chrono::Local;
 use gstreamer::prelude::*;
 use std::sync::Arc;
 use tracing::*;
+use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 use crate::{
     actors::parser_actor::ParserActor,
@@ -74,6 +76,7 @@ impl SystemInitializer {
 
     #[instrument(skip(self))]
     pub async fn run(&mut self) -> Result<()> {
+        self.init_logger().await?;
         self.init_database().await?;
         self.init_parser().await?;
         self.init_pipeline().await?;
@@ -133,6 +136,28 @@ impl SystemInitializer {
         info!("Starting pipeline actor");
         let addr = pipeline.start();
         self.pipeline_addr = Some(addr);
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    async fn init_logger(&self) -> Result<()> {
+        let file_name = format!("cirno_{}", Local::now().format("%Y-%m-%d"));
+        let file_appender = tracing_appender::rolling::daily("logs", &file_name);
+        let (non_blocking_writer, _guard) = tracing_appender::non_blocking(file_appender);
+
+        let subscriber = tracing_subscriber::registry()
+            .with(fmt::layer().with_writer(non_blocking_writer))
+            .with(
+                fmt::layer()
+                    .with_writer(std::io::stdout)
+                    .with_filter(LevelFilter::DEBUG),
+            );
+
+        tracing::subscriber::set_global_default(subscriber)
+            .expect("Failed to set tracing subscriber");
+
+        info!("Tracing subscriber initialized");
 
         Ok(())
     }
