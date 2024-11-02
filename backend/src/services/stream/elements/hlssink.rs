@@ -1,6 +1,8 @@
+use std::{fmt::Write, path::Path};
+
 use anyhow::Result;
-use gstreamer::Element;
-use gstreamer::ElementFactory;
+use gio::{prelude::*, File, WriteOutputStream};
+use gstreamer::{glib, prelude::*, Element, ElementFactory};
 use tracing::*;
 
 pub trait HlsSink: Send {
@@ -30,6 +32,64 @@ impl HlsSink for HlsSinkImpl {
             .map_err(|e| anyhow::anyhow!("Failed to create hlssink element: {}", e))?;
 
         debug!("Created hlssink element");
+
+        element.connect("get-fragment-stream", false, {
+            move |args| {
+                debug!("get-fragment-stream signal: {:?}", args);
+
+                let path_str = match args[1].get::<String>() {
+                    Ok(path) => path,
+                    Err(e) => {
+                        error!("Failed to get path: {}", e);
+                        return None;
+                    }
+                };
+                debug!("path_str: {}", path_str);
+                let path = Path::new(&path_str);
+                let file = gio::File::for_path(path);
+
+                let stream = match file.create(gio::FileCreateFlags::NONE, gio::Cancellable::NONE) {
+                    Ok(stream) => stream,
+                    Err(e) => {
+                        error!("Failed to create file: {}", e);
+                        return None;
+                    }
+                };
+
+                Some(stream.to_value())
+            }
+        });
+
+        element.connect("get-playlist-stream", false, {
+            move |args| {
+                debug!("get-playlist-stream signal: {:?}", args);
+
+                let path_str = match args[1].get::<String>() {
+                    Ok(path) => path,
+                    Err(e) => {
+                        error!("Failed to get path: {}", e);
+                        return None;
+                    }
+                };
+
+                let path = Path::new(&path_str);
+                let file = gio::File::for_path(path);
+                let stream = match file.replace(
+                    None,
+                    false,
+                    gio::FileCreateFlags::NONE,
+                    gio::Cancellable::NONE,
+                ) {
+                    Ok(stream) => stream,
+                    Err(e) => {
+                        error!("Failed to create file: {}", e);
+                        return None;
+                    }
+                };
+
+                Some(stream.to_value())
+            }
+        });
 
         Ok(Self { element })
     }
