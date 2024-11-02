@@ -9,7 +9,7 @@ use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 use crate::{
     actors::parser_actor::ParserActor,
     database::database::Database,
-    services::stream::{
+    services::gstreamer_pipeline::{
         elements::{
             branch::{AudioBranch, StreamBranch, VideoBranch},
             decode::{Decodebin, Decoder},

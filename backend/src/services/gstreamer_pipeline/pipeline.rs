@@ -12,7 +12,7 @@ use tokio::sync::mpsc::UnboundedReceiver;
 use tracing::*;
 
 use super::elements::{branch::StreamBranch, decode::Decoder, hlssink::HlsSink, source::Source};
-use crate::services::stream::elements::decode::DecodebinSignal;
+use crate::services::gstreamer_pipeline::elements::decode::DecodebinSignal;
 
 // TODO: 1. Avoid using Box<dyn Source>
 // TODO: 2. Each element should have more general type instead of using WebRtcElement or other specific elements

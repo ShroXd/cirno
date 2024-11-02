@@ -9,7 +9,7 @@ use super::parser_actor::ParserActor;
 use super::pipeline_actor::PipelineAction;
 use crate::actors::parser_actor::ScanMediaLibrary;
 use crate::process_pipeline_action;
-use crate::services::stream::pipeline::Pipeline;
+use crate::services::gstreamer_pipeline::pipeline::Pipeline;
 
 #[derive(Debug)]
 pub struct WebSocketActor {

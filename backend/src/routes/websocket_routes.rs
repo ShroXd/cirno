@@ -8,7 +8,7 @@ use crate::{
         parser_actor::ParserActor,
         websocket_actor::{WebSocketActor, WebSocketActorBehavior},
     },
-    services::stream::pipeline::Pipeline,
+    services::gstreamer_pipeline::pipeline::Pipeline,
 };
 
 #[get("/ws")]

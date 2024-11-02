@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use tracing::*;
 use ts_rs::TS;
 
-use crate::services::stream::pipeline::Pipeline;
+use crate::services::gstreamer_pipeline::pipeline::Pipeline;
 
 impl Actor for Pipeline {
     type Context = Context<Pipeline>;
