@@ -68,8 +68,53 @@ impl PlaylistStream {
             }
         }
         info!("extracted header: {:#?}", self.header);
+        self.create_placeholder_m3u8();
 
         self.header_extracted = true;
+    }
+
+    #[instrument(skip(self))]
+    fn create_placeholder_m3u8(&mut self) {
+        let ext_x_version = self
+            .header
+            .get(&M3u8Tag::ExtXVersion)
+            .expect("Missing EXT-X-VERSION tag in header");
+        let ext_x_media_sequence = self
+            .header
+            .get(&M3u8Tag::ExtXMediaSequence)
+            .expect("Missing EXT-X-MEDIA-SEQUENCE tag in header");
+        let ext_x_target_duration = self
+            .header
+            .get(&M3u8Tag::ExtXTargetDuration)
+            .expect("Missing EXT-X-TARGETDURATION tag in header");
+        let segment_duration = self
+            .header
+            .get(&M3u8Tag::ExtInf)
+            .expect("Missing EXTINF tag in header");
+
+        let m3u8_header = format!(
+            "#EXTM3U\n#EXT-X-VERSION:{}\n#EXT-X-MEDIA-SEQUENCE:{}\n#EXT-X-TARGETDURATION:{}\n\n",
+            ext_x_version, ext_x_media_sequence, ext_x_target_duration
+        );
+        let m3u8_body = (0..10)
+            .map(|i| format!("#EXTINF:{}\nsegment_{:05}.ts", segment_duration, i))
+            .collect::<Vec<String>>()
+            .join("\n");
+        let m3u8_content = format!("{}{}", m3u8_header, m3u8_body);
+
+        let path = std::path::Path::new(&self.path_str);
+        let parent_dir = path
+            .parent()
+            .expect("Invalid path")
+            .to_str()
+            .expect("Invalid path");
+
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(format!("{}/playlist.m3u8", parent_dir))
+            .unwrap();
+        file.write_all(m3u8_content.as_bytes()).unwrap();
     }
 }
 
