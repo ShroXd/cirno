@@ -1,7 +1,10 @@
+use actix_web::rt::Runtime;
 use gio::WriteOutputStream;
 use std::{collections::HashMap, io::Write, path::Path};
 use tracing::*;
 use ts_rs::TS;
+
+use crate::{actors::pipeline_actor::QueryDuration, init::system_initializer::get_pipeline_addr};
 
 #[derive(Debug, TS, Clone, PartialEq, Eq, Hash)]
 #[ts(export)]
@@ -38,6 +41,7 @@ impl PlaylistStream {
         }
     }
 
+    #[instrument(skip(self))]
     pub fn get_write_stream(&self) -> WriteOutputStream {
         WriteOutputStream::new(self.clone())
     }
@@ -65,52 +69,15 @@ impl PlaylistStream {
             }
         }
         info!("extracted header: {:#?}", self.header);
-        self.create_placeholder_m3u8();
-    }
 
-    // TODO: consider if we need to split the logic of Write and create_placeholder_m3u8
-    #[instrument(skip(self))]
-    fn create_placeholder_m3u8(&mut self) {
-        let ext_x_version = self
-            .header
-            .get(&M3u8Tag::ExtXVersion)
-            .expect("Missing EXT-X-VERSION tag in header");
-        let ext_x_media_sequence = self
-            .header
-            .get(&M3u8Tag::ExtXMediaSequence)
-            .expect("Missing EXT-X-MEDIA-SEQUENCE tag in header");
-        let ext_x_target_duration = self
-            .header
-            .get(&M3u8Tag::ExtXTargetDuration)
-            .expect("Missing EXT-X-TARGETDURATION tag in header");
-        let segment_duration = self
-            .header
-            .get(&M3u8Tag::ExtInf)
-            .expect("Missing EXTINF tag in header");
+        let header_clone = self.header.clone();
+        let path_str_clone = self.path_str.clone();
 
-        let m3u8_header = format!(
-            "#EXTM3U\n#EXT-X-VERSION:{}\n#EXT-X-MEDIA-SEQUENCE:{}\n#EXT-X-TARGETDURATION:{}\n\n",
-            ext_x_version, ext_x_media_sequence, ext_x_target_duration
-        );
-        let m3u8_body = (0..10)
-            .map(|i| format!("#EXTINF:{}\nsegment_{:05}.ts", segment_duration, i))
-            .collect::<Vec<String>>()
-            .join("\n");
-        let m3u8_content = format!("{}{}", m3u8_header, m3u8_body);
-
-        let path = std::path::Path::new(&self.path_str);
-        let parent_dir = path
-            .parent()
-            .expect("Invalid path")
-            .to_str()
-            .expect("Invalid path");
-
-        let mut file = std::fs::OpenOptions::new()
-            .create(true)
-            .write(true)
-            .open(format!("{}/playlist.m3u8", parent_dir))
-            .unwrap();
-        file.write_all(m3u8_content.as_bytes()).unwrap();
+        // TODO: find a better way to do this
+        let rt = Runtime::new().unwrap();
+        rt.block_on(async move {
+            create_placeholder_m3u8(header_clone, path_str_clone).await;
+        });
     }
 }
 
@@ -136,4 +103,70 @@ impl Write for PlaylistStream {
     fn flush(&mut self) -> std::io::Result<()> {
         Ok(())
     }
+}
+
+// TODO: consider if we need to split the logic of Write and create_placeholder_m3u8
+// TODO: refactor this shit, do not use such ugly code to calculate the number of segments
+#[instrument]
+async fn create_placeholder_m3u8(header: HashMap<M3u8Tag, String>, path_str: String) {
+    let addr = get_pipeline_addr();
+
+    let ext_x_version = header
+        .get(&M3u8Tag::ExtXVersion)
+        .expect("Missing EXT-X-VERSION tag in header");
+    let ext_x_media_sequence = header
+        .get(&M3u8Tag::ExtXMediaSequence)
+        .expect("Missing EXT-X-MEDIA-SEQUENCE tag in header");
+    let ext_x_target_duration = header
+        .get(&M3u8Tag::ExtXTargetDuration)
+        .expect("Missing EXT-X-TARGETDURATION tag in header");
+    let segment_duration = header
+        .get(&M3u8Tag::ExtInf)
+        .expect("Missing EXTINF tag in header");
+
+    let m3u8_header = format!(
+        "#EXTM3U\n#EXT-X-VERSION:{}\n#EXT-X-MEDIA-SEQUENCE:{}\n#EXT-X-TARGETDURATION:{}\n\n",
+        ext_x_version, ext_x_media_sequence, ext_x_target_duration
+    );
+
+    let raw_duration_str = &segment_duration.to_string();
+    let duration_secs_str = &raw_duration_str.trim_end_matches(",");
+    info!("duration_secs_str: {:?}", duration_secs_str);
+    let duration_secs = match duration_secs_str.parse::<f64>() {
+        Ok(duration) => duration,
+        Err(e) => {
+            error!("Failed to parse segment duration: {}", e);
+            return;
+        }
+    };
+    let duration_nanos = (duration_secs * 1_000_000_000.0) as u64;
+    let file_duration = match addr.send(QueryDuration).await {
+        Ok(duration) => duration,
+        Err(e) => {
+            error!("Failed to get duration: {}", e);
+            return;
+        }
+    };
+    let file_num_segments = file_duration / duration_nanos;
+    info!("file_num_segments: {:?}", file_num_segments);
+
+    let m3u8_body = (0..file_num_segments)
+        .map(|i| format!("#EXTINF:{}\nsegment_{:05}.ts", segment_duration, i))
+        .collect::<Vec<String>>()
+        .join("\n");
+    let m3u8_content = format!("{}{}", m3u8_header, m3u8_body);
+
+    let path = std::path::Path::new(&path_str);
+    let parent_dir = path
+        .parent()
+        .expect("Invalid path")
+        .to_str()
+        .expect("Invalid path");
+
+    let mut file = std::fs::OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open(format!("{}/playlist.m3u8", parent_dir))
+        .unwrap();
+    file.write_all(m3u8_content.as_bytes()).unwrap();
 }

@@ -1,11 +1,9 @@
-use std::path::Path;
-
 use anyhow::Result;
 use gio::prelude::*;
 use gstreamer::{Element, ElementFactory};
 use tracing::*;
 
-use crate::services::stream::playlist_stream::PlaylistStream;
+use crate::init::system_initializer::get_playlist_stream;
 
 pub trait HlsSink: Send {
     fn new() -> Result<Self>
@@ -72,7 +70,9 @@ impl HlsSink for HlsSinkImpl {
                     return None;
                 }
             };
-            let stream = PlaylistStream::new(path_str).get_write_stream();
+            info!("path_str: {}", path_str);
+            // let stream = PlaylistStream::new(path_str).get_write_stream();
+            let stream = get_playlist_stream(path_str).get_write_stream();
 
             Some(stream.to_value())
         });

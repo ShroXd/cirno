@@ -2,24 +2,62 @@ use actix::prelude::*;
 use anyhow::Result;
 use chrono::Local;
 use gstreamer::prelude::*;
-use std::sync::Arc;
+use once_cell::sync::Lazy;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 use crate::{
     actors::parser_actor::ParserActor,
     database::database::Database,
-    services::gstreamer_pipeline::{
-        elements::{
-            branch::{AudioBranch, StreamBranch, VideoBranch},
-            decode::{Decodebin, Decoder},
-            hlssink::{HlsSink, HlsSinkImpl},
-            source::{FileSource, Source},
+    services::{
+        gstreamer_pipeline::{
+            elements::{
+                branch::{AudioBranch, StreamBranch, VideoBranch},
+                decode::{Decodebin, Decoder},
+                hlssink::{HlsSink, HlsSinkImpl},
+                source::{FileSource, Source},
+            },
+            pipeline::Pipeline,
         },
-        pipeline::Pipeline,
+        stream::playlist_stream::PlaylistStream,
     },
     utils::gst::ElementFactory,
 };
+
+static PLAYLIST_STREAMS: Lazy<Mutex<HashMap<String, PlaylistStream>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
+
+pub fn get_playlist_stream(path: String) -> PlaylistStream {
+    let mut streams = match PLAYLIST_STREAMS.lock() {
+        Ok(streams) => streams,
+        Err(e) => panic!("Failed to lock playlist streams: {}", e),
+    };
+    streams
+        .entry(path.clone())
+        .or_insert_with(|| PlaylistStream::new(path))
+        .clone()
+}
+
+static PIPELINE_ADDR: Lazy<Mutex<Option<Addr<Pipeline>>>> = Lazy::new(|| Mutex::new(None));
+
+pub fn set_pipeline_addr(addr: Addr<Pipeline>) {
+    let mut pipeline_addr = match PIPELINE_ADDR.lock() {
+        Ok(pipeline_addr) => pipeline_addr,
+        Err(e) => panic!("Failed to lock pipeline address: {}", e),
+    };
+    *pipeline_addr = Some(addr);
+}
+
+pub fn get_pipeline_addr() -> Addr<Pipeline> {
+    match PIPELINE_ADDR.lock() {
+        Ok(pipeline_addr) => pipeline_addr.clone().unwrap(),
+        Err(e) => panic!("Failed to lock pipeline address: {}", e),
+    }
+}
 
 pub struct SystemInitializer {
     database: Database,
@@ -60,10 +98,7 @@ impl SystemInitializer {
 
     #[instrument(skip(self))]
     pub fn get_pipeline_addr(&self) -> Addr<Pipeline> {
-        match self.pipeline_addr.clone() {
-            Some(addr) => addr,
-            None => panic!("Pipeline actor not started"),
-        }
+        get_pipeline_addr()
     }
 
     #[instrument(skip(self))]
@@ -135,7 +170,7 @@ impl SystemInitializer {
         // TODO: consider if this is the best way to start the pipeline
         info!("Starting pipeline actor");
         let addr = pipeline.start();
-        self.pipeline_addr = Some(addr);
+        set_pipeline_addr(addr.clone());
 
         Ok(())
     }

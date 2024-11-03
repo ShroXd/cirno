@@ -7,7 +7,8 @@ export const Test = () => {
   useEffect(() => {
     const hls = new Hls({
       startPosition: 0,
-      fragLoadingMaxRetry: 10,
+      // TODO: we will handle the error in the future instead of just keeping retrying
+      fragLoadingMaxRetry: 1000,
       fragLoadingRetryDelay: 1000,
       fragLoadingMaxRetryTimeout: 300000,
     })
