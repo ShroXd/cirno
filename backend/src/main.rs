@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
 use init::system_initializer::SystemInitializer;
@@ -33,11 +34,18 @@ async fn main() -> std::io::Result<()> {
 
     info!("Starting backend server");
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_method()
+            .allow_any_header();
+
         let mut app = App::new()
             .wrap(Logger::default())
+            .wrap(cors)
             .app_data(web::Data::new(pipeline_addr.clone()))
             .app_data(web::Data::new(parser_addr.clone()))
             .route("/hello", web::get().to(hello))
+            .service(Files::new("/hls", "./tmp").show_files_listing())
             .service(routes::websocket_routes::ws_index);
 
         if !cfg!(debug_assertions) {
