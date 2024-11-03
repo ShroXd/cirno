@@ -1,24 +1,57 @@
 import { useEffect, useRef } from "react";
 import Hls from "hls.js";
+import { debounce } from "lodash";
 
 export const Test = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isRetrying = useRef<boolean>(false);
 
   useEffect(() => {
     const hls = new Hls({
       startPosition: 0,
-      // TODO: we will handle the error in the future instead of just keeping retrying
-      fragLoadingMaxRetry: 1000,
-      fragLoadingRetryDelay: 1000,
-      fragLoadingMaxRetryTimeout: 300000,
+      maxBufferLength: 15,
     })
 
     hls.loadSource("/hls/playlist.m3u8");
     hls.attachMedia(videoRef.current as HTMLMediaElement);
 
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      videoRef.current?.play();
-    });
+    hls.on(Hls.Events.ERROR, (_event, data) => {
+      if (data.details === Hls.ErrorDetails.FRAG_LOAD_ERROR) {
+        if (isRetrying.current) return;
+
+        isRetrying.current = true;
+        setTimeout(() => {
+          hls.startLoad()
+          isRetrying.current = false;
+        // TODO: do not hard code this retry delay
+        }, 5000)
+      } else if (data.fatal) {
+        switch (data.type) {
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            console.warn("Network error, attempting to recover...");
+            hls.startLoad();
+            break;
+
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            console.warn("Media error, attempting to recover...");
+            hls.recoverMediaError();
+            break;
+
+          default:
+            console.error("Fatal error encountered, destroying HLS instance.");
+            hls.destroy();
+            break;
+        }
+      }
+    })
+
+    videoRef.current?.addEventListener("seeking", debounce(() => {
+      console.log("seeking: ", videoRef.current?.currentTime)
+    }, 1000))
+
+    videoRef.current?.addEventListener("seeked", debounce(() => {
+      console.log("seeked: ", videoRef.current?.currentTime)
+    }, 1000))
 
     return () => {
       hls.destroy();
