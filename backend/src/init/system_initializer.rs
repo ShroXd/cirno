@@ -5,7 +5,10 @@ use gstreamer::prelude::*;
 use once_cell::sync::Lazy;
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::{
+        atomic::{AtomicU32, Ordering},
+        Arc, Mutex,
+    },
 };
 use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
@@ -56,6 +59,55 @@ pub fn get_pipeline_addr() -> Addr<Pipeline> {
     match PIPELINE_ADDR.lock() {
         Ok(pipeline_addr) => pipeline_addr.clone().unwrap(),
         Err(e) => panic!("Failed to lock pipeline address: {}", e),
+    }
+}
+
+static GLOBAL_SEGMENT_INDEX: Lazy<AtomicU32> = Lazy::new(|| AtomicU32::new(0));
+
+pub fn set_segment_index(value: u32) {
+    GLOBAL_SEGMENT_INDEX.store(value, Ordering::Relaxed);
+}
+
+pub fn get_segment_index() -> u32 {
+    GLOBAL_SEGMENT_INDEX.load(Ordering::Relaxed)
+}
+
+pub fn increment_segment_index() {
+    GLOBAL_SEGMENT_INDEX.fetch_add(1, Ordering::Relaxed);
+}
+
+// TODO: optimize this, we should query the duration from the pipeline
+static PIPELINE_DURATION: Lazy<Mutex<Option<u64>>> = Lazy::new(|| Mutex::new(None));
+
+pub fn set_pipeline_duration(duration: u64) {
+    let mut pipeline_duration = match PIPELINE_DURATION.lock() {
+        Ok(pipeline_duration) => pipeline_duration,
+        Err(e) => panic!("Failed to lock pipeline duration: {}", e),
+    };
+    *pipeline_duration = Some(duration);
+}
+
+pub fn get_pipeline_duration() -> u64 {
+    match PIPELINE_DURATION.lock() {
+        Ok(pipeline_duration) => pipeline_duration.unwrap(),
+        Err(e) => panic!("Failed to lock pipeline duration: {}", e),
+    }
+}
+
+static PIPELINE_SEGMENT_DURATION: Lazy<Mutex<Option<u64>>> = Lazy::new(|| Mutex::new(None));
+
+pub fn set_pipeline_segment_duration(duration: u64) {
+    let mut pipeline_segment_duration = match PIPELINE_SEGMENT_DURATION.lock() {
+        Ok(pipeline_segment_duration) => pipeline_segment_duration,
+        Err(e) => panic!("Failed to lock pipeline segment duration: {}", e),
+    };
+    *pipeline_segment_duration = Some(duration);
+}
+
+pub fn get_pipeline_segment_duration() -> u64 {
+    match PIPELINE_SEGMENT_DURATION.lock() {
+        Ok(pipeline_segment_duration) => pipeline_segment_duration.unwrap(),
+        Err(e) => panic!("Failed to lock pipeline segment duration: {}", e),
     }
 }
 

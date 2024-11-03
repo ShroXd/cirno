@@ -1,9 +1,14 @@
+use std::path::Path;
+
 use anyhow::Result;
 use gio::prelude::*;
 use gstreamer::{Element, ElementFactory};
 use tracing::*;
 
-use crate::init::system_initializer::get_playlist_stream;
+use crate::{
+    init::system_initializer::get_playlist_stream,
+    services::stream::playlist_stream::PlaylistStream,
+};
 
 pub trait HlsSink: Send {
     fn new() -> Result<Self>
@@ -25,9 +30,9 @@ impl HlsSink for HlsSinkImpl {
             .property("location", "./tmp/segment_%05d.ts")
             .property("playlist-location", "./tmp/event.m3u8")
             // .property("target-duration", 10u32)
+            // .property_from_str("playlist-type", "2")
             .property("max-files", 100000u32)
             .property("playlist-length", 0u32)
-            // .property_from_str("playlist-type", "2")
             .build()
             .map_err(|e| anyhow::anyhow!("Failed to create hlssink element: {}", e))?;
 

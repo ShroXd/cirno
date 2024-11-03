@@ -18,6 +18,7 @@ pub enum PipelineAction {
     Play,
     Pause,
     Stop,
+    Seek(u32),
     SetSource(String),
 }
 
@@ -45,6 +46,12 @@ impl Handler<PipelineAction> for Pipeline {
 
                 if let Err(e) = self.stop() {
                     error!("Failed to stop the pipeline: {}", e);
+                }
+            }
+            PipelineAction::Seek(position) => {
+                info!("Seek position: {:?}", position);
+                if let Err(e) = self.seek(position as u64) {
+                    error!("Failed to seek the pipeline: {}", e);
                 }
             }
             PipelineAction::SetSource(new_file_path) => {

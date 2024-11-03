@@ -105,6 +105,16 @@ impl WebSocketActorBehavior for WebSocketActor {
             PipelineAction::Play => process_pipeline_action!(self, Play),
             PipelineAction::Pause => process_pipeline_action!(self, Pause),
             PipelineAction::Stop => process_pipeline_action!(self, Stop),
+            // TODO: refactor and use the macro to avoid code duplication
+            PipelineAction::Seek(position) => {
+                debug!("WebSocket actor received seek action: {:?}", position);
+
+                if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
+                    if let Err(e) = pipeline_addr.try_send(PipelineAction::Seek(position)) {
+                        error!("Failed to forward message to pipeline: {:?}", e);
+                    }
+                }
+            }
             PipelineAction::SetSource(_) => {}
         }
     }

@@ -1,12 +1,15 @@
 import { HashRouter } from "react-router-dom";
 import "./App.css";
 import { Home } from "./pages/Home/Home";
+import { WebSocketProvider } from "./contexts/webSocketContext";
 
 function App() {
   return (
-    <HashRouter>
-      <Home />
-    </HashRouter>
+    <WebSocketProvider>
+      <HashRouter>
+        <Home />
+      </HashRouter>
+    </WebSocketProvider>
   );
 }
 

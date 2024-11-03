@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react";
 import Hls from "hls.js";
 import { debounce } from "lodash";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 export const Test = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isRetrying = useRef<boolean>(false);
+  const { sendMessage } = useWebSocket();
 
   useEffect(() => {
     const hls = new Hls({
@@ -46,7 +48,13 @@ export const Test = () => {
     })
 
     videoRef.current?.addEventListener("seeking", debounce(() => {
-      console.log("seeking: ", videoRef.current?.currentTime)
+      const currentTimeNs = Math.floor(videoRef.current?.currentTime ?? 0)
+      console.log("seeking: ", currentTimeNs)
+      sendMessage({
+        PipelineAction: {
+          Seek: currentTimeNs
+        }
+      })
     }, 1000))
 
     videoRef.current?.addEventListener("seeked", debounce(() => {

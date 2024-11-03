@@ -4,7 +4,10 @@ use std::{collections::HashMap, io::Write, path::Path};
 use tracing::*;
 use ts_rs::TS;
 
-use crate::{actors::pipeline_actor::QueryDuration, init::system_initializer::get_pipeline_addr};
+use crate::{
+    actors::pipeline_actor::QueryDuration,
+    init::system_initializer::{get_pipeline_addr, set_pipeline_duration},
+};
 
 #[derive(Debug, TS, Clone, PartialEq, Eq, Hash)]
 #[ts(export)]
@@ -147,6 +150,8 @@ async fn create_placeholder_m3u8(header: HashMap<M3u8Tag, String>, path_str: Str
             return;
         }
     };
+    set_pipeline_duration(file_duration);
+
     let file_num_segments = file_duration / duration_nanos;
     info!("file_num_segments: {:?}", file_num_segments);
 

@@ -230,14 +230,14 @@ impl Pipeline {
 
     #[instrument(skip(self))]
     pub fn seek(&self, position: u64) -> Result<()> {
-        if !self.is_valid_position(position)? {
-            error!("Invalid position: {:?} ns", position);
-            return Err(anyhow::anyhow!("Invalid position: {:?} ns", position));
-        }
-        if self.query_pipeline_state()? != State::Playing {
-            error!("Pipeline is not playing");
-            return Err(anyhow::anyhow!("Pipeline is not playing"));
-        }
+        // if !self.is_valid_position(position)? {
+        //     error!("Invalid position: {:?} ns", position);
+        //     return Err(anyhow::anyhow!("Invalid position: {:?} ns", position));
+        // }
+        // if self.query_pipeline_state()? != State::Playing {
+        //     error!("Pipeline is not playing");
+        //     return Err(anyhow::anyhow!("Pipeline is not playing"));
+        // }
 
         let gst_pipeline = self
             .gst_pipeline
