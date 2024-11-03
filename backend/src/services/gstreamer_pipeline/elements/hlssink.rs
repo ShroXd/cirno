@@ -35,32 +35,32 @@ impl HlsSink for HlsSinkImpl {
 
         debug!("Created hlssink element");
 
-        element.connect("get-fragment-stream", false, {
-            move |args| {
-                debug!("get-fragment-stream signal: {:?}", args);
+        // element.connect("get-fragment-stream", false, {
+        //     move |args| {
+        //         debug!("get-fragment-stream signal: {:?}", args);
 
-                let path_str = match args[1].get::<String>() {
-                    Ok(path) => path,
-                    Err(e) => {
-                        error!("Failed to get path: {}", e);
-                        return None;
-                    }
-                };
-                debug!("path_str: {}", path_str);
-                let path = Path::new(&path_str);
-                let file = gio::File::for_path(path);
+        //         let path_str = match args[1].get::<String>() {
+        //             Ok(path) => path,
+        //             Err(e) => {
+        //                 error!("Failed to get path: {}", e);
+        //                 return None;
+        //             }
+        //         };
+        //         debug!("path_str: {}", path_str);
+        //         let path = Path::new(&path_str);
+        //         let file = gio::File::for_path(path);
 
-                let stream = match file.create(gio::FileCreateFlags::NONE, gio::Cancellable::NONE) {
-                    Ok(stream) => stream,
-                    Err(e) => {
-                        error!("Failed to create file: {}", e);
-                        return None;
-                    }
-                };
+        //         let stream = match file.create(gio::FileCreateFlags::NONE, gio::Cancellable::NONE) {
+        //             Ok(stream) => stream,
+        //             Err(e) => {
+        //                 error!("Failed to create file: {}", e);
+        //                 return None;
+        //             }
+        //         };
 
-                Some(stream.to_value())
-            }
-        });
+        //         Some(stream.to_value())
+        //     }
+        // });
 
         element.connect("get-playlist-stream", false, move |args| {
             debug!("get-playlist-stream signal: {:?}", args);

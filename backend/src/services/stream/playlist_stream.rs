@@ -1,5 +1,5 @@
 use gio::WriteOutputStream;
-use std::{collections::HashMap, io::Write};
+use std::{collections::HashMap, io::Write, path::Path};
 use tracing::*;
 use ts_rs::TS;
 
@@ -27,8 +27,6 @@ impl M3u8Tag {
 #[derive(Debug, Clone)]
 pub struct PlaylistStream {
     pub path_str: String,
-
-    header_extracted: bool,
     header: HashMap<M3u8Tag, String>,
 }
 
@@ -36,7 +34,6 @@ impl PlaylistStream {
     pub fn new(path_str: String) -> Self {
         Self {
             path_str,
-            header_extracted: false,
             header: HashMap::new(),
         }
     }
@@ -69,10 +66,9 @@ impl PlaylistStream {
         }
         info!("extracted header: {:#?}", self.header);
         self.create_placeholder_m3u8();
-
-        self.header_extracted = true;
     }
 
+    // TODO: consider if we need to split the logic of Write and create_placeholder_m3u8
     #[instrument(skip(self))]
     fn create_placeholder_m3u8(&mut self) {
         let ext_x_version = self
@@ -121,7 +117,8 @@ impl PlaylistStream {
 impl Write for PlaylistStream {
     #[instrument(skip(self, buf))]
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        if !self.header_extracted {
+        let path = Path::new(&self.path_str);
+        if self.header.is_empty() && !path.exists() {
             self.extract_header(buf);
         }
 
