@@ -1,3 +1,5 @@
+use std::env;
+
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
@@ -18,6 +20,10 @@ async fn hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // unsafe {
+    //     env::set_var("GST_DEBUG", "3");
+    // }
+
     let mut initializer = match SystemInitializer::new().await {
         Ok(initializer) => initializer,
         Err(e) => {

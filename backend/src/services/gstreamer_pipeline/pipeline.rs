@@ -244,7 +244,7 @@ impl Pipeline {
             .as_ref()
             .ok_or(anyhow::anyhow!("Pipeline not built"))?;
         let position = ClockTime::try_from(Duration::from_secs(position))?;
-        match gst_pipeline.seek_simple(SeekFlags::FLUSH | SeekFlags::KEY_UNIT, position) {
+        match gst_pipeline.seek_simple(SeekFlags::KEY_UNIT, position) {
             Ok(_) => info!("Seek to position {:?} success", position),
             Err(e) => error!("Seek to position {:?} failed: {}", position, e),
         }
