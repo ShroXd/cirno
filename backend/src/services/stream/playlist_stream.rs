@@ -6,7 +6,9 @@ use ts_rs::TS;
 
 use crate::{
     actors::pipeline_actor::QueryDuration,
-    init::system_initializer::{get_pipeline_addr, set_pipeline_duration},
+    init::system_initializer::{
+        get_pipeline_addr, set_pipeline_duration, set_pipeline_segment_duration,
+    },
 };
 
 #[derive(Debug, TS, Clone, PartialEq, Eq, Hash)]
@@ -126,6 +128,17 @@ async fn create_placeholder_m3u8(header: HashMap<M3u8Tag, String>, path_str: Str
     let segment_duration = header
         .get(&M3u8Tag::ExtInf)
         .expect("Missing EXTINF tag in header");
+
+    info!("segment_duration: {:?}", segment_duration);
+    // TODO: do this during the extraction of the header
+    let trimmed_segment_duration = segment_duration.trim_end_matches(",");
+    match trimmed_segment_duration.parse::<f64>() {
+        Ok(duration) => {
+            let duration_nanos = (duration * 1_000_000_000.0) as u64;
+            set_pipeline_segment_duration(duration_nanos);
+        }
+        Err(e) => error!("Failed to parse segment duration: {}", e),
+    }
 
     let m3u8_header = format!(
         "#EXTM3U\n#EXT-X-VERSION:{}\n#EXT-X-MEDIA-SEQUENCE:{}\n#EXT-X-TARGETDURATION:{}\n\n",

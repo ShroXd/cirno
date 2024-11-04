@@ -12,7 +12,10 @@ use tokio::sync::mpsc::UnboundedReceiver;
 use tracing::*;
 
 use super::elements::{branch::StreamBranch, decode::Decoder, hlssink::HlsSink, source::Source};
-use crate::services::gstreamer_pipeline::elements::decode::DecodebinSignal;
+use crate::{
+    init::system_initializer::{get_pipeline_segment_duration, set_segment_index},
+    services::gstreamer_pipeline::elements::decode::DecodebinSignal,
+};
 
 // TODO: 1. Avoid using Box<dyn Source>
 // TODO: 2. Each element should have more general type instead of using WebRtcElement or other specific elements
@@ -229,7 +232,7 @@ impl Pipeline {
     }
 
     #[instrument(skip(self))]
-    pub fn seek(&self, position: u64) -> Result<()> {
+    pub fn seek(&self, position: u32) -> Result<()> {
         // if !self.is_valid_position(position)? {
         //     error!("Invalid position: {:?} ns", position);
         //     return Err(anyhow::anyhow!("Invalid position: {:?} ns", position));
@@ -243,7 +246,19 @@ impl Pipeline {
             .gst_pipeline
             .as_ref()
             .ok_or(anyhow::anyhow!("Pipeline not built"))?;
-        let position = ClockTime::try_from(Duration::from_secs(position))?;
+
+        let duration = get_pipeline_segment_duration();
+        info!("Query duration: {:?} ns", duration);
+
+        let position_ns = ClockTime::try_from(Duration::from_secs(position as u64))?;
+        let position_ns = position_ns.nseconds();
+        info!("Seeked position: {:?} ns", position_ns);
+
+        let start_index = (position_ns / duration) + 1;
+        info!("Start index: {:?}", start_index);
+        set_segment_index(start_index as u32);
+
+        let position = ClockTime::try_from(Duration::from_secs(position as u64))?;
         match gst_pipeline.seek_simple(SeekFlags::KEY_UNIT, position) {
             Ok(_) => info!("Seek to position {:?} success", position),
             Err(e) => error!("Seek to position {:?} failed: {}", position, e),

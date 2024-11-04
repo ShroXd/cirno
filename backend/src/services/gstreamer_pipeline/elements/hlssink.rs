@@ -5,9 +5,8 @@ use gio::prelude::*;
 use gstreamer::{Element, ElementFactory};
 use tracing::*;
 
-use crate::{
-    init::system_initializer::get_playlist_stream,
-    services::stream::playlist_stream::PlaylistStream,
+use crate::init::system_initializer::{
+    get_playlist_stream, get_segment_index, increment_segment_index,
 };
 
 pub trait HlsSink: Send {
@@ -38,32 +37,49 @@ impl HlsSink for HlsSinkImpl {
 
         debug!("Created hlssink element");
 
-        // element.connect("get-fragment-stream", false, {
-        //     move |args| {
-        //         debug!("get-fragment-stream signal: {:?}", args);
+        element.connect("get-fragment-stream", false, {
+            move |args| {
+                debug!("get-fragment-stream signal: {:?}", args);
 
-        //         let path_str = match args[1].get::<String>() {
-        //             Ok(path) => path,
-        //             Err(e) => {
-        //                 error!("Failed to get path: {}", e);
-        //                 return None;
-        //             }
-        //         };
-        //         debug!("path_str: {}", path_str);
-        //         let path = Path::new(&path_str);
-        //         let file = gio::File::for_path(path);
+                let path_str = match args[1].get::<String>() {
+                    Ok(path) => path,
+                    Err(e) => {
+                        error!("Failed to get path: {}", e);
+                        return None;
+                    }
+                };
+                debug!("original path_str: {}", path_str);
 
-        //         let stream = match file.create(gio::FileCreateFlags::NONE, gio::Cancellable::NONE) {
-        //             Ok(stream) => stream,
-        //             Err(e) => {
-        //                 error!("Failed to create file: {}", e);
-        //                 return None;
-        //             }
-        //         };
+                let path = Path::new(&path_str);
+                let parent_path = path.parent().expect("Failed to get parent path");
 
-        //         Some(stream.to_value())
-        //     }
-        // });
+                let index = get_segment_index();
+                increment_segment_index();
+                let file_path = parent_path.join(format!("segment_{:05}.ts", index));
+                debug!("new file_path: {}", file_path.display());
+
+                let file = gio::File::for_path(file_path);
+
+                // TODO: check if we can reuse the file which was generated before
+                if file.query_exists(gio::Cancellable::NONE) {
+                    file.delete(gio::Cancellable::NONE)
+                        .expect("Failed to delete file");
+                }
+
+                let stream = match file.create(
+                    gio::FileCreateFlags::REPLACE_DESTINATION,
+                    gio::Cancellable::NONE,
+                ) {
+                    Ok(stream) => stream,
+                    Err(e) => {
+                        error!("Failed to create file: {}", e);
+                        return None;
+                    }
+                };
+
+                Some(stream.to_value())
+            }
+        });
 
         element.connect("get-playlist-stream", false, move |args| {
             debug!("get-playlist-stream signal: {:?}", args);

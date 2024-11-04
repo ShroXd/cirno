@@ -50,7 +50,7 @@ impl Handler<PipelineAction> for Pipeline {
             }
             PipelineAction::Seek(position) => {
                 info!("Seek position: {:?}", position);
-                if let Err(e) = self.seek(position as u64) {
+                if let Err(e) = self.seek(position) {
                     error!("Failed to seek the pipeline: {}", e);
                 }
             }
