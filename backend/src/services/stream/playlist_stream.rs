@@ -172,7 +172,8 @@ async fn create_placeholder_m3u8(header: HashMap<M3u8Tag, String>, path_str: Str
         .map(|i| format!("#EXTINF:{}\nsegment_{:05}.ts", segment_duration, i))
         .collect::<Vec<String>>()
         .join("\n");
-    let m3u8_content = format!("{}{}", m3u8_header, m3u8_body);
+    let m3u8_vod_end = "\n#EXT-X-ENDLIST\n";
+    let m3u8_content = format!("{}{}{}", m3u8_header, m3u8_body, m3u8_vod_end);
 
     let path = std::path::Path::new(&path_str);
     let parent_dir = path

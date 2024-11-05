@@ -254,7 +254,8 @@ impl Pipeline {
         let position_ns = position_ns.nseconds();
         info!("Seeked position: {:?} ns", position_ns);
 
-        let start_index = (position_ns / duration) + 1;
+        // let start_index = (position_ns / duration) + 30;
+        let start_index = position_ns / duration;
         info!("Start index: {:?}", start_index);
         set_segment_index(start_index as u32);
 
