@@ -65,7 +65,7 @@ impl StreamBranch for VideoBranch {
 // TODO: use hardware encoder for linux
 fn generate_encoder() -> Result<Element> {
     ElementFactory::make("x264enc")
-        .property_from_str("speed-preset", "superfast")
+        // .property_from_str("speed-preset", "superfast")
         .build()
         .map_err(|e| anyhow::anyhow!("Failed to create x264enc element: {}", e))
 }

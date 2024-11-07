@@ -28,7 +28,7 @@ unsafe impl Send for Decodebin {}
 impl Decoder for Decodebin {
     #[instrument]
     fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self> {
-        let element = factory.make("decodebin")?;
+        let element = factory.make("decodebin3")?;
         debug!("Created decodebin");
 
         Ok(Self { element })
@@ -91,14 +91,12 @@ impl Decodebin {
         video_sink: &Element,
         audio_sink: &Element,
     ) -> Result<()> {
-        let caps = src_pad.current_caps().ok_or(anyhow::anyhow!("No caps"))?;
-        let caps_structure = caps.structure(0).ok_or(anyhow::anyhow!("No structure"))?;
-        let pad_type = caps_structure.name();
+        let pad_type = src_pad.name();
         debug!("Prepare to connect pad: {}", pad_type);
 
-        if pad_type.starts_with("video/") {
+        if pad_type.starts_with("video_") {
             Self::connect_pad(video_sink, src_pad, "video")?;
-        } else if pad_type.starts_with("audio/") {
+        } else if pad_type.starts_with("audio_") {
             Self::connect_pad(audio_sink, src_pad, "audio")?;
         }
 

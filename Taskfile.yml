@@ -177,3 +177,31 @@ tasks:
         cd backend
         echo "🏗️ Running cargo sqlx prepare..."
         cargo sqlx prepare
+  
+  kill-backend:
+    desc: "🔪 Kill any process running on port 8000"
+    cmds:
+      - |
+        echo "🔍 Searching for process on port 8000..."
+        pid=$(lsof -t -i :8000 || true)
+        if [ -n "$pid" ]; then
+          echo "💀 Killing process $pid on port 8000..."
+          kill -9 $pid
+          echo "✅ Process $pid killed successfully."
+        else
+          echo "🚫 No process found on port 8000."
+        fi
+  
+  kill-frontend:
+    desc: "🔪 Kill any process running on port 5173"
+    cmds:
+      - |
+        echo "🔍 Searching for process on port 5173..."
+        pid=$(lsof -t -i :5173 || true)
+        if [ -n "$pid" ]; then
+          echo "💀 Killing process $pid on port 5173..."
+          kill -9 $pid
+          echo "✅ Process $pid killed successfully."
+        else
+          echo "🚫 No process found on port 5173."
+        fi

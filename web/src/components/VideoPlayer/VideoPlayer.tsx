@@ -17,13 +17,6 @@ export const VideoPlayer = (props: any) => {
       videoElement.classList.add("vjs-big-play-centered");
       videoRef.current.appendChild(videoElement);
 
-      videojs.xhr({
-        url: "/hls/playlist.m3u8",
-        timeout: 1,
-      }, (e, res, body) => {
-        console.log("xhr", e, res, body);
-      })
-
       const player = (playerRef.current = videojs(videoElement, options, () => {
         videojs.log("player is ready");
 
