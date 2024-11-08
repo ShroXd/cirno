@@ -37,6 +37,7 @@ async fn main() -> std::io::Result<()> {
 
     let pipeline_addr = initializer.get_pipeline_addr();
     let parser_addr = initializer.get_parser_addr();
+    let database_addr = initializer.get_database_addr();
 
     info!("Starting backend server");
     HttpServer::new(move || {
@@ -50,6 +51,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(web::Data::new(pipeline_addr.clone()))
             .app_data(web::Data::new(parser_addr.clone()))
+            .app_data(web::Data::new(database_addr.clone()))
             .route("/hello", web::get().to(hello))
             .service(Files::new("/hls", "./tmp").show_files_listing())
             .service(routes::websocket_routes::ws_index);

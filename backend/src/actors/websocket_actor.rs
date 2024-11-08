@@ -1,4 +1,4 @@
-use actix::{Actor, Addr, Message, StreamHandler};
+use actix::{prelude::*, Actor, Addr, Message, StreamHandler, WrapFuture};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
 use serde_json::from_str;
@@ -7,14 +7,17 @@ use ts_rs::TS;
 
 use super::parser_actor::ParserActor;
 use super::pipeline_actor::PipelineAction;
+use crate::actors::database_actor::InsertSeries;
 use crate::actors::parser_actor::ScanMediaLibrary;
+use crate::database::database::Database;
 use crate::process_pipeline_action;
 use crate::services::gstreamer_pipeline::pipeline::Pipeline;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WebSocketActor {
     pub pipeline_addr: Option<Addr<Pipeline>>,
     pub parser_addr: Option<Addr<ParserActor>>,
+    pub database_addr: Option<Addr<Database>>,
 }
 
 impl Actor for WebSocketActor {
@@ -66,7 +69,29 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
                         self.handle_pipeline_action(action, ctx)
                     }
                     WebSocketMessage::System(system) => self.handle_system(system, ctx),
-                    WebSocketMessage::Parser(parser) => self.handle_parser(parser, ctx),
+                    WebSocketMessage::Parser(parser) => {
+                        let parser_addr = match self.parser_addr.as_ref() {
+                            Some(parser_addr) => parser_addr.clone(),
+                            None => {
+                                error!("Parser address is not set");
+                                return;
+                            }
+                        };
+
+                        let database_addr = match self.database_addr.as_ref() {
+                            Some(database_addr) => database_addr.clone(),
+                            None => {
+                                error!("Database address is not set");
+                                return;
+                            }
+                        };
+
+                        let future = async move {
+                            WebSocketActor::handle_parser(parser, parser_addr, database_addr).await
+                        };
+
+                        ctx.spawn(fut::wrap_future::<_, Self>(future));
+                    }
                 },
                 Err(e) => {
                     error!("WebSocket actor received invalid message: {:?}", e);
@@ -78,21 +103,34 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
 }
 
 pub trait WebSocketActorBehavior {
-    fn new(pipeline_addr: Addr<Pipeline>, parser_addr: Addr<ParserActor>) -> Self;
+    fn new(
+        pipeline_addr: Addr<Pipeline>,
+        parser_addr: Addr<ParserActor>,
+        database_addr: Addr<Database>,
+    ) -> Self;
     fn handle_pipeline_action(
         &self,
         action: PipelineAction,
         _: &mut <WebSocketActor as Actor>::Context,
     );
     fn handle_system(&self, system: System, _: &mut <WebSocketActor as Actor>::Context);
-    fn handle_parser(&self, parser: Parser, _: &mut <WebSocketActor as Actor>::Context);
+    async fn handle_parser(
+        parser: Parser,
+        parser_addr: Addr<ParserActor>,
+        database_addr: Addr<Database>,
+    );
 }
 
 impl WebSocketActorBehavior for WebSocketActor {
-    fn new(pipeline_addr: Addr<Pipeline>, parser_addr: Addr<ParserActor>) -> Self {
+    fn new(
+        pipeline_addr: Addr<Pipeline>,
+        parser_addr: Addr<ParserActor>,
+        database_addr: Addr<Database>,
+    ) -> Self {
         Self {
             pipeline_addr: Some(pipeline_addr),
             parser_addr: Some(parser_addr),
+            database_addr: Some(database_addr),
         }
     }
 
@@ -128,7 +166,11 @@ impl WebSocketActorBehavior for WebSocketActor {
         }
     }
 
-    fn handle_parser(&self, parser: Parser, _: &mut <WebSocketActor as Actor>::Context) {
+    async fn handle_parser(
+        parser: Parser,
+        parser_addr: Addr<ParserActor>,
+        database_addr: Addr<Database>,
+    ) {
         match parser {
             Parser::Scan(path) => {
                 info!(
@@ -136,15 +178,19 @@ impl WebSocketActorBehavior for WebSocketActor {
                     path
                 );
 
-                match self.parser_addr.as_ref() {
-                    Some(parser_addr) => {
-                        if let Err(e) = parser_addr.try_send(ScanMediaLibrary(path)) {
-                            error!("Failed to forward message to parser: {:?}", e);
+                match parser_addr.send(ScanMediaLibrary(path)).await {
+                    Ok(Ok(library)) => {
+                        info!("Media library scanned: {:?}", library.series.len());
+
+                        for series in library.series {
+                            // BUG: did not insert episode and actors
+                            if let Err(e) = database_addr.try_send(InsertSeries(series)) {
+                                error!("Failed to forward message to database: {:?}", e);
+                            }
                         }
                     }
-                    None => {
-                        error!("Parser address is not set");
-                    }
+                    Ok(Err(e)) => error!("Failed to scan media library: {:?}", e),
+                    Err(e) => error!("Failed to send message to parser: {:?}", e),
                 }
             }
         }

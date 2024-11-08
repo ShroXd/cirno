@@ -112,13 +112,13 @@ pub fn get_pipeline_segment_duration() -> u64 {
 }
 
 pub struct SystemInitializer {
-    database: Database,
     element_factory: Arc<ElementFactory>,
     hls_sink: Arc<HlsSinkImpl>,
 
     // Actor addresses
     pipeline_addr: Option<Addr<Pipeline>>,
     parser_addr: Option<Addr<ParserActor>>,
+    database_addr: Option<Addr<Database>>,
 }
 
 impl SystemInitializer {
@@ -137,14 +137,12 @@ impl SystemInitializer {
             Err(e) => return Err(anyhow::anyhow!("Failed to initialize hls sink: {}", e)),
         };
 
-        let database = Database::new("media_library.db").await?;
-
         Ok(Self {
-            database,
             element_factory,
             hls_sink: Arc::new(hls_sink),
             pipeline_addr: None,
             parser_addr: None,
+            database_addr: None,
         })
     }
 
@@ -158,6 +156,14 @@ impl SystemInitializer {
         match self.parser_addr.clone() {
             Some(addr) => addr,
             None => panic!("Parser actor not started"),
+        }
+    }
+
+    #[instrument(skip(self))]
+    pub fn get_database_addr(&self) -> Addr<Database> {
+        match self.database_addr.clone() {
+            Some(addr) => addr,
+            None => panic!("Database actor not started"),
         }
     }
 
@@ -250,9 +256,11 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
-    async fn init_database(&self) -> Result<()> {
+    async fn init_database(&mut self) -> Result<()> {
         info!("Initializing database");
-        self.database.initialize_db().await?;
+
+        let database = Database::new("media_library.db").await?;
+        self.database_addr = Some(database.start());
 
         Ok(())
     }

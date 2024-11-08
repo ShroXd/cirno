@@ -8,6 +8,7 @@ use crate::{
         parser_actor::ParserActor,
         websocket_actor::{WebSocketActor, WebSocketActorBehavior},
     },
+    database::database::Database,
     services::gstreamer_pipeline::pipeline::Pipeline,
 };
 
@@ -17,11 +18,13 @@ pub async fn ws_index(
     stream: web::Payload,
     pipeline_addr: web::Data<Addr<Pipeline>>,
     parser_addr: web::Data<Addr<ParserActor>>,
+    database_addr: web::Data<Addr<Database>>,
 ) -> impl Responder {
     info!("Starting websocket");
     let ws_actor = WebSocketActor::new(
         pipeline_addr.get_ref().clone(),
         parser_addr.get_ref().clone(),
+        database_addr.get_ref().clone(),
     );
 
     match ws::start(ws_actor, &r, stream) {
