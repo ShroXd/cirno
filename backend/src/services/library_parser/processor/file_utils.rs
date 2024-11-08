@@ -2,9 +2,13 @@ use anyhow::*;
 use rayon::{iter::Either, prelude::*};
 use regex::Regex;
 use std::path::PathBuf;
+use tracing::*;
 use walkdir::WalkDir;
 
+#[instrument]
 pub fn collect_files(path: &PathBuf) -> Result<Vec<PathBuf>> {
+    debug!("Collecting files from path: {}", path.display());
+
     let files: Vec<PathBuf> = WalkDir::new(path)
         .min_depth(1)
         .max_depth(10)
@@ -23,7 +27,10 @@ pub fn collect_files(path: &PathBuf) -> Result<Vec<PathBuf>> {
     Ok(files)
 }
 
+#[instrument]
 pub fn partition_files(files: &[PathBuf], pattern: &Regex) -> (Vec<PathBuf>, Vec<PathBuf>) {
+    debug!("Partitioning files with pattern: {}", pattern);
+
     files
         .par_iter()
         .filter_map(|file| {

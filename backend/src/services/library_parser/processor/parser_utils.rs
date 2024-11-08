@@ -8,9 +8,9 @@ use tracing::*;
 use crate::services::library_parser::parsers::{Season, TVSerie};
 
 #[instrument(skip(parse_fn))]
-pub fn parse_series_nfo<F>(series_path: &PathBuf, parse_fn: F) -> Result<TVSerie>
+pub fn parse_tv_series_nfo<F>(series_path: &PathBuf, parse_fn: F) -> Result<TVSerie>
 where
-    F: Fn(&str) -> Result<TVSerie>,
+    F: Fn(&String) -> Result<TVSerie>,
 {
     if !series_path.exists() {
         return Err(anyhow!("Series path does not exist"));
@@ -84,7 +84,7 @@ mod tests {
 
     #[test]
     fn test_parse_series_nfo_with_existing_nfo() {
-        let mock_parse = |_: &str| -> Result<TVSerie> { Ok(TVSerie::default()) };
+        let mock_parse = |_: &String| -> Result<TVSerie> { Ok(TVSerie::default()) };
 
         let temp_dir = tempdir().expect("Failed to create temp dir");
         let series_path = temp_dir.path().join("series");
@@ -92,7 +92,7 @@ mod tests {
         write(series_path.join("tvshow.nfo"), "").expect("Failed to write nfo file");
 
         let result =
-            parse_series_nfo(&series_path, mock_parse).expect("Failed to parse series nfo");
+            parse_tv_series_nfo(&series_path, mock_parse).expect("Failed to parse series nfo");
 
         assert!(result.nfo_path.is_some());
         assert_eq!(
@@ -104,13 +104,13 @@ mod tests {
 
     #[test]
     fn test_parse_series_nfo_without_nfo() {
-        let mock_parse = |_: &str| -> Result<TVSerie> { Ok(TVSerie::default()) };
+        let mock_parse = |_: &String| -> Result<TVSerie> { Ok(TVSerie::default()) };
 
         // Skip creation of nfo file
         let temp_dir = tempdir().expect("Failed to create temp dir");
         let series_path = temp_dir.path().join("series");
 
-        let result = parse_series_nfo(&series_path, mock_parse);
+        let result = parse_tv_series_nfo(&series_path, mock_parse);
 
         assert!(result.is_err());
         assert_eq!(

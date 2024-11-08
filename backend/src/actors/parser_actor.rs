@@ -29,6 +29,7 @@ impl Handler<ScanMediaLibrary> for ParserActor {
     fn handle(&mut self, msg: ScanMediaLibrary, _: &mut Self::Context) -> Self::Result {
         let root_dir = Path::new(&msg.0);
         let media_library = scan_media_library(root_dir);
+        // TODO: insert into database
         Ok(media_library)
     }
 }

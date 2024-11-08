@@ -1,11 +1,14 @@
-use rayon::iter::Either;
-use rayon::prelude::*;
 use regex::Regex;
-use std::{collections::HashMap, path::PathBuf};
+use std::path::PathBuf;
 use tracing::*;
-use walkdir::WalkDir;
 
-use crate::services::library_parser::parsers::parse_episode;
+use crate::services::library_parser::{
+    parsers::parse_episode,
+    processor::{
+        file_utils::{collect_files, partition_files},
+        parser_utils::{parse_meta_files, parse_seasons_nfo, parse_tv_series_nfo},
+    },
+};
 
 use super::{
     parsers::{parse_season, parse_tv_serie, Episode, Season, TVSerie},
@@ -13,88 +16,44 @@ use super::{
 };
 
 pub fn process_series(series_path: &PathBuf) -> TVSerie {
-    let series_files: Vec<PathBuf> = WalkDir::new(series_path)
-        .min_depth(1)
-        .max_depth(10)
-        .into_iter()
-        .filter_map(|entry| {
-            let entry = entry.ok()?;
-            let path = entry.path().to_path_buf();
-            if path.is_file() {
-                Some(path)
-            } else {
-                None
-            }
-        })
-        .collect();
-
-    let episode_pattern = Regex::new(r"S(\d+)E(\d+)").unwrap();
+    // Collect all files in the series directory
+    let series_files = match collect_files(series_path) {
+        Ok(files) => files,
+        Err(err) => {
+            error!("Error collecting files: {}", err);
+            return TVSerie::default();
+        }
+    };
+    debug!("Found {} files", series_files.len());
 
     // Divide files into meta and episodes
-    let (meta, episodes): (Vec<PathBuf>, Vec<PathBuf>) = series_files
-        .into_par_iter()
-        .filter_map(|series_dir| {
-            let file_name = series_dir.file_name()?.to_string_lossy().to_string();
-            if episode_pattern.is_match(&file_name) {
-                Some(Either::Right(series_dir))
-            } else {
-                Some(Either::Left(series_dir))
-            }
-        })
-        .partition_map(|either| either);
+    let episode_pattern = Regex::new(r"S(\d+)E(\d+)").expect("Invalid episode pattern");
+    let (meta, episodes) = partition_files(&series_files, &episode_pattern);
+    debug!("Divided into {} meta files", meta.len());
+    debug!("Divided into {} episodes files", episodes.len());
 
-    debug!("Found {} meta directories", meta.len());
-    debug!("Found {} episodes directories", episodes.len());
+    // Parse tv series nfo file
+    let mut tv_serie = match parse_tv_series_nfo(&series_path, parse_tv_serie) {
+        Ok(series) => series,
+        Err(err) => {
+            error!("Error parsing series nfo file: {}", err);
+            return TVSerie::default();
+        }
+    };
 
-    // Parse series nfo file
-    let series_nfo_path = series_path.join("tvshow.nfo");
-    let mut tv_serie = TVSerie::default();
-    if series_nfo_path.exists() {
-        let nfo_path = series_nfo_path.to_string_lossy().to_string();
-        let series_nfo = parse_tv_serie(&nfo_path);
-
-        tv_serie = series_nfo.unwrap();
-        tv_serie.nfo_path = Some(nfo_path);
-    }
-
-    // Parse meta files
-    meta.iter().for_each(|file| match file.file_stem() {
-        Some(file_stem) => match file_stem.to_string_lossy().as_ref() {
-            "poster" => {
-                tv_serie.poster_path = encode_optional_image(&Some(file.clone()));
-            }
-            "fanart" => {
-                tv_serie.fanart_path = encode_optional_image(&Some(file.clone()));
-            }
-            _ => {}
-        },
-        None => return,
-    });
+    // Parse tv serie meta files
+    parse_meta_files(&meta, &mut tv_serie, encode_optional_image);
 
     // Parse season nfo files and build seasons
-    let season_pattern = Regex::new(r"S(\d+)/season\.nfo$|season(\d+)\.nfo$").unwrap();
-    let mut seasons_map: HashMap<u8, Season> = meta
-        .par_iter()
-        .filter(|file| season_pattern.is_match(file.to_string_lossy().as_ref()))
-        .filter_map(|season_nfo_file| {
-            let season_number = season_pattern
-                .captures(&season_nfo_file.to_string_lossy())
-                .and_then(|caps| caps.get(1).or(caps.get(2)))
-                .and_then(|m| m.as_str().parse::<u8>().ok())?;
+    let mut seasons_map = match parse_seasons_nfo(&meta, parse_season) {
+        Ok(seasons) => seasons,
+        Err(err) => {
+            error!("Error parsing seasons nfo files: {}", err);
+            return TVSerie::default();
+        }
+    };
 
-            match parse_season(&season_nfo_file.to_string_lossy().to_string()) {
-                Ok(mut season) => {
-                    season.season_number = Some(season_number);
-                    Some((season_number, season))
-                }
-                Err(err) => {
-                    error!("Error parsing season nfo file: {}", err);
-                    None
-                }
-            }
-        })
-        .collect();
-
+    // Parse episodes files and build episodes
     let episode_pattern = Regex::new(r"S(\d+)E(\d+)").unwrap();
     episodes.iter().for_each(|episode_dir| {
         let file_name = match episode_dir.file_stem() {
