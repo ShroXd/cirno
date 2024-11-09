@@ -1,13 +1,10 @@
-use std::path::Path;
-
 use anyhow::Result;
 use gio::prelude::*;
 use gstreamer::{Element, ElementFactory};
+use std::path::Path;
 use tracing::*;
 
-use crate::init::system_initializer::{
-    get_playlist_stream, get_segment_index, increment_segment_index,
-};
+use crate::init::app_state::{get_playlist_stream, get_segment_index, increment_segment_index};
 
 pub trait HlsSink: Send {
     fn new() -> Result<Self>
