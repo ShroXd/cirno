@@ -7,7 +7,6 @@ use tracing::*;
 
 mod actors;
 mod database;
-mod handlers;
 mod init;
 mod routes;
 mod services;
@@ -52,6 +51,9 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(parser_addr.clone()))
             .app_data(web::Data::new(database_addr.clone()))
             .route("/hello", web::get().to(hello))
+            .service(
+                web::scope("/media-library").configure(routes::media_library_routes::init_routes),
+            )
             .service(Files::new("/hls", "./tmp").show_files_listing())
             .service(routes::websocket_routes::ws_index);
 
