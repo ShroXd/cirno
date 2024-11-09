@@ -29,6 +29,9 @@ async fn get_seasons(
 }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(get_series);
-    cfg.service(get_seasons);
+    cfg.service(
+        web::scope("/media-library")
+            .service(get_series)
+            .service(get_seasons),
+    );
 }
