@@ -2,17 +2,16 @@ use regex::Regex;
 use std::path::PathBuf;
 use tracing::*;
 
+use super::{
+    parsers::{parse_season, parse_tv_serie, Episode, Season, TVSerie},
+    utils::encode_optional_image,
+};
 use crate::services::library_parser::{
     parsers::parse_episode,
     processor::{
         file_utils::{collect_files, partition_files},
         parser_utils::{parse_meta_files, parse_seasons_nfo, parse_tv_series_nfo},
     },
-};
-
-use super::{
-    parsers::{parse_season, parse_tv_serie, Episode, Season, TVSerie},
-    utils::encode_optional_image,
 };
 
 pub fn process_series(series_path: &PathBuf) -> TVSerie {

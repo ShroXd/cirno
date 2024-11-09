@@ -5,9 +5,8 @@ use tracing::*;
 use ts_rs::TS;
 use walkdir::WalkDir;
 
-use crate::services::library_parser::processors::process_series;
-
 use super::parsers::TVSerie;
+use crate::services::library_parser::processors::process_series;
 
 #[derive(Debug, Deserialize, Serialize, Clone, TS)]
 #[ts(export)]
