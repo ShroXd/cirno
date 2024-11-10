@@ -7,13 +7,27 @@
       "jp": "日本語"
     }
   },
-  "sidebar": {
-    "home": "ホーム",
-    "media": "メディア",
-    "favorites": "お気に入り",
-    "library": "ライブラリ",
-    "plugins": "プラグイン",
-    "test": "テスト",
-    "settings": "設定"
+  "component": {
+    "sidebar": {
+      "home": "ホーム",
+      "media": "メディア",
+      "favorites": "お気に入り",
+      "library": "ライブラリ",
+      "plugins": "プラグイン",
+      "test": "テスト",
+      "settings": "設定"
+    }
+  },
+  "page": {
+    "detail": {
+      "watch": "見る",
+      "add_to_favorites": "お気に入りに追加",
+      "seasons": "シーズン",
+      "sort_by": "並び替え",
+      "title": "タイトル",
+      "date_added": "追加日",
+      "rating": "評価",
+      "episode_number": "エピソード番号"
+    }
   }
 }

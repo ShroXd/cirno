@@ -7,13 +7,27 @@
       "jp": "日语"
     }
   },
-  "sidebar": {
-    "home": "首页",
-    "media": "媒体",
-    "favorites": "收藏",
-    "library": "库",
-    "plugins": "插件",
-    "test": "测试",
-    "settings": "设置"
+  "component": {
+    "sidebar": {
+      "home": "首页",
+      "media": "媒体",
+      "favorites": "收藏",
+      "library": "库",
+      "plugins": "插件",
+      "test": "测试",
+      "settings": "设置"
+    }
+  },
+  "page": {
+    "detail": {
+      "watch": "观看",
+      "add_to_favorites": "添加到收藏",
+      "seasons": "季",
+      "sort_by": "排序",
+      "title": "标题",
+      "date_added": "添加日期",
+      "rating": "评分",
+      "episode_number": "集数"
+    }
   }
 }

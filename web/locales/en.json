@@ -7,13 +7,27 @@
       "jp": "Japanese"
     }
   },
-  "sidebar": {
-    "home": "Home",
-    "media": "Media",
-    "favorites": "Favorites",
-    "library": "Library",
-    "plugins": "Plugins",
-    "test": "Test",
-    "settings": "Settings"
+  "component": {
+    "sidebar": {
+      "home": "Home",
+      "media": "Media",
+      "favorites": "Favorites",
+      "library": "Library",
+      "plugins": "Plugins",
+      "test": "Test",
+      "settings": "Settings"
+    }
+  },
+  "page": {
+    "detail": {
+      "watch": "Watch",
+      "add_to_favorites": "Add to Favorites",
+      "seasons": "Season",
+      "sort_by": "Sort by",
+      "title": "Title",
+      "date_added": "Date Added",
+      "rating": "Rating",
+      "episode_number": "Episode Number"
+    }
   }
 }

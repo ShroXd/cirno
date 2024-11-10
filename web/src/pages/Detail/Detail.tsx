@@ -70,14 +70,14 @@ export const Detail = () => {
                   variant='gradient'
                 >
                   <PlayIcon className='h-5 w-5' />
-                  {t('detail.watch')}
+                  {t('page.detail.watch')}
                 </Button>
                 <Button
                   className='flex flex-row items-center gap-3'
                   variant='outlined'
                 >
                   <HeartIcon className='h-5 w-5 text-deep-orange-600' />
-                  {t('detail.add_to_favorites')}
+                  {t('page.detail.add_to_favorites')}
                 </Button>
               </div>
             </div>
@@ -88,22 +88,24 @@ export const Detail = () => {
             <TabsHeader className='w-auto'>
               {data?.map((_, index) => (
                 <Tab className='w-40' key={index} value={`${index}`}>
-                  {t('detail.seasons')} {index + 1}
+                  {t('page.detail.seasons')} {index + 1}
                 </Tab>
               ))}
             </TabsHeader>
 
             <div className='ml-auto w-72'>
               <Select
-                label={t('detail.sort_by')}
+                label={t('page.detail.sort_by')}
                 value={sortBy}
                 onChange={value => setSortBy(value ?? 'episode_number')}
               >
-                <Option value='title'>{t('detail.title')}</Option>
-                <Option value='date_added'>{t('detail.date_added')}</Option>
-                <Option value='rating'>{t('detail.rating')}</Option>
+                <Option value='title'>{t('page.detail.title')}</Option>
+                <Option value='date_added'>
+                  {t('page.detail.date_added')}
+                </Option>
+                <Option value='rating'>{t('page.detail.rating')}</Option>
                 <Option value='episode_number'>
-                  {t('detail.episode_number')}
+                  {t('page.detail.episode_number')}
                 </Option>
               </Select>
             </div>
@@ -116,7 +118,7 @@ export const Detail = () => {
           >
             {data?.map((season, index) => (
               <TabPanel key={index} value={`${index}`} className='px-0'>
-                <div className='grid grid-cols-4 gap-4'>
+                <div className='grid grid-cols-4 gap-4 gap-y-10'>
                   {season.episodes.map(episode => (
                     <div key={episode.title} className='flex flex-col'>
                       <div className='w-min-42 relative flex h-40'>
@@ -138,7 +140,7 @@ export const Detail = () => {
                         {episode.title ?? 'Untitled Episode'}
                       </div>
                       <div className='mb-1 truncate text-xs font-medium text-gray-500'>
-                        {t('detail.episode_number')}{' '}
+                        {t('page.detail.episode_number')}{' '}
                         {episode.episodes_number?.toString() ?? 'N/A'}
                       </div>
                     </div>

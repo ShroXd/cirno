@@ -42,7 +42,7 @@ export const Sidebar = () => {
             <InboxStackIcon className='h-5 w-5' />
           </ListItemPrefix>
           <Typography color='blue-gray' className='mr-auto font-normal'>
-            {t('sidebar.library')}
+            {t('component.sidebar.library')}
           </Typography>
         </ListItem>
         <hr className='my-2 border-blue-gray-50' />
@@ -50,13 +50,13 @@ export const Sidebar = () => {
           <ListItemPrefix>
             <Cog6ToothIcon className='h-5 w-5' />
           </ListItemPrefix>
-          {t('sidebar.settings')}
+          {t('component.sidebar.settings')}
         </ListItem>
         <ListItem onClick={() => navigate('/test')}>
           <ListItemPrefix>
             <LightBulbIcon className='h-5 w-5' />
           </ListItemPrefix>
-          {t('sidebar.test')}
+          {t('component.sidebar.test')}
         </ListItem>
       </List>
     </div>
