@@ -38,9 +38,9 @@ export const Library = () => {
         data?.map((serie: TVSeriesDTO) => (
           <div
             className='group flex cursor-pointer select-none flex-col overflow-hidden pb-2'
-            key={serie.title}
+            key={serie.id.toString()}
           >
-            <NavLink to={`/series/${serie.id}`} state={{ serie: serie }}>
+            <NavLink to={`/detail/${serie.id}`} state={{ detail: serie }}>
               <figure className='relative h-72'>
                 <img
                   className='h-full w-full rounded-xl object-cover object-center'

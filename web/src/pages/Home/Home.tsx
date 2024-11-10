@@ -3,6 +3,7 @@ import { Sidebar } from '../../components/Sidebar/Sidebar'
 import { Library } from '../Library/Library'
 import { Route, Routes } from 'react-router-dom'
 import { Test } from '../Test/Test'
+import { Detail } from '../Detail/Detail'
 
 export const Home = () => {
   return (
@@ -15,6 +16,7 @@ export const Home = () => {
             <Route path='/' element={<Library />} />
             <Route path='/settings' element={<Settings />} />
             <Route path='/test' element={<Test />} />
+            <Route path='/detail/:id' element={<Detail />} />
           </Routes>
         </div>
       </div>
