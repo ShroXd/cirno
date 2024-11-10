@@ -68,6 +68,26 @@ tasks:
     cmds:
       - cargo run
 
+  # ---------------------------- 🎨 Format Code 🎨 ----------------------------
+
+  format:
+    desc: "🎨 Format both front-end and back-end code"
+    deps:
+      - format:frontend
+      - format:backend
+
+  format:frontend:
+    desc: "🎨 Format front-end code"
+    dir: web
+    cmds:
+      - pnpm run format
+
+  format:backend:
+    desc: "🎨 Format back-end Rust code"
+    dir: backend
+    cmds:
+      - cargo fmt
+
   # ---------------------------- 🏗️ Build for Production 🏗️ ----------------------------
 
   build:
@@ -177,7 +197,7 @@ tasks:
         cd backend
         echo "🏗️ Running cargo sqlx prepare..."
         cargo sqlx prepare
-  
+
   kill-backend:
     desc: "🔪 Kill any process running on port 8000"
     cmds:
@@ -191,7 +211,7 @@ tasks:
         else
           echo "🚫 No process found on port 8000."
         fi
-  
+
   kill-frontend:
     desc: "🔪 Kill any process running on port 5173"
     cmds:

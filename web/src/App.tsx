@@ -1,6 +1,6 @@
-import { HashRouter } from "react-router-dom";
-import { Home } from "./pages/Home/Home";
-import { WebSocketProvider } from "./contexts/webSocketContext";
+import { HashRouter } from 'react-router-dom'
+import { Home } from './pages/Home/Home'
+import { WebSocketProvider } from './contexts/webSocketContext'
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
         <Home />
       </HashRouter>
     </WebSocketProvider>
-  );
+  )
 }
 
-export default App;
+export default App
