@@ -1,21 +1,19 @@
 {
-  "translation": {
-    "common": {
-      "languageSelector": "语言",
-      "language": {
-        "en-US": "英语",
-        "zh-CN": "中文",
-        "jp": "日语"
-      }
-    },
-    "sidebar": {
-      "home": "首页",
-      "media": "媒体",
-      "favorites": "收藏",
-      "library": "库",
-      "plugins": "插件",
-      "test": "测试",
-      "settings": "设置"
+  "common": {
+    "languageSelector": "语言",
+    "language": {
+      "en": "英语",
+      "zh-CN": "中文",
+      "jp": "日语"
     }
+  },
+  "sidebar": {
+    "home": "首页",
+    "media": "媒体",
+    "favorites": "收藏",
+    "library": "库",
+    "plugins": "插件",
+    "test": "测试",
+    "settings": "设置"
   }
 }
