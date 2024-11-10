@@ -1,5 +1,4 @@
 import { HashRouter } from "react-router-dom";
-import "./App.css";
 import { Home } from "./pages/Home/Home";
 import { WebSocketProvider } from "./contexts/webSocketContext";
 
