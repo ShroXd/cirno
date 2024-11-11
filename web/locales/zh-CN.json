@@ -16,6 +16,21 @@
       "plugins": "插件",
       "test": "测试",
       "settings": "设置"
+    },
+    "libraryManageDialog": {
+      "title": "管理媒体库",
+      "description": "输入以下详细信息以配置媒体库。这将帮助您有效地组织和管理媒体内容。",
+      "name": "名称",
+      "namePlaceholder": "例如：我的媒体库",
+      "category": "分类",
+      "categoryOptions": {
+        "movie": "电影",
+        "tvSeries": "电视剧",
+        "animation": "动画"
+      },
+      "directory": "目录",
+      "directoryPlaceholder": "例如：/path/to/目录",
+      "confirm": "确认"
     }
   },
   "page": {

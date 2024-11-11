@@ -16,6 +16,21 @@
       "plugins": "Plugins",
       "test": "Test",
       "settings": "Settings"
+    },
+    "libraryManageDialog": {
+      "title": "Manage Media Library",
+      "description": "Enter the details below to configure your media library. This will help organize and manage your media content effectively.",
+      "name": "Name",
+      "namePlaceholder": "eg. My Media Library",
+      "category": "Category",
+      "categoryOptions": {
+        "movie": "Movie",
+        "tvSeries": "TV Series",
+        "animation": "Animation"
+      },
+      "directory": "Directory",
+      "directoryPlaceholder": "eg. /path/to/directory",
+      "confirm": "Confirm"
     }
   },
   "page": {

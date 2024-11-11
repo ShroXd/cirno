@@ -16,6 +16,21 @@
       "plugins": "プラグイン",
       "test": "テスト",
       "settings": "設定"
+    },
+    "libraryManageDialog": {
+      "title": "メディアライブラリの管理",
+      "description": "以下の詳細を入力して、メディアライブラリを設定します。これにより、メディアコンテンツを効果的に整理および管理できます。",
+      "name": "名前",
+      "namePlaceholder": "例：私のメディアライブラリ",
+      "category": "カテゴリ",
+      "categoryOptions": {
+        "movie": "映画",
+        "tvSeries": "テレビシリーズ",
+        "animation": "アニメ"
+      },
+      "directory": "ディレクトリ",
+      "directoryPlaceholder": "例：/path/to/ディレクトリ",
+      "confirm": "確認"
     }
   },
   "page": {
