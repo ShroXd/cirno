@@ -24,7 +24,7 @@ sqlite3 "$DB_PATH" "VACUUM;"
 echo "📦 Preparing the database schema..."
 sqlite3 "$DB_PATH" <<EOF
 CREATE TABLE IF NOT EXISTS tv_series (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL UNIQUE,
     nfo_path TEXT,
     poster_path TEXT,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS tv_series (
 );
 
 CREATE TABLE IF NOT EXISTS seasons (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     series_id INTEGER NOT NULL,
     season_number INTEGER,
     title TEXT,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS seasons (
 );
 
 CREATE TABLE IF NOT EXISTS episodes (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     season_id INTEGER NOT NULL,
     series_id INTEGER NOT NULL,
     title TEXT NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS episodes (
 );
 
 CREATE TABLE IF NOT EXISTS genres (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE
 );
 
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS tv_series_genres (
 );
 
 CREATE TABLE IF NOT EXISTS actors (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
     role TEXT,
     thumb TEXT,
@@ -96,6 +96,25 @@ CREATE TABLE IF NOT EXISTS tv_series_actors (
     FOREIGN KEY(series_id) REFERENCES tv_series(id),
     FOREIGN KEY(actor_id) REFERENCES actors(id)
 );
+
+CREATE TABLE category_mapping (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE
+);
+
+INSERT INTO category_mapping (id, name) VALUES (1, 'Movie');
+INSERT INTO category_mapping (id, name) VALUES (2, 'TVShow');
+INSERT INTO category_mapping (id, name) VALUES (3, 'Animation');
+
+CREATE TABLE IF NOT EXISTS media_library (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    directory TEXT NOT NULL,
+    category_id INTEGER NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES category_mapping(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+)
 EOF
 
 echo "✅ Database setup completed."
