@@ -5,10 +5,11 @@ use ts_rs::TS;
 
 use crate::{
     database::{
-        create::insert_tv_series,
+        create::{insert_media_library, insert_tv_series},
         database::Database,
         query::{query_seasons_with_episodes, query_series, SeasonDTO, TVSeriesDTO},
     },
+    handlers::media_library::CreateMediaLibraryPayload,
     services::library_parser::parsers::TVSerie,
 };
 
@@ -87,6 +88,31 @@ impl Handler<GetSeasons> for Database {
                     Err(e) => {
                         error!("Error getting seasons: {:?}", e);
                         fut::ready(Vec::new())
+                    }
+                }),
+        )
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub struct CreateMediaLibrary(pub CreateMediaLibraryPayload);
+
+impl Handler<CreateMediaLibrary> for Database {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(&mut self, msg: CreateMediaLibrary, _: &mut Self::Context) -> Self::Result {
+        info!("Creating media library: {:?}", msg.0);
+        let pool = self.get_connection_pool();
+
+        Box::pin(
+            async move { insert_media_library(&pool, &msg.0).await }
+                .into_actor(self)
+                .then(|result, _actor, _ctx| match result {
+                    Ok(_) => fut::ready(()),
+                    Err(e) => {
+                        error!("Error creating media library: {:?}", e);
+                        fut::ready(())
                     }
                 }),
         )

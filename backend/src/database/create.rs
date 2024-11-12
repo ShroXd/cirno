@@ -3,7 +3,10 @@ use rayon::prelude::*;
 use sqlx::{Acquire, SqliteConnection, SqlitePool};
 use tracing::*;
 
-use crate::services::library_parser::parsers::{Episode, Season, TVSerie};
+use crate::{
+    handlers::media_library::CreateMediaLibraryPayload,
+    services::library_parser::parsers::{Episode, Season, TVSerie},
+};
 
 // TODO: the code for checking duplicated data is still not correct
 pub async fn insert_tv_series(conn_pool: &SqlitePool, tv_series: &TVSerie) -> Result<()> {
@@ -212,5 +215,36 @@ pub async fn insert_episode(
     .execute(&mut *tx)
     .await?;
 
+    Ok(())
+}
+
+pub async fn insert_media_library(
+    conn_pool: &SqlitePool,
+    media_library: &CreateMediaLibraryPayload,
+) -> Result<()> {
+    let mut conn = conn_pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+
+    let category_id = i32::from(media_library.category.clone());
+    debug!("Category ID: {}", category_id);
+
+    let existing_category_id: Option<i64> =
+        sqlx::query_scalar!("SELECT id FROM category_mapping WHERE id = ?", category_id,)
+            .fetch_optional(&mut *tx)
+            .await?;
+    if existing_category_id.is_none() {
+        return Err(anyhow::anyhow!("Category does not exist"));
+    }
+
+    sqlx::query!(
+        "INSERT OR IGNORE INTO media_library (name, directory, category_id) VALUES (?, ?, ?)",
+        media_library.name,
+        media_library.directory,
+        category_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
     Ok(())
 }
