@@ -25,12 +25,15 @@
       "category": "分类",
       "categoryOptions": {
         "movie": "电影",
-        "tvSeries": "电视剧",
+        "tvShow": "电视剧",
         "animation": "动画"
       },
       "directory": "目录",
       "directoryPlaceholder": "例如：/path/to/目录",
-      "confirm": "确认"
+      "confirm": "确认",
+      "nameRequired": "名称是必填项",
+      "categoryRequired": "分类是必填项",
+      "directoryRequired": "目录是必填项"
     }
   },
   "page": {

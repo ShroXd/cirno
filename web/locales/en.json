@@ -25,12 +25,15 @@
       "category": "Category",
       "categoryOptions": {
         "movie": "Movie",
-        "tvSeries": "TV Series",
+        "tvShow": "TV Series",
         "animation": "Animation"
       },
       "directory": "Directory",
       "directoryPlaceholder": "eg. /path/to/directory",
-      "confirm": "Confirm"
+      "confirm": "Confirm",
+      "nameRequired": "Name is required",
+      "categoryRequired": "Category is required",
+      "directoryRequired": "Directory is required"
     }
   },
   "page": {

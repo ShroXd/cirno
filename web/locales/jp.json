@@ -25,12 +25,15 @@
       "category": "カテゴリ",
       "categoryOptions": {
         "movie": "映画",
-        "tvSeries": "テレビシリーズ",
+        "tvShow": "テレビシリーズ",
         "animation": "アニメ"
       },
       "directory": "ディレクトリ",
       "directoryPlaceholder": "例：/path/to/ディレクトリ",
-      "confirm": "確認"
+      "confirm": "確認",
+      "nameRequired": "名前は必須です",
+      "categoryRequired": "カテゴリは必須です",
+      "directoryRequired": "ディレクトリは必須です"
     }
   },
   "page": {

@@ -10,6 +10,7 @@ use crate::{
 
 // TODO: 1. move data models to database/models.rs
 // TODO: 2. return error messages in the response
+// TODO: 3. rename series to content or media etc.
 
 #[get("/series")]
 async fn get_series(database_addr: web::Data<Addr<Database>>) -> impl Responder {
@@ -72,7 +73,7 @@ impl TryFrom<i32> for MediaLibraryCategory {
     }
 }
 
-#[post("/create")]
+#[post("/")]
 async fn create_media_library(
     database_addr: web::Data<Addr<Database>>,
     payload: web::Json<CreateMediaLibraryPayload>,
@@ -88,7 +89,7 @@ async fn create_media_library(
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/media-library")
+        web::scope("/media-libraries")
             .service(get_series)
             .service(get_seasons)
             .service(create_media_library),

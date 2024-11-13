@@ -6,17 +6,17 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/hls": {
-        target: "http://localhost:8000",
+      '/hls': {
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
-      "/ws": {
-        target: "ws://localhost:8080",
+      '/ws': {
+        target: 'ws://localhost:8080',
         changeOrigin: true,
         ws: true,
       },
-      "/media-library": {
-        target: "http://localhost:8000",
+      '/media-libraries': {
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
     },

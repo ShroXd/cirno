@@ -27,13 +27,13 @@ export const Detail = () => {
   const { t } = useTranslation()
 
   const { data, error, isLoading } = useSWR<SeasonDTO[]>(
-    `/media-library/series/${location.state.detail.id}/seasons`,
+    `/media-libraries/series/${location.state.detail.id}/seasons`,
     (url: string) => fetch(url).then(res => res.json())
   )
 
   useEffect(() => {
     setSerie(location.state.detail)
-  }, [serie?.title])
+  }, [location.state.detail])
 
   // TODO: encapsulate the loading and error states
   if (isLoading) return <div>Loading...</div>
