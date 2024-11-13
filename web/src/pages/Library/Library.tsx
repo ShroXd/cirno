@@ -1,14 +1,13 @@
 import { ReactNode, useCallback } from 'react'
-import useSWR from 'swr'
 
 import { TVSeriesDTO } from '../../bindings/TVSeriesDTO'
 import { Typography } from '@material-tailwind/react'
 import { NavLink } from 'react-router-dom'
+import { useFetch } from '../../hooks/useFetch'
 
 export const Library = () => {
-  const { data, error, isLoading } = useSWR<TVSeriesDTO[]>(
-    '/media-library/series',
-    (url: string) => fetch(url).then(res => res.json())
+  const { data, error, isLoading } = useFetch<TVSeriesDTO[]>(
+    '/media-library/series'
   )
 
   const container = useCallback(

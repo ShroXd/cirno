@@ -13,6 +13,7 @@
   "dependencies": {
     "@heroicons/react": "^2.1.5",
     "@material-tailwind/react": "^2.1.10",
+    "axios": "^1.7.7",
     "dplayer": "^1.27.1",
     "hls.js": "^1.5.17",
     "i18next": "^23.16.4",
