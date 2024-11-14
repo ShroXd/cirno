@@ -14,10 +14,10 @@ import {
   Option,
 } from '@material-tailwind/react'
 import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
+import useSWR from 'swr'
 
 import { TVSeriesDTO } from '../../bindings/TVSeriesDTO'
 import { SeasonDTO } from '../../bindings/SeasonDTO'
-import useSWR from 'swr'
 
 export const Detail = () => {
   const [serie, setSerie] = useState<TVSeriesDTO>()
