@@ -94,12 +94,14 @@ impl Handler<GetSeasons> for Database {
     }
 }
 
+pub const SENTINEL_MEDIA_LIBRARY_ID: i64 = -1;
+
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "()")]
+#[rtype(result = "i64")]
 pub struct CreateMediaLibrary(pub CreateMediaLibraryPayload);
 
 impl Handler<CreateMediaLibrary> for Database {
-    type Result = ResponseActFuture<Self, ()>;
+    type Result = ResponseActFuture<Self, i64>;
 
     fn handle(&mut self, msg: CreateMediaLibrary, _: &mut Self::Context) -> Self::Result {
         info!("Creating media library: {:?}", msg.0);
@@ -109,10 +111,10 @@ impl Handler<CreateMediaLibrary> for Database {
             async move { insert_media_library(&pool, &msg.0).await }
                 .into_actor(self)
                 .then(|result, _actor, _ctx| match result {
-                    Ok(_) => fut::ready(()),
+                    Ok(media_library_id) => fut::ready(media_library_id),
                     Err(e) => {
                         error!("Error creating media library: {:?}", e);
-                        fut::ready(())
+                        fut::ready(SENTINEL_MEDIA_LIBRARY_ID)
                     }
                 }),
         )

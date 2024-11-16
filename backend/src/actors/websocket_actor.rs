@@ -1,37 +1,112 @@
-use actix::{prelude::*, Actor, Addr, Message, StreamHandler, WrapFuture};
+use actix::{prelude::*, spawn, Actor, Addr, Message, StreamHandler};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
-use serde_json::from_str;
+use serde_json::{from_str, to_string};
 use tracing::*;
 use ts_rs::TS;
+use uuid::Uuid;
 
-use super::parser_actor::ParserActor;
-use super::pipeline_actor::PipelineAction;
-use crate::actors::database_actor::InsertSeries;
-use crate::actors::parser_actor::ScanMediaLibrary;
-use crate::database::database::Database;
-use crate::process_pipeline_action;
-use crate::services::gstreamer_pipeline::pipeline::Pipeline;
+use super::{
+    parser_actor::{ParserActor, ScanMediaLibrary},
+    pipeline_actor::PipelineAction,
+    utils::WsConnections,
+};
+use crate::{
+    actors::database_actor::InsertSeries, database::database::Database, process_pipeline_action,
+    services::gstreamer_pipeline::pipeline::Pipeline,
+};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum AsyncTaskType {
+    MediaLibraryScan,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub enum AsyncTaskOperation {
+    Start,
+    Success,
+    Failure(String),
+    Progress(String),
+}
+
+// TODO: consider if we merge this with Notification when we have more information about the async task scheduling
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AsyncTask {
+    // Generated from uuid
+    pub key: String,
+    pub task_type: AsyncTaskType,
+    pub operation: AsyncTaskOperation,
+}
 
 #[derive(Debug, Clone)]
 pub struct WebSocketActor {
+    pub key: Uuid,
     pub pipeline_addr: Option<Addr<Pipeline>>,
     pub parser_addr: Option<Addr<ParserActor>>,
     pub database_addr: Option<Addr<Database>>,
+    pub ws_connections: Option<WsConnections>,
 }
 
 impl Actor for WebSocketActor {
     type Context = ws::WebsocketContext<Self>;
 
-    #[instrument(skip(self))]
-    fn started(&mut self, _: &mut Self::Context) {
+    #[instrument(skip(self, ctx))]
+    fn started(&mut self, ctx: &mut Self::Context) {
         info!("WebSocket actor started");
+
+        let addr = ctx.address();
+        info!("Started WebSocket actor address: {:?}", addr);
         // TODO: consider if it's need to let pipeline & parser holds the address of websocket
+
+        let key = self.key.to_string();
+        let key_clone = key.clone();
+        let ws_connections = match self.ws_connections.clone() {
+            Some(ws_connections) => ws_connections,
+            None => {
+                error!("WebSocket connections not set");
+                return;
+            }
+        };
+
+        spawn(async move {
+            ws_connections.add(key, addr).await;
+        });
+
+        let message = match to_string(&AsyncTask {
+            key: key_clone,
+            task_type: AsyncTaskType::MediaLibraryScan,
+            operation: AsyncTaskOperation::Start,
+        }) {
+            Ok(message) => message,
+            Err(e) => {
+                error!("Failed to serialize async task: {:?}", e);
+                return;
+            }
+        };
+        ctx.text(message)
     }
 
-    #[instrument(skip(self))]
-    fn stopped(&mut self, _: &mut Self::Context) {
+    #[instrument(skip(self, ctx))]
+    fn stopped(&mut self, ctx: &mut Self::Context) {
         info!("WebSocket actor stopped");
+
+        let addr = ctx.address();
+        info!("Stopped WebSocket actor address: {:?}", addr);
+
+        // TODO: looks like we can create a macro to avoid code duplication
+        let key = self.key.to_string();
+        let ws_connections = match self.ws_connections.clone() {
+            Some(ws_connections) => ws_connections,
+            None => {
+                error!("WebSocket connections not set");
+                return;
+            }
+        };
+
+        spawn(async move {
+            ws_connections.remove(key).await;
+        });
     }
 }
 
@@ -102,11 +177,40 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub enum Notification {
+    MediaLibraryScanned(i64),
+}
+
+impl Handler<Notification> for WebSocketActor {
+    type Result = ();
+
+    fn handle(&mut self, msg: Notification, ctx: &mut Self::Context) -> Self::Result {
+        match msg {
+            Notification::MediaLibraryScanned(media_library_id) => {
+                info!(
+                    "Media library scan complete for library: {:?}",
+                    media_library_id
+                );
+
+                match to_string(&Notification::MediaLibraryScanned(media_library_id)) {
+                    Ok(message) => {
+                        ctx.text(message);
+                    }
+                    Err(e) => error!("Failed to serialize notification: {:?}", e),
+                }
+            }
+        }
+    }
+}
+
 pub trait WebSocketActorBehavior {
     fn new(
         pipeline_addr: Addr<Pipeline>,
         parser_addr: Addr<ParserActor>,
         database_addr: Addr<Database>,
+        ws_connections: WsConnections,
     ) -> Self;
     fn handle_pipeline_action(
         &self,
@@ -126,11 +230,14 @@ impl WebSocketActorBehavior for WebSocketActor {
         pipeline_addr: Addr<Pipeline>,
         parser_addr: Addr<ParserActor>,
         database_addr: Addr<Database>,
+        ws_connections: WsConnections,
     ) -> Self {
         Self {
+            key: Uuid::new_v4(),
             pipeline_addr: Some(pipeline_addr),
             parser_addr: Some(parser_addr),
             database_addr: Some(database_addr),
+            ws_connections: Some(ws_connections),
         }
     }
 

@@ -1,9 +1,12 @@
+use actix::Addr;
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
+use actors::{utils::WsConnections, websocket_actor::WebSocketActor};
 use handlers::media_library::init_routes;
 use init::system_initializer::SystemInitializer;
-use std::env;
+use std::{env, sync::Arc};
+use tokio::sync::Mutex;
 use tracing::*;
 
 mod actors;
@@ -21,6 +24,7 @@ async fn hello() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     unsafe {
         env::set_var("GST_DEBUG", "3");
+        env::set_var("RUST_LOG", "actix_web=debug");
     }
 
     let mut initializer = match SystemInitializer::new().await {
@@ -38,6 +42,8 @@ async fn main() -> std::io::Result<()> {
     let parser_addr = initializer.get_parser_addr();
     let database_addr = initializer.get_database_addr();
 
+    let ws_connections = WsConnections::default();
+
     info!("Starting backend server");
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -51,6 +57,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pipeline_addr.clone()))
             .app_data(web::Data::new(parser_addr.clone()))
             .app_data(web::Data::new(database_addr.clone()))
+            .app_data(web::Data::new(ws_connections.clone()))
             .route("/hello", web::get().to(hello))
             .configure(init_routes)
             .service(Files::new("/hls", "./tmp").show_files_listing())

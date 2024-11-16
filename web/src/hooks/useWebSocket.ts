@@ -34,34 +34,6 @@ export const useWebSocket = (options: WebSocketOptions = {}) => {
       startHeartbeat()
     }
 
-    ws.onmessage = event => {
-      resetHeartbeat()
-      const message = JSON.parse(event.data) as WebSocketMessage
-      console.log('Received message:', message)
-      // TODO: handle heartbeat seperately
-      // if (
-      //   message.message_type === "Heartbeat" &&
-      //   isHeartbeat(message.payload)
-      // ) {
-      //   if (message.payload.Heartbeat === "Ping") {
-      //     ws.send(
-      //       JSON.stringify({
-      //         message_type: "HeartbeatResponse",
-      //         payload: {
-      //           HeartbeatResponse: "Pong",
-      //         },
-      //       })
-      //     );
-      //   } else if (message.payload.Heartbeat === "Pong") {
-      //     console.log("Received HeartbeatResponse");
-      //   } else {
-      //     console.error("Received unknown Heartbeat message");
-      //   }
-      // } else if (isWebRtc(message.payload)) {
-      //   eventBus.emit("webrtcMessage", message);
-      // }
-    }
-
     ws.onclose = () => {
       console.log('WebSocket connection closed.')
       stopHeartbeat()
@@ -108,11 +80,6 @@ export const useWebSocket = (options: WebSocketOptions = {}) => {
     if (heartbeatTimer.current) {
       clearInterval(heartbeatTimer.current)
     }
-  }
-
-  const resetHeartbeat = () => {
-    stopHeartbeat()
-    startHeartbeat()
   }
 
   useEffect(() => {

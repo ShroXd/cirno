@@ -28,4 +28,5 @@ tracing = "0.1.40"
 tracing-appender = "0.2.3"
 tracing-subscriber = "0.3.18"
 ts-rs = "10.0.0"
+uuid = { version = "1.11.0", features = ["v4"] }
 walkdir = "2.5.0"

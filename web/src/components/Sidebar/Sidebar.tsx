@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 
 import { LibraryManageDialog } from '../LibraryManageDialog/LibraryManageDialog'
+import { useEventBus } from '../../hooks/useEventBus'
 
 export const Sidebar = () => {
   const [expanded, setExpanded] = useState(0)
@@ -38,6 +39,15 @@ export const Sidebar = () => {
   const toggleMediaManageDialog = () => {
     setMediaManageDialogOpen(!mediaManageDialogOpen)
   }
+
+  const [isScanning, setIsScanning] = useState(true)
+
+  const { listenForMessages } = useEventBus()
+  listenForMessages('media_library_scanned', (payload: unknown) => {
+    console.log('payload', payload)
+    // TODO: update state of the specific media library
+    setIsScanning(false)
+  })
 
   return (
     <>

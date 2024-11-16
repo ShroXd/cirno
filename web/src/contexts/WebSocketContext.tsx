@@ -1,4 +1,5 @@
 import { createContext, FC } from 'react'
+import { useEventBus } from '../hooks/useEventBus'
 
 // NOTE: During development mode, React renders components twice for strict mode enforcement.
 // This can lead to the creation of multiple WebSocket clients, causing issues with backend negotiation.
@@ -13,6 +14,18 @@ interface WebSocketProviderProps {
 }
 
 export const WebSocketProvider: FC<WebSocketProviderProps> = ({ children }) => {
+  const { sendMessage } = useEventBus()
+
+  ws.onmessage = event => {
+    console.log('Received message:', event.data)
+
+    sendMessage({
+      event: 'create_ws_client',
+      payload: event.data,
+    })
+    // TODO: send message to event bus and let the subscribers handle the message
+  }
+
   return (
     <WebSocketContext.Provider value={ws}>{children}</WebSocketContext.Provider>
   )

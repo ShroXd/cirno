@@ -1,4 +1,6 @@
-type EventHandler = (payload: unknown) => void
+export type EventHandler = (payload: unknown) => void
+
+// TODO: 1. async tasks
 
 export type EventBusType = {
   on: (event: string, handler: EventHandler) => void
