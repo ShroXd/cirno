@@ -181,7 +181,7 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
         </DialogBody>
         <DialogFooter>
           <Button className='ml-auto' type='submit'>
-            {t('component.libraryManageDialog.confirm')}
+            {t('common.confirm')}
           </Button>
         </DialogFooter>
       </form>

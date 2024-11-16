@@ -6,6 +6,7 @@ import {
   DialogHeader,
 } from '@material-tailwind/react'
 import { useDelete } from '../../hooks/useDelete'
+import { useTranslation } from 'react-i18next'
 
 interface DeleteConfirmationDialogProps {
   mediaLibraryId: number
@@ -22,6 +23,7 @@ export const DeleteConfirmationDialog = ({
   open,
   handleOpen,
 }: DeleteConfirmationDialogProps) => {
+  const { t } = useTranslation()
   const del = useDelete()
 
   const handleDelete = async () => {
@@ -37,10 +39,10 @@ export const DeleteConfirmationDialog = ({
       <DialogBody>{description}</DialogBody>
       <DialogFooter className='flex justify-end gap-4'>
         <Button variant='text' onClick={handleOpen}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button color='red' onClick={handleDelete}>
-          Delete
+          {t('common.confirm')}
         </Button>
       </DialogFooter>
     </Dialog>

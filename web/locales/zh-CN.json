@@ -5,7 +5,9 @@
       "en": "英语",
       "zh-CN": "中文",
       "jp": "日语"
-    }
+    },
+    "confirm": "确认",
+    "cancel": "取消"
   },
   "component": {
     "sidebar": {
@@ -30,10 +32,13 @@
       },
       "directory": "目录",
       "directoryPlaceholder": "例如：/path/to/目录",
-      "confirm": "确认",
       "nameRequired": "名称是必填项",
       "categoryRequired": "分类是必填项",
       "directoryRequired": "目录是必填项"
+    },
+    "deleteConfirmationDialog": {
+      "title": "删除媒体库",
+      "description": "你确定要删除这个媒体库吗？"
     }
   },
   "page": {

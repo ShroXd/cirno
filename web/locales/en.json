@@ -5,7 +5,9 @@
       "en": "English",
       "zh-CN": "Chinese",
       "jp": "Japanese"
-    }
+    },
+    "confirm": "Confirm",
+    "cancel": "Cancel"
   },
   "component": {
     "sidebar": {
@@ -30,10 +32,13 @@
       },
       "directory": "Directory",
       "directoryPlaceholder": "eg. /path/to/directory",
-      "confirm": "Confirm",
       "nameRequired": "Name is required",
       "categoryRequired": "Category is required",
       "directoryRequired": "Directory is required"
+    },
+    "deleteConfirmationDialog": {
+      "title": "Delete Media Library",
+      "description": "Are you sure you want to delete this media library?"
     }
   },
   "page": {

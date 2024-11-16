@@ -90,8 +90,8 @@ export const Sidebar = () => {
         mediaLibraryId={mediaLibraryToDelete ?? 0}
         open={showDeleteConfirmation}
         handleOpen={handleDeleteMediaLibraryConfirmation}
-        title='Delete Media Library'
-        description='Are you sure you want to delete this media library?'
+        title={t('component.deleteConfirmationDialog.title')}
+        description={t('component.deleteConfirmationDialog.description')}
       />
       <div className='w-full max-w-[20rem] p-4 border-r border-blue-gray-50 overflow-y-auto h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
         <div className='mb-2 flex items-center gap-4 p-4'>

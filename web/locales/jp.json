@@ -5,7 +5,9 @@
       "en": "英語",
       "zh-CN": "中国語",
       "jp": "日本語"
-    }
+    },
+    "confirm": "確認",
+    "cancel": "キャンセル"
   },
   "component": {
     "sidebar": {
@@ -30,10 +32,13 @@
       },
       "directory": "ディレクトリ",
       "directoryPlaceholder": "例：/path/to/ディレクトリ",
-      "confirm": "確認",
       "nameRequired": "名前は必須です",
       "categoryRequired": "カテゴリは必須です",
       "directoryRequired": "ディレクトリは必須です"
+    },
+    "deleteConfirmationDialog": {
+      "title": "メディアライブラリの削除",
+      "description": "本当にこのメディアライブラリを削除しますか？"
     }
   },
   "page": {
