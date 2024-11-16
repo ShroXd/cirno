@@ -7,6 +7,7 @@ use crate::{
     database::{
         create::{insert_media_library, insert_tv_series},
         database::Database,
+        delete::delete_media_library,
         query::{
             query_media_libraries, query_seasons_with_episodes, query_series, MediaLibraryDTO,
             SeasonDTO, TVSeriesDTO,
@@ -143,6 +144,31 @@ impl Handler<GetMediaLibraries> for Database {
                     Err(e) => {
                         error!("Error getting media libraries: {:?}", e);
                         fut::ready(Vec::new())
+                    }
+                }),
+        )
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub struct DeleteMediaLibrary(pub i64);
+
+impl Handler<DeleteMediaLibrary> for Database {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(&mut self, msg: DeleteMediaLibrary, _: &mut Self::Context) -> Self::Result {
+        info!("Deleting media library: {:?}", msg.0);
+        let pool = self.get_connection_pool();
+
+        Box::pin(
+            async move { delete_media_library(&pool, msg.0).await }
+                .into_actor(self)
+                .then(|result, _actor, _ctx| match result {
+                    Ok(_) => fut::ready(()),
+                    Err(e) => {
+                        error!("Error deleting media library: {:?}", e);
+                        fut::ready(())
                     }
                 }),
         )

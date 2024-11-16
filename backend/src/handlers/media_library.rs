@@ -1,5 +1,5 @@
 use actix::{spawn, Addr};
-use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
+use actix_web::{delete, get, post, web, HttpRequest, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 use tracing::*;
 use ts_rs::TS;
@@ -7,8 +7,8 @@ use ts_rs::TS;
 use crate::{
     actors::{
         database_actor::{
-            CreateMediaLibrary, GetMediaLibraries, GetSeasons, GetSeries, InsertSeries,
-            SENTINEL_MEDIA_LIBRARY_ID,
+            CreateMediaLibrary, DeleteMediaLibrary, GetMediaLibraries, GetSeasons, GetSeries,
+            InsertSeries, SENTINEL_MEDIA_LIBRARY_ID,
         },
         parser_actor::{ParserActor, ScanMediaLibrary},
         utils::WsConnections,
@@ -171,12 +171,26 @@ async fn get_media_libraries(database_addr: web::Data<Addr<Database>>) -> impl R
     HttpResponse::Ok().json(media_libraries)
 }
 
+#[delete("/{id}")]
+async fn delete_media_library(
+    id: web::Path<i64>,
+    database_addr: web::Data<Addr<Database>>,
+) -> impl Responder {
+    database_addr
+        .send(DeleteMediaLibrary(id.into_inner()))
+        .await
+        .expect("Failed to delete media library");
+
+    HttpResponse::Ok().json(())
+}
+
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/media-libraries")
             .service(get_series)
             .service(get_seasons)
             .service(create_media_library)
-            .service(get_media_libraries),
+            .service(get_media_libraries)
+            .service(delete_media_library),
     );
 }

@@ -16,6 +16,7 @@ import {
   HeartIcon,
   ChevronDownIcon,
   PlusIcon,
+  TrashIcon,
 } from '@heroicons/react/24/solid'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom'
@@ -26,10 +27,18 @@ import { LibraryManageDialog } from '../LibraryManageDialog/LibraryManageDialog'
 import { useEventBus } from '../../hooks/useEventBus'
 import { useFetch } from '../../hooks/useFetch'
 import { MediaLibraryDTO } from '../../bindings/MediaLibraryDTO'
+import { DeleteConfirmationDialog } from '../DeleteConfirmationDialog/DeleteConfirmationDialog'
+import { mutate } from 'swr'
 
 export const Sidebar = () => {
   const [expanded, setExpanded] = useState(0)
   const [mediaManageDialogOpen, setMediaManageDialogOpen] = useState(false)
+  const [isManaging, setIsManaging] = useState(false)
+  const [isScanning, setIsScanning] = useState(true)
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [mediaLibraryToDelete, setMediaLibraryToDelete] = useState<
+    number | null
+  >(null)
 
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -39,13 +48,29 @@ export const Sidebar = () => {
 
   const toggleExpand = (value: number) => {
     setExpanded(expanded === value ? 0 : value)
+    if (expanded !== 1) {
+      setIsManaging(false)
+    }
   }
 
   const toggleMediaManageDialog = () => {
     setMediaManageDialogOpen(!mediaManageDialogOpen)
   }
 
-  const [isScanning, setIsScanning] = useState(true)
+  const toggleIsManaging = () => {
+    setIsManaging(!isManaging)
+  }
+
+  const handleDeleteMediaLibrary = (id: number) => {
+    setMediaLibraryToDelete(id)
+    setShowDeleteConfirmation(true)
+  }
+
+  const handleDeleteMediaLibraryConfirmation = () => {
+    mutate(`/media-libraries/`)
+    setShowDeleteConfirmation(false)
+    setMediaLibraryToDelete(null)
+  }
 
   const { listenForMessages } = useEventBus()
   listenForMessages('media_library_scanned', (payload: unknown) => {
@@ -59,6 +84,14 @@ export const Sidebar = () => {
       <LibraryManageDialog
         open={mediaManageDialogOpen}
         handleOpen={toggleMediaManageDialog}
+      />
+      <DeleteConfirmationDialog
+        // TODO: handle guard value
+        mediaLibraryId={mediaLibraryToDelete ?? 0}
+        open={showDeleteConfirmation}
+        handleOpen={handleDeleteMediaLibraryConfirmation}
+        title='Delete Media Library'
+        description='Are you sure you want to delete this media library?'
       />
       <div className='w-full max-w-[20rem] p-4 border-r border-blue-gray-50 overflow-y-auto h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
         <div className='mb-2 flex items-center gap-4 p-4'>
@@ -103,21 +136,47 @@ export const Sidebar = () => {
                   </Typography>
                 </AccordionHeader>
               </ListItem>
-              <Button
-                className='p-3 !overflow-visible'
-                variant='text'
-                onClick={toggleMediaManageDialog}
-              >
-                <PlusIcon className='h-4 w-4' />
-              </Button>
+              {expanded === 1 ? (
+                <Button
+                  className='p-3 !overflow-visible'
+                  variant='text'
+                  ripple={false}
+                  onClick={toggleIsManaging}
+                >
+                  <Cog6ToothIcon className='h-4 w-4' />
+                </Button>
+              ) : (
+                <Button
+                  className='p-3 !overflow-visible'
+                  variant='gradient'
+                  ripple={false}
+                  onClick={toggleMediaManageDialog}
+                >
+                  <PlusIcon className='h-4 w-4' />
+                </Button>
+              )}
             </div>
             <AccordionBody className='py-1'>
               {!isLoading && (
                 <List className='p-0'>
                   {data?.map(mediaLibrary => (
-                    <ListItem className='pl-6' key={mediaLibrary.id.toString()}>
-                      {mediaLibrary.name}
-                    </ListItem>
+                    <div
+                      className='flex flex-row justify-between gap-3'
+                      key={mediaLibrary.id.toString()}
+                    >
+                      <ListItem className='pl-6'>{mediaLibrary.name}</ListItem>
+                      <Button
+                        className={`p-3 !overflow-visible transition-all duration-1000 ${isManaging ? 'opacity-100' : 'opacity-0 pointer-events-none hidden'}`}
+                        color='red'
+                        variant='text'
+                        ripple={false}
+                        onClick={() =>
+                          handleDeleteMediaLibrary(Number(mediaLibrary.id))
+                        }
+                      >
+                        <TrashIcon className='h-4 w-4' />
+                      </Button>
+                    </div>
                   ))}
                 </List>
               )}

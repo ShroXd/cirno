@@ -86,6 +86,8 @@ pub async fn query_seasons_with_episodes(
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
+    // TODO: use uuid for series_id instead of i64
+
     let seasons = sqlx::query!(
         "
         SELECT season_number, title
@@ -158,6 +160,7 @@ pub async fn query_media_libraries(conn_pool: &SqlitePool) -> Result<Vec<MediaLi
                 .unwrap_or(MediaLibraryCategory::Movie),
         })
         .collect();
+    debug!("Found {} media libraries", media_libraries.len());
 
     Ok(media_libraries)
 }
