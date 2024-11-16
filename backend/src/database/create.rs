@@ -225,7 +225,7 @@ pub async fn insert_media_library(
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    let category_id = i32::from(media_library.category.clone());
+    let category_id = i64::from(media_library.category.clone());
     debug!("Category ID: {}", category_id);
 
     let existing_category_id: Option<i64> =

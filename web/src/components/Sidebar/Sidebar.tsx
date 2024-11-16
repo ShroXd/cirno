@@ -24,13 +24,18 @@ import { useState } from 'react'
 
 import { LibraryManageDialog } from '../LibraryManageDialog/LibraryManageDialog'
 import { useEventBus } from '../../hooks/useEventBus'
+import { useFetch } from '../../hooks/useFetch'
+import { MediaLibraryDTO } from '../../bindings/MediaLibraryDTO'
 
 export const Sidebar = () => {
   const [expanded, setExpanded] = useState(0)
   const [mediaManageDialogOpen, setMediaManageDialogOpen] = useState(false)
 
-  const navigate = useNavigate()
   const { t } = useTranslation()
+  const navigate = useNavigate()
+
+  const { data, error, isLoading } =
+    useFetch<MediaLibraryDTO[]>('/media-libraries/')
 
   const toggleExpand = (value: number) => {
     setExpanded(expanded === value ? 0 : value)
@@ -55,7 +60,7 @@ export const Sidebar = () => {
         open={mediaManageDialogOpen}
         handleOpen={toggleMediaManageDialog}
       />
-      <div className='w-full max-w-[20rem] p-4 border-r border-blue-gray-50'>
+      <div className='w-full max-w-[20rem] p-4 border-r border-blue-gray-50 overflow-y-auto h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
         <div className='mb-2 flex items-center gap-4 p-4'>
           <img
             src='https://docs.material-tailwind.com/img/logo-ct-dark.png'
@@ -107,13 +112,15 @@ export const Sidebar = () => {
               </Button>
             </div>
             <AccordionBody className='py-1'>
-              <List className='p-0'>
-                <ListItem className='pl-6'>
-                  AAnalyticsAnalyticsAnalyticsnalytics
-                </ListItem>
-                <ListItem className='pl-6'>Reporting</ListItem>
-                <ListItem className='pl-6'>Projects</ListItem>
-              </List>
+              {!isLoading && (
+                <List className='p-0'>
+                  {data?.map(mediaLibrary => (
+                    <ListItem className='pl-6' key={mediaLibrary.id.toString()}>
+                      {mediaLibrary.name}
+                    </ListItem>
+                  ))}
+                </List>
+              )}
             </AccordionBody>
           </Accordion>
           <ListItem onClick={() => navigate('/favorites')}>

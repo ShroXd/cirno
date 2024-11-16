@@ -7,7 +7,10 @@ use crate::{
     database::{
         create::{insert_media_library, insert_tv_series},
         database::Database,
-        query::{query_seasons_with_episodes, query_series, SeasonDTO, TVSeriesDTO},
+        query::{
+            query_media_libraries, query_seasons_with_episodes, query_series, MediaLibraryDTO,
+            SeasonDTO, TVSeriesDTO,
+        },
     },
     handlers::media_library::CreateMediaLibraryPayload,
     services::library_parser::parsers::TVSerie,
@@ -115,6 +118,31 @@ impl Handler<CreateMediaLibrary> for Database {
                     Err(e) => {
                         error!("Error creating media library: {:?}", e);
                         fut::ready(SENTINEL_MEDIA_LIBRARY_ID)
+                    }
+                }),
+        )
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "Vec<MediaLibraryDTO>")]
+pub struct GetMediaLibraries;
+
+impl Handler<GetMediaLibraries> for Database {
+    type Result = ResponseActFuture<Self, Vec<MediaLibraryDTO>>;
+
+    fn handle(&mut self, _: GetMediaLibraries, _: &mut Self::Context) -> Self::Result {
+        info!("Getting media libraries");
+        let pool = self.get_connection_pool();
+
+        Box::pin(
+            async move { query_media_libraries(&pool).await }
+                .into_actor(self)
+                .then(|result, _actor, _ctx| match result {
+                    Ok(media_libraries) => fut::ready(media_libraries),
+                    Err(e) => {
+                        error!("Error getting media libraries: {:?}", e);
+                        fut::ready(Vec::new())
                     }
                 }),
         )

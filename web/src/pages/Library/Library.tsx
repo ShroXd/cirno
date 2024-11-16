@@ -1,8 +1,8 @@
 import { ReactNode, useCallback } from 'react'
-
-import { TVSeriesDTO } from '../../bindings/TVSeriesDTO'
 import { Typography } from '@material-tailwind/react'
 import { NavLink } from 'react-router-dom'
+
+import { TVSeriesDTO } from '../../bindings/TVSeriesDTO'
 import { useFetch } from '../../hooks/useFetch'
 
 export const Library = () => {

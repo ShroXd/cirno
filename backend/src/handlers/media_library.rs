@@ -7,7 +7,8 @@ use ts_rs::TS;
 use crate::{
     actors::{
         database_actor::{
-            CreateMediaLibrary, GetSeasons, GetSeries, InsertSeries, SENTINEL_MEDIA_LIBRARY_ID,
+            CreateMediaLibrary, GetMediaLibraries, GetSeasons, GetSeries, InsertSeries,
+            SENTINEL_MEDIA_LIBRARY_ID,
         },
         parser_actor::{ParserActor, ScanMediaLibrary},
         utils::WsConnections,
@@ -58,7 +59,7 @@ pub enum MediaLibraryCategory {
     Animation,
 }
 
-impl From<MediaLibraryCategory> for i32 {
+impl From<MediaLibraryCategory> for i64 {
     fn from(category: MediaLibraryCategory) -> Self {
         match category {
             MediaLibraryCategory::Movie => 1,
@@ -68,10 +69,10 @@ impl From<MediaLibraryCategory> for i32 {
     }
 }
 
-impl TryFrom<i32> for MediaLibraryCategory {
+impl TryFrom<i64> for MediaLibraryCategory {
     type Error = String;
 
-    fn try_from(value: i32) -> Result<Self, Self::Error> {
+    fn try_from(value: i64) -> Result<Self, Self::Error> {
         Ok(match value {
             1 => MediaLibraryCategory::Movie,
             2 => MediaLibraryCategory::TvShow,
@@ -160,11 +161,22 @@ async fn create_media_library(
     }
 }
 
+#[get("/")]
+async fn get_media_libraries(database_addr: web::Data<Addr<Database>>) -> impl Responder {
+    let media_libraries = database_addr
+        .send(GetMediaLibraries)
+        .await
+        .expect("Failed to get media libraries");
+
+    HttpResponse::Ok().json(media_libraries)
+}
+
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/media-libraries")
             .service(get_series)
             .service(get_seasons)
-            .service(create_media_library),
+            .service(create_media_library)
+            .service(get_media_libraries),
     );
 }

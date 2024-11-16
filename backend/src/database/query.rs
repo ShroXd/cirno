@@ -4,6 +4,8 @@ use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 use ts_rs::TS;
 
+use crate::handlers::media_library::MediaLibraryCategory;
+
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct TVSeriesDTO {
@@ -126,4 +128,36 @@ pub async fn query_seasons_with_episodes(
     }
 
     Ok(season_with_episodes)
+}
+
+#[derive(Debug, Deserialize, Serialize, TS)]
+#[ts(export)]
+pub struct MediaLibraryDTO {
+    id: i64,
+    name: String,
+    category: MediaLibraryCategory,
+}
+
+// TODO: after finishing the user system, query the media libraries for the current user
+#[instrument(skip(conn_pool))]
+pub async fn query_media_libraries(conn_pool: &SqlitePool) -> Result<Vec<MediaLibraryDTO>> {
+    let mut conn = conn_pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+
+    let raw_media_libraries = sqlx::query!("SELECT id, name, category_id FROM media_library",)
+        .fetch_all(&mut *tx)
+        .await?;
+
+    let media_libraries: Vec<MediaLibraryDTO> = raw_media_libraries
+        .into_iter()
+        .map(|ml| MediaLibraryDTO {
+            id: ml.id,
+            name: ml.name,
+            // TODO: consider if this is the best way to handle this
+            category: MediaLibraryCategory::try_from(ml.category_id)
+                .unwrap_or(MediaLibraryCategory::Movie),
+        })
+        .collect();
+
+    Ok(media_libraries)
 }
