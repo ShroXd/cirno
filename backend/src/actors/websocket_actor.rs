@@ -273,6 +273,7 @@ impl WebSocketActorBehavior for WebSocketActor {
         }
     }
 
+    // TODO: remove this function
     async fn handle_parser(
         parser: Parser,
         parser_addr: Addr<ParserActor>,
@@ -290,8 +291,7 @@ impl WebSocketActorBehavior for WebSocketActor {
                         info!("Media library scanned: {:?}", library.series.len());
 
                         for series in library.series {
-                            // BUG: did not insert episode and actors
-                            if let Err(e) = database_addr.try_send(InsertSeries(series)) {
+                            if let Err(e) = database_addr.try_send(InsertSeries(series, 1)) {
                                 error!("Failed to forward message to database: {:?}", e);
                             }
                         }

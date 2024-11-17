@@ -35,7 +35,9 @@ CREATE TABLE IF NOT EXISTS tv_series (
     tmdb_id TEXT,
     imdb_id TEXT,
     wikidata_id TEXT,
-    tvdb_id TEXT
+    tvdb_id TEXT,
+    media_library_id INTEGER,
+    FOREIGN KEY (media_library_id) REFERENCES media_library (id)
 );
 
 CREATE TABLE IF NOT EXISTS seasons (

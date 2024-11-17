@@ -1,6 +1,8 @@
 use anyhow::*;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
 use serde::{Deserialize, Serialize};
-use sqlx::{Acquire, SqlitePool};
+use sqlx::{Acquire, QueryBuilder, Row, SqlitePool};
 use tracing::*;
 use ts_rs::TS;
 
@@ -45,33 +47,46 @@ pub struct EpisodeDTO {
 }
 
 #[instrument(skip(conn_pool))]
-pub async fn query_series(conn_pool: &SqlitePool) -> Result<Vec<TVSeriesDTO>> {
+pub async fn query_series(
+    conn_pool: &SqlitePool,
+    media_library_id: Option<i64>,
+) -> Result<Vec<TVSeriesDTO>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    let series = sqlx::query!(
+    let mut query_builder = QueryBuilder::new(
         "
-        select ts.id, ts.title, ts.poster_path, ts.fanart_path, ts.country, ts.year, ts.plot, group_concat(g.name, ', ') as genres
-        from tv_series ts
-        join tv_series_genres tsg on ts.id = tsg.series_id
-        join genres g on tsg.genre_id = g.id
-        group by ts.id, ts.title
+        SELECT ts.id, ts.title, ts.poster_path, ts.fanart_path, ts.country, ts.year, ts.plot,
+               group_concat(g.name, ', ') AS genres
+        FROM tv_series ts
+        JOIN tv_series_genres tsg ON ts.id = tsg.series_id
+        JOIN genres g ON tsg.genre_id = g.id
         ",
-    )
-    .fetch_all(&mut *tx)
-    .await?;
+    );
+    if let Some(media_library_id) = media_library_id {
+        query_builder.push("WHERE ts.media_library_id = ");
+        query_builder.push_bind(media_library_id);
+    }
+    query_builder.push("GROUP BY ts.id, ts.title");
+
+    let query = query_builder.build();
+    let series = query.fetch_all(&mut *tx).await?;
 
     let series: Vec<TVSeriesDTO> = series
-        .into_iter()
+        .par_iter()
         .map(|s| TVSeriesDTO {
-            id: s.id,
-            title: s.title,
-            plot: s.plot,
-            poster_path: s.poster_path,
-            fanart_path: s.fanart_path,
-            country: s.country,
-            year: s.year.map(|y| y.to_string()),
-            genres: s.genres.split(',').map(|s| s.to_string()).collect(),
+            id: s.get::<i64, _>("id"),
+            title: s.get::<String, _>("title"),
+            plot: s.get::<Option<String>, _>("plot"),
+            poster_path: s.get::<Option<String>, _>("poster_path"),
+            fanart_path: s.get::<Option<String>, _>("fanart_path"),
+            country: s.get::<Option<String>, _>("country"),
+            year: s.get::<Option<i64>, _>("year").map(|y| y.to_string()),
+            genres: s
+                .get::<String, _>("genres")
+                .split(',')
+                .map(|s| s.to_string())
+                .collect(),
         })
         .collect();
 

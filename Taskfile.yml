@@ -187,8 +187,8 @@ tasks:
       - echo "📂 Running database setup script..."
       - ./create_db.sh
 
-  prepare-database:
-    desc: "🗂️ Set up DATABASE_URL and prepare the database schema"
+  check-database:
+    desc: "🔍 Check and prepare database schema with sqlx"
     cmds:
       - |
         echo "📂 Setting DATABASE_URL for the database..."

@@ -21,10 +21,20 @@ use crate::{
 // TODO: 2. return error messages in the response
 // TODO: 3. rename series to content or media etc.
 
+#[derive(Debug, Deserialize, Serialize, Clone, TS)]
+#[ts(export)]
+pub struct GetSeriesQuery {
+    pub media_library_id: Option<i64>,
+}
+
 #[get("/series")]
-async fn get_series(database_addr: web::Data<Addr<Database>>) -> impl Responder {
+async fn get_series(
+    database_addr: web::Data<Addr<Database>>,
+    query: web::Query<GetSeriesQuery>,
+) -> impl Responder {
+    let media_library_id = query.into_inner().media_library_id;
     let series = database_addr
-        .send(GetSeries)
+        .send(GetSeries(media_library_id))
         .await
         .expect("Failed to get series");
 
@@ -96,18 +106,12 @@ async fn create_media_library(
     ws_connections: web::Data<WsConnections>,
     req: HttpRequest,
 ) -> impl Responder {
-    // if let Some(ws_client_key) = req.headers().get("X-WS-CLIENT-KEY") {
-    //     info!("WS client key: {:?}", ws_client_key);
-    // } else {
-    //     // TODO: consider the correct status code
-    //     return HttpResponse::Unauthorized().json("Unauthorized");
-    // }
-
     let ws_client_key = match req.headers().get("X-WS-CLIENT-KEY") {
         // TODO: handle the case where the key is not a string
         Some(key) => key.to_str().unwrap().to_string(),
         None => return HttpResponse::Unauthorized().json("Unauthorized"),
     };
+    debug!("WS client key: {:?}", ws_client_key);
 
     let payload = payload.into_inner();
     match database_addr
@@ -115,26 +119,28 @@ async fn create_media_library(
         .await
     {
         Ok(media_library_id) => {
-            info!("Media library created with id: {:?}", media_library_id);
+            debug!("Media library created with id: {:?}", media_library_id);
             if media_library_id == SENTINEL_MEDIA_LIBRARY_ID {
+                error!("Failed to create media library");
                 HttpResponse::InternalServerError().json("Failed to create media library")
             } else {
                 spawn(async move {
-                    // 1. get the media library id
-                    // 2. scan the library
-                    // 3. insert the data
-                    // 4. notify the frontend via the websocket
+                    // Scan library, insert data into DB, and notify frontend via websocket
                     let directory = payload.directory.clone();
                     match parser_addr.send(ScanMediaLibrary(directory)).await {
                         Ok(result) => {
                             let media_library = result.expect("Failed to scan media library");
                             for serie in media_library.series {
-                                match database_addr.send(InsertSeries(serie)).await {
-                                    Ok(_) => (),
+                                match database_addr
+                                    .send(InsertSeries(serie, media_library_id))
+                                    .await
+                                {
+                                    Ok(_) => debug!("Series inserted"),
                                     Err(e) => error!("Failed to insert series: {:?}", e),
                                 }
                             }
 
+                            // Artificial delay to test frontend async UI behavior, will be removed
                             tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
 
                             let ws_connections = ws_connections.get(ws_client_key).await;
@@ -143,7 +149,7 @@ async fn create_media_library(
                                     .send(Notification::MediaLibraryScanned(media_library_id))
                                     .await
                                 {
-                                    Ok(_) => info!("Media library scanned notification sent"),
+                                    Ok(_) => debug!("Media library scanned notification sent"),
                                     Err(e) => error!("Failed to send notification: {:?}", e),
                                 }
                             }
@@ -157,7 +163,10 @@ async fn create_media_library(
                 })
             }
         }
-        Err(e) => HttpResponse::InternalServerError().json(e.to_string()),
+        Err(e) => {
+            error!("Failed to create media library: {:?}", e);
+            HttpResponse::InternalServerError().json("Failed to create media library")
+        }
     }
 }
 

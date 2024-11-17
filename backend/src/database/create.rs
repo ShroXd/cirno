@@ -9,13 +9,17 @@ use crate::{
 };
 
 // TODO: the code for checking duplicated data is still not correct
-pub async fn insert_tv_series(conn_pool: &SqlitePool, tv_series: &TVSerie) -> Result<()> {
+pub async fn insert_tv_series(
+    conn_pool: &SqlitePool,
+    tv_series: &TVSerie,
+    media_library_id: i64,
+) -> Result<()> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
     sqlx::query!(
-        "INSERT OR IGNORE INTO tv_series (title, nfo_path, poster_path, fanart_path, country, year, plot, tmdb_id, imdb_id, wikidata_id, tvdb_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT OR IGNORE INTO tv_series (title, nfo_path, poster_path, fanart_path, country, year, plot, tmdb_id, imdb_id, wikidata_id, tvdb_id, media_library_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         tv_series.title,
         tv_series.nfo_path,
         tv_series.poster_path,
@@ -27,6 +31,7 @@ pub async fn insert_tv_series(conn_pool: &SqlitePool, tv_series: &TVSerie) -> Re
         tv_series.imdb_id,
         tv_series.wikidata_id,
         tv_series.tvdb_id,
+        media_library_id,
     )
     .execute(&mut *tx)
     .await?;

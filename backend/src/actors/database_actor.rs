@@ -24,7 +24,7 @@ impl Actor for Database {
 // TODO: extend this to enum until we have more types to be inserted
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
-pub struct InsertSeries(pub TVSerie);
+pub struct InsertSeries(pub TVSerie, pub i64);
 
 impl Handler<InsertSeries> for Database {
     type Result = ResponseActFuture<Self, ()>;
@@ -35,7 +35,7 @@ impl Handler<InsertSeries> for Database {
         let pool = self.get_connection_pool();
 
         Box::pin(
-            async move { insert_tv_series(&pool, &msg.0).await }
+            async move { insert_tv_series(&pool, &msg.0, msg.1).await }
                 .into_actor(self)
                 .then(|result, _actor, _ctx| match result {
                     Ok(_) => fut::ready(()),
@@ -50,17 +50,17 @@ impl Handler<InsertSeries> for Database {
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "Vec<TVSeriesDTO>")]
-pub struct GetSeries;
+pub struct GetSeries(pub Option<i64>);
 
 impl Handler<GetSeries> for Database {
     type Result = ResponseActFuture<Self, Vec<TVSeriesDTO>>;
 
-    fn handle(&mut self, _: GetSeries, _: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: GetSeries, _: &mut Self::Context) -> Self::Result {
         info!("Getting series");
         let pool = self.get_connection_pool();
 
         Box::pin(
-            async move { query_series(&pool).await }
+            async move { query_series(&pool, msg.0).await }
                 .into_actor(self)
                 .then(|result, _actor, _ctx| match result {
                     Ok(series) => fut::ready(series),

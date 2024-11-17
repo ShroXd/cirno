@@ -1,0 +1,62 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            select ts.id, ts.title, ts.poster_path, ts.fanart_path, ts.country, ts.year, ts.plot, group_concat(g.name, ', ') as genres\n            from tv_series ts\n            join tv_series_genres tsg on ts.id = tsg.series_id\n            join genres g on tsg.genre_id = g.id\n            where ts.media_library_id = ?\n            group by ts.id, ts.title\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "title",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "poster_path",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "fanart_path",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "country",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "year",
+        "ordinal": 5,
+        "type_info": "Integer"
+      },
+      {
+        "name": "plot",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "genres",
+        "ordinal": 7,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "5145ba0d8dd6bfb79b0d9f1d683d9109d9be7c56d4e1ca4a9a1b62f4ed7912d8"
+}

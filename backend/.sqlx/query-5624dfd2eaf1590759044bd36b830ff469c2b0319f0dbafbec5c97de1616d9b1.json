@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        select ts.id, ts.title, ts.poster_path, ts.fanart_path, ts.country, ts.year, ts.plot, group_concat(g.name, ', ') as genres\n        from tv_series ts\n        join tv_series_genres tsg on ts.id = tsg.series_id\n        join genres g on tsg.genre_id = g.id\n        group by ts.id, ts.title\n        ",
+  "query": "\n            select ts.id, ts.title, ts.poster_path, ts.fanart_path, ts.country, ts.year, ts.plot, group_concat(g.name, ', ') as genres\n            from tv_series ts\n            join tv_series_genres tsg on ts.id = tsg.series_id\n            join genres g on tsg.genre_id = g.id\n            group by ts.id, ts.title\n            ",
   "describe": {
     "columns": [
       {
@@ -58,5 +58,5 @@
       false
     ]
   },
-  "hash": "6f17a38cb28e665f3fca750d5d4cdc01fb463364b86e6c1fc577fa4d3f1fdb3c"
+  "hash": "5624dfd2eaf1590759044bd36b830ff469c2b0319f0dbafbec5c97de1616d9b1"
 }
