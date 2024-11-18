@@ -7,7 +7,7 @@ import { useFetch } from '../../hooks/useFetch'
 
 export const Library = () => {
   const { data, error, isLoading } = useFetch<TVSeriesDTO[]>(
-    '/media-libraries/series'
+    '/media-libraries/media-items'
   )
 
   const container = useCallback(

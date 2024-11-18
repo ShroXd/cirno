@@ -9,13 +9,14 @@ use ts_rs::TS;
 
 use crate::{
     actors::{
-        database_actor::{DeleteMediaLibrary, GetSeasons, GetSeries},
+        database_actor::{DeleteMediaLibrary, GetSeasons},
         parser_actor::ParserActor,
         utils::WsConnections,
     },
     application::http_api::controllers::{
         api_models::CreateMediaLibraryPayload,
         consts::WS_CLIENT_KEY_HEADER,
+        media_item::get_media_item_controller,
         media_library::{create_media_library_controller, get_media_libraries_controller},
     },
     database::database::Database,
@@ -28,22 +29,22 @@ use crate::{
 
 #[derive(Debug, Deserialize, Serialize, Clone, TS)]
 #[ts(export)]
-pub struct GetSeriesQuery {
+pub struct GetMediaItemsQuery {
     pub media_library_id: Option<i64>,
 }
 
-#[get("/series")]
-async fn get_series(
+#[get("/media-items")]
+async fn get_media_items_route(
     database_addr: Data<Addr<Database>>,
-    query: Query<GetSeriesQuery>,
+    query: Query<GetMediaItemsQuery>,
 ) -> impl Responder {
     let media_library_id = query.into_inner().media_library_id;
-    let series = database_addr
-        .send(GetSeries(media_library_id))
-        .await
-        .expect("Failed to get series");
 
-    HttpResponse::Ok().json(series)
+    handle_controller_result!(
+        get_media_item_controller(database_addr, media_library_id).await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
 }
 
 #[get("/series/{id}/seasons")]
@@ -111,7 +112,7 @@ async fn delete_media_library_route(
 pub fn init_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         scope("/media-libraries")
-            .service(get_series)
+            .service(get_media_items_route)
             .service(get_seasons)
             .service(create_media_library_route)
             .service(get_media_libraries_route)
