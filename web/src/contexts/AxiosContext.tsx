@@ -1,6 +1,8 @@
 import { createContext, FC, ReactNode, useEffect, useState } from 'react'
 import axios, { AxiosInstance } from 'axios'
+
 import { useEventBus } from '../hooks/useEventBus'
+import { isRegisterClientPayload } from '../utils/typeGuards'
 
 export interface AxiosContextProps {
   axiosInstance: AxiosInstance
@@ -16,20 +18,9 @@ export const AxiosProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [wsClientKey, setWsClientKey] = useState<string | null>(null)
 
   const { listenForMessages } = useEventBus()
-  listenForMessages('create_ws_client', (payload: unknown) => {
-    // TODO: type guard and process the payload
-    console.log('create_ws_client', payload)
-    const payloadObj = JSON.parse(payload as string)
-
-    if (
-      payloadObj &&
-      typeof payloadObj === 'object' &&
-      'key' in payloadObj &&
-      typeof payloadObj.key === 'string'
-    ) {
-      console.log('create_ws_client', payloadObj)
-
-      setWsClientKey(payloadObj.key)
+  listenForMessages('RegisterClient', (payload: unknown) => {
+    if (isRegisterClientPayload(payload)) {
+      setWsClientKey(payload.key)
     }
   })
 

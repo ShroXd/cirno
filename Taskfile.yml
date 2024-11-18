@@ -171,13 +171,13 @@ tasks:
 
   # ---------------------------- 🔧 Tooling Tasks 🔧 ----------------------------
 
-  regenerate-bindings:
-    desc: "🔄 Regenerate bindings type files by cleaning and running backend tests"
+  generate-bindings:
+    desc: "🔄 Generate bindings type files by cleaning and running backend tests"
     dir: web
     cmds:
       - echo "🧹 Cleaning web/src/bindings..."
       - rm -rf src/bindings/*
-      - echo "🧪 Running backend tests to regenerate bindings..."
+      - echo "🧪 Running backend tests to generate bindings..."
       - cd ../backend && cargo test
 
   create-database:

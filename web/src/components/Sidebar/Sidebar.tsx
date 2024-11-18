@@ -72,12 +72,12 @@ export const Sidebar = () => {
     setMediaLibraryToDelete(null)
   }
 
-  const { listenForMessages } = useEventBus()
-  listenForMessages('media_library_scanned', (payload: unknown) => {
-    console.log('payload', payload)
-    // TODO: update state of the specific media library
-    setIsScanning(false)
-  })
+  // const { listenForMessages } = useEventBus()
+  // listenForMessages('media_library_scanned', (payload: unknown) => {
+  //   console.log('payload', payload)
+  //   // TODO: update state of the specific media library
+  //   setIsScanning(false)
+  // })
 
   return (
     <>

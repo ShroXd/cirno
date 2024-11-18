@@ -16,27 +16,24 @@ use crate::{
     services::gstreamer_pipeline::pipeline::Pipeline,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum AsyncTaskType {
-    MediaLibraryScan,
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub enum EventName {
+    RegisterClient,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub enum AsyncTaskOperation {
-    Start,
-    Success,
-    Failure(String),
-    Progress(String),
-}
-
-// TODO: consider if we merge this with Notification when we have more information about the async task scheduling
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AsyncTask {
+pub struct RegisterClient {
     // Generated from uuid
     pub key: String,
-    pub task_type: AsyncTaskType,
-    pub operation: AsyncTaskOperation,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct EventMessage<T> {
+    pub event: EventName,
+    pub payload: T,
 }
 
 #[derive(Debug, Clone)]
@@ -73,14 +70,13 @@ impl Actor for WebSocketActor {
             ws_connections.add(key, addr).await;
         });
 
-        let message = match to_string(&AsyncTask {
-            key: key_clone,
-            task_type: AsyncTaskType::MediaLibraryScan,
-            operation: AsyncTaskOperation::Start,
+        let message = match to_string(&EventMessage {
+            event: EventName::RegisterClient,
+            payload: RegisterClient { key: key_clone },
         }) {
             Ok(message) => message,
             Err(e) => {
-                error!("Failed to serialize async task: {:?}", e);
+                error!("Failed to serialize register client: {:?}", e);
                 return;
             }
         };
