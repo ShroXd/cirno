@@ -1,12 +1,9 @@
-use actix::Addr;
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
-use actors::{utils::WsConnections, websocket_actor::WebSocketActor};
-use handlers::media_library::init_routes;
+use actors::utils::WsConnections;
 use init::system_initializer::SystemInitializer;
-use std::{env, sync::Arc};
-use tokio::sync::Mutex;
+use std::env;
 use tracing::*;
 
 mod actors;
@@ -15,6 +12,9 @@ mod handlers;
 mod init;
 mod services;
 mod utils;
+
+mod application;
+mod shared;
 
 async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello, world!")
@@ -59,7 +59,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(database_addr.clone()))
             .app_data(web::Data::new(ws_connections.clone()))
             .route("/hello", web::get().to(hello))
-            .configure(init_routes)
+            .configure(application::http_api::routes::init_routes)
             .service(Files::new("/hls", "./tmp").show_files_listing())
             .service(handlers::websocket::ws_index);
 

@@ -6,7 +6,7 @@ use sqlx::{Acquire, QueryBuilder, Row, SqlitePool};
 use tracing::*;
 use ts_rs::TS;
 
-use crate::handlers::media_library::MediaLibraryCategory;
+use crate::application::http_api::controllers::api_models::MediaLibraryCategory;
 
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[ts(export)]

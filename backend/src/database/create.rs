@@ -4,7 +4,7 @@ use sqlx::{Acquire, SqliteConnection, SqlitePool};
 use tracing::*;
 
 use crate::{
-    handlers::media_library::CreateMediaLibraryPayload,
+    application::http_api::controllers::api_models::CreateMediaLibraryPayload,
     services::library_parser::parsers::{Episode, Season, TVSerie},
 };
 
