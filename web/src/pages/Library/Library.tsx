@@ -2,11 +2,11 @@ import { ReactNode, useCallback } from 'react'
 import { Typography } from '@material-tailwind/react'
 import { NavLink } from 'react-router-dom'
 
-import { TVSeriesDTO } from '../../bindings/TVSeriesDTO'
+import { MediaItemDto } from '../../bindings/MediaItemDto'
 import { useFetch } from '../../hooks/useFetch'
 
 export const Library = () => {
-  const { data, error, isLoading } = useFetch<TVSeriesDTO[]>(
+  const { data, error, isLoading } = useFetch<MediaItemDto[]>(
     '/media-libraries/media-items'
   )
 
@@ -34,7 +34,7 @@ export const Library = () => {
         Recent
       </Typography>
       {container(
-        data?.map((serie: TVSeriesDTO) => (
+        data?.map((serie: MediaItemDto) => (
           <div
             className='group flex cursor-pointer select-none flex-col overflow-hidden pb-2'
             key={serie.id.toString()}

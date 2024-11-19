@@ -4,14 +4,16 @@ use tracing::*;
 use ts_rs::TS;
 
 use crate::{
-    application::http_api::controllers::api_models::CreateMediaLibraryPayload,
+    application::{
+        dtos::MediaItemDto, http_api::controllers::api_models::CreateMediaLibraryPayload,
+    },
     database::{
         create::{insert_media_library, insert_tv_series},
         database::Database,
         delete::delete_media_library,
         query::{
             query_media_libraries, query_seasons_with_episodes, query_series, MediaLibraryDTO,
-            SeasonDTO, TVSeriesDTO,
+            SeasonDTO,
         },
     },
     services::library_parser::parsers::TVSerie,
@@ -49,13 +51,13 @@ impl Handler<InsertSeries> for Database {
 }
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "Vec<TVSeriesDTO>")]
-pub struct GetSeries(pub Option<i64>);
+#[rtype(result = "Vec<MediaItemDto>")]
+pub struct GetMediaItems(pub Option<i64>);
 
-impl Handler<GetSeries> for Database {
-    type Result = ResponseActFuture<Self, Vec<TVSeriesDTO>>;
+impl Handler<GetMediaItems> for Database {
+    type Result = ResponseActFuture<Self, Vec<MediaItemDto>>;
 
-    fn handle(&mut self, msg: GetSeries, _: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: GetMediaItems, _: &mut Self::Context) -> Self::Result {
         info!("Getting series");
         let pool = self.get_connection_pool();
 

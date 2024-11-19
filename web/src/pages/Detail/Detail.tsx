@@ -16,11 +16,11 @@ import {
 import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
 import useSWR from 'swr'
 
-import { TVSeriesDTO } from '../../bindings/TVSeriesDTO'
+import { MediaItemDto } from '../../bindings/MediaItemDto'
 import { SeasonDTO } from '../../bindings/SeasonDTO'
 
 export const Detail = () => {
-  const [serie, setSerie] = useState<TVSeriesDTO>()
+  const [serie, setSerie] = useState<MediaItemDto>()
   const [sortBy, setSortBy] = useState<string>('episode_number')
 
   const location = useLocation()

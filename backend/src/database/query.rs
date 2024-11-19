@@ -6,20 +6,8 @@ use sqlx::{Acquire, QueryBuilder, Row, SqlitePool};
 use tracing::*;
 use ts_rs::TS;
 
+use crate::application::dtos::MediaItemDto;
 use crate::application::http_api::controllers::api_models::MediaLibraryCategory;
-
-#[derive(Debug, Deserialize, Serialize, TS)]
-#[ts(export)]
-pub struct TVSeriesDTO {
-    id: i64,
-    title: String,
-    plot: Option<String>,
-    poster_path: Option<String>,
-    fanart_path: Option<String>,
-    country: Option<String>,
-    year: Option<String>,
-    genres: Vec<String>,
-}
 
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[ts(export)]
@@ -50,7 +38,7 @@ pub struct EpisodeDTO {
 pub async fn query_series(
     conn_pool: &SqlitePool,
     media_library_id: Option<i64>,
-) -> Result<Vec<TVSeriesDTO>> {
+) -> Result<Vec<MediaItemDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
@@ -72,9 +60,9 @@ pub async fn query_series(
     let query = query_builder.build();
     let series = query.fetch_all(&mut *tx).await?;
 
-    let series: Vec<TVSeriesDTO> = series
+    let series: Vec<MediaItemDto> = series
         .par_iter()
-        .map(|s| TVSeriesDTO {
+        .map(|s| MediaItemDto {
             id: s.get::<i64, _>("id"),
             title: s.get::<String, _>("title"),
             plot: s.get::<Option<String>, _>("plot"),
