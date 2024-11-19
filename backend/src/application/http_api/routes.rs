@@ -4,20 +4,18 @@ use actix_web::{
     web::{scope, Data, Json, Path, Query, ServiceConfig},
     HttpRequest, HttpResponse, Responder,
 };
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
 
 use crate::{
-    actors::{
-        database_actor::{DeleteMediaLibrary, GetSeasons},
-        parser_actor::ParserActor,
-        utils::WsConnections,
-    },
+    actors::{parser_actor::ParserActor, utils::WsConnections},
     application::http_api::controllers::{
-        api_models::CreateMediaLibraryPayload,
+        api_models::{CreateMediaLibraryPayload, GetMediaItemsQuery},
         consts::WS_CLIENT_KEY_HEADER,
         media_item::get_media_item_controller,
-        media_library::{create_media_library_controller, get_media_libraries_controller},
+        media_library::{
+            create_media_library_controller, delete_media_library_controller,
+            get_media_libraries_controller,
+        },
+        tv_show::get_tv_show_seasons_controller,
     },
     database::database::Database,
     handle_controller_result,
@@ -26,12 +24,6 @@ use crate::{
 // TODO: 1. move data models to database/models.rs
 // TODO: 2. return error messages in the response
 // TODO: 3. rename series to content or media etc.
-
-#[derive(Debug, Deserialize, Serialize, Clone, TS)]
-#[ts(export)]
-pub struct GetMediaItemsQuery {
-    pub media_library_id: Option<i64>,
-}
 
 #[get("/media-items")]
 async fn get_media_items_route(
@@ -48,13 +40,17 @@ async fn get_media_items_route(
 }
 
 #[get("/series/{id}/seasons")]
-async fn get_seasons(database_addr: Data<Addr<Database>>, id: Path<i64>) -> impl Responder {
-    let seasons = database_addr
-        .send(GetSeasons(id.into_inner()))
-        .await
-        .expect("Failed to get seasons");
+async fn get_tv_show_seasons_route(
+    database_addr: Data<Addr<Database>>,
+    id: Path<i64>,
+) -> impl Responder {
+    let tv_show_id = id.into_inner();
 
-    HttpResponse::Ok().json(seasons)
+    handle_controller_result!(
+        get_tv_show_seasons_controller(database_addr, tv_show_id).await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
 }
 
 #[post("/")]
@@ -101,9 +97,7 @@ async fn delete_media_library_route(
     database_addr: Data<Addr<Database>>,
 ) -> impl Responder {
     handle_controller_result!(
-        database_addr
-            .send(DeleteMediaLibrary(id.into_inner()))
-            .await,
+        delete_media_library_controller(id.into_inner(), database_addr).await,
         HttpResponse::Ok(),
         HttpResponse::InternalServerError()
     )
@@ -113,7 +107,7 @@ pub fn init_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         scope("/media-libraries")
             .service(get_media_items_route)
-            .service(get_seasons)
+            .service(get_tv_show_seasons_route)
             .service(create_media_library_route)
             .service(get_media_libraries_route)
             .service(delete_media_library_route),

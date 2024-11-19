@@ -16,12 +16,12 @@ pub async fn get_media_item_controller(
 ) -> Result<Vec<TVSeriesDTO>> {
     match database_addr.send(GetSeries(id)).await {
         Ok(series) => {
-            debug!("Got {} series", series.len());
+            debug!("Got {} media items", series.len());
             Ok(series)
         }
         Err(e) => {
-            error!("Failed to get series: {:?}", e);
-            return Err(anyhow!("Failed to get series"));
+            error!("Failed to get media items: {:?}", e);
+            return Err(anyhow!("Failed to get media items"));
         }
     }
 }

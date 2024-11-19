@@ -49,3 +49,13 @@ impl TryFrom<i64> for MediaLibraryCategory {
 pub struct CreateMediaLibraryResponse {
     pub id: i64,
 }
+
+//------------------------------------------------------------------------------
+// Get Media Items API Models
+//------------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize, Serialize, TS)]
+#[ts(export)]
+pub struct GetMediaItemsQuery {
+    pub media_library_id: Option<i64>,
+}
