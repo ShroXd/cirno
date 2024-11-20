@@ -13,7 +13,7 @@ mod init;
 mod services;
 mod utils;
 
-mod application;
+mod interfaces;
 mod shared;
 
 async fn hello() -> impl Responder {
@@ -59,7 +59,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(database_addr.clone()))
             .app_data(web::Data::new(ws_connections.clone()))
             .route("/hello", web::get().to(hello))
-            .configure(application::http_api::routes::init_routes)
+            .configure(interfaces::http_api::routes::init_routes)
             .service(Files::new("/hls", "./tmp").show_files_listing())
             .service(handlers::websocket::ws_index);
 

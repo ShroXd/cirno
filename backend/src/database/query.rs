@@ -4,8 +4,8 @@ use rayon::iter::ParallelIterator;
 use sqlx::{Acquire, QueryBuilder, Row, SqlitePool};
 use tracing::*;
 
-use crate::application::dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto};
-use crate::application::http_api::controllers::api_models::MediaLibraryCategory;
+use crate::interfaces::dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto};
+use crate::interfaces::http_api::controllers::api_models::MediaLibraryCategory;
 
 #[instrument(skip(conn_pool))]
 pub async fn query_series(

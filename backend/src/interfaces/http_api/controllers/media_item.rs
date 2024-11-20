@@ -5,7 +5,8 @@ use std::result::Result::Ok;
 use tracing::*;
 
 use crate::{
-    actors::database_actor::GetMediaItems, application::dtos::MediaItemDto, database::database::Database,
+    actors::database_actor::GetMediaItems, database::database::Database,
+    interfaces::dtos::MediaItemDto,
 };
 
 #[instrument(skip(database_addr))]

@@ -15,8 +15,8 @@ use crate::{
         utils::WsConnections,
         websocket_actor::Notification,
     },
-    application::dtos::MediaLibraryDto,
     database::database::Database,
+    interfaces::dtos::MediaLibraryDto,
 };
 
 pub async fn create_media_library_controller(

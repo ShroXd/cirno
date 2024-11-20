@@ -7,7 +7,9 @@ use actix_web::{
 
 use crate::{
     actors::{parser_actor::ParserActor, utils::WsConnections},
-    application::http_api::controllers::{
+    database::database::Database,
+    handle_controller_result,
+    interfaces::http_api::controllers::{
         api_models::{CreateMediaLibraryPayload, GetMediaItemsQuery},
         consts::WS_CLIENT_KEY_HEADER,
         media_item::get_media_item_controller,
@@ -17,8 +19,6 @@ use crate::{
         },
         tv_show::get_tv_show_seasons_controller,
     },
-    database::database::Database,
-    handle_controller_result,
 };
 
 // TODO: 1. move data models to database/models.rs

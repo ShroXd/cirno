@@ -5,7 +5,7 @@ use std::result::Result::Ok;
 use tracing::*;
 
 use crate::{
-    actors::database_actor::GetSeasons, application::dtos::SeasonDto, database::database::Database,
+    actors::database_actor::GetSeasons, database::database::Database, interfaces::dtos::SeasonDto,
 };
 
 #[instrument(skip(database_addr))]
