@@ -17,7 +17,7 @@ import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
 import useSWR from 'swr'
 
 import { MediaItemDto } from '../../bindings/MediaItemDto'
-import { SeasonDTO } from '../../bindings/SeasonDTO'
+import { SeasonDto } from '../../bindings/SeasonDto'
 
 export const Detail = () => {
   const [serie, setSerie] = useState<MediaItemDto>()
@@ -26,7 +26,7 @@ export const Detail = () => {
   const location = useLocation()
   const { t } = useTranslation()
 
-  const { data, error, isLoading } = useSWR<SeasonDTO[]>(
+  const { data, error, isLoading } = useSWR<SeasonDto[]>(
     `/media-libraries/series/${location.state.detail.id}/seasons`,
     (url: string) => fetch(url).then(res => res.json())
   )

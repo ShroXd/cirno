@@ -23,3 +23,28 @@ pub struct MediaLibraryDto {
     pub name: String,
     pub category: MediaLibraryCategory,
 }
+
+#[derive(Debug, Deserialize, Serialize, TS)]
+#[ts(export)]
+pub struct SeasonDto {
+    pub season_number: Option<i64>,
+    pub season_title: Option<String>,
+    pub episodes: Vec<EpisodeDto>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS)]
+#[ts(export)]
+pub struct EpisodeDto {
+    pub id: i64,
+    pub title: Option<String>,
+    pub original_title: Option<String>,
+    pub plot: Option<String>,
+    pub nfo_path: Option<String>,
+    pub video_file_path: String,
+    pub subtitle_file_path: Option<String>,
+    pub thumb_image_url: Option<String>,
+    pub thumb_image: Option<String>,
+    pub season_number: Option<i64>,
+    pub episodes_number: Option<i64>,
+    pub runtime: Option<i64>,
+}

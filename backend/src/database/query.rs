@@ -1,39 +1,11 @@
 use anyhow::*;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
-use serde::{Deserialize, Serialize};
 use sqlx::{Acquire, QueryBuilder, Row, SqlitePool};
 use tracing::*;
-use ts_rs::TS;
 
-use crate::application::dtos::MediaItemDto;
-use crate::application::dtos::MediaLibraryDto;
+use crate::application::dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto};
 use crate::application::http_api::controllers::api_models::MediaLibraryCategory;
-
-#[derive(Debug, Deserialize, Serialize, TS)]
-#[ts(export)]
-pub struct SeasonDTO {
-    season_number: Option<i64>,
-    season_title: Option<String>,
-    episodes: Vec<EpisodeDTO>,
-}
-
-#[derive(Debug, Deserialize, Serialize, TS)]
-#[ts(export)]
-pub struct EpisodeDTO {
-    id: i64,
-    title: Option<String>,
-    original_title: Option<String>,
-    plot: Option<String>,
-    nfo_path: Option<String>,
-    video_file_path: String,
-    subtitle_file_path: Option<String>,
-    thumb_image_url: Option<String>,
-    thumb_image: Option<String>,
-    season_number: Option<i64>,
-    episodes_number: Option<i64>,
-    runtime: Option<i64>,
-}
 
 #[instrument(skip(conn_pool))]
 pub async fn query_series(
@@ -86,7 +58,7 @@ pub async fn query_series(
 pub async fn query_seasons_with_episodes(
     conn_pool: &SqlitePool,
     series_id: i64,
-) -> Result<Vec<SeasonDTO>> {
+) -> Result<Vec<SeasonDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
@@ -104,19 +76,19 @@ pub async fn query_seasons_with_episodes(
     .fetch_all(&mut *tx)
     .await?;
 
-    let seasons: Vec<SeasonDTO> = seasons
+    let seasons: Vec<SeasonDto> = seasons
         .into_iter()
-        .map(|s| SeasonDTO {
+        .map(|s| SeasonDto {
             season_number: s.season_number,
             season_title: s.title,
             episodes: vec![],
         })
         .collect();
 
-    let mut season_with_episodes: Vec<SeasonDTO> = vec![];
+    let mut season_with_episodes: Vec<SeasonDto> = vec![];
     for mut season in seasons {
         let episodes = sqlx::query_as!(
-            EpisodeDTO,
+            EpisodeDto,
             "
             SELECT e.id, e.title, e.original_title, e.plot, e.nfo_path, e.video_file_path, e.subtitle_file_path, e.thumb_image_url, e.thumb_image, e.season_number, e.episodes_number, e.runtime
             FROM episodes e

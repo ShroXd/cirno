@@ -24,9 +24,8 @@ import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 
 import { LibraryManageDialog } from '../LibraryManageDialog/LibraryManageDialog'
-import { useEventBus } from '../../hooks/useEventBus'
 import { useFetch } from '../../hooks/useFetch'
-import { MediaLibraryDTO } from '../../bindings/MediaLibraryDTO'
+import { MediaLibraryDto } from '../../bindings/MediaLibraryDto'
 import { DeleteConfirmationDialog } from '../DeleteConfirmationDialog/DeleteConfirmationDialog'
 import { mutate } from 'swr'
 
@@ -34,7 +33,6 @@ export const Sidebar = () => {
   const [expanded, setExpanded] = useState(0)
   const [mediaManageDialogOpen, setMediaManageDialogOpen] = useState(false)
   const [isManaging, setIsManaging] = useState(false)
-  const [isScanning, setIsScanning] = useState(true)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [mediaLibraryToDelete, setMediaLibraryToDelete] = useState<
     number | null
@@ -43,8 +41,7 @@ export const Sidebar = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const { data, error, isLoading } =
-    useFetch<MediaLibraryDTO[]>('/media-libraries/')
+  const { data, isLoading } = useFetch<MediaLibraryDto[]>('/media-libraries/')
 
   const toggleExpand = (value: number) => {
     setExpanded(expanded === value ? 0 : value)
