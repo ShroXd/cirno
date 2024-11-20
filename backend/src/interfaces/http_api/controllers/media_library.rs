@@ -1,85 +1,51 @@
-use actix::{spawn, Addr};
-use actix_web::web::Data;
+use actix::Addr;
+use actix_web::{
+    web::{Data, Json},
+    HttpRequest, HttpResponse, Responder,
+};
 use anyhow::*;
 use std::result::Result::Ok;
 use tracing::*;
 
-use super::api_models::{CreateMediaLibraryPayload, CreateMediaLibraryResponse};
+use super::api_models::CreateMediaLibraryPayload;
 use crate::{
     actors::{
-        database_actor::{
-            CreateMediaLibrary, DeleteMediaLibrary, GetMediaLibraries, InsertSeries,
-            SENTINEL_MEDIA_LIBRARY_ID,
-        },
-        parser_actor::{ParserActor, ScanMediaLibrary},
+        database_actor::{DeleteMediaLibrary, GetMediaLibraries},
+        parser_actor::ParserActor,
         utils::WsConnections,
-        websocket_actor::Notification,
     },
+    application::media_library_service::create_media_library,
     database::database::Database,
-    interfaces::dtos::MediaLibraryDto,
+    handle_controller_result,
+    interfaces::{dtos::MediaLibraryDto, http_api::controllers::consts::WS_CLIENT_KEY_HEADER},
 };
 
 pub async fn create_media_library_controller(
-    payload: CreateMediaLibraryPayload,
+    payload: Json<CreateMediaLibraryPayload>,
     database_addr: Data<Addr<Database>>,
     parser_addr: Data<Addr<ParserActor>>,
     ws_connections: Data<WsConnections>,
-    ws_client_key: String,
-) -> Result<CreateMediaLibraryResponse> {
-    match database_addr
-        .send(CreateMediaLibrary(payload.clone()))
-        .await
-    {
-        Ok(media_library_id) => {
-            debug!("Media library created with id: {:?}", media_library_id);
-            if media_library_id == SENTINEL_MEDIA_LIBRARY_ID {
-                error!("Failed to create media library");
-                return Err(anyhow!("Failed to create media library"));
-            } else {
-                spawn(async move {
-                    // Scan library, insert data into DB, and notify frontend via websocket
-                    let directory = payload.directory.clone();
-                    match parser_addr.send(ScanMediaLibrary(directory)).await {
-                        Ok(result) => {
-                            let media_library = result.expect("Failed to scan media library");
-                            for serie in media_library.series {
-                                match database_addr
-                                    .send(InsertSeries(serie, media_library_id))
-                                    .await
-                                {
-                                    Ok(_) => debug!("Series inserted"),
-                                    Err(e) => error!("Failed to insert series: {:?}", e),
-                                }
-                            }
+    req: HttpRequest,
+) -> impl Responder {
+    let ws_client_key = match req.headers().get(WS_CLIENT_KEY_HEADER) {
+        // TODO: handle the case where the key is not a string
+        Some(key) => key.to_str().unwrap().to_string(),
+        None => return HttpResponse::Unauthorized().json("Unauthorized"),
+    };
+    let payload = payload.into_inner();
 
-                            // Artificial delay to test frontend async UI behavior, will be removed
-                            tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
-
-                            let ws_connections = ws_connections.get(ws_client_key).await;
-                            if let Some(ws_connection) = ws_connections {
-                                match ws_connection
-                                    .send(Notification::MediaLibraryScanned(media_library_id))
-                                    .await
-                                {
-                                    Ok(_) => debug!("Media library scanned notification sent"),
-                                    Err(e) => error!("Failed to send notification: {:?}", e),
-                                }
-                            }
-                        }
-                        Err(e) => error!("Failed to scan media library: {:?}", e),
-                    }
-                });
-
-                Ok(CreateMediaLibraryResponse {
-                    id: media_library_id,
-                })
-            }
-        }
-        Err(e) => {
-            error!("Failed to create media library: {:?}", e);
-            return Err(anyhow!("Failed to create media library"));
-        }
-    }
+    handle_controller_result!(
+        create_media_library(
+            payload,
+            database_addr,
+            parser_addr,
+            ws_connections,
+            ws_client_key,
+        )
+        .await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
 }
 
 #[instrument(skip(database_addr))]

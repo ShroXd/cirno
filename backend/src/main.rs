@@ -13,6 +13,7 @@ mod init;
 mod services;
 mod utils;
 
+mod application;
 mod interfaces;
 mod shared;
 

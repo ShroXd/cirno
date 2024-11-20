@@ -11,7 +11,6 @@ use crate::{
     handle_controller_result,
     interfaces::http_api::controllers::{
         api_models::{CreateMediaLibraryPayload, GetMediaItemsQuery},
-        consts::WS_CLIENT_KEY_HEADER,
         media_item::get_media_item_controller,
         media_library::{
             create_media_library_controller, delete_media_library_controller,
@@ -61,25 +60,7 @@ async fn create_media_library_route(
     ws_connections: Data<WsConnections>,
     req: HttpRequest,
 ) -> impl Responder {
-    let ws_client_key = match req.headers().get(WS_CLIENT_KEY_HEADER) {
-        // TODO: handle the case where the key is not a string
-        Some(key) => key.to_str().unwrap().to_string(),
-        None => return HttpResponse::Unauthorized().json("Unauthorized"),
-    };
-    let payload = payload.into_inner();
-
-    handle_controller_result!(
-        create_media_library_controller(
-            payload,
-            database_addr,
-            parser_addr,
-            ws_connections,
-            ws_client_key,
-        )
-        .await,
-        HttpResponse::Ok(),
-        HttpResponse::InternalServerError()
-    )
+    create_media_library_controller(payload, database_addr, parser_addr, ws_connections, req).await
 }
 
 #[get("/")]
