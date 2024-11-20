@@ -7,6 +7,7 @@ use tracing::*;
 use ts_rs::TS;
 
 use crate::application::dtos::MediaItemDto;
+use crate::application::dtos::MediaLibraryDto;
 use crate::application::http_api::controllers::api_models::MediaLibraryCategory;
 
 #[derive(Debug, Deserialize, Serialize, TS)]
@@ -135,17 +136,9 @@ pub async fn query_seasons_with_episodes(
     Ok(season_with_episodes)
 }
 
-#[derive(Debug, Deserialize, Serialize, TS)]
-#[ts(export)]
-pub struct MediaLibraryDTO {
-    id: i64,
-    name: String,
-    category: MediaLibraryCategory,
-}
-
 // TODO: after finishing the user system, query the media libraries for the current user
 #[instrument(skip(conn_pool))]
-pub async fn query_media_libraries(conn_pool: &SqlitePool) -> Result<Vec<MediaLibraryDTO>> {
+pub async fn query_media_libraries(conn_pool: &SqlitePool) -> Result<Vec<MediaLibraryDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
@@ -153,9 +146,9 @@ pub async fn query_media_libraries(conn_pool: &SqlitePool) -> Result<Vec<MediaLi
         .fetch_all(&mut *tx)
         .await?;
 
-    let media_libraries: Vec<MediaLibraryDTO> = raw_media_libraries
+    let media_libraries: Vec<MediaLibraryDto> = raw_media_libraries
         .into_iter()
-        .map(|ml| MediaLibraryDTO {
+        .map(|ml| MediaLibraryDto {
             id: ml.id,
             name: ml.name,
             // TODO: consider if this is the best way to handle this

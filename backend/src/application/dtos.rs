@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+use super::http_api::controllers::api_models::MediaLibraryCategory;
+
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct MediaItemDto {
@@ -12,4 +14,12 @@ pub struct MediaItemDto {
     pub country: Option<String>,
     pub year: Option<String>,
     pub genres: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS)]
+#[ts(export)]
+pub struct MediaLibraryDto {
+    pub id: i64,
+    pub name: String,
+    pub category: MediaLibraryCategory,
 }

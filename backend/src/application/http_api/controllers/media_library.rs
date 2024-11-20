@@ -15,7 +15,8 @@ use crate::{
         utils::WsConnections,
         websocket_actor::Notification,
     },
-    database::{database::Database, query::MediaLibraryDTO},
+    application::dtos::MediaLibraryDto,
+    database::database::Database,
 };
 
 pub async fn create_media_library_controller(
@@ -84,7 +85,7 @@ pub async fn create_media_library_controller(
 #[instrument(skip(database_addr))]
 pub async fn get_media_libraries_controller(
     database_addr: Data<Addr<Database>>,
-) -> Result<Vec<MediaLibraryDTO>> {
+) -> Result<Vec<MediaLibraryDto>> {
     match database_addr.send(GetMediaLibraries).await {
         Ok(media_libraries) => {
             debug!("Found {} media libraries", media_libraries.len());

@@ -5,16 +5,14 @@ use ts_rs::TS;
 
 use crate::{
     application::{
-        dtos::MediaItemDto, http_api::controllers::api_models::CreateMediaLibraryPayload,
+        dtos::{MediaItemDto, MediaLibraryDto},
+        http_api::controllers::api_models::CreateMediaLibraryPayload,
     },
     database::{
         create::{insert_media_library, insert_tv_series},
         database::Database,
         delete::delete_media_library,
-        query::{
-            query_media_libraries, query_seasons_with_episodes, query_series, MediaLibraryDTO,
-            SeasonDTO,
-        },
+        query::{query_media_libraries, query_seasons_with_episodes, query_series, SeasonDTO},
     },
     services::library_parser::parsers::TVSerie,
 };
@@ -128,11 +126,11 @@ impl Handler<CreateMediaLibrary> for Database {
 }
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "Vec<MediaLibraryDTO>")]
+#[rtype(result = "Vec<MediaLibraryDto>")]
 pub struct GetMediaLibraries;
 
 impl Handler<GetMediaLibraries> for Database {
-    type Result = ResponseActFuture<Self, Vec<MediaLibraryDTO>>;
+    type Result = ResponseActFuture<Self, Vec<MediaLibraryDto>>;
 
     fn handle(&mut self, _: GetMediaLibraries, _: &mut Self::Context) -> Self::Result {
         info!("Getting media libraries");
