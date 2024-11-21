@@ -14,6 +14,7 @@ mod services;
 mod utils;
 
 mod application;
+mod domain;
 mod interfaces;
 mod shared;
 

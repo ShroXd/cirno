@@ -8,7 +8,9 @@ use crate::{
         create::{insert_media_library, insert_tv_series},
         database::Database,
         delete::delete_media_library,
-        query::{query_media_libraries, query_seasons_with_episodes, query_series},
+        query::{
+            check_category_exists, query_media_libraries, query_seasons_with_episodes, query_series,
+        },
     },
     interfaces::{
         dtos::{MediaItemDto, MediaLibraryDto, SeasonDto},
@@ -102,7 +104,7 @@ pub const SENTINEL_MEDIA_LIBRARY_ID: i64 = -1;
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "i64")]
-pub struct CreateMediaLibrary(pub CreateMediaLibraryPayload);
+pub struct CreateMediaLibrary(pub CreateMediaLibraryPayload, pub i64);
 
 impl Handler<CreateMediaLibrary> for Database {
     type Result = ResponseActFuture<Self, i64>;
@@ -112,7 +114,7 @@ impl Handler<CreateMediaLibrary> for Database {
         let pool = self.get_connection_pool();
 
         Box::pin(
-            async move { insert_media_library(&pool, &msg.0).await }
+            async move { insert_media_library(&pool, &msg.0, msg.1).await }
                 .into_actor(self)
                 .then(|result, _actor, _ctx| match result {
                     Ok(media_library_id) => fut::ready(media_library_id),
@@ -168,6 +170,31 @@ impl Handler<DeleteMediaLibrary> for Database {
                     Ok(_) => fut::ready(()),
                     Err(e) => {
                         error!("Error deleting media library: {:?}", e);
+                        fut::ready(())
+                    }
+                }),
+        )
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub struct CheckCategoryExists(pub i64);
+
+impl Handler<CheckCategoryExists> for Database {
+    type Result = ResponseActFuture<Self, ()>;
+
+    fn handle(&mut self, msg: CheckCategoryExists, _: &mut Self::Context) -> Self::Result {
+        info!("Checking if category exists: {:?}", msg.0);
+        let pool = self.get_connection_pool();
+
+        Box::pin(
+            async move { check_category_exists(&pool, msg.0).await }
+                .into_actor(self)
+                .then(|result, _actor, _ctx| match result {
+                    Ok(_) => fut::ready(()),
+                    Err(e) => {
+                        error!("Error checking if category exists: {:?}", e);
                         fut::ready(())
                     }
                 }),

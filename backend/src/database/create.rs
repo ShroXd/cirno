@@ -226,20 +226,10 @@ pub async fn insert_episode(
 pub async fn insert_media_library(
     conn_pool: &SqlitePool,
     media_library: &CreateMediaLibraryPayload,
+    category_id: i64,
 ) -> Result<i64> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
-
-    let category_id = i64::from(media_library.category.clone());
-    debug!("Category ID: {}", category_id);
-
-    let existing_category_id: Option<i64> =
-        sqlx::query_scalar!("SELECT id FROM category_mapping WHERE id = ?", category_id,)
-            .fetch_optional(&mut *tx)
-            .await?;
-    if existing_category_id.is_none() {
-        return Err(anyhow::anyhow!("Category does not exist"));
-    }
 
     let media_library_id: i64 = sqlx::query_scalar!(
         "INSERT OR IGNORE INTO media_library (name, directory, category_id) VALUES (?, ?, ?) RETURNING id",

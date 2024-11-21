@@ -14,7 +14,7 @@ use crate::{
         parser_actor::ParserActor,
         utils::WsConnections,
     },
-    application::media_library_service::create_media_library,
+    application::media_library_service::create_media_library_service,
     database::database::Database,
     handle_controller_result,
     interfaces::{dtos::MediaLibraryDto, http_api::controllers::consts::WS_CLIENT_KEY_HEADER},
@@ -35,7 +35,7 @@ pub async fn create_media_library_controller(
     let payload = payload.into_inner();
 
     handle_controller_result!(
-        create_media_library(
+        create_media_library_service(
             payload,
             database_addr,
             parser_addr,
