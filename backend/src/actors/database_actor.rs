@@ -12,6 +12,7 @@ use crate::{
             check_category_exists, query_media_libraries, query_seasons_with_episodes, query_series,
         },
     },
+    define_actor_message_handler,
     interfaces::{
         dtos::{MediaItemDto, MediaLibraryDto, SeasonDto},
         http_api::controllers::api_models::CreateMediaLibraryPayload,
@@ -31,6 +32,7 @@ pub struct InsertSeries(pub TVSerie, pub i64);
 impl Handler<InsertSeries> for Database {
     type Result = ResponseActFuture<Self, ()>;
 
+    #[instrument(skip(self))]
     fn handle(&mut self, msg: InsertSeries, _: &mut Self::Context) -> Self::Result {
         info!("Inserting series: {:?}", msg.0.title);
 
@@ -54,26 +56,13 @@ impl Handler<InsertSeries> for Database {
 #[rtype(result = "Vec<MediaItemDto>")]
 pub struct GetMediaItems(pub Option<i64>);
 
-impl Handler<GetMediaItems> for Database {
-    type Result = ResponseActFuture<Self, Vec<MediaItemDto>>;
-
-    fn handle(&mut self, msg: GetMediaItems, _: &mut Self::Context) -> Self::Result {
-        info!("Getting series");
-        let pool = self.get_connection_pool();
-
-        Box::pin(
-            async move { query_series(&pool, msg.0).await }
-                .into_actor(self)
-                .then(|result, _actor, _ctx| match result {
-                    Ok(series) => fut::ready(series),
-                    Err(e) => {
-                        error!("Error getting series: {:?}", e);
-                        fut::ready(Vec::new())
-                    }
-                }),
-        )
-    }
-}
+define_actor_message_handler!(
+    message_type = GetMediaItems,
+    return_type = Vec<MediaItemDto>,
+    database_function = query_series,
+    success_return = |res| res,
+    error_return = Vec::<MediaItemDto>::new()
+);
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "Vec<SeasonDto>")]
