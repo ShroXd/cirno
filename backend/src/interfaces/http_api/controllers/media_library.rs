@@ -1,6 +1,6 @@
 use actix::Addr;
 use actix_web::{
-    web::{Data, Json},
+    web::{Data, Json, Path},
     HttpRequest, HttpResponse, Responder,
 };
 use std::result::Result::Ok;
@@ -30,6 +30,11 @@ pub async fn create_media_library_controller(
     };
     let payload = payload.into_inner();
 
+    debug!(
+        "Creating media library with name: {}, directory: {}, category: {:?}",
+        payload.name, payload.directory, payload.category
+    );
+
     handle_controller_result!(
         create_media_library_service(
             payload,
@@ -46,6 +51,8 @@ pub async fn create_media_library_controller(
 
 #[instrument(skip(database_addr))]
 pub async fn get_media_libraries_controller(database_addr: Data<Addr<Database>>) -> impl Responder {
+    debug!("Getting all media libraries");
+
     handle_controller_result!(
         get_media_libraries(database_addr).await,
         HttpResponse::Ok(),
@@ -55,11 +62,14 @@ pub async fn get_media_libraries_controller(database_addr: Data<Addr<Database>>)
 
 #[instrument(skip(database_addr))]
 pub async fn delete_media_library_controller(
-    id: i64,
+    id: Path<i64>,
     database_addr: Data<Addr<Database>>,
 ) -> impl Responder {
+    let media_library_id = id.into_inner();
+    debug!("Deleting media library for id: {}", media_library_id);
+
     handle_controller_result!(
-        delete_media_library(id, database_addr).await,
+        delete_media_library(media_library_id, database_addr).await,
         HttpResponse::Ok(),
         HttpResponse::InternalServerError()
     )

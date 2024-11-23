@@ -43,13 +43,7 @@ async fn get_tv_show_seasons_route(
     database_addr: Data<Addr<Database>>,
     id: Path<i64>,
 ) -> impl Responder {
-    let tv_show_id = id.into_inner();
-
-    handle_controller_result!(
-        get_tv_show_seasons_controller(database_addr, tv_show_id).await,
-        HttpResponse::Ok(),
-        HttpResponse::InternalServerError()
-    )
+    get_tv_show_seasons_controller(database_addr, id).await
 }
 
 #[post("/")]
@@ -73,7 +67,7 @@ async fn delete_media_library_route(
     id: Path<i64>,
     database_addr: Data<Addr<Database>>,
 ) -> impl Responder {
-    delete_media_library_controller(id.into_inner(), database_addr).await
+    delete_media_library_controller(id, database_addr).await
 }
 
 pub fn init_routes(cfg: &mut ServiceConfig) {
