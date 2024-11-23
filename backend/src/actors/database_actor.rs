@@ -14,6 +14,7 @@ use crate::{
         },
     },
     define_actor_message_handler,
+    domain::media_library::db_mapping::map_rows,
     interfaces::{
         dtos::{MediaItemDto, MediaLibraryDto, SeasonDto},
         http_api::controllers::api_models::CreateMediaLibraryPayload,
@@ -112,7 +113,7 @@ impl Display for GetMediaLibraries {
 define_actor_message_handler!(
     message_type = GetMediaLibraries,
     return_type = Vec<MediaLibraryDto>,
-    db_call = |pool, _: GetMediaLibraries| query_media_libraries(pool),
+    db_call = |pool, _: GetMediaLibraries| query_media_libraries(pool, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<MediaLibraryDto>::new()
 );

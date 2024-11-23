@@ -1,6 +1,7 @@
 use anyhow::*;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
+use sqlx::sqlite::SqliteRow;
 use sqlx::{Acquire, QueryBuilder, Row, SqlitePool};
 use tracing::*;
 
@@ -109,28 +110,20 @@ pub async fn query_seasons_with_episodes(
 }
 
 // TODO: after finishing the user system, query the media libraries for the current user
-#[instrument(skip(conn_pool))]
-pub async fn query_media_libraries(conn_pool: &SqlitePool) -> Result<Vec<MediaLibraryDto>> {
+#[instrument(skip(conn_pool, mapper))]
+pub async fn query_media_libraries(
+    conn_pool: &SqlitePool,
+    mapper: impl Fn(Vec<SqliteRow>) -> Vec<MediaLibraryDto>,
+) -> Result<Vec<MediaLibraryDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    let raw_media_libraries = sqlx::query!("SELECT id, name, category_id FROM media_library",)
-        .fetch_all(&mut *tx)
-        .await?;
+    let raw_media_libraries: Vec<SqliteRow> =
+        sqlx::query("SELECT id, name, category_id FROM media_library")
+            .fetch_all(&mut *tx)
+            .await?;
 
-    let media_libraries: Vec<MediaLibraryDto> = raw_media_libraries
-        .into_iter()
-        .map(|ml| MediaLibraryDto {
-            id: ml.id,
-            name: ml.name,
-            // TODO: consider if this is the best way to handle this
-            category: MediaLibraryCategory::try_from(ml.category_id)
-                .unwrap_or(MediaLibraryCategory::Movie),
-        })
-        .collect();
-    debug!("Found {} media libraries", media_libraries.len());
-
-    Ok(media_libraries)
+    Ok(mapper(raw_media_libraries))
 }
 
 #[instrument(skip(conn_pool))]

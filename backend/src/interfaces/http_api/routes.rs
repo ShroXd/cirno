@@ -65,11 +65,7 @@ async fn create_media_library_route(
 
 #[get("/")]
 async fn get_media_libraries_route(database_addr: Data<Addr<Database>>) -> impl Responder {
-    handle_controller_result!(
-        get_media_libraries_controller(database_addr).await,
-        HttpResponse::Ok(),
-        HttpResponse::InternalServerError()
-    )
+    get_media_libraries_controller(database_addr).await
 }
 
 #[delete("/{id}")]

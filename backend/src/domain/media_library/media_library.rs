@@ -1,12 +1,15 @@
 use actix::Addr;
+use actix_web::web::Data;
 use anyhow::Result;
 use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    actors::database_actor::{CheckCategoryExists, CreateMediaLibrary},
+    actors::database_actor::{CheckCategoryExists, CreateMediaLibrary, GetMediaLibraries},
     database::database::Database,
-    interfaces::http_api::controllers::api_models::CreateMediaLibraryPayload,
+    interfaces::{
+        dtos::MediaLibraryDto, http_api::controllers::api_models::CreateMediaLibraryPayload,
+    },
     shared::utils::is_valid_path,
 };
 
@@ -37,4 +40,14 @@ pub async fn create_media_library(
         Ok(media_library_id) => Ok(media_library_id),
         Err(e) => Err(anyhow::anyhow!("Error creating media library: {:?}", e)),
     }
+}
+
+#[instrument(skip(database_addr))]
+pub async fn get_media_libraries(
+    database_addr: Data<Addr<Database>>,
+) -> Result<Vec<MediaLibraryDto>> {
+    database_addr
+        .send(GetMediaLibraries)
+        .await
+        .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))
 }

@@ -16,6 +16,7 @@ use crate::{
     },
     application::media_library_service::create_media_library_service,
     database::database::Database,
+    domain::media_library::media_library::get_media_libraries,
     handle_controller_result,
     interfaces::{dtos::MediaLibraryDto, http_api::controllers::consts::WS_CLIENT_KEY_HEADER},
 };
@@ -49,19 +50,12 @@ pub async fn create_media_library_controller(
 }
 
 #[instrument(skip(database_addr))]
-pub async fn get_media_libraries_controller(
-    database_addr: Data<Addr<Database>>,
-) -> Result<Vec<MediaLibraryDto>> {
-    match database_addr.send(GetMediaLibraries).await {
-        Ok(media_libraries) => {
-            debug!("Found {} media libraries", media_libraries.len());
-            Ok(media_libraries)
-        }
-        Err(e) => {
-            error!("Failed to get media libraries: {:?}", e);
-            return Err(anyhow!("Failed to get media libraries"));
-        }
-    }
+pub async fn get_media_libraries_controller(database_addr: Data<Addr<Database>>) -> impl Responder {
+    handle_controller_result!(
+        get_media_libraries(database_addr).await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
 }
 
 #[instrument(skip(database_addr))]
