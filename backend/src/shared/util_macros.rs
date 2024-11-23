@@ -62,33 +62,34 @@ macro_rules! handle_controller_result {
 #[macro_export]
 macro_rules! define_actor_message_handler {
     (
-        message_type = $msg_type:ty, 
-        return_type = $result_type:ty, 
-        database_function = $db_func:ident, 
+        message_type = $msg_type:ty,
+        return_type = $result_type:ty,
+        db_call = $db_call:expr,
         success_return = $success_return:expr,
         error_return = $error_return:expr
     ) => {
         impl Handler<$msg_type> for Database {
             type Result = ResponseActFuture<Self, $result_type>;
 
-            #[instrument(skip(self))]
+            #[instrument(skip(self, msg))]
             fn handle(&mut self, msg: $msg_type, _: &mut Self::Context) -> Self::Result {
-                debug!("Processing {:?}", msg);
+                debug!("Processing {}", msg);
                 let pool = self.get_connection_pool();
 
                 Box::pin(
-                    async move {
-                        $db_func(&pool, msg.0).await
-                    }
-                    .into_actor(self)
-                    .then(|result, _actor, _ctx| match result {
-                        // Use parentheses to ensure success_return is parsed as an closure function
-                        Ok(data) => fut::ready(($success_return)(data)),
-                        Err(e) => {
-                            error!("Error processing {}: {:?}", stringify!($msg_type), e);
-                            fut::ready($error_return)
-                        }
-                    })
+                    // TODO: Currently we pass parameters by value to database functions due to limitations
+                    // in macro parameter type handling. This incurs copy overhead. Need to find a way to
+                    // pass references through macros in the future.
+                    async move { ($db_call)(&pool, msg).await }
+                        .into_actor(self)
+                        .then(|result, _actor, _ctx| match result {
+                            // Use parentheses to ensure success_return is parsed as an closure function
+                            Ok(data) => fut::ready(($success_return)(data)),
+                            Err(e) => {
+                                error!("Error processing {}: {:?}", stringify!($msg_type), e);
+                                fut::ready($error_return)
+                            }
+                        }),
                 )
             }
         }

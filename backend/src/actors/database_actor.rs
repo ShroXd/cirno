@@ -1,5 +1,6 @@
 use actix::{fut, prelude::*, Actor, Context, Handler, Message, WrapFuture};
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 use tracing::*;
 use ts_rs::TS;
 
@@ -29,37 +30,34 @@ impl Actor for Database {
 #[rtype(result = "()")]
 pub struct InsertSeries(pub TVSerie, pub i64);
 
-impl Handler<InsertSeries> for Database {
-    type Result = ResponseActFuture<Self, ()>;
-
-    #[instrument(skip(self))]
-    fn handle(&mut self, msg: InsertSeries, _: &mut Self::Context) -> Self::Result {
-        info!("Inserting series: {:?}", msg.0.title);
-
-        let pool = self.get_connection_pool();
-
-        Box::pin(
-            async move { insert_tv_series(&pool, &msg.0, msg.1).await }
-                .into_actor(self)
-                .then(|result, _actor, _ctx| match result {
-                    Ok(_) => fut::ready(()),
-                    Err(e) => {
-                        error!("Error inserting series: {:?}", e);
-                        fut::ready(())
-                    }
-                }),
-        )
+impl Display for InsertSeries {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "InsertSeries({:?}, {})", self.0.title, self.1)
     }
 }
+
+define_actor_message_handler!(
+    message_type = InsertSeries,
+    return_type = (),
+    db_call = |pool, msg: InsertSeries| insert_tv_series(pool, msg.0, msg.1),
+    success_return = |_| (),
+    error_return = ()
+);
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "Vec<MediaItemDto>")]
 pub struct GetMediaItems(pub Option<i64>);
 
+impl Display for GetMediaItems {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GetMediaItems({})", self.0.unwrap_or(-1))
+    }
+}
+
 define_actor_message_handler!(
     message_type = GetMediaItems,
     return_type = Vec<MediaItemDto>,
-    database_function = query_series,
+    db_call = |pool, msg: GetMediaItems| query_series(pool, msg.0),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
 );
@@ -68,125 +66,89 @@ define_actor_message_handler!(
 #[rtype(result = "Vec<SeasonDto>")]
 pub struct GetSeasons(pub i64);
 
-impl Handler<GetSeasons> for Database {
-    type Result = ResponseActFuture<Self, Vec<SeasonDto>>;
-
-    fn handle(&mut self, msg: GetSeasons, _: &mut Self::Context) -> Self::Result {
-        info!("Getting seasons for series: {:?}", msg.0);
-        let pool = self.get_connection_pool();
-
-        Box::pin(
-            async move { query_seasons_with_episodes(&pool, msg.0).await }
-                .into_actor(self)
-                .then(|result, _actor, _ctx| match result {
-                    Ok(seasons) => fut::ready(seasons),
-                    Err(e) => {
-                        error!("Error getting seasons: {:?}", e);
-                        fut::ready(Vec::new())
-                    }
-                }),
-        )
+impl Display for GetSeasons {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GetSeasons({})", self.0)
     }
 }
 
-pub const SENTINEL_MEDIA_LIBRARY_ID: i64 = -1;
+define_actor_message_handler!(
+    message_type = GetSeasons,
+    return_type = Vec<SeasonDto>,
+    db_call = |pool, msg: GetSeasons| query_seasons_with_episodes(pool, msg.0),
+    success_return = |res| res,
+    error_return = Vec::<SeasonDto>::new()
+);
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "i64")]
 pub struct CreateMediaLibrary(pub CreateMediaLibraryPayload, pub i64);
 
-impl Handler<CreateMediaLibrary> for Database {
-    type Result = ResponseActFuture<Self, i64>;
-
-    fn handle(&mut self, msg: CreateMediaLibrary, _: &mut Self::Context) -> Self::Result {
-        info!("Creating media library: {:?}", msg.0);
-        let pool = self.get_connection_pool();
-
-        Box::pin(
-            async move { insert_media_library(&pool, &msg.0, msg.1).await }
-                .into_actor(self)
-                .then(|result, _actor, _ctx| match result {
-                    Ok(media_library_id) => fut::ready(media_library_id),
-                    Err(e) => {
-                        error!("Error creating media library: {:?}", e);
-                        fut::ready(SENTINEL_MEDIA_LIBRARY_ID)
-                    }
-                }),
-        )
+impl Display for CreateMediaLibrary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CreateMediaLibrary({:?}, {})", self.0, self.1)
     }
 }
+
+pub const SENTINEL_MEDIA_LIBRARY_ID: i64 = -1;
+define_actor_message_handler!(
+    message_type = CreateMediaLibrary,
+    return_type = i64,
+    db_call = |pool, msg: CreateMediaLibrary| insert_media_library(pool, msg.0, msg.1),
+    success_return = |res| res,
+    error_return = SENTINEL_MEDIA_LIBRARY_ID
+);
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "Vec<MediaLibraryDto>")]
 pub struct GetMediaLibraries;
 
-impl Handler<GetMediaLibraries> for Database {
-    type Result = ResponseActFuture<Self, Vec<MediaLibraryDto>>;
-
-    fn handle(&mut self, _: GetMediaLibraries, _: &mut Self::Context) -> Self::Result {
-        info!("Getting media libraries");
-        let pool = self.get_connection_pool();
-
-        Box::pin(
-            async move { query_media_libraries(&pool).await }
-                .into_actor(self)
-                .then(|result, _actor, _ctx| match result {
-                    Ok(media_libraries) => fut::ready(media_libraries),
-                    Err(e) => {
-                        error!("Error getting media libraries: {:?}", e);
-                        fut::ready(Vec::new())
-                    }
-                }),
-        )
+impl Display for GetMediaLibraries {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GetMediaLibraries")
     }
 }
+
+define_actor_message_handler!(
+    message_type = GetMediaLibraries,
+    return_type = Vec<MediaLibraryDto>,
+    db_call = |pool, _: GetMediaLibraries| query_media_libraries(pool),
+    success_return = |res| res,
+    error_return = Vec::<MediaLibraryDto>::new()
+);
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
 pub struct DeleteMediaLibrary(pub i64);
 
-impl Handler<DeleteMediaLibrary> for Database {
-    type Result = ResponseActFuture<Self, ()>;
-
-    fn handle(&mut self, msg: DeleteMediaLibrary, _: &mut Self::Context) -> Self::Result {
-        info!("Deleting media library: {:?}", msg.0);
-        let pool = self.get_connection_pool();
-
-        Box::pin(
-            async move { delete_media_library(&pool, msg.0).await }
-                .into_actor(self)
-                .then(|result, _actor, _ctx| match result {
-                    Ok(_) => fut::ready(()),
-                    Err(e) => {
-                        error!("Error deleting media library: {:?}", e);
-                        fut::ready(())
-                    }
-                }),
-        )
+impl Display for DeleteMediaLibrary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DeleteMediaLibrary({})", self.0)
     }
 }
+
+define_actor_message_handler!(
+    message_type = DeleteMediaLibrary,
+    return_type = (),
+    db_call = |pool, msg: DeleteMediaLibrary| delete_media_library(pool, msg.0),
+    success_return = |_| (),
+    error_return = ()
+);
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
 pub struct CheckCategoryExists(pub i64);
 
-impl Handler<CheckCategoryExists> for Database {
-    type Result = ResponseActFuture<Self, ()>;
-
-    fn handle(&mut self, msg: CheckCategoryExists, _: &mut Self::Context) -> Self::Result {
-        info!("Checking if category exists: {:?}", msg.0);
-        let pool = self.get_connection_pool();
-
-        Box::pin(
-            async move { check_category_exists(&pool, msg.0).await }
-                .into_actor(self)
-                .then(|result, _actor, _ctx| match result {
-                    Ok(_) => fut::ready(()),
-                    Err(e) => {
-                        error!("Error checking if category exists: {:?}", e);
-                        fut::ready(())
-                    }
-                }),
-        )
+impl Display for CheckCategoryExists {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CheckCategoryExists({})", self.0)
     }
 }
+
+define_actor_message_handler!(
+    message_type = CheckCategoryExists,
+    return_type = (),
+    db_call = |pool, msg: CheckCategoryExists| check_category_exists(pool, msg.0),
+    success_return = |_| (),
+    error_return = ()
+);

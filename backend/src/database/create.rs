@@ -11,7 +11,7 @@ use crate::{
 // TODO: the code for checking duplicated data is still not correct
 pub async fn insert_tv_series(
     conn_pool: &SqlitePool,
-    tv_series: &TVSerie,
+    tv_series: TVSerie,
     media_library_id: i64,
 ) -> Result<()> {
     let mut conn = conn_pool.acquire().await?;
@@ -225,7 +225,7 @@ pub async fn insert_episode(
 
 pub async fn insert_media_library(
     conn_pool: &SqlitePool,
-    media_library: &CreateMediaLibraryPayload,
+    media_library: CreateMediaLibraryPayload,
     category_id: i64,
 ) -> Result<i64> {
     let mut conn = conn_pool.acquire().await?;
