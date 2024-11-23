@@ -73,11 +73,7 @@ async fn delete_media_library_route(
     id: Path<i64>,
     database_addr: Data<Addr<Database>>,
 ) -> impl Responder {
-    handle_controller_result!(
-        delete_media_library_controller(id.into_inner(), database_addr).await,
-        HttpResponse::Ok(),
-        HttpResponse::InternalServerError()
-    )
+    delete_media_library_controller(id.into_inner(), database_addr).await
 }
 
 pub fn init_routes(cfg: &mut ServiceConfig) {

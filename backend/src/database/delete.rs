@@ -4,8 +4,6 @@ use tracing::*;
 
 #[instrument(skip(conn_pool, id))]
 pub async fn delete_media_library(conn_pool: &SqlitePool, id: i64) -> Result<()> {
-    debug!("Deleting media library with id: {}", id);
-
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 

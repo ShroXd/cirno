@@ -3,22 +3,17 @@ use actix_web::{
     web::{Data, Json},
     HttpRequest, HttpResponse, Responder,
 };
-use anyhow::*;
 use std::result::Result::Ok;
 use tracing::*;
 
 use super::api_models::CreateMediaLibraryPayload;
 use crate::{
-    actors::{
-        database_actor::{DeleteMediaLibrary, GetMediaLibraries},
-        parser_actor::ParserActor,
-        utils::WsConnections,
-    },
+    actors::{parser_actor::ParserActor, utils::WsConnections},
     application::media_library_service::create_media_library_service,
     database::database::Database,
-    domain::media_library::media_library::get_media_libraries,
+    domain::media_library::media_library::{delete_media_library, get_media_libraries},
     handle_controller_result,
-    interfaces::{dtos::MediaLibraryDto, http_api::controllers::consts::WS_CLIENT_KEY_HEADER},
+    interfaces::http_api::controllers::consts::WS_CLIENT_KEY_HEADER,
 };
 
 pub async fn create_media_library_controller(
@@ -62,15 +57,10 @@ pub async fn get_media_libraries_controller(database_addr: Data<Addr<Database>>)
 pub async fn delete_media_library_controller(
     id: i64,
     database_addr: Data<Addr<Database>>,
-) -> Result<()> {
-    match database_addr.send(DeleteMediaLibrary(id)).await {
-        Ok(_) => {
-            debug!("Deleted media library with id {}", id);
-            Ok(())
-        }
-        Err(e) => {
-            error!("Failed to delete media library: {:?}", e);
-            return Err(anyhow!("Failed to delete media library"));
-        }
-    }
+) -> impl Responder {
+    handle_controller_result!(
+        delete_media_library(id, database_addr).await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
 }

@@ -5,7 +5,9 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    actors::database_actor::{CheckCategoryExists, CreateMediaLibrary, GetMediaLibraries},
+    actors::database_actor::{
+        CheckCategoryExists, CreateMediaLibrary, DeleteMediaLibrary, GetMediaLibraries,
+    },
     database::database::Database,
     interfaces::{
         dtos::MediaLibraryDto, http_api::controllers::api_models::CreateMediaLibraryPayload,
@@ -50,4 +52,14 @@ pub async fn get_media_libraries(
         .send(GetMediaLibraries)
         .await
         .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))
+}
+
+#[instrument(skip(database_addr))]
+pub async fn delete_media_library(id: i64, database_addr: Data<Addr<Database>>) -> Result<()> {
+    debug!("Deleting media library with id: {}", id);
+
+    database_addr
+        .send(DeleteMediaLibrary(id))
+        .await
+        .map_err(|e| anyhow::anyhow!("Error deleting media library: {:?}", e))
 }
