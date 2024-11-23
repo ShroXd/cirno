@@ -11,7 +11,7 @@ use crate::{
     },
     database::database::Database,
     domain::{
-        file_processor::scan_media_library, media_item::insert_media_item,
+        file_processor::scan_media_library, media_item::media_item::insert_media_item,
         media_library::media_library::create_media_library,
     },
     interfaces::http_api::controllers::api_models::{

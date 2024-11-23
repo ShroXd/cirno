@@ -1,19 +1,9 @@
 use sqlx::{sqlite::SqliteRow, Row};
 
-use crate::interfaces::{
-    dtos::MediaLibraryDto, http_api::controllers::api_models::MediaLibraryCategory,
+use crate::{
+    interfaces::{dtos::MediaLibraryDto, http_api::controllers::api_models::MediaLibraryCategory},
+    shared::util_traits::SqliteRowMapper,
 };
-
-pub trait SqliteRowMapper<T> {
-    fn map_row(row: SqliteRow) -> T;
-}
-
-pub fn map_rows<T>(rows: Vec<SqliteRow>) -> Vec<T>
-where
-    T: SqliteRowMapper<T>,
-{
-    rows.into_iter().map(T::map_row).collect()
-}
 
 // TODO: consider if we can use try_get for non-panicking mapping
 // Maybe we can filter out the invalid ones at domain layer and return appropriate http code to frontend

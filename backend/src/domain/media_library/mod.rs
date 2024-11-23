@@ -1,2 +1,2 @@
-pub mod db_mapping;
+pub mod mapping;
 pub mod media_library;

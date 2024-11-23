@@ -10,16 +10,17 @@ use crate::{
         database::Database,
         delete::delete_media_library,
         query::{
-            check_category_exists, query_media_libraries, query_seasons_with_episodes, query_series,
+            check_category_exists, query_episodes, query_media_libraries, query_seasons,
+            query_series,
         },
     },
     define_actor_message_handler,
-    domain::media_library::db_mapping::map_rows,
     interfaces::{
-        dtos::{MediaItemDto, MediaLibraryDto, SeasonDto},
+        dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto},
         http_api::controllers::api_models::CreateMediaLibraryPayload,
     },
     services::library_parser::parsers::TVSerie,
+    shared::util_traits::map_rows,
 };
 
 impl Actor for Database {
@@ -65,20 +66,42 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "Vec<SeasonDto>")]
-pub struct GetSeasons(pub i64);
+pub struct QuerySeasons(pub i64);
 
-impl Display for GetSeasons {
+impl Display for QuerySeasons {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "GetSeasons({})", self.0)
+        write!(f, "Querying seasons for TV show {}", self.0)
     }
 }
 
 define_actor_message_handler!(
-    message_type = GetSeasons,
+    message_type = QuerySeasons,
     return_type = Vec<SeasonDto>,
-    db_call = |pool, msg: GetSeasons| query_seasons_with_episodes(pool, msg.0),
+    db_call = |pool, msg: QuerySeasons| query_seasons(pool, msg.0, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<SeasonDto>::new()
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "Vec<EpisodeDto>")]
+pub struct QueryEpisodes(pub i64, pub i64);
+
+impl Display for QueryEpisodes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Querying episodes for TV show {} and season {}",
+            self.0, self.1
+        )
+    }
+}
+
+define_actor_message_handler!(
+    message_type = QueryEpisodes,
+    return_type = Vec<EpisodeDto>,
+    db_call = |pool, msg: QueryEpisodes| query_episodes(pool, msg.0, msg.1),
+    success_return = |res| res,
+    error_return = Vec::<EpisodeDto>::new()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]

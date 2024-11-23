@@ -6,7 +6,6 @@ use std::sync::Arc;
 use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
-use crate::actors::websocket_actor::{WebSocketActor, WebSocketActorBehavior};
 use crate::init::app_state;
 use crate::{
     actors::parser_actor::ParserActor,

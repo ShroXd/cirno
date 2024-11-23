@@ -6,7 +6,6 @@ use sqlx::{Acquire, QueryBuilder, Row, SqlitePool};
 use tracing::*;
 
 use crate::interfaces::dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto};
-use crate::interfaces::http_api::controllers::api_models::MediaLibraryCategory;
 
 #[instrument(skip(conn_pool))]
 pub async fn query_series(
@@ -55,58 +54,54 @@ pub async fn query_series(
     Ok(series)
 }
 
-#[instrument(skip(conn_pool))]
-pub async fn query_seasons_with_episodes(
+#[instrument(skip(conn_pool, mapper))]
+pub async fn query_seasons(
     conn_pool: &SqlitePool,
     series_id: i64,
+    mapper: impl Fn(Vec<SqliteRow>) -> Vec<SeasonDto>,
 ) -> Result<Vec<SeasonDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    // TODO: use uuid for series_id instead of i64
-
-    let seasons = sqlx::query!(
+    let seasons: Vec<SqliteRow> = sqlx::query(
         "
         SELECT season_number, title
         FROM seasons
         WHERE series_id = ?
         ORDER BY season_number ASC
         ",
+    )
+    .bind(series_id)
+    .fetch_all(&mut *tx)
+    .await?;
+
+    Ok(mapper(seasons))
+}
+
+#[instrument(skip(conn_pool))]
+pub async fn query_episodes(
+    conn_pool: &SqlitePool,
+    series_id: i64,
+    season_id: i64,
+) -> Result<Vec<EpisodeDto>> {
+    let mut conn = conn_pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+
+    let episodes = sqlx::query_as!(
+        EpisodeDto,
+        "
+        SELECT e.id, e.title, e.original_title, e.plot, e.nfo_path, e.video_file_path, e.subtitle_file_path, e.thumb_image_url, e.thumb_image, e.season_number, e.episodes_number, e.runtime
+        FROM episodes e
+        WHERE e.season_number = ? AND e.series_id = ?
+        ORDER BY e.episodes_number ASC
+        ",
+        season_id,
         series_id
     )
     .fetch_all(&mut *tx)
     .await?;
 
-    let seasons: Vec<SeasonDto> = seasons
-        .into_iter()
-        .map(|s| SeasonDto {
-            season_number: s.season_number,
-            season_title: s.title,
-            episodes: vec![],
-        })
-        .collect();
-
-    let mut season_with_episodes: Vec<SeasonDto> = vec![];
-    for mut season in seasons {
-        let episodes = sqlx::query_as!(
-            EpisodeDto,
-            "
-            SELECT e.id, e.title, e.original_title, e.plot, e.nfo_path, e.video_file_path, e.subtitle_file_path, e.thumb_image_url, e.thumb_image, e.season_number, e.episodes_number, e.runtime
-            FROM episodes e
-            WHERE e.season_number = ? AND e.series_id = ?
-            ORDER BY e.episodes_number ASC
-            ",
-            season.season_number,
-            series_id
-        )
-        .fetch_all(&mut *tx)
-        .await?;
-
-        season.episodes = episodes;
-        season_with_episodes.push(season);
-    }
-
-    Ok(season_with_episodes)
+    Ok(episodes)
 }
 
 // TODO: after finishing the user system, query the media libraries for the current user
