@@ -1,27 +1,34 @@
 use actix::Addr;
-use actix_web::web::Data;
-use anyhow::*;
+use actix_web::{
+    web::{Data, Query},
+    HttpResponse, Responder,
+};
 use std::result::Result::Ok;
 use tracing::*;
 
+use super::api_models::GetMediaItemsQuery;
 use crate::{
-    actors::database_actor::GetMediaItems, database::database::Database,
-    interfaces::dtos::MediaItemDto,
+    database::database::Database, domain::media_item::media_item::get_media_items,
+    handle_controller_result,
 };
 
 #[instrument(skip(database_addr))]
-pub async fn get_media_item_controller(
+pub async fn get_media_items_controller(
     database_addr: Data<Addr<Database>>,
-    id: Option<i64>,
-) -> Result<Vec<MediaItemDto>> {
-    match database_addr.send(GetMediaItems(id)).await {
-        Ok(series) => {
-            debug!("Got {} media items", series.len());
-            Ok(series)
-        }
-        Err(e) => {
-            error!("Failed to get media items: {:?}", e);
-            return Err(anyhow!("Failed to get media items"));
-        }
-    }
+    query: Query<GetMediaItemsQuery>,
+) -> impl Responder {
+    let media_library_id = match query.into_inner().media_library_id {
+        Some(id) => id,
+        // TODO: Currently using a default id since media library work is not complete
+        // In the future, this will be replaced by a dedicated API endpoint that returns
+        // curated content like "Latest" and "You May Like" sections for the main page
+        // None => return HttpResponse::BadRequest().body("Media library id is required"),
+        None => 0,
+    };
+
+    handle_controller_result!(
+        get_media_items(media_library_id, database_addr).await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
 }

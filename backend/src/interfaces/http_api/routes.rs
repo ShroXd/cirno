@@ -11,7 +11,7 @@ use crate::{
     handle_controller_result,
     interfaces::http_api::controllers::{
         api_models::{CreateMediaLibraryPayload, GetMediaItemsQuery},
-        media_item::get_media_item_controller,
+        media_item::get_media_items_controller,
         media_library::{
             create_media_library_controller, delete_media_library_controller,
             get_media_libraries_controller,
@@ -29,13 +29,7 @@ async fn get_media_items_route(
     database_addr: Data<Addr<Database>>,
     query: Query<GetMediaItemsQuery>,
 ) -> impl Responder {
-    let media_library_id = query.into_inner().media_library_id;
-
-    handle_controller_result!(
-        get_media_item_controller(database_addr, media_library_id).await,
-        HttpResponse::Ok(),
-        HttpResponse::InternalServerError()
-    )
+    get_media_items_controller(database_addr, query).await
 }
 
 #[get("/series/{id}/seasons")]

@@ -48,11 +48,11 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "Vec<MediaItemDto>")]
-pub struct GetMediaItems(pub Option<i64>);
+pub struct GetMediaItems(pub i64);
 
 impl Display for GetMediaItems {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "GetMediaItems({})", self.0.unwrap_or(-1))
+        write!(f, "GetMediaItems({})", self.0)
     }
 }
 

@@ -10,7 +10,7 @@ use crate::interfaces::dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonD
 #[instrument(skip(conn_pool))]
 pub async fn query_series(
     conn_pool: &SqlitePool,
-    media_library_id: Option<i64>,
+    media_library_id: i64,
 ) -> Result<Vec<MediaItemDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
@@ -24,10 +24,8 @@ pub async fn query_series(
         JOIN genres g ON tsg.genre_id = g.id
         ",
     );
-    if let Some(media_library_id) = media_library_id {
-        query_builder.push("WHERE ts.media_library_id = ");
-        query_builder.push_bind(media_library_id);
-    }
+    // query_builder.push("WHERE ts.media_library_id = ");
+    // query_builder.push_bind(media_library_id);
     query_builder.push("GROUP BY ts.id, ts.title");
 
     let query = query_builder.build();
