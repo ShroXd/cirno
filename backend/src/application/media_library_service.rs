@@ -38,6 +38,14 @@ pub async fn create_media_library_service(
         return Err(anyhow!("Failed to create media library"));
     }
 
+    // TODO: This is a temporary async notification system
+    // After DDD refactoring, this will be encapsulated in a dedicated notification domain service
+    // that handles all async notifications and websocket communication
+    // The service will:
+    // 1. Manage websocket connections and client registrations
+    // 2. Handle notification delivery and retries
+    // 3. Provide a clean domain interface for sending notifications
+    // 4. Support different notification types and channels
     spawn(async move {
         debug!("Scanning media library");
         let media_items = match scan_media_library(directory_clone, parser_addr).await {

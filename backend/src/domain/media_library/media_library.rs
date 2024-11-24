@@ -6,7 +6,7 @@ use tracing::*;
 
 use crate::{
     actors::database_actor::{
-        CheckCategoryExists, CreateMediaLibrary, DeleteMediaLibrary, GetMediaLibraries,
+        CheckCategoryExists, CreateMediaLibrary, DeleteMediaLibrary, QueryMediaLibraries,
     },
     database::database::Database,
     interfaces::{
@@ -49,7 +49,7 @@ pub async fn get_media_libraries(
     database_addr: Data<Addr<Database>>,
 ) -> Result<Vec<MediaLibraryDto>> {
     database_addr
-        .send(GetMediaLibraries)
+        .send(QueryMediaLibraries)
         .await
         .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))
 }

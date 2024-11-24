@@ -10,8 +10,8 @@ use crate::{
         database::Database,
         delete::delete_media_library,
         query::{
-            check_category_exists, query_episodes, query_media_libraries, query_seasons,
-            query_series,
+            check_category_exists, query_all_media_items, query_episodes, query_media_libraries,
+            query_seasons, query_series_by_media_library_id,
         },
     },
     define_actor_message_handler,
@@ -22,6 +22,12 @@ use crate::{
     services::library_parser::parsers::TVSerie,
     shared::util_traits::map_rows,
 };
+
+// TODO: After DDD refactoring, categorize these messages into:
+// - Queries: Read-only operations that return data (e.g. QueryMediaItemsByMediaLibraryId, QueryAllMediaItems)
+// - Commands: Write operations that modify state (e.g. InsertSeries)
+// - Events: Notifications of state changes that have occurred
+// This will help enforce better separation of concerns and make the system more maintainable
 
 impl Actor for Database {
     type Context = Context<Self>;
@@ -48,18 +54,36 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "Vec<MediaItemDto>")]
-pub struct GetMediaItems(pub i64);
+pub struct QueryMediaItemsByMediaLibraryId(pub i64);
 
-impl Display for GetMediaItems {
+impl Display for QueryMediaItemsByMediaLibraryId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "GetMediaItems({})", self.0)
+        write!(f, "GetMediaItemsByMediaLibraryId({})", self.0)
     }
 }
 
 define_actor_message_handler!(
-    message_type = GetMediaItems,
+    message_type = QueryMediaItemsByMediaLibraryId,
     return_type = Vec<MediaItemDto>,
-    db_call = |pool, msg: GetMediaItems| query_series(pool, msg.0),
+    db_call = |pool, msg: QueryMediaItemsByMediaLibraryId| query_series_by_media_library_id(pool, msg.0, |rows| map_rows(rows)),
+    success_return = |res| res,
+    error_return = Vec::<MediaItemDto>::new()
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "Vec<MediaItemDto>")]
+pub struct QueryAllMediaItems;
+
+impl Display for QueryAllMediaItems {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GetAllMediaItems")
+    }
+}
+
+define_actor_message_handler!(
+    message_type = QueryAllMediaItems,
+    return_type = Vec<MediaItemDto>,
+    db_call = |pool, _: QueryAllMediaItems| query_all_media_items(pool, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
 );
@@ -125,18 +149,18 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "Vec<MediaLibraryDto>")]
-pub struct GetMediaLibraries;
+pub struct QueryMediaLibraries;
 
-impl Display for GetMediaLibraries {
+impl Display for QueryMediaLibraries {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "GetMediaLibraries")
     }
 }
 
 define_actor_message_handler!(
-    message_type = GetMediaLibraries,
+    message_type = QueryMediaLibraries,
     return_type = Vec<MediaLibraryDto>,
-    db_call = |pool, _: GetMediaLibraries| query_media_libraries(pool, |rows| map_rows(rows)),
+    db_call = |pool, _: QueryMediaLibraries| query_media_libraries(pool, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<MediaLibraryDto>::new()
 );
