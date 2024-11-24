@@ -43,11 +43,12 @@ CREATE TABLE IF NOT EXISTS tv_series (
 CREATE TABLE IF NOT EXISTS seasons (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     series_id INTEGER NOT NULL,
-    season_number INTEGER,
+    season_number INTEGER NOT NULL,
     title TEXT,
     plot TEXT,
     nfo_path TEXT,
-    FOREIGN KEY(series_id) REFERENCES tv_series(id)
+    FOREIGN KEY(series_id) REFERENCES tv_series(id),
+    UNIQUE(series_id, season_number)
 );
 
 CREATE TABLE IF NOT EXISTS episodes (

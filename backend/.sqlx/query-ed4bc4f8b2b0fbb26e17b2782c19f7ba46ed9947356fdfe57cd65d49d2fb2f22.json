@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT id FROM genres WHERE name = ?",
+  "query": "\n        INSERT INTO genres (name) VALUES (?)\n        ON CONFLICT(name) DO UPDATE SET id = id\n        RETURNING id\n        ",
   "describe": {
     "columns": [
       {
@@ -13,8 +13,8 @@
       "Right": 1
     },
     "nullable": [
-      true
+      false
     ]
   },
-  "hash": "75508c927d9c490ff1a791ab02376a984a65b676fc569b823cee646260feb40b"
+  "hash": "ed4bc4f8b2b0fbb26e17b2782c19f7ba46ed9947356fdfe57cd65d49d2fb2f22"
 }

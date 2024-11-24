@@ -9,10 +9,10 @@ use crate::{
         database_actor::SENTINEL_MEDIA_LIBRARY_ID, parser_actor::ParserActor, utils::WsConnections,
         websocket_actor::Notification,
     },
+    application::media_item_service::insert_media_item,
     database::database::Database,
     domain::{
-        file_processor::scan_media_library, media_item::media_item::insert_media_item,
-        media_library::media_library::create_media_library,
+        file_processor::scan_media_library, media_library::media_library::create_media_library,
     },
     interfaces::http_api::controllers::api_models::{
         CreateMediaLibraryPayload, CreateMediaLibraryResponse,

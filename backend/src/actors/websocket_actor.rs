@@ -12,7 +12,7 @@ use super::{
     utils::WsConnections,
 };
 use crate::{
-    actors::database_actor::InsertSeries, database::database::Database, process_pipeline_action,
+    database::database::Database, process_pipeline_action,
     services::gstreamer_pipeline::pipeline::Pipeline,
 };
 
@@ -287,9 +287,9 @@ impl WebSocketActorBehavior for WebSocketActor {
                         info!("Media library scanned: {:?}", library.series.len());
 
                         for series in library.series {
-                            if let Err(e) = database_addr.try_send(InsertSeries(series, 1)) {
-                                error!("Failed to forward message to database: {:?}", e);
-                            }
+                            // if let Err(e) = database_addr.try_send(InsertSeries(series, 1)) {
+                            //     error!("Failed to forward message to database: {:?}", e);
+                            // }
                         }
                     }
                     Ok(Err(e)) => error!("Failed to scan media library: {:?}", e),

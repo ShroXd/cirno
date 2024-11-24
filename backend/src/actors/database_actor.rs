@@ -6,7 +6,9 @@ use ts_rs::TS;
 
 use crate::{
     database::{
-        create::{insert_media_library, insert_tv_series},
+        create::{
+            insert_media_library, save_actor, save_episode, save_genre, save_season, save_tv_show,
+        },
         database::Database,
         delete::delete_media_library,
         query::{
@@ -19,7 +21,7 @@ use crate::{
         dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto},
         http_api::controllers::api_models::CreateMediaLibraryPayload,
     },
-    services::library_parser::parsers::TVSerie,
+    services::library_parser::parsers::{Actor as TvShowActor, Episode, Season, TVSerie},
     shared::util_traits::map_rows,
 };
 
@@ -33,21 +35,104 @@ impl Actor for Database {
     type Context = Context<Self>;
 }
 
-// TODO: extend this to enum until we have more types to be inserted
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "()")]
-pub struct InsertSeries(pub TVSerie, pub i64);
+#[rtype(result = "i64")]
+pub struct SaveTvShow(pub TVSerie, pub i64);
 
-impl Display for InsertSeries {
+impl Display for SaveTvShow {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "InsertSeries({:?}, {})", self.0.title, self.1)
+        write!(
+            f,
+            "WriteTvShowes({:?}, media_library_id: {})",
+            self.0.title, self.1
+        )
     }
 }
 
 define_actor_message_handler!(
-    message_type = InsertSeries,
+    message_type = SaveTvShow,
+    return_type = i64,
+    db_call = |pool, msg: SaveTvShow| save_tv_show(pool, msg.0, msg.1),
+    success_return = |res| res,
+    error_return = -1
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub struct SaveGenre(pub i64, pub String);
+
+impl Display for SaveGenre {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SaveGenre({})", self.0)
+    }
+}
+
+define_actor_message_handler!(
+    message_type = SaveGenre,
     return_type = (),
-    db_call = |pool, msg: InsertSeries| insert_tv_series(pool, msg.0, msg.1),
+    db_call = |pool, msg: SaveGenre| save_genre(pool, msg.0, msg.1),
+    success_return = |_| (),
+    error_return = ()
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub struct SaveActor(pub i64, pub TvShowActor);
+
+impl Display for SaveActor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SaveActor({})", self.0)
+    }
+}
+
+define_actor_message_handler!(
+    message_type = SaveActor,
+    return_type = (),
+    db_call = |pool, msg: SaveActor| save_actor(pool, msg.0, msg.1),
+    success_return = |_| (),
+    error_return = ()
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "i64")]
+pub struct SaveSeason(pub i64, pub u8, pub Season);
+
+impl Display for SaveSeason {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "SaveSeason(tv_show_id: {}, season_number: {}, title: {:?})",
+            self.0, self.1, self.2.title
+        )
+    }
+}
+
+define_actor_message_handler!(
+    message_type = SaveSeason,
+    return_type = i64,
+    db_call = |pool, msg: SaveSeason| save_season(pool, msg.0, msg.1, msg.2),
+    success_return = |res| res,
+    error_return = -1
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub struct SaveEpisode(pub i64, pub i64, pub u8, pub Episode);
+
+impl Display for SaveEpisode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "SaveEpisode(tv_show_id: {}, season_id: {}, season_number: {}, title: {:?})",
+            self.0, self.1, self.2, self.3.title
+        )
+    }
+}
+
+define_actor_message_handler!(
+    message_type = SaveEpisode,
+    return_type = (),
+    db_call = |pool, msg: SaveEpisode| save_episode(pool, msg.0, msg.1, msg.2, msg.3),
     success_return = |_| (),
     error_return = ()
 );
