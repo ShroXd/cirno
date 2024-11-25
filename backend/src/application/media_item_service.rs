@@ -22,6 +22,7 @@ pub async fn insert_media_item(
     let seasons_map = media_item.seasons.clone();
     let seasons = seasons_map.values().collect::<Vec<&Season>>();
 
+    debug!("Inserting tv show: {:?}", media_item.title);
     let tv_show_id = database_addr
         .send(SaveTvShow(media_item, media_library_id))
         .await
@@ -59,6 +60,7 @@ pub async fn insert_media_item(
             .map_err(|e| anyhow::anyhow!("Error inserting season: {:?}", e))?;
 
         for episode in episodes {
+            debug!("Inserting episode: {:?}", episode.title);
             database_addr
                 .send(SaveEpisode(
                     tv_show_id,
