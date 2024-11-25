@@ -7,7 +7,6 @@ use std::env;
 use tracing::*;
 
 mod actors;
-mod database;
 mod handlers;
 mod init;
 mod services;

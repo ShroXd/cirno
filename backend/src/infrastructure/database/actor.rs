@@ -5,18 +5,19 @@ use tracing::*;
 use ts_rs::TS;
 
 use crate::{
-    database::{
-        create::{save_actor, save_episode, save_genre, save_media_library, save_season},
-        delete::delete_media_library,
-        query::{check_category_exists, query_episodes, query_media_libraries, query_seasons},
-    },
     define_actor_message_handler,
     infrastructure::database::{
+        category::query::check_category_exists,
         database::Database,
-        tv_show::{
-            create::save_tv_show,
-            query::{query_all_media_items, query_series_by_media_library_id},
+        episode::{create::save_episode, query::query_episodes},
+        genre::create::save_genre,
+        media_actor::create::save_actor,
+        media_item::query::{query_all_media_items, query_series_by_media_library_id},
+        media_library::{
+            create::save_media_library, delete::delete_media_library, query::query_media_libraries,
         },
+        season::{create::save_season, query::query_seasons},
+        tv_show::create::save_tv_show,
     },
     interfaces::{
         dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto},

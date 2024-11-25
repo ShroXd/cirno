@@ -5,11 +5,6 @@ use tracing::*;
 
 use crate::interfaces::dtos::MediaItemDto;
 
-// The media item domain represents the parent concept for all media types like movies, TV shows, videos etc.
-// For the MVP, we only support TV shows, so the media item related code is placed here.
-// In the future, this could be moved to a separate media_item module when adding support for other types.
-// The current implementation maps TV shows to media items since they are currently the only supported type.
-
 #[instrument(skip(conn_pool, mapper))]
 pub async fn query_all_media_items(
     conn_pool: &SqlitePool,
