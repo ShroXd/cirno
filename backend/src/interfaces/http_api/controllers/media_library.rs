@@ -6,7 +6,7 @@ use actix_web::{
 use std::result::Result::Ok;
 use tracing::*;
 
-use super::api_models::CreateMediaLibraryPayload;
+use super::api_models::SaveMediaLibraryPayload;
 use crate::{
     actors::{parser_actor::ParserActor, utils::WsConnections},
     application::media_library_service::create_media_library_service,
@@ -17,7 +17,7 @@ use crate::{
 };
 
 pub async fn create_media_library_controller(
-    payload: Json<CreateMediaLibraryPayload>,
+    payload: Json<SaveMediaLibraryPayload>,
     database_addr: Data<Addr<Database>>,
     parser_addr: Data<Addr<ParserActor>>,
     ws_connections: Data<WsConnections>,

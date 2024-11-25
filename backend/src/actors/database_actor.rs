@@ -7,7 +7,7 @@ use ts_rs::TS;
 use crate::{
     database::{
         create::{
-            insert_media_library, save_actor, save_episode, save_genre, save_season, save_tv_show,
+            save_actor, save_episode, save_genre, save_media_library, save_season, save_tv_show,
         },
         database::Database,
         delete::delete_media_library,
@@ -19,7 +19,7 @@ use crate::{
     define_actor_message_handler,
     interfaces::{
         dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto},
-        http_api::controllers::api_models::CreateMediaLibraryPayload,
+        http_api::controllers::api_models::SaveMediaLibraryPayload,
     },
     services::library_parser::parsers::{Actor as TvShowActor, Episode, Season, TVSerie},
     shared::util_traits::map_rows,
@@ -215,9 +215,9 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "i64")]
-pub struct CreateMediaLibrary(pub CreateMediaLibraryPayload, pub i64);
+pub struct SaveMediaLibrary(pub SaveMediaLibraryPayload, pub i64);
 
-impl Display for CreateMediaLibrary {
+impl Display for SaveMediaLibrary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "CreateMediaLibrary({:?}, {})", self.0, self.1)
     }
@@ -225,9 +225,9 @@ impl Display for CreateMediaLibrary {
 
 pub const SENTINEL_MEDIA_LIBRARY_ID: i64 = -1;
 define_actor_message_handler!(
-    message_type = CreateMediaLibrary,
+    message_type = SaveMediaLibrary,
     return_type = i64,
-    db_call = |pool, msg: CreateMediaLibrary| insert_media_library(pool, msg.0, msg.1),
+    db_call = |pool, msg: SaveMediaLibrary| save_media_library(pool, msg.0, msg.1),
     success_return = |res| res,
     error_return = SENTINEL_MEDIA_LIBRARY_ID
 );

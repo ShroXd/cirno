@@ -6,11 +6,11 @@ use tracing::*;
 
 use crate::{
     actors::database_actor::{
-        CheckCategoryExists, CreateMediaLibrary, DeleteMediaLibrary, QueryMediaLibraries,
+        CheckCategoryExists, DeleteMediaLibrary, QueryMediaLibraries, SaveMediaLibrary,
     },
     database::database::Database,
     interfaces::{
-        dtos::MediaLibraryDto, http_api::controllers::api_models::CreateMediaLibraryPayload,
+        dtos::MediaLibraryDto, http_api::controllers::api_models::SaveMediaLibraryPayload,
     },
     shared::utils::is_valid_path,
 };
@@ -19,7 +19,7 @@ use crate::{
 /// Returns the ID of the created media library or an error if validation fails or database operations fail.
 #[instrument(skip(database_addr))]
 pub async fn create_media_library(
-    payload: CreateMediaLibraryPayload,
+    payload: SaveMediaLibraryPayload,
     database_addr: Arc<Addr<Database>>,
 ) -> Result<i64> {
     debug!("Validating path");
@@ -36,7 +36,7 @@ pub async fn create_media_library(
 
     debug!("Creating media library");
     match database_addr
-        .send(CreateMediaLibrary(payload, category_id))
+        .send(SaveMediaLibrary(payload, category_id))
         .await
     {
         Ok(media_library_id) => Ok(media_library_id),

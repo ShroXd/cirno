@@ -15,13 +15,13 @@ use crate::{
         file_processor::scan_media_library, media_library::media_library::create_media_library,
     },
     interfaces::http_api::controllers::api_models::{
-        CreateMediaLibraryPayload, CreateMediaLibraryResponse,
+        CreateMediaLibraryResponse, SaveMediaLibraryPayload,
     },
 };
 
 #[instrument(skip(database_addr, parser_addr, ws_connections))]
 pub async fn create_media_library_service(
-    payload: CreateMediaLibraryPayload,
+    payload: SaveMediaLibraryPayload,
     database_addr: Data<Addr<Database>>,
     parser_addr: Data<Addr<ParserActor>>,
     ws_connections: Data<WsConnections>,

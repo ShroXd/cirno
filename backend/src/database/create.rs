@@ -3,7 +3,7 @@ use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 
 use crate::{
-    interfaces::http_api::controllers::api_models::CreateMediaLibraryPayload,
+    interfaces::http_api::controllers::api_models::SaveMediaLibraryPayload,
     services::library_parser::parsers::{Actor, Episode, Season, TVSerie},
 };
 
@@ -172,9 +172,9 @@ pub async fn save_episode(
     Ok(())
 }
 
-pub async fn insert_media_library(
+pub async fn save_media_library(
     conn_pool: &SqlitePool,
-    media_library: CreateMediaLibraryPayload,
+    media_library: SaveMediaLibraryPayload,
     category_id: i64,
 ) -> Result<i64> {
     let mut conn = conn_pool.acquire().await?;

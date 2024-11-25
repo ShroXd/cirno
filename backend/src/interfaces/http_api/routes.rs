@@ -10,7 +10,7 @@ use crate::{
     database::database::Database,
     handle_controller_result,
     interfaces::http_api::controllers::{
-        api_models::{CreateMediaLibraryPayload, GetMediaItemsQuery},
+        api_models::{GetMediaItemsQuery, SaveMediaLibraryPayload},
         media_item::get_media_items_controller,
         media_library::{
             create_media_library_controller, delete_media_library_controller,
@@ -42,7 +42,7 @@ async fn get_tv_show_seasons_route(
 
 #[post("/")]
 async fn create_media_library_route(
-    payload: Json<CreateMediaLibraryPayload>,
+    payload: Json<SaveMediaLibraryPayload>,
     database_addr: Data<Addr<Database>>,
     parser_addr: Data<Addr<ParserActor>>,
     ws_connections: Data<WsConnections>,

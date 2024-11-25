@@ -7,7 +7,7 @@ use ts_rs::TS;
 
 #[derive(Debug, Deserialize, Serialize, Clone, TS)]
 #[ts(export)]
-pub struct CreateMediaLibraryPayload {
+pub struct SaveMediaLibraryPayload {
     pub name: String,
     pub directory: String,
     pub category: MediaLibraryCategory,
