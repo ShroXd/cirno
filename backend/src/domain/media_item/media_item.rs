@@ -4,8 +4,10 @@ use anyhow::Result;
 use tracing::*;
 
 use crate::{
-    actors::database_actor::{QueryAllMediaItems, QueryMediaItemsByMediaLibraryId},
-    database::database::Database,
+    infrastructure::database::{
+        actor::{QueryAllMediaItems, QueryMediaItemsByMediaLibraryId},
+        database::Database,
+    },
     interfaces::dtos::MediaItemDto,
 };
 

@@ -4,8 +4,8 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    actors::database_actor::{SaveActor, SaveEpisode, SaveGenre, SaveSeason, SaveTvShow},
-    database::database::Database,
+    infrastructure::database::actor::{SaveActor, SaveEpisode, SaveGenre, SaveSeason, SaveTvShow},
+    infrastructure::database::database::Database,
     services::library_parser::parsers::{Episode, Season, TVSerie},
 };
 

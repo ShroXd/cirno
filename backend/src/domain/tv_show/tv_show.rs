@@ -4,8 +4,10 @@ use anyhow::Result;
 use tracing::*;
 
 use crate::{
-    actors::database_actor::{QueryEpisodes, QuerySeasons},
-    database::database::Database,
+    infrastructure::database::{
+        actor::{QueryEpisodes, QuerySeasons},
+        database::Database,
+    },
     interfaces::dtos::SeasonDto,
 };
 

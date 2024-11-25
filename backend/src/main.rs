@@ -15,6 +15,7 @@ mod utils;
 
 mod application;
 mod domain;
+mod infrastructure;
 mod interfaces;
 mod shared;
 

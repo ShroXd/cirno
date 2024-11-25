@@ -5,10 +5,10 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    actors::database_actor::{
-        CheckCategoryExists, DeleteMediaLibrary, QueryMediaLibraries, SaveMediaLibrary,
+    infrastructure::database::{
+        actor::{CheckCategoryExists, DeleteMediaLibrary, QueryMediaLibraries, SaveMediaLibrary},
+        database::Database,
     },
-    database::database::Database,
     interfaces::{
         dtos::MediaLibraryDto, http_api::controllers::api_models::SaveMediaLibraryPayload,
     },

@@ -5,8 +5,8 @@ use actix_web::{web::Data, HttpResponse};
 use tracing::*;
 
 use crate::{
-    database::database::Database, domain::tv_show::tv_show::get_tv_show_seasons,
-    handle_controller_result,
+    domain::tv_show::tv_show::get_tv_show_seasons, handle_controller_result,
+    infrastructure::database::database::Database,
 };
 
 #[instrument(skip(database_addr))]

@@ -12,7 +12,7 @@ use super::{
     utils::WsConnections,
 };
 use crate::{
-    database::database::Database, process_pipeline_action,
+    infrastructure::database::database::Database, process_pipeline_action,
     services::gstreamer_pipeline::pipeline::Pipeline,
 };
 

@@ -8,8 +8,8 @@ use tracing::*;
 
 use super::api_models::GetMediaItemsQuery;
 use crate::{
-    database::database::Database, domain::media_item::media_item::get_media_items,
-    handle_controller_result,
+    domain::media_item::media_item::get_media_items, handle_controller_result,
+    infrastructure::database::database::Database,
 };
 
 #[instrument(skip(database_addr))]

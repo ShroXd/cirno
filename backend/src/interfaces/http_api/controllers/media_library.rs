@@ -10,9 +10,9 @@ use super::api_models::SaveMediaLibraryPayload;
 use crate::{
     actors::{parser_actor::ParserActor, utils::WsConnections},
     application::media_library_service::create_media_library_service,
-    database::database::Database,
     domain::media_library::media_library::{delete_media_library, get_media_libraries},
     handle_controller_result,
+    infrastructure::database::database::Database,
     interfaces::http_api::controllers::consts::WS_CLIENT_KEY_HEADER,
 };
 

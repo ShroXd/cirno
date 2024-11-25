@@ -6,17 +6,18 @@ use ts_rs::TS;
 
 use crate::{
     database::{
-        create::{
-            save_actor, save_episode, save_genre, save_media_library, save_season, save_tv_show,
-        },
-        database::Database,
+        create::{save_actor, save_episode, save_genre, save_media_library, save_season},
         delete::delete_media_library,
-        query::{
-            check_category_exists, query_all_media_items, query_episodes, query_media_libraries,
-            query_seasons, query_series_by_media_library_id,
-        },
+        query::{check_category_exists, query_episodes, query_media_libraries, query_seasons},
     },
     define_actor_message_handler,
+    infrastructure::database::{
+        database::Database,
+        tv_show::{
+            create::save_tv_show,
+            query::{query_all_media_items, query_series_by_media_library_id},
+        },
+    },
     interfaces::{
         dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto},
         http_api::controllers::api_models::SaveMediaLibraryPayload,
@@ -24,12 +25,6 @@ use crate::{
     services::library_parser::parsers::{Actor as TvShowActor, Episode, Season, TVSerie},
     shared::util_traits::map_rows,
 };
-
-// TODO: After DDD refactoring, categorize these messages into:
-// - Queries: Read-only operations that return data (e.g. QueryMediaItemsByMediaLibraryId, QueryAllMediaItems)
-// - Commands: Write operations that modify state (e.g. InsertSeries)
-// - Events: Notifications of state changes that have occurred
-// This will help enforce better separation of concerns and make the system more maintainable
 
 impl Actor for Database {
     type Context = Context<Self>;

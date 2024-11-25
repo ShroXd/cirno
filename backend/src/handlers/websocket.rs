@@ -9,7 +9,7 @@ use crate::{
         utils::WsConnections,
         websocket_actor::{WebSocketActor, WebSocketActorBehavior},
     },
-    database::database::Database,
+    infrastructure::database::database::Database,
     services::gstreamer_pipeline::pipeline::Pipeline,
 };
 

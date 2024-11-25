@@ -2,13 +2,12 @@ use actix::Addr;
 use actix_web::{
     delete, get, post,
     web::{scope, Data, Json, Path, Query, ServiceConfig},
-    HttpRequest, HttpResponse, Responder,
+    HttpRequest, Responder,
 };
 
 use crate::{
     actors::{parser_actor::ParserActor, utils::WsConnections},
-    database::database::Database,
-    handle_controller_result,
+    infrastructure::database::database::Database,
     interfaces::http_api::controllers::{
         api_models::{GetMediaItemsQuery, SaveMediaLibraryPayload},
         media_item::get_media_items_controller,
