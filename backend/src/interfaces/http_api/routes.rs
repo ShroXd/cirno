@@ -6,16 +6,18 @@ use actix_web::{
 };
 
 use crate::{
-    actors::utils::WsConnections,
     infrastructure::{database::database::Database, organizer::organizer::ParserActor},
-    interfaces::http_api::controllers::{
-        api_models::{GetMediaItemsQuery, SaveMediaLibraryPayload},
-        media_item::get_media_items_controller,
-        media_library::{
-            create_media_library_controller, delete_media_library_controller,
-            get_media_libraries_controller,
+    interfaces::{
+        http_api::controllers::{
+            api_models::{GetMediaItemsQuery, SaveMediaLibraryPayload},
+            media_item::get_media_items_controller,
+            media_library::{
+                create_media_library_controller, delete_media_library_controller,
+                get_media_libraries_controller,
+            },
+            tv_show::get_tv_show_seasons_controller,
         },
-        tv_show::get_tv_show_seasons_controller,
+        ws::utils::WsConnections,
     },
 };
 

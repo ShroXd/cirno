@@ -1,13 +1,10 @@
 use actix_cors::Cors;
 use actix_files::Files;
-use actix_web::{middleware::Logger, web, App, HttpResponse, HttpServer, Responder};
-use actors::utils::WsConnections;
+use actix_web::{middleware::Logger, web, App, HttpServer};
 use init::system_initializer::SystemInitializer;
+use interfaces::ws::utils::WsConnections;
 use std::env;
 use tracing::*;
-
-mod actors;
-mod handlers;
 
 mod application;
 mod domain;
@@ -15,10 +12,6 @@ mod infrastructure;
 mod init;
 mod interfaces;
 mod shared;
-
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello, world!")
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -58,10 +51,9 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(parser_addr.clone()))
             .app_data(web::Data::new(database_addr.clone()))
             .app_data(web::Data::new(ws_connections.clone()))
-            .route("/hello", web::get().to(hello))
             .configure(interfaces::http_api::routes::init_routes)
             .service(Files::new("/hls", "./tmp").show_files_listing())
-            .service(handlers::websocket::ws_index);
+            .service(interfaces::ws::routes::ws_index);
 
         if !cfg!(debug_assertions) {
             app = app.service(Files::new("/", "./web/dist").index_file("index.html"));

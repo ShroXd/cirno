@@ -5,7 +5,6 @@ use std::result::Result::Ok;
 use tracing::*;
 
 use crate::{
-    actors::{utils::WsConnections, websocket_actor::Notification},
     application::media_item_service::insert_media_item,
     domain::{
         file_processor::scan_media_library, media_library::media_library::create_media_library,
@@ -14,8 +13,9 @@ use crate::{
         database::{actor::SENTINEL_MEDIA_LIBRARY_ID, database::Database},
         organizer::organizer::ParserActor,
     },
-    interfaces::http_api::controllers::api_models::{
-        CreateMediaLibraryResponse, SaveMediaLibraryPayload,
+    interfaces::{
+        http_api::controllers::api_models::{CreateMediaLibraryResponse, SaveMediaLibraryPayload},
+        ws::{actor::Notification, utils::WsConnections},
     },
 };
 

@@ -2,7 +2,7 @@ use actix::Addr;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
 
-use super::websocket_actor::WebSocketActor;
+use super::actor::WebSocketActor;
 
 #[derive(Debug, Clone)]
 pub struct WsConnections {

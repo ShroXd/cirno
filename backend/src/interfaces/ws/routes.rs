@@ -4,12 +4,14 @@ use actix_web_actors::ws;
 use tracing::*;
 
 use crate::{
-    actors::{
-        utils::WsConnections,
-        websocket_actor::{WebSocketActor, WebSocketActorBehavior},
+    infrastructure::{
+        database::database::Database, organizer::organizer::ParserActor,
+        pipeline::pipeline::Pipeline,
     },
-    infrastructure::pipeline::pipeline::Pipeline,
-    infrastructure::{database::database::Database, organizer::organizer::ParserActor},
+    interfaces::ws::{
+        actor::{WebSocketActor, WebSocketActorBehavior},
+        utils::WsConnections,
+    },
 };
 
 #[get("/ws")]
