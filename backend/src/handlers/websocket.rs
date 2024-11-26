@@ -5,11 +5,10 @@ use tracing::*;
 
 use crate::{
     actors::{
-        parser_actor::ParserActor,
         utils::WsConnections,
         websocket_actor::{WebSocketActor, WebSocketActorBehavior},
     },
-    infrastructure::database::database::Database,
+    infrastructure::{database::database::Database, organizer::organizer::ParserActor},
     services::gstreamer_pipeline::pipeline::Pipeline,
 };
 

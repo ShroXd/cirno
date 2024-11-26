@@ -3,10 +3,8 @@ use actix_web::web::Data;
 use anyhow::Result;
 use tracing::*;
 
-use crate::{
-    actors::parser_actor::{ParserActor, ScanMediaLibrary},
-    services::library_parser::scanner::MediaLibrary,
-};
+use super::media_library::model::MediaLibrary;
+use crate::infrastructure::organizer::organizer::{ParserActor, ScanMediaLibrary};
 
 #[instrument]
 pub async fn scan_media_library(

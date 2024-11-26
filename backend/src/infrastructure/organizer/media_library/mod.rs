@@ -1,5 +1,4 @@
-pub mod parsers;
+pub mod parser;
 pub mod processor;
-pub mod processors;
 pub mod scanner;
 pub mod utils;

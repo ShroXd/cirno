@@ -3,78 +3,12 @@ use core::result::Result::Ok;
 use quick_xml::events::Event;
 use quick_xml::name::QName;
 use quick_xml::Reader;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use tracing::*;
-use ts_rs::TS;
 
-#[derive(Debug, Clone, Deserialize, Serialize, TS)]
-#[ts(export)]
-pub struct TVSerie {
-    pub title: Option<String>,
-    pub original_title: Option<String>,
-    pub show_title: Option<String>,
-    pub sort_title: Option<String>,
-    pub year: Option<String>,
-    pub plot: Option<String>,
-    pub genres: Vec<String>,
-    pub country: Option<String>,
-    pub actors: Vec<Actor>,
-    pub tmdb_id: Option<String>,
-    pub imdb_id: Option<String>,
-    pub wikidata_id: Option<String>,
-    pub tvdb_id: Option<String>,
-
-    // Information from the folder scanner
-    pub nfo_path: Option<String>,
-    pub poster_path: Option<String>,
-    pub fanart_path: Option<String>,
-    pub seasons: HashMap<u8, Season>,
-}
-impl Default for TVSerie {
-    fn default() -> Self {
-        TVSerie {
-            title: None,
-            original_title: None,
-            show_title: None,
-            sort_title: None,
-            year: None,
-            plot: None,
-            genres: Vec::new(),
-            country: None,
-            actors: Vec::new(),
-            tmdb_id: None,
-            imdb_id: None,
-            wikidata_id: None,
-            tvdb_id: None,
-            nfo_path: None,
-            poster_path: None,
-            fanart_path: None,
-            seasons: HashMap::new(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize, TS)]
-#[ts(export)]
-pub struct Actor {
-    pub name: Option<String>,
-    pub role: Option<String>,
-    pub thumb: Option<String>,
-    pub profile: Option<String>,
-    pub tmdb_id: Option<String>,
-}
-impl Default for Actor {
-    fn default() -> Self {
-        Actor {
-            name: None,
-            role: None,
-            thumb: None,
-            profile: None,
-            tmdb_id: None,
-        }
-    }
-}
+use crate::domain::{
+    episode::model::Episode, media_actor::model::Actor as MediaActor, season::model::Season,
+    tv_show::model::TVSerie,
+};
 
 pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TVSerie> {
     let mut reader = Reader::from_file(nfo_path_str)?;
@@ -88,7 +22,7 @@ pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TVSerie> {
 
     let mut buf = Vec::new();
 
-    let mut actor = Actor::default();
+    let mut actor = MediaActor::default();
     let mut type_attr = None;
 
     loop {
@@ -169,7 +103,7 @@ pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TVSerie> {
                     debug!("Add new actor: {:?}", actor);
                     is_in_actor = false;
                     tv_serie.actors.push(actor.clone());
-                    actor = Actor::default();
+                    actor = MediaActor::default();
                 }
 
                 element_stack.pop();
@@ -184,46 +118,6 @@ pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TVSerie> {
     Ok(tv_serie)
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, TS)]
-#[ts(export)]
-pub struct Season {
-    pub title: Option<String>,
-    pub show_title: Option<String>,
-    pub sort_title: Option<String>,
-    pub year: Option<String>,
-    pub plot: Option<String>,
-    pub tvdb_id: Option<String>,
-    pub imdb_id: Option<String>,
-    pub tmdb_id: Option<String>,
-    pub wikidata_id: Option<String>,
-    pub premiered: Option<String>,
-
-    // Information from the folder scanner
-    pub season_number: Option<u8>,
-    pub description: Option<String>,
-    pub nfo_path: Option<String>,
-    pub episodes: HashMap<u8, Episode>,
-}
-impl Default for Season {
-    fn default() -> Self {
-        Season {
-            title: None,
-            show_title: None,
-            sort_title: None,
-            year: None,
-            plot: None,
-            tvdb_id: None,
-            imdb_id: None,
-            tmdb_id: None,
-            wikidata_id: None,
-            premiered: None,
-            season_number: None,
-            description: None,
-            nfo_path: None,
-            episodes: HashMap::new(),
-        }
-    }
-}
 pub fn parse_season(nfo_path_str: &String) -> Result<Season> {
     let mut reader = Reader::from_file(nfo_path_str)?;
     reader.config_mut().trim_text(true);
@@ -271,72 +165,6 @@ pub fn parse_season(nfo_path_str: &String) -> Result<Season> {
 
     info!("seasons: {:?}", seasons);
     Ok(seasons)
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize, TS)]
-#[ts(export)]
-// TODO: maybe add file info fields here, we can get these info from the nfo file.
-pub struct Episode {
-    pub title: Option<String>,
-    pub original_title: Option<String>,
-    pub plot: Option<String>,
-    pub nfo_path: Option<String>,
-    pub video_file_path: String,
-    pub subtitle_file_path: Option<String>,
-    pub thumb_image_url: Option<String>,
-    pub thumb_image: Option<String>,
-    pub episode_number: Option<String>,
-    pub runtime: Option<String>,
-}
-impl Default for Episode {
-    fn default() -> Self {
-        Episode {
-            title: None,
-            original_title: None,
-            plot: None,
-            nfo_path: None,
-            video_file_path: "".to_string(),
-            subtitle_file_path: None,
-            thumb_image_url: None,
-            thumb_image: None,
-            episode_number: None,
-            runtime: None,
-        }
-    }
-}
-impl Episode {
-    pub fn merge(&mut self, other: Episode) {
-        if let Some(title) = other.title {
-            self.title = Some(title);
-        }
-        if let Some(original_title) = other.original_title {
-            self.original_title = Some(original_title);
-        }
-        if let Some(plot) = other.plot {
-            self.plot = Some(plot);
-        }
-        if let Some(nfo_path) = other.nfo_path {
-            self.nfo_path = Some(nfo_path);
-        }
-        if !other.video_file_path.is_empty() {
-            self.video_file_path = other.video_file_path;
-        }
-        if let Some(subtitle_file_path) = other.subtitle_file_path {
-            self.subtitle_file_path = Some(subtitle_file_path);
-        }
-        if let Some(thumb_image_url) = other.thumb_image_url {
-            self.thumb_image_url = Some(thumb_image_url);
-        }
-        if let Some(thumb_image) = other.thumb_image {
-            self.thumb_image = Some(thumb_image);
-        }
-        if let Some(episode_number) = other.episode_number {
-            self.episode_number = Some(episode_number);
-        }
-        if let Some(runtime) = other.runtime {
-            self.runtime = Some(runtime);
-        }
-    }
 }
 
 pub fn parse_episode(nfo_path_str: &String) -> Result<Episode> {

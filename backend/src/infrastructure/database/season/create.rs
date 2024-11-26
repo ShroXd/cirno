@@ -2,7 +2,7 @@ use anyhow::*;
 use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 
-use crate::services::library_parser::parsers::Season;
+use crate::domain::season::model::Season;
 
 #[instrument(skip(conn_pool, season))]
 pub async fn save_season(

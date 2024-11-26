@@ -2,7 +2,7 @@ use anyhow::*;
 use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 
-use crate::services::library_parser::parsers::TVSerie;
+use crate::domain::tv_show::model::TVSerie;
 
 #[instrument(skip(conn_pool, tv_show))]
 pub async fn save_tv_show(

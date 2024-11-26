@@ -5,7 +5,7 @@ use regex::Regex;
 use std::{collections::HashMap, path::PathBuf};
 use tracing::*;
 
-use crate::services::library_parser::parsers::{Season, TVSerie};
+use crate::domain::{season::model::Season, tv_show::model::TVSerie};
 
 #[instrument(skip(parse_fn))]
 pub fn parse_tv_series_nfo<F>(series_path: &PathBuf, parse_fn: F) -> Result<TVSerie>

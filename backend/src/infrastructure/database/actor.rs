@@ -6,6 +6,10 @@ use ts_rs::TS;
 
 use crate::{
     define_actor_message_handler,
+    domain::{
+        episode::model::Episode, media_actor::model::Actor as MediaActor, season::model::Season,
+        tv_show::model::TVSerie,
+    },
     infrastructure::database::{
         category::query::check_category_exists,
         database::Database,
@@ -23,7 +27,6 @@ use crate::{
         dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto},
         http_api::controllers::api_models::SaveMediaLibraryPayload,
     },
-    services::library_parser::parsers::{Actor as TvShowActor, Episode, Season, TVSerie},
     shared::util_traits::map_rows,
 };
 
@@ -73,7 +76,7 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
-pub struct SaveActor(pub i64, pub TvShowActor);
+pub struct SaveActor(pub i64, pub MediaActor);
 
 impl Display for SaveActor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

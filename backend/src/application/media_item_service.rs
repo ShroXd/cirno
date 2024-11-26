@@ -4,9 +4,11 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    infrastructure::database::actor::{SaveActor, SaveEpisode, SaveGenre, SaveSeason, SaveTvShow},
-    infrastructure::database::database::Database,
-    services::library_parser::parsers::{Episode, Season, TVSerie},
+    domain::{episode::model::Episode, season::model::Season, tv_show::model::TVSerie},
+    infrastructure::database::{
+        actor::{SaveActor, SaveEpisode, SaveGenre, SaveSeason, SaveTvShow},
+        database::Database,
+    },
 };
 
 #[instrument(skip(media_item, database_addr))]

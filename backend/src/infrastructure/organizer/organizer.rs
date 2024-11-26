@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use ts_rs::TS;
 
-use crate::services::library_parser::scanner::{scan_media_library, MediaLibrary};
+use super::media_library::scanner::scanner::scan_media_library;
+use crate::domain::media_library::model::MediaLibrary;
 
 #[derive(Debug)]
 pub struct ParserActor;

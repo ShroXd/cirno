@@ -2,15 +2,15 @@ use regex::Regex;
 use std::path::PathBuf;
 use tracing::*;
 
-use super::{
-    parsers::{parse_season, parse_tv_serie, Episode, Season, TVSerie},
-    utils::encode_optional_image,
-};
-use crate::services::library_parser::{
-    parsers::parse_episode,
-    processor::{
-        file_utils::{collect_files, partition_files},
-        parser_utils::{parse_meta_files, parse_seasons_nfo, parse_tv_series_nfo},
+use crate::{
+    domain::{episode::model::Episode, season::model::Season, tv_show::model::TVSerie},
+    infrastructure::organizer::media_library::{
+        parser::{
+            parsers::{parse_episode, parse_season, parse_tv_serie},
+            utils::{parse_meta_files, parse_seasons_nfo, parse_tv_series_nfo},
+        },
+        scanner::utils::{collect_files, partition_files},
+        utils::encode_optional_image,
     },
 };
 

@@ -6,9 +6,9 @@ use std::sync::Arc;
 use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
+use crate::infrastructure::organizer::organizer::ParserActor;
 use crate::init::app_state;
 use crate::{
-    actors::parser_actor::ParserActor,
     infrastructure::database::database::Database,
     services::gstreamer_pipeline::{
         elements::{

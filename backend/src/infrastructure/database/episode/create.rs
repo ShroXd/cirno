@@ -2,7 +2,7 @@ use anyhow::*;
 use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 
-use crate::services::library_parser::parsers::Episode;
+use crate::domain::episode::model::Episode;
 
 #[instrument(skip(conn_pool, episode))]
 pub async fn save_episode(

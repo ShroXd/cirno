@@ -1,19 +1,12 @@
 use rayon::prelude::*;
-use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use tracing::*;
-use ts_rs::TS;
 use walkdir::WalkDir;
 
-use super::parsers::TVSerie;
-use crate::services::library_parser::processors::process_series;
-
-#[derive(Debug, Deserialize, Serialize, Clone, TS)]
-#[ts(export)]
-pub struct MediaLibrary {
-    // TODO: maybe generic type
-    pub series: Vec<TVSerie>,
-}
+use crate::{
+    domain::{media_library::model::MediaLibrary, tv_show::model::TVSerie},
+    infrastructure::organizer::media_library::processor::process_series,
+};
 
 #[instrument]
 pub fn scan_media_library(root_dir: &Path) -> MediaLibrary {

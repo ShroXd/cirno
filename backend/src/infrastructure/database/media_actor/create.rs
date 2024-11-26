@@ -2,10 +2,10 @@ use anyhow::*;
 use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 
-use crate::services::library_parser::parsers::{Actor, Episode};
+use crate::domain::media_actor::model::Actor as MediaActor;
 
 #[instrument(skip(conn_pool, actor))]
-pub async fn save_actor(conn_pool: &SqlitePool, tv_show_id: i64, actor: Actor) -> Result<()> {
+pub async fn save_actor(conn_pool: &SqlitePool, tv_show_id: i64, actor: MediaActor) -> Result<()> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 

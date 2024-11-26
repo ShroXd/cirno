@@ -6,8 +6,8 @@ use actix_web::{
 };
 
 use crate::{
-    actors::{parser_actor::ParserActor, utils::WsConnections},
-    infrastructure::database::database::Database,
+    actors::utils::WsConnections,
+    infrastructure::{database::database::Database, organizer::organizer::ParserActor},
     interfaces::http_api::controllers::{
         api_models::{GetMediaItemsQuery, SaveMediaLibraryPayload},
         media_item::get_media_items_controller,

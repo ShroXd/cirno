@@ -6,13 +6,13 @@ use tracing::*;
 use ts_rs::TS;
 use uuid::Uuid;
 
-use super::{
-    parser_actor::{ParserActor, ScanMediaLibrary},
-    pipeline_actor::PipelineAction,
-    utils::WsConnections,
-};
+use super::{pipeline_actor::PipelineAction, utils::WsConnections};
 use crate::{
-    infrastructure::database::database::Database, process_pipeline_action,
+    infrastructure::{
+        database::database::Database,
+        organizer::organizer::{ParserActor, ScanMediaLibrary},
+    },
+    process_pipeline_action,
     services::gstreamer_pipeline::pipeline::Pipeline,
 };
 
