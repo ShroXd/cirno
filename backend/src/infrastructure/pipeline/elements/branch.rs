@@ -5,7 +5,7 @@ use gstreamer::{Caps, Element};
 use std::fmt::Debug;
 use tracing::{debug, instrument};
 
-use crate::utils::gst::ElementFactoryTrait;
+use crate::shared::utils::ElementFactoryTrait;
 
 pub trait StreamBranch: Send {
     fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self>

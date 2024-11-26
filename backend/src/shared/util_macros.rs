@@ -95,3 +95,45 @@ macro_rules! define_actor_message_handler {
         }
     };
 }
+
+/// A macro for forwarding pipeline actions from a WebSocket actor to a pipeline actor
+///
+/// ## Arguments
+///
+/// * `$self` - The WebSocket actor instance
+/// * `$pipeline_action` - The pipeline action to forward
+///
+/// ## Example
+/// ```
+/// process_pipeline_action!(
+///     self,
+///     Play
+/// )
+/// ```
+///
+/// ## Returns
+/// Logs debug information and:
+/// - If pipeline address exists, forwards the action to the pipeline actor
+/// - If forwarding fails, logs an error message
+///
+
+#[macro_export]
+macro_rules! process_pipeline_action {
+    ($self:ident, $pipeline_action:ident) => {{
+        debug!(
+            "WebSocket actor received {} action",
+            stringify!($pipeline_action)
+        );
+
+        if let Some(pipeline_addr) = $self.pipeline_addr.as_ref() {
+            debug!(
+                "WebSocket actor sending {} action to pipeline",
+                stringify!($pipeline_action)
+            );
+
+            if let Err(e) = pipeline_addr.try_send(PipelineAction::$pipeline_action) {
+                error!("Failed to forward message to pipeline: {:?}", e);
+            }
+        }
+    }};
+}

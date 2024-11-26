@@ -7,18 +7,21 @@ use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 use crate::{
-    infrastructure::{database::database::Database, organizer::organizer::ParserActor},
-    init::app_state,
-    services::gstreamer_pipeline::{
-        elements::{
-            branch::{AudioBranch, StreamBranch, VideoBranch},
-            decode::{Decodebin, Decoder},
-            hlssink::{HlsSink, HlsSinkImpl},
-            source::{FileSource, Source},
+    infrastructure::{
+        database::database::Database,
+        organizer::organizer::ParserActor,
+        pipeline::{
+            elements::{
+                branch::{AudioBranch, StreamBranch, VideoBranch},
+                decode::{Decodebin, Decoder},
+                hlssink::{HlsSink, HlsSinkImpl},
+                source::{FileSource, Source},
+            },
+            pipeline::Pipeline,
         },
-        pipeline::Pipeline,
     },
-    utils::gst::ElementFactory,
+    init::app_state,
+    shared::utils::ElementFactory,
 };
 
 pub struct SystemInitializer {

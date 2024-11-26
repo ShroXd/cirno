@@ -6,14 +6,14 @@ use tracing::*;
 use ts_rs::TS;
 use uuid::Uuid;
 
-use super::{pipeline_actor::PipelineAction, utils::WsConnections};
+use super::utils::WsConnections;
 use crate::{
     infrastructure::{
         database::database::Database,
         organizer::organizer::{ParserActor, ScanMediaLibrary},
+        pipeline::{actor::PipelineAction, pipeline::Pipeline},
     },
     process_pipeline_action,
-    services::gstreamer_pipeline::pipeline::Pipeline,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

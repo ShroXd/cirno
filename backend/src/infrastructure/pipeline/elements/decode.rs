@@ -4,7 +4,7 @@ use gstreamer::{prelude::*, Pad};
 use std::fmt::Debug;
 use tracing::*;
 
-use crate::utils::gst::ElementFactoryTrait;
+use crate::shared::utils::ElementFactoryTrait;
 
 pub trait Decoder: Send {
     fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self>

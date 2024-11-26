@@ -8,8 +8,8 @@ use crate::{
         utils::WsConnections,
         websocket_actor::{WebSocketActor, WebSocketActorBehavior},
     },
+    infrastructure::pipeline::pipeline::Pipeline,
     infrastructure::{database::database::Database, organizer::organizer::ParserActor},
-    services::gstreamer_pipeline::pipeline::Pipeline,
 };
 
 #[get("/ws")]

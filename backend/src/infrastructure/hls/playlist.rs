@@ -4,9 +4,9 @@ use std::{collections::HashMap, io::Write, path::Path};
 use tracing::*;
 use ts_rs::TS;
 
-use crate::actors::pipeline_actor::QueryDuration;
-use crate::init::app_state::{
-    get_pipeline_addr, set_pipeline_duration, set_pipeline_segment_duration,
+use crate::{
+    infrastructure::pipeline::actor::QueryDuration,
+    init::app_state::{get_pipeline_addr, set_pipeline_duration, set_pipeline_segment_duration},
 };
 
 #[derive(Debug, TS, Clone, PartialEq, Eq, Hash)]

@@ -8,13 +8,11 @@ use tracing::*;
 
 mod actors;
 mod handlers;
-mod init;
-mod services;
-mod utils;
 
 mod application;
 mod domain;
 mod infrastructure;
+mod init;
 mod interfaces;
 mod shared;
 

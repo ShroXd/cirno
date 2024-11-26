@@ -1,3 +1,5 @@
+use anyhow::Result;
+use gstreamer::{Element, ElementFactory as GstElementFactory};
 use std::path::Path;
 
 /// Checks if the given string represents a valid path on the current operating system
@@ -14,6 +16,22 @@ pub fn is_valid_path(path_str: &str) -> bool {
 
     let path = Path::new(path_str);
     path.is_absolute() && path.exists()
+}
+
+pub trait ElementFactoryTrait {
+    fn make(&self, element_name: &str) -> Result<Element>;
+}
+
+#[derive(Debug, Clone)]
+pub struct ElementFactory;
+impl ElementFactoryTrait for ElementFactory {
+    fn make(&self, element_name: &str) -> Result<Element> {
+        let element = GstElementFactory::make(element_name)
+            .build()
+            .map_err(|e| anyhow::anyhow!("Failed to create element: {}", e))?;
+
+        Ok(element)
+    }
 }
 
 #[cfg(test)]
