@@ -4,8 +4,9 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Mutex;
 
-use crate::services::gstreamer_pipeline::pipeline::Pipeline;
-use crate::services::stream::playlist_stream::PlaylistStream;
+use crate::{
+    infrastructure::hls::playlist::PlaylistStream, services::gstreamer_pipeline::pipeline::Pipeline,
+};
 
 // Global state management for the application
 // TODO: This is a temporary solution for MVP. These global variables will be refactored

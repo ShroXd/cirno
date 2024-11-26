@@ -6,10 +6,9 @@ use std::sync::Arc;
 use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
-use crate::infrastructure::organizer::organizer::ParserActor;
-use crate::init::app_state;
 use crate::{
-    infrastructure::database::database::Database,
+    infrastructure::{database::database::Database, organizer::organizer::ParserActor},
+    init::app_state,
     services::gstreamer_pipeline::{
         elements::{
             branch::{AudioBranch, StreamBranch, VideoBranch},
