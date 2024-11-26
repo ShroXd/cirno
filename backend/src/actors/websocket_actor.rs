@@ -284,9 +284,9 @@ impl WebSocketActorBehavior for WebSocketActor {
 
                 match parser_addr.send(ScanMediaLibrary(path)).await {
                     Ok(Ok(library)) => {
-                        info!("Media library scanned: {:?}", library.series.len());
+                        info!("Media library scanned: {:?}", library.tv_show.len());
 
-                        for series in library.series {
+                        for series in library.tv_show {
                             // if let Err(e) = database_addr.try_send(InsertSeries(series, 1)) {
                             //     error!("Failed to forward message to database: {:?}", e);
                             // }

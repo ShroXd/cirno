@@ -5,12 +5,12 @@ use regex::Regex;
 use std::{collections::HashMap, path::PathBuf};
 use tracing::*;
 
-use crate::domain::{season::model::Season, tv_show::model::TVSerie};
+use crate::domain::{season::model::Season, tv_show::model::TvShow};
 
 #[instrument(skip(parse_fn))]
-pub fn parse_tv_series_nfo<F>(series_path: &PathBuf, parse_fn: F) -> Result<TVSerie>
+pub fn parse_tv_series_nfo<F>(series_path: &PathBuf, parse_fn: F) -> Result<TvShow>
 where
-    F: Fn(&String) -> Result<TVSerie>,
+    F: Fn(&String) -> Result<TvShow>,
 {
     if !series_path.exists() {
         return Err(anyhow!("Series path does not exist"));
@@ -27,7 +27,7 @@ where
 }
 
 #[instrument(skip(meta_files, encode_fn))]
-pub fn parse_meta_files<F>(meta_files: &[PathBuf], tv_serie: &mut TVSerie, encode_fn: F)
+pub fn parse_meta_files<F>(meta_files: &[PathBuf], tv_serie: &mut TvShow, encode_fn: F)
 where
     F: Fn(&Option<PathBuf>) -> Option<String>,
 {
@@ -84,7 +84,7 @@ mod tests {
 
     #[test]
     fn test_parse_series_nfo_with_existing_nfo() {
-        let mock_parse = |_: &String| -> Result<TVSerie> { Ok(TVSerie::default()) };
+        let mock_parse = |_: &String| -> Result<TvShow> { Ok(TvShow::default()) };
 
         let temp_dir = tempdir().expect("Failed to create temp dir");
         let series_path = temp_dir.path().join("series");
@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn test_parse_series_nfo_without_nfo() {
-        let mock_parse = |_: &String| -> Result<TVSerie> { Ok(TVSerie::default()) };
+        let mock_parse = |_: &String| -> Result<TvShow> { Ok(TvShow::default()) };
 
         // Skip creation of nfo file
         let temp_dir = tempdir().expect("Failed to create temp dir");

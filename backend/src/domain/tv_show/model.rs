@@ -2,11 +2,11 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use ts_rs::TS;
 
-use crate::domain::{media_actor::model::Actor, season::model::Season};
+use crate::domain::{media_actor::model::MediaActor, season::model::Season};
 
 #[derive(Debug, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
-pub struct TVSerie {
+pub struct TvShow {
     pub title: Option<String>,
     pub original_title: Option<String>,
     pub show_title: Option<String>,
@@ -15,7 +15,7 @@ pub struct TVSerie {
     pub plot: Option<String>,
     pub genres: Vec<String>,
     pub country: Option<String>,
-    pub actors: Vec<Actor>,
+    pub actors: Vec<MediaActor>,
     pub tmdb_id: Option<String>,
     pub imdb_id: Option<String>,
     pub wikidata_id: Option<String>,
@@ -27,9 +27,10 @@ pub struct TVSerie {
     pub fanart_path: Option<String>,
     pub seasons: HashMap<u8, Season>,
 }
-impl Default for TVSerie {
+
+impl Default for TvShow {
     fn default() -> Self {
-        TVSerie {
+        TvShow {
             title: None,
             original_title: None,
             show_title: None,

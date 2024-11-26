@@ -2,12 +2,12 @@ use anyhow::*;
 use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 
-use crate::domain::tv_show::model::TVSerie;
+use crate::domain::tv_show::model::TvShow;
 
 #[instrument(skip(conn_pool, tv_show))]
 pub async fn save_tv_show(
     conn_pool: &SqlitePool,
-    tv_show: TVSerie,
+    tv_show: TvShow,
     media_library_id: i64,
 ) -> Result<i64> {
     let mut conn = conn_pool.acquire().await?;

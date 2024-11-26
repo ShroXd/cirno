@@ -7,8 +7,8 @@ use ts_rs::TS;
 use crate::{
     define_actor_message_handler,
     domain::{
-        episode::model::Episode, media_actor::model::Actor as MediaActor, season::model::Season,
-        tv_show::model::TVSerie,
+        episode::model::Episode, media_actor::model::MediaActor as MediaActor, season::model::Season,
+        tv_show::model::TvShow,
     },
     infrastructure::database::{
         category::query::check_category_exists,
@@ -36,7 +36,7 @@ impl Actor for Database {
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "i64")]
-pub struct SaveTvShow(pub TVSerie, pub i64);
+pub struct SaveTvShow(pub TvShow, pub i64);
 
 impl Display for SaveTvShow {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

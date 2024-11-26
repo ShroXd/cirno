@@ -4,7 +4,7 @@ use tracing::*;
 use walkdir::WalkDir;
 
 use crate::{
-    domain::{media_library::model::MediaLibrary, tv_show::model::TVSerie},
+    domain::{media_library::model::MediaLibrary, tv_show::model::TvShow},
     infrastructure::organizer::media_library::processor::process_series,
 };
 
@@ -29,13 +29,13 @@ pub fn scan_media_library(root_dir: &Path) -> MediaLibrary {
         .collect();
     debug!("Found {} series directories", series_dirs.len());
 
-    let series_data: Vec<TVSerie> = series_dirs
+    let series_data: Vec<TvShow> = series_dirs
         .par_iter()
         .map(|series_dir| process_series(series_dir))
         .collect();
     debug!("Processed {} series", series_data.len());
 
     MediaLibrary {
-        series: series_data,
+        tv_show: series_data,
     }
 }

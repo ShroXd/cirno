@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+// TODO: maybe add file info fields here, we can get these info from the nfo file.
 #[derive(Debug, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
-// TODO: maybe add file info fields here, we can get these info from the nfo file.
 pub struct Episode {
     pub title: Option<String>,
     pub original_title: Option<String>,

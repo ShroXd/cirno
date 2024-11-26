@@ -6,15 +6,15 @@ use quick_xml::Reader;
 use tracing::*;
 
 use crate::domain::{
-    episode::model::Episode, media_actor::model::Actor as MediaActor, season::model::Season,
-    tv_show::model::TVSerie,
+    episode::model::Episode, media_actor::model::MediaActor as MediaActor, season::model::Season,
+    tv_show::model::TvShow,
 };
 
-pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TVSerie> {
+pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TvShow> {
     let mut reader = Reader::from_file(nfo_path_str)?;
     reader.config_mut().trim_text(true);
 
-    let mut tv_serie = TVSerie::default();
+    let mut tv_serie = TvShow::default();
 
     let mut element_stack = Vec::new();
     let mut curr_elem: Option<String> = None;

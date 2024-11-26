@@ -49,7 +49,7 @@ pub async fn create_media_library_service(
     spawn(async move {
         debug!("Scanning media library");
         let media_items = match scan_media_library(directory_clone, parser_addr).await {
-            Ok(media_library) => media_library.series,
+            Ok(media_library) => media_library.tv_show,
             Err(e) => {
                 error!("Failed to scan media library: {:?}", e);
                 return;

@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    domain::{episode::model::Episode, season::model::Season, tv_show::model::TVSerie},
+    domain::{episode::model::Episode, season::model::Season, tv_show::model::TvShow},
     infrastructure::database::{
         actor::{SaveActor, SaveEpisode, SaveGenre, SaveSeason, SaveTvShow},
         database::Database,
@@ -14,7 +14,7 @@ use crate::{
 #[instrument(skip(media_item, database_addr))]
 pub async fn insert_media_item(
     media_library_id: i64,
-    media_item: TVSerie,
+    media_item: TvShow,
     database_addr: Arc<Addr<Database>>,
 ) -> Result<()> {
     debug!("Inserting media item: {:?}", media_item.title);

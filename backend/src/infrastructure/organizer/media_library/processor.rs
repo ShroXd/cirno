@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use tracing::*;
 
 use crate::{
-    domain::{episode::model::Episode, season::model::Season, tv_show::model::TVSerie},
+    domain::{episode::model::Episode, season::model::Season, tv_show::model::TvShow},
     infrastructure::organizer::media_library::{
         parser::{
             parsers::{parse_episode, parse_season, parse_tv_serie},
@@ -14,13 +14,13 @@ use crate::{
     },
 };
 
-pub fn process_series(series_path: &PathBuf) -> TVSerie {
+pub fn process_series(series_path: &PathBuf) -> TvShow {
     // Collect all files in the series directory
     let series_files = match collect_files(series_path) {
         Ok(files) => files,
         Err(err) => {
             error!("Error collecting files: {}", err);
-            return TVSerie::default();
+            return TvShow::default();
         }
     };
     debug!("Found {} files", series_files.len());
@@ -36,7 +36,7 @@ pub fn process_series(series_path: &PathBuf) -> TVSerie {
         Ok(series) => series,
         Err(err) => {
             error!("Error parsing series nfo file: {}", err);
-            return TVSerie::default();
+            return TvShow::default();
         }
     };
 
@@ -48,7 +48,7 @@ pub fn process_series(series_path: &PathBuf) -> TVSerie {
         Ok(seasons) => seasons,
         Err(err) => {
             error!("Error parsing seasons nfo files: {}", err);
-            return TVSerie::default();
+            return TvShow::default();
         }
     };
 
