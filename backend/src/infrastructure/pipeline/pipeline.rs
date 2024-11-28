@@ -1,9 +1,11 @@
-use anyhow::Result;
+use anyhow::*;
+use async_trait::async_trait;
 use gstreamer::{
     glib::WeakRef, prelude::*, query, BusSyncReply, ClockTime, Element as GstElement, Format,
     GenericFormattedValue, Message as GstMessage, MessageView, Pipeline as GstPipeline, SeekFlags,
     State,
 };
+use std::result::Result::Ok;
 use std::{
     sync::{Arc, Mutex, RwLock},
     time::Duration,
@@ -13,30 +15,37 @@ use tracing::*;
 
 use super::elements::{branch::StreamBranch, decode::Decoder, hlssink::HlsSink, source::Source};
 use crate::{
-    infrastructure::pipeline::elements::decode::DecodebinSignal,
+    domain::pipeline::{
+        events::PipelineEvent,
+        model::{Duration as DomainDuration, PipelineState, Position},
+        ports::PipelinePort,
+    },
+    infrastructure::{event_bus::event_bus::EventBus, pipeline::elements::decode::DecodebinSignal},
     init::app_state::{get_pipeline_segment_duration, set_segment_index},
 };
 
-// TODO: 1. Avoid using Box<dyn Source>
+// TODO: 1. Avoid using Box<dyn Source>, use Arc<dyn Source> instead
 // TODO: 2. Each element should have more general type instead of using WebRtcElement or other specific elements
 pub struct Pipeline {
-    pub source: Box<dyn Source + Send>,
-    decoder: Box<dyn Decoder + Send>,
-    video_branch: Box<dyn StreamBranch + Send>,
-    audio_branch: Box<dyn StreamBranch + Send>,
-    hls_sink: Box<dyn HlsSink + Send>,
+    pub source: Arc<dyn Source + Send>,
+    decoder: Arc<dyn Decoder + Send>,
+    video_branch: Arc<dyn StreamBranch + Send>,
+    audio_branch: Arc<dyn StreamBranch + Send>,
+    hls_sink: Arc<dyn HlsSink + Send>,
     gst_pipeline: Option<GstPipeline>,
 
     state: Arc<RwLock<State>>,
+    event_bus: Arc<EventBus>,
 }
 
 impl Pipeline {
     pub fn new(
-        source: Box<dyn Source + Send>,
-        decoder: Box<dyn Decoder + Send>,
-        video_branch: Box<dyn StreamBranch + Send>,
-        audio_branch: Box<dyn StreamBranch + Send>,
-        hls_sink: Box<dyn HlsSink + Send>,
+        source: Arc<dyn Source + Send>,
+        decoder: Arc<dyn Decoder + Send>,
+        video_branch: Arc<dyn StreamBranch + Send>,
+        audio_branch: Arc<dyn StreamBranch + Send>,
+        hls_sink: Arc<dyn HlsSink + Send>,
+        event_bus: Arc<EventBus>,
     ) -> Self {
         Self {
             source,
@@ -46,10 +55,42 @@ impl Pipeline {
             hls_sink,
             gst_pipeline: None,
             state: Arc::new(RwLock::new(State::Null)),
+            event_bus,
         }
     }
 
-    pub fn build(&mut self) -> Result<()> {
+    #[instrument(skip(self))]
+    fn on_pipeline_msg(&self, msg: &GstMessage) {
+        use gstreamer::MessageView;
+        match msg.view() {
+            MessageView::Error(err) => {
+                error!(
+                    "Pipeline error received from element {:?}",
+                    err.src().map(|s| s.path_string())
+                );
+                error!("Pipeline error: {}", err.error());
+            }
+            _ => (),
+        }
+    }
+
+    // #[instrument(skip(self))]
+    // pub fn is_valid_position(&self, position: u64) -> Result<bool> {
+    //     let duration_ns = self.get_duration()?;
+    //     let requested_position = ClockTime::try_from(Duration::from_secs(position))?;
+    //     let requested_position_ns = requested_position.nseconds();
+
+    //     debug!("Duration: {:?} ns", duration_ns);
+    //     info!("Requested position: {:?} ns", requested_position_ns);
+
+    //     Ok(duration_ns < requested_position_ns)
+    // }
+}
+
+#[async_trait]
+impl PipelinePort for Pipeline {
+    #[instrument(skip(self))]
+    fn build(&mut self) -> Result<()> {
         // TODO: Figure out how to call new() on each element
         let source = self.source.get_element();
         let decoder = self.decoder.get_element();
@@ -80,7 +121,8 @@ impl Pipeline {
         // TODO: fuck we should make sure the order of video and audio sink, otherwise using enum to store that shit
         let video_sink = &self.video_branch.get_entry();
         let audio_sink = &self.audio_branch.get_entry();
-        self.decoder.handle_signal(
+
+        Arc::get_mut(&mut self.decoder).unwrap().handle_signal(
             DecodebinSignal::ConnectPadAdded,
             video_sink.clone(),
             audio_sink.clone(),
@@ -122,14 +164,19 @@ impl Pipeline {
             BusSyncReply::Drop
         });
 
-        tokio::spawn(gst_bus_watch_task(gst_pipeline.downgrade(), bus_rx));
+        tokio::spawn(gst_bus_watch_task(
+            gst_pipeline.downgrade(),
+            bus_rx,
+            self.event_bus.clone(),
+        ));
 
         self.gst_pipeline = Some(gst_pipeline);
         debug!("Pipeline successfully built");
         Ok(())
     }
 
-    pub fn play(&self) -> Result<()> {
+    #[instrument(skip(self))]
+    fn play(&self) -> Result<()> {
         let gst_pipeline = match &self.gst_pipeline {
             Some(pipeline) => pipeline.clone(),
             None => return Err(anyhow::anyhow!("Pipeline not built")),
@@ -142,22 +189,7 @@ impl Pipeline {
     }
 
     #[instrument(skip(self))]
-    fn on_pipeline_msg(&self, msg: &GstMessage) {
-        use gstreamer::MessageView;
-        match msg.view() {
-            MessageView::Error(err) => {
-                error!(
-                    "Pipeline error received from element {:?}",
-                    err.src().map(|s| s.path_string())
-                );
-                error!("Pipeline error: {}", err.error());
-            }
-            _ => (),
-        }
-    }
-
-    #[instrument(skip(self))]
-    pub fn pause(&self) -> Result<()> {
+    fn pause(&self) -> Result<()> {
         let gst_pipeline = self
             .gst_pipeline
             .as_ref()
@@ -169,7 +201,7 @@ impl Pipeline {
     }
 
     #[instrument(skip(self))]
-    pub fn stop(&self) -> Result<()> {
+    fn stop(&self) -> Result<()> {
         let gst_pipeline = self
             .gst_pipeline
             .as_ref()
@@ -180,59 +212,8 @@ impl Pipeline {
         Ok(())
     }
 
-    // TODO: consider if we need to use nanoseconds to represent duration and calculate position
     #[instrument(skip(self))]
-    pub fn query_duration(&self) -> Result<u64> {
-        let gst_pipeline = self
-            .gst_pipeline
-            .as_ref()
-            .ok_or(anyhow::anyhow!("Pipeline not built"))?;
-
-        let mut q = query::Duration::new(Format::Time);
-        gst_pipeline.query(&mut q);
-        let q = match q.result() {
-            GenericFormattedValue::Time(Some(clock_time)) => clock_time,
-            _ => {
-                error!("Failed to get duration of the stream");
-                return Err(anyhow::anyhow!("Failed to get duration of the stream"));
-            }
-        };
-
-        info!("Duration: {:?}", q);
-        info!("Duration: {:?}", q.nseconds());
-
-        Ok(q.nseconds() as u64)
-    }
-
-    #[instrument(skip(self))]
-    pub fn is_valid_position(&self, position: u64) -> Result<bool> {
-        let duration_ns = self.query_duration()?;
-        let requested_position = ClockTime::try_from(Duration::from_secs(position))?;
-        let requested_position_ns = requested_position.nseconds();
-
-        debug!("Duration: {:?} ns", duration_ns);
-        info!("Requested position: {:?} ns", requested_position_ns);
-
-        Ok(duration_ns < requested_position_ns)
-    }
-
-    #[instrument(skip(self))]
-    pub fn query_pipeline_state(&self) -> Result<State> {
-        let state = match self.state.read() {
-            Ok(state) => state,
-            Err(e) => {
-                error!("Failed to read state: {:?}", e);
-                return Err(anyhow::anyhow!("Failed to read state: {:?}", e));
-            }
-        };
-
-        debug!("Pipeline state: {:?}", state);
-
-        Ok(*state)
-    }
-
-    #[instrument(skip(self))]
-    pub fn seek(&self, position: u32) -> Result<()> {
+    fn seek(&self, position: u32) -> Result<()> {
         // if !self.is_valid_position(position)? {
         //     error!("Invalid position: {:?} ns", position);
         //     return Err(anyhow::anyhow!("Invalid position: {:?} ns", position));
@@ -267,11 +248,56 @@ impl Pipeline {
 
         Ok(())
     }
+
+    #[instrument(skip(self))]
+    fn get_duration(&self) -> Result<DomainDuration> {
+        let gst_pipeline = self
+            .gst_pipeline
+            .as_ref()
+            .ok_or(anyhow::anyhow!("Pipeline not built"))?;
+
+        let mut q = query::Duration::new(Format::Time);
+        gst_pipeline.query(&mut q);
+        let q = match q.result() {
+            GenericFormattedValue::Time(Some(clock_time)) => clock_time,
+            _ => {
+                error!("Failed to get duration of the stream");
+                return Err(anyhow::anyhow!("Failed to get duration of the stream"));
+            }
+        };
+
+        info!("Duration: {:?}", q);
+        info!("Duration: {:?}", q.nseconds());
+
+        Ok(DomainDuration::from_secs(q.nseconds() / 1_000_000_000)?)
+    }
+
+    #[instrument(skip(self))]
+    fn get_state(&self) -> Result<PipelineState> {
+        let state = match self.state.read() {
+            Ok(state) => state,
+            Err(e) => {
+                error!("Failed to read state: {:?}", e);
+                return Err(anyhow::anyhow!("Failed to read state: {:?}", e));
+            }
+        };
+
+        debug!("Pipeline state: {:?}", state);
+
+        Ok(match *state {
+            State::Null => PipelineState::Null,
+            State::Ready => PipelineState::Ready,
+            State::Paused => PipelineState::Paused,
+            State::Playing => PipelineState::Playing,
+            _ => PipelineState::Null,
+        })
+    }
 }
 
 async fn gst_bus_watch_task(
     gst_pipeline_weak: WeakRef<GstPipeline>,
     mut bus_rx: UnboundedReceiver<GstMessage>,
+    event_bus: Arc<EventBus>,
 ) {
     debug!("Event bus watch task started");
     let pipeline = match gst_pipeline_weak.upgrade() {
@@ -286,25 +312,68 @@ async fn gst_bus_watch_task(
                     "Pipeline error received from element {:?}",
                     e.src().map(|s| s.path_string())
                 );
-                error!("Pipeline error: {}", e.error())
+                error!("Pipeline error: {}", e.error());
+                let _ = event_bus
+                    .publish(PipelineEvent::ErrorOccurred {
+                        message: e.error().to_string(),
+                        component: e
+                            .src()
+                            .map(|s| s.path_string().to_string())
+                            .unwrap_or_default(),
+                    })
+                    .map_err(|e| error!("Failed to publish error event: {}", e));
             }
             MessageView::Eos(..) => {
-                info!("Pipeline EOS")
+                info!("End of stream received from pipeline");
+
+                let _ = event_bus
+                    .publish(PipelineEvent::EndOfStream)
+                    .map_err(|e| error!("Failed to publish end of stream event: {}", e));
             }
             MessageView::StateChanged(state_changed) => {
+                // if state_changed
+                //     .src()
+                //     .map(|s| s.name() == "normal_pipeline")
+                //     .unwrap_or(false)
+                // {
+                //     debug!(
+                //         "Pipeline state changed from {:?} to {:?}",
+                //         state_changed.old(),
+                //         state_changed.current(),
+                //     )
+                // }
+
                 if state_changed
                     .src()
-                    .map(|s| s.name() == "normal_pipeline")
-                    .unwrap_or(false)
+                    .map(|s| s.path_string())
+                    .unwrap_or_default()
+                    .contains("pipeline")
                 {
-                    debug!(
-                        "Pipeline state changed from {:?} to {:?}",
-                        state_changed.old(),
-                        state_changed.current(),
-                    )
+                    if let (Some(old), Some(new)) = (
+                        convert_gst_state(state_changed.old()),
+                        convert_gst_state(state_changed.current()),
+                    ) {
+                        debug!("Pipeline state changed from {:?} to {:?}", old, new);
+                        let _ = event_bus
+                            .publish(PipelineEvent::StateChanged {
+                                old_state: old,
+                                new_state: new,
+                            })
+                            .map_err(|e| error!("Failed to publish state changed event: {}", e));
+                    }
                 }
             }
             _ => {}
         }
+    }
+}
+
+fn convert_gst_state(state: State) -> Option<PipelineState> {
+    match state {
+        State::Null => Some(PipelineState::Null),
+        State::Ready => Some(PipelineState::Ready),
+        State::Paused => Some(PipelineState::Paused),
+        State::Playing => Some(PipelineState::Playing),
+        _ => None,
     }
 }

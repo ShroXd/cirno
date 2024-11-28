@@ -4,7 +4,7 @@ use gstreamer::Element;
 use gstreamer::ElementFactory;
 use tracing::*;
 
-pub trait Source: Send {
+pub trait Source: Send + Sync {
     fn new() -> Result<Self>
     where
         Self: Sized;

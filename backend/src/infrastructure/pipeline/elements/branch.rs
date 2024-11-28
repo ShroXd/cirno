@@ -7,7 +7,7 @@ use tracing::{debug, instrument};
 
 use crate::shared::utils::ElementFactoryTrait;
 
-pub trait StreamBranch: Send {
+pub trait StreamBranch: Send + Sync {
     fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self>
     where
         Self: Sized;

@@ -1,11 +1,11 @@
 use actix::{Actor, Context, Handler, Message};
 use gstreamer::prelude::*;
-use gstreamer::State;
 use serde::{Deserialize, Serialize};
 use tracing::*;
 use ts_rs::TS;
 
-use crate::infrastructure::pipeline::pipeline::Pipeline;
+use crate::domain::pipeline::model::PipelineState;
+use crate::{domain::pipeline::ports::PipelinePort, infrastructure::pipeline::pipeline::Pipeline};
 
 impl Actor for Pipeline {
     type Context = Context<Pipeline>;
@@ -55,7 +55,7 @@ impl Handler<PipelineAction> for Pipeline {
                 }
             }
             PipelineAction::SetSource(new_file_path) => {
-                if let Ok(State::Playing) = self.query_pipeline_state() {
+                if let Ok(PipelineState::Playing) = self.get_state() {
                     if let Err(e) = self.stop() {
                         error!("Failed to stop the pipeline: {}", e);
                     }
@@ -78,8 +78,8 @@ impl Handler<QueryDuration> for Pipeline {
     type Result = u64;
 
     fn handle(&mut self, _: QueryDuration, _: &mut Self::Context) -> Self::Result {
-        match self.query_duration() {
-            Ok(duration) => duration,
+        match self.get_duration() {
+            Ok(duration) => duration.as_nanos(),
             Err(e) => {
                 error!("Failed to query duration of the pipeline: {}", e);
                 return 0;

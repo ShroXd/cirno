@@ -6,7 +6,7 @@ use tracing::*;
 
 use crate::shared::utils::ElementFactoryTrait;
 
-pub trait Decoder: Send {
+pub trait Decoder: Send + Sync {
     fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self>
     where
         Self: Sized;

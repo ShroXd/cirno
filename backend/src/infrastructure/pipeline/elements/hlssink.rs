@@ -6,7 +6,7 @@ use tracing::*;
 
 use crate::init::app_state::{get_playlist_stream, get_segment_index, increment_segment_index};
 
-pub trait HlsSink: Send {
+pub trait HlsSink: Send + Sync {
     fn new() -> Result<Self>
     where
         Self: Sized;

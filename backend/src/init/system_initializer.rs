@@ -7,8 +7,10 @@ use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 use crate::{
+    domain::pipeline::ports::PipelinePort,
     infrastructure::{
         database::database::Database,
+        event_bus::event_bus::EventBus,
         organizer::organizer::ParserActor,
         pipeline::{
             elements::{
@@ -123,12 +125,15 @@ impl SystemInitializer {
         };
         debug!("Audio branch created");
 
+        let event_bus = Arc::new(EventBus::new(16));
+
         let mut pipeline = Pipeline::new(
-            Box::new(source),
-            Box::new(decoder),
-            Box::new(video_branch),
-            Box::new(audio_branch),
-            Box::new(self.hls_sink.as_ref().clone()),
+            Arc::new(source),
+            Arc::new(decoder),
+            Arc::new(video_branch),
+            Arc::new(audio_branch),
+            Arc::new(self.hls_sink.as_ref().clone()),
+            event_bus,
         );
         debug!("Pipeline created");
 
