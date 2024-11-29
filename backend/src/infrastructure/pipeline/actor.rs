@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use tracing::*;
 use ts_rs::TS;
 
-use crate::domain::pipeline::model::PipelineState;
+use crate::domain::pipeline::model::{PipelineState, Position};
 use crate::{domain::pipeline::ports::PipelinePort, infrastructure::pipeline::pipeline::Pipeline};
 
 impl Actor for Pipeline {
@@ -49,6 +49,15 @@ impl Handler<PipelineAction> for Pipeline {
                 }
             }
             PipelineAction::Seek(position) => {
+                // TODO: handle u32 to u64
+                let position = match Position::from_secs(position as u64) {
+                    Ok(position) => position,
+                    Err(e) => {
+                        error!("Failed to seek the pipeline: {}", e);
+                        return;
+                    }
+                };
+
                 info!("Seek position: {:?}", position);
                 if let Err(e) = self.seek(position) {
                     error!("Failed to seek the pipeline: {}", e);

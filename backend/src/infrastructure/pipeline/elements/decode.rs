@@ -4,21 +4,8 @@ use gstreamer::{prelude::*, Pad};
 use std::fmt::Debug;
 use tracing::*;
 
+use crate::domain::pipeline::ports::{DecodebinSignal, Decoder};
 use crate::shared::utils::ElementFactoryTrait;
-
-pub trait Decoder: Send + Sync {
-    fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self>
-    where
-        Self: Sized;
-
-    fn handle_signal(&mut self, signal: DecodebinSignal, video_sink: Element, audio_sink: Element);
-    fn get_element(&self) -> &Element;
-}
-
-#[derive(Debug)]
-pub enum DecodebinSignal {
-    ConnectPadAdded,
-}
 
 #[derive(Debug)]
 pub struct Decodebin {

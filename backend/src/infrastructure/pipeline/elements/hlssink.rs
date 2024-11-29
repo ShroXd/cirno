@@ -4,14 +4,10 @@ use gstreamer::{Element, ElementFactory};
 use std::path::Path;
 use tracing::*;
 
-use crate::init::app_state::{get_playlist_stream, get_segment_index, increment_segment_index};
-
-pub trait HlsSink: Send + Sync {
-    fn new() -> Result<Self>
-    where
-        Self: Sized;
-    fn get_element(&self) -> &Element;
-}
+use crate::{
+    domain::pipeline::ports::HlsSink,
+    init::app_state::{get_playlist_stream, get_segment_index, increment_segment_index},
+};
 
 #[derive(Debug, Clone)]
 pub struct HlsSinkImpl {

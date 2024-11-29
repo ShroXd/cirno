@@ -4,33 +4,14 @@ use gstreamer::Element;
 use gstreamer::ElementFactory;
 use tracing::*;
 
-pub trait Source: Send + Sync {
-    fn new() -> Result<Self>
-    where
-        Self: Sized;
-    fn set_name(&mut self, name: &str);
-    fn set_properties(&mut self, properties: Vec<(&str, &dyn ToValue)>);
-    fn get_element(&self) -> &Element;
-
-    fn build(name: &str, properties: Vec<(&str, &dyn ToValue)>) -> Result<Element>
-    where
-        Self: Sized,
-    {
-        info!("Created pipeline source {}", name);
-
-        let mut source = Self::new()?;
-        source.set_name(name);
-        source.set_properties(properties);
-
-        Ok(source.get_element().clone())
-    }
-}
+use crate::domain::pipeline::ports::Source;
 
 #[derive(Debug)]
 pub struct FileSource {
     pub element: Element,
 }
 unsafe impl Send for FileSource {}
+
 impl Source for FileSource {
     #[instrument]
     fn new() -> Result<Self> {

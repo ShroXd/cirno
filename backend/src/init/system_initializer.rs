@@ -7,17 +7,17 @@ use tracing::*;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 use crate::{
-    domain::pipeline::ports::PipelinePort,
+    domain::pipeline::ports::{Decoder, HlsSink, PipelinePort, Source, StreamBranch},
     infrastructure::{
         database::database::Database,
         event_bus::event_bus::EventBus,
         organizer::organizer::ParserActor,
         pipeline::{
             elements::{
-                branch::{AudioBranch, StreamBranch, VideoBranch},
-                decode::{Decodebin, Decoder},
-                hlssink::{HlsSink, HlsSinkImpl},
-                source::{FileSource, Source},
+                branch::{AudioBranch, VideoBranch},
+                decode::Decodebin,
+                hlssink::HlsSinkImpl,
+                source::FileSource,
             },
             pipeline::Pipeline,
         },
@@ -138,7 +138,7 @@ impl SystemInitializer {
         debug!("Pipeline created");
 
         info!("Building pipeline");
-        match pipeline.build() {
+        match pipeline.build(&video_path) {
             Ok(_) => info!("Pipeline built"),
             Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
         }

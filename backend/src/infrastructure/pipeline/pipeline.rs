@@ -5,22 +5,21 @@ use gstreamer::{
     GenericFormattedValue, Message as GstMessage, MessageView, Pipeline as GstPipeline, SeekFlags,
     State,
 };
-use std::result::Result::Ok;
 use std::{
+    result::Result::Ok,
     sync::{Arc, Mutex, RwLock},
     time::Duration,
 };
 use tokio::sync::mpsc::UnboundedReceiver;
 use tracing::*;
 
-use super::elements::{branch::StreamBranch, decode::Decoder, hlssink::HlsSink, source::Source};
 use crate::{
     domain::pipeline::{
         events::PipelineEvent,
         model::{Duration as DomainDuration, PipelineState, Position},
-        ports::PipelinePort,
+        ports::{DecodebinSignal, Decoder, HlsSink, PipelinePort, Source, StreamBranch},
     },
-    infrastructure::{event_bus::event_bus::EventBus, pipeline::elements::decode::DecodebinSignal},
+    infrastructure::event_bus::event_bus::EventBus,
     init::app_state::{get_pipeline_segment_duration, set_segment_index},
 };
 
@@ -90,9 +89,12 @@ impl Pipeline {
 #[async_trait]
 impl PipelinePort for Pipeline {
     #[instrument(skip(self))]
-    fn build(&mut self) -> Result<()> {
+    fn build(&mut self, path: &str) -> Result<()> {
         // TODO: Figure out how to call new() on each element
         let source = self.source.get_element();
+        source.set_property("location", &path);
+        debug!("Source element location set to {}", path);
+
         let decoder = self.decoder.get_element();
 
         let video_branch_elements = self.video_branch.get_elements();
@@ -213,7 +215,7 @@ impl PipelinePort for Pipeline {
     }
 
     #[instrument(skip(self))]
-    fn seek(&self, position: u32) -> Result<()> {
+    fn seek(&self, position: Position) -> Result<()> {
         // if !self.is_valid_position(position)? {
         //     error!("Invalid position: {:?} ns", position);
         //     return Err(anyhow::anyhow!("Invalid position: {:?} ns", position));
@@ -231,7 +233,7 @@ impl PipelinePort for Pipeline {
         let duration = get_pipeline_segment_duration();
         info!("Query duration: {:?} ns", duration);
 
-        let position_ns = ClockTime::try_from(Duration::from_secs(position as u64))?;
+        let position_ns = ClockTime::try_from(Duration::from_secs(position.as_nanos()))?;
         let position_ns = position_ns.nseconds();
         info!("Seeked position: {:?} ns", position_ns);
 
@@ -240,7 +242,7 @@ impl PipelinePort for Pipeline {
         info!("Start index: {:?}", start_index);
         set_segment_index(start_index as u32);
 
-        let position = ClockTime::try_from(Duration::from_secs(position as u64))?;
+        let position = ClockTime::try_from(Duration::from_secs(position.as_nanos()))?;
         match gst_pipeline.seek_simple(SeekFlags::KEY_UNIT, position) {
             Ok(_) => info!("Seek to position {:?} success", position),
             Err(e) => error!("Seek to position {:?} failed: {}", position, e),

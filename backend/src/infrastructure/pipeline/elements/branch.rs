@@ -5,16 +5,7 @@ use gstreamer::{Caps, Element};
 use std::fmt::Debug;
 use tracing::{debug, instrument};
 
-use crate::shared::utils::ElementFactoryTrait;
-
-pub trait StreamBranch: Send + Sync {
-    fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self>
-    where
-        Self: Sized;
-
-    fn get_entry(&self) -> Element;
-    fn get_elements(&self) -> Vec<&Element>;
-}
+use crate::{domain::pipeline::ports::StreamBranch, shared::utils::ElementFactoryTrait};
 
 #[derive(Debug)]
 pub struct VideoBranch {
