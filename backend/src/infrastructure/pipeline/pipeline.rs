@@ -19,7 +19,7 @@ use crate::{
         model::{Duration as DomainDuration, PipelineState, Position},
         ports::{DecodebinSignal, Decoder, HlsSink, PipelinePort, Source, StreamBranch},
     },
-    infrastructure::event_bus::event_bus::EventBus,
+    infrastructure::event_bus::event_bus::{EventBus, EventType},
     init::app_state::{get_pipeline_segment_duration, set_segment_index},
 };
 
@@ -316,20 +316,26 @@ async fn gst_bus_watch_task(
                 );
                 error!("Pipeline error: {}", e.error());
                 let _ = event_bus
-                    .publish(PipelineEvent::ErrorOccurred {
-                        message: e.error().to_string(),
-                        component: e
-                            .src()
-                            .map(|s| s.path_string().to_string())
-                            .unwrap_or_default(),
-                    })
+                    .publish(
+                        EventType::Pipeline(PipelineEvent::ErrorOccurred {
+                            message: e.error().to_string(),
+                            component: e
+                                .src()
+                                .map(|s| s.path_string().to_string())
+                                .unwrap_or_default(),
+                        }),
+                        "".to_string(),
+                    )
                     .map_err(|e| error!("Failed to publish error event: {}", e));
             }
             MessageView::Eos(..) => {
                 info!("End of stream received from pipeline");
 
                 let _ = event_bus
-                    .publish(PipelineEvent::EndOfStream)
+                    .publish(
+                        EventType::Pipeline(PipelineEvent::EndOfStream),
+                        "".to_string(),
+                    )
                     .map_err(|e| error!("Failed to publish end of stream event: {}", e));
             }
             MessageView::StateChanged(state_changed) => {
@@ -357,10 +363,13 @@ async fn gst_bus_watch_task(
                     ) {
                         debug!("Pipeline state changed from {:?} to {:?}", old, new);
                         let _ = event_bus
-                            .publish(PipelineEvent::StateChanged {
-                                old_state: old,
-                                new_state: new,
-                            })
+                            .publish(
+                                EventType::Pipeline(PipelineEvent::StateChanged {
+                                    old_state: old,
+                                    new_state: new,
+                                }),
+                                "".to_string(),
+                            )
                             .map_err(|e| error!("Failed to publish state changed event: {}", e));
                     }
                 }

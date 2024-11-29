@@ -1,0 +1,71 @@
+use actix::Addr;
+use anyhow::*;
+use async_trait::async_trait;
+use std::sync::Arc;
+
+use crate::infrastructure::{
+    event_bus::event_bus::{EventBus, EventType, OtherEventType},
+    organizer::organizer::{ParserActor, ScanMediaLibrary},
+    task_pool::model::AsyncTask,
+};
+
+pub struct MediaLibraryScanTask {
+    library_path: String,
+    parser_addr: Arc<Addr<ParserActor>>,
+    task_id: String,
+    ws_client_id: String,
+}
+
+#[async_trait]
+impl AsyncTask for MediaLibraryScanTask {
+    async fn execute(
+        &self,
+        ws_client_id: String,
+        task_id: String,
+        event_bus: Arc<EventBus>,
+    ) -> Result<()> {
+        let _ = event_bus.publish(
+            EventType::Other(OtherEventType::TaskProgressUpdated(50.0)),
+            self.task_id.clone(),
+        );
+
+        let _ = self.parser_addr
+            .send(ScanMediaLibrary(self.library_path.clone()))
+            .await
+            .map_err(|_| anyhow!("Failed to send scan media library message"))?;
+
+        let _ = event_bus.publish(
+            EventType::Other(OtherEventType::MediaLibraryScanned(ws_client_id)),
+            self.task_id.clone(),
+        );
+
+        Ok(())
+    }
+
+    fn set_task_id(&mut self, task_id: String) {
+        self.task_id = task_id;
+    }
+
+    fn get_task_id(&self) -> String {
+        self.task_id.clone()
+    }
+
+    fn set_ws_client_id(&mut self, ws_client_id: String) {
+        self.ws_client_id = ws_client_id;
+    }
+
+    fn get_ws_client_id(&self) -> String {
+        self.ws_client_id.clone()
+    }
+}
+
+impl MediaLibraryScanTask {
+    pub fn new(library_path: String, parser_addr: Arc<Addr<ParserActor>>) -> Self {
+        Self {
+            library_path,
+            parser_addr,
+            task_id: String::new(),
+            ws_client_id: String::new(),
+        }
+    }
+}

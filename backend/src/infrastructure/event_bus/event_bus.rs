@@ -1,25 +1,40 @@
 use anyhow::*;
+use serde::{Deserialize, Serialize};
 use tokio::sync::broadcast;
 
 use crate::domain::pipeline::events::PipelineEvent;
 
+#[derive(Debug, Clone)]
+pub enum OtherEventType {
+    StreamError(String),
+    MediaLibraryScanned(String), // ws client id
+    TaskProgressUpdated(f32),    // progress
+}
+
+#[derive(Debug, Clone)]
+pub enum EventType {
+    Pipeline(PipelineEvent),
+    Other(OtherEventType),
+}
+
+#[derive(Debug, Clone)]
 pub struct EventBus {
-    sender: broadcast::Sender<PipelineEvent>,
+    tx: broadcast::Sender<(EventType, String)>, // (event, task id)
 }
 
 impl EventBus {
     pub fn new(capacity: usize) -> Self {
-        let (sender, _) = broadcast::channel(capacity);
-        Self { sender }
+        let (tx, _) = broadcast::channel(capacity);
+        Self { tx }
     }
 
-    pub fn subscribe(&self) -> broadcast::Receiver<PipelineEvent> {
-        self.sender.subscribe()
+    pub fn subscribe(&self) -> broadcast::Receiver<(EventType, String)> {
+        self.tx.subscribe()
     }
 
-    pub fn publish(&self, event: PipelineEvent) -> Result<()> {
-        self.sender
-            .send(event)
+    pub fn publish(&self, event: EventType, task_id: String) -> Result<()> {
+        self.tx
+            .send((event, task_id))
             .map_err(|_| anyhow!("Failed to send event"))?;
 
         Ok(())

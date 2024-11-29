@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix::{prelude::*, spawn, Actor, Addr, Message, StreamHandler};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
@@ -10,8 +12,10 @@ use super::utils::WsConnections;
 use crate::{
     infrastructure::{
         database::database::Database,
+        event_bus::event_bus::EventBus,
         organizer::organizer::{ParserActor, ScanMediaLibrary},
         pipeline::{actor::PipelineAction, pipeline::Pipeline},
+        task_pool::task_pool::TaskPool,
     },
     process_pipeline_action,
 };
@@ -43,6 +47,7 @@ pub struct WebSocketActor {
     pub parser_addr: Option<Addr<ParserActor>>,
     pub database_addr: Option<Addr<Database>>,
     pub ws_connections: Option<WsConnections>,
+    pub task_pool: Option<TaskPool>,
 }
 
 impl Actor for WebSocketActor {
@@ -207,6 +212,7 @@ pub trait WebSocketActorBehavior {
         parser_addr: Addr<ParserActor>,
         database_addr: Addr<Database>,
         ws_connections: WsConnections,
+        task_pool: TaskPool,
     ) -> Self;
     fn handle_pipeline_action(
         &self,
@@ -227,6 +233,7 @@ impl WebSocketActorBehavior for WebSocketActor {
         parser_addr: Addr<ParserActor>,
         database_addr: Addr<Database>,
         ws_connections: WsConnections,
+        task_pool: TaskPool,
     ) -> Self {
         Self {
             key: Uuid::new_v4(),
@@ -234,6 +241,7 @@ impl WebSocketActorBehavior for WebSocketActor {
             parser_addr: Some(parser_addr),
             database_addr: Some(database_addr),
             ws_connections: Some(ws_connections),
+            task_pool: Some(task_pool),
         }
     }
 

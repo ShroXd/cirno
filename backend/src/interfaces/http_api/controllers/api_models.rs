@@ -47,7 +47,8 @@ impl TryFrom<i64> for MediaLibraryCategory {
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct CreateMediaLibraryResponse {
-    pub id: i64,
+    pub media_library_id: i64,
+    pub async_task_id: String,
 }
 
 //------------------------------------------------------------------------------

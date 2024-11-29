@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix::Addr;
 use actix_web::{
     delete, get, post,
@@ -6,7 +8,10 @@ use actix_web::{
 };
 
 use crate::{
-    infrastructure::{database::database::Database, organizer::organizer::ParserActor},
+    infrastructure::{
+        database::database::Database, event_bus::event_bus::EventBus,
+        organizer::organizer::ParserActor, task_pool::task_pool::TaskPool,
+    },
     interfaces::{
         http_api::controllers::{
             api_models::{GetMediaItemsQuery, SaveMediaLibraryPayload},
@@ -47,9 +52,20 @@ async fn create_media_library_route(
     database_addr: Data<Addr<Database>>,
     parser_addr: Data<Addr<ParserActor>>,
     ws_connections: Data<WsConnections>,
+    task_pool: Data<TaskPool>,
+    event_bus: Data<Arc<EventBus>>,
     req: HttpRequest,
 ) -> impl Responder {
-    create_media_library_controller(payload, database_addr, parser_addr, ws_connections, req).await
+    create_media_library_controller(
+        payload,
+        database_addr,
+        parser_addr,
+        ws_connections,
+        task_pool,
+        event_bus,
+        req,
+    )
+    .await
 }
 
 #[get("/")]
