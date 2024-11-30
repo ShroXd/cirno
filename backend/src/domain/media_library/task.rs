@@ -29,10 +29,15 @@ impl AsyncTask for MediaLibraryScanTask {
             self.task_id.clone(),
         );
 
-        let _ = self.parser_addr
+        let _ = self
+            .parser_addr
             .send(ScanMediaLibrary(self.library_path.clone()))
             .await
             .map_err(|_| anyhow!("Failed to send scan media library message"))?;
+
+        // Artificial delay to test async task execution and UI feedback.
+        // TODO: Remove this delay before production
+        tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
 
         let _ = event_bus.publish(
             EventType::Other(OtherEventType::MediaLibraryScanned(ws_client_id)),
