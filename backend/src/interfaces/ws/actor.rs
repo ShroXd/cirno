@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use actix::{prelude::*, spawn, Actor, Addr, Message, StreamHandler};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
@@ -12,8 +10,7 @@ use super::utils::WsConnections;
 use crate::{
     infrastructure::{
         database::database::Database,
-        event_bus::event_bus::EventBus,
-        organizer::organizer::{ParserActor, ScanMediaLibrary},
+        organizer::organizer::ParserActor,
         pipeline::{actor::PipelineAction, pipeline::Pipeline},
         task_pool::task_pool::TaskPool,
     },
@@ -117,19 +114,12 @@ pub enum System {
     Log(String),
 }
 
-#[derive(Debug, Serialize, Deserialize, TS)]
-#[ts(export)]
-pub enum Parser {
-    Scan(String),
-}
-
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
 #[ts(export)]
 pub enum WebSocketMessage {
     PipelineAction(PipelineAction),
     System(System),
-    Parser(Parser),
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
@@ -145,29 +135,6 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
                         self.handle_pipeline_action(action, ctx)
                     }
                     WebSocketMessage::System(system) => self.handle_system(system, ctx),
-                    WebSocketMessage::Parser(parser) => {
-                        let parser_addr = match self.parser_addr.as_ref() {
-                            Some(parser_addr) => parser_addr.clone(),
-                            None => {
-                                error!("Parser address is not set");
-                                return;
-                            }
-                        };
-
-                        let database_addr = match self.database_addr.as_ref() {
-                            Some(database_addr) => database_addr.clone(),
-                            None => {
-                                error!("Database address is not set");
-                                return;
-                            }
-                        };
-
-                        let future = async move {
-                            WebSocketActor::handle_parser(parser, parser_addr, database_addr).await
-                        };
-
-                        ctx.spawn(fut::wrap_future::<_, Self>(future));
-                    }
                 },
                 Err(e) => {
                     error!("WebSocket actor received invalid message: {:?}", e);
@@ -220,11 +187,6 @@ pub trait WebSocketActorBehavior {
         _: &mut <WebSocketActor as Actor>::Context,
     );
     fn handle_system(&self, system: System, _: &mut <WebSocketActor as Actor>::Context);
-    async fn handle_parser(
-        parser: Parser,
-        parser_addr: Addr<ParserActor>,
-        database_addr: Addr<Database>,
-    );
 }
 
 impl WebSocketActorBehavior for WebSocketActor {
@@ -274,36 +236,6 @@ impl WebSocketActorBehavior for WebSocketActor {
                 "WebSocket actor received message for logger from stream: {}",
                 message
             ),
-        }
-    }
-
-    // TODO: remove this function
-    async fn handle_parser(
-        parser: Parser,
-        parser_addr: Addr<ParserActor>,
-        database_addr: Addr<Database>,
-    ) {
-        match parser {
-            Parser::Scan(path) => {
-                info!(
-                    "WebSocket actor received message for parser from stream: {:?}",
-                    path
-                );
-
-                match parser_addr.send(ScanMediaLibrary(path)).await {
-                    Ok(Ok(library)) => {
-                        info!("Media library scanned: {:?}", library.tv_show.len());
-
-                        for series in library.tv_show {
-                            // if let Err(e) = database_addr.try_send(InsertSeries(series, 1)) {
-                            //     error!("Failed to forward message to database: {:?}", e);
-                            // }
-                        }
-                    }
-                    Ok(Err(e)) => error!("Failed to scan media library: {:?}", e),
-                    Err(e) => error!("Failed to send message to parser: {:?}", e),
-                }
-            }
         }
     }
 }

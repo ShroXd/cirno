@@ -15,11 +15,11 @@ use tracing::*;
 
 use crate::{
     domain::pipeline::{
-        events::PipelineEvent,
+        event::PipelineEvent,
         model::{Duration as DomainDuration, PipelineState, Position},
         ports::{DecodebinSignal, Decoder, HlsSink, PipelinePort, Source, StreamBranch},
     },
-    infrastructure::event_bus::event_bus::{EventBus, EventType},
+    infrastructure::event_bus::event_bus::{DomainEvent, EventBus},
     init::app_state::{get_pipeline_segment_duration, set_segment_index},
 };
 
@@ -88,6 +88,7 @@ impl Pipeline {
 
 #[async_trait]
 impl PipelinePort for Pipeline {
+    // TODO: pass task id from here
     #[instrument(skip(self))]
     fn build(&mut self, path: &str) -> Result<()> {
         // TODO: Figure out how to call new() on each element
@@ -317,7 +318,7 @@ async fn gst_bus_watch_task(
                 error!("Pipeline error: {}", e.error());
                 let _ = event_bus
                     .publish(
-                        EventType::Pipeline(PipelineEvent::ErrorOccurred {
+                        DomainEvent::Pipeline(PipelineEvent::ErrorOccurred {
                             message: e.error().to_string(),
                             component: e
                                 .src()
@@ -333,7 +334,7 @@ async fn gst_bus_watch_task(
 
                 let _ = event_bus
                     .publish(
-                        EventType::Pipeline(PipelineEvent::EndOfStream),
+                        DomainEvent::Pipeline(PipelineEvent::EndOfStream),
                         "".to_string(),
                     )
                     .map_err(|e| error!("Failed to publish end of stream event: {}", e));
@@ -364,7 +365,7 @@ async fn gst_bus_watch_task(
                         debug!("Pipeline state changed from {:?} to {:?}", old, new);
                         let _ = event_bus
                             .publish(
-                                EventType::Pipeline(PipelineEvent::StateChanged {
+                                DomainEvent::Pipeline(PipelineEvent::StateChanged {
                                     old_state: old,
                                     new_state: new,
                                 }),

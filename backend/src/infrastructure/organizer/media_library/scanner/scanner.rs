@@ -1,15 +1,28 @@
 use rayon::prelude::*;
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 use tracing::*;
 use walkdir::WalkDir;
 
 use crate::{
     domain::{media_library::model::MediaLibrary, tv_show::model::TvShow},
-    infrastructure::organizer::media_library::processor::process_series,
+    infrastructure::{
+        event_bus::{
+            event_bus::{DomainEvent, EventBus},
+            model::GeneralEvent,
+        },
+        organizer::media_library::processor::process_series,
+    },
 };
 
 #[instrument]
-pub fn scan_media_library(root_dir: &Path) -> MediaLibrary {
+pub fn scan_media_library(
+    root_dir: &Path,
+    task_id: String,
+    event_bus: Arc<EventBus>,
+) -> MediaLibrary {
     debug!("Scanning media library in: {:?}", root_dir);
 
     let series_dirs: Vec<PathBuf> = WalkDir::new(root_dir)
@@ -28,6 +41,11 @@ pub fn scan_media_library(root_dir: &Path) -> MediaLibrary {
         })
         .collect();
     debug!("Found {} series directories", series_dirs.len());
+
+    event_bus.publish(
+        DomainEvent::General(GeneralEvent::TaskProgressUpdated { progress: 50.0 }),
+        task_id,
+    );
 
     let series_data: Vec<TvShow> = series_dirs
         .par_iter()

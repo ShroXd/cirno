@@ -5,10 +5,13 @@ use std::{result::Result::Ok, sync::Arc};
 use tracing::*;
 
 use crate::{
-    domain::media_library::{media_library::create_media_library, task::MediaLibraryScanTask},
+    domain::media_library::{
+        event::MediaLibraryEventType, media_library::create_media_library,
+        task::MediaLibraryScanTask,
+    },
     infrastructure::{
         database::{actor::SENTINEL_MEDIA_LIBRARY_ID, database::Database},
-        event_bus::event_bus::{EventBus, EventType, OtherEventType},
+        event_bus::event_bus::{DomainEvent, EventBus},
         organizer::organizer::ParserActor,
         task_pool::{
             model::{AsyncTask, TaskType},
@@ -54,7 +57,12 @@ pub async fn create_media_library_service(
         let mut subscription = event_bus.subscribe();
         while let Ok(event) = subscription.recv().await {
             match event {
-                (EventType::Other(OtherEventType::MediaLibraryScanned(ws_client_id)), task_id) => {
+                (
+                    DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned {
+                        ws_client_id,
+                    }),
+                    task_id,
+                ) => {
                     debug!("Media library scanned notification received");
                     match ws_connection
                         .try_send(Notification::MediaLibraryScanned(media_library_id))

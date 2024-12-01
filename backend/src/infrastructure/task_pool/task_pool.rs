@@ -11,7 +11,7 @@ use tracing::*;
 use uuid::Uuid;
 
 use super::model::{AsyncTask, TaskInfo, TaskStatus, TaskType};
-use crate::infrastructure::event_bus::event_bus::{EventBus, EventType};
+use crate::infrastructure::event_bus::event_bus::{DomainEvent, EventBus};
 
 #[derive(Debug, Clone)]
 pub struct TaskPool {

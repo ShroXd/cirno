@@ -4,10 +4,15 @@ use async_trait::async_trait;
 use std::sync::Arc;
 
 use crate::infrastructure::{
-    event_bus::event_bus::{EventBus, EventType, OtherEventType},
+    event_bus::{
+        event_bus::{DomainEvent, EventBus},
+        model::GeneralEvent,
+    },
     organizer::organizer::{ParserActor, ScanMediaLibrary},
     task_pool::model::AsyncTask,
 };
+
+use super::event::MediaLibraryEventType;
 
 pub struct MediaLibraryScanTask {
     library_path: String,
@@ -25,13 +30,17 @@ impl AsyncTask for MediaLibraryScanTask {
         event_bus: Arc<EventBus>,
     ) -> Result<()> {
         let _ = event_bus.publish(
-            EventType::Other(OtherEventType::TaskProgressUpdated(50.0)),
+            DomainEvent::General(GeneralEvent::TaskStarted),
             self.task_id.clone(),
         );
 
         let _ = self
             .parser_addr
-            .send(ScanMediaLibrary(self.library_path.clone()))
+            .send(ScanMediaLibrary(
+                self.library_path.clone(),
+                self.task_id.clone(),
+                event_bus.clone(),
+            ))
             .await
             .map_err(|_| anyhow!("Failed to send scan media library message"))?;
 
@@ -40,7 +49,9 @@ impl AsyncTask for MediaLibraryScanTask {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
 
         let _ = event_bus.publish(
-            EventType::Other(OtherEventType::MediaLibraryScanned(ws_client_id)),
+            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned {
+                ws_client_id: self.ws_client_id.clone(),
+            }),
             self.task_id.clone(),
         );
 
