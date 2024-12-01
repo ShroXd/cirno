@@ -6,11 +6,11 @@ use tracing::*;
 
 use crate::{
     domain::media_library::{
-        event::MediaLibraryEventType, media_library::create_media_library,
-        task::MediaLibraryScanTask,
+        constant::SENTINEL_MEDIA_LIBRARY_ID, event::MediaLibraryEventType,
+        media_library::create_media_library, task::MediaLibraryScanTask,
     },
     infrastructure::{
-        database::{actor::SENTINEL_MEDIA_LIBRARY_ID, database::Database},
+        database::database::Database,
         event_bus::event_bus::{DomainEvent, EventBus},
         organizer::organizer::ParserActor,
         task_pool::{
@@ -58,14 +58,11 @@ pub async fn create_media_library_service(
         while let Ok(event) = subscription.recv().await {
             match event {
                 (
-                    DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned {
-                        ws_client_id,
-                    }),
+                    DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned),
                     task_id,
                 ) => {
-                    debug!("Media library scanned notification received");
                     match ws_connection
-                        .try_send(Notification::MediaLibraryScanned(media_library_id))
+                        .try_send(Notification::MediaLibraryScanned(media_library_id, task_id))
                     {
                         Ok(_) => debug!("Media library scanned notification sent"),
                         Err(e) => error!("Failed to send notification: {:?}", e),

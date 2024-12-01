@@ -24,6 +24,7 @@ pub struct Season {
     pub nfo_path: Option<String>,
     pub episodes: HashMap<u8, Episode>,
 }
+
 impl Default for Season {
     fn default() -> Self {
         Season {

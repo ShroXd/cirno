@@ -7,7 +7,8 @@ use ts_rs::TS;
 use crate::{
     define_actor_message_handler,
     domain::{
-        episode::model::Episode, media_actor::model::MediaActor as MediaActor, season::model::Season,
+        episode::model::Episode, media_actor::model::MediaActor,
+        media_library::constant::SENTINEL_MEDIA_LIBRARY_ID, season::model::Season,
         tv_show::model::TvShow,
     },
     infrastructure::database::{
@@ -222,7 +223,6 @@ impl Display for SaveMediaLibrary {
     }
 }
 
-pub const SENTINEL_MEDIA_LIBRARY_ID: i64 = -1;
 define_actor_message_handler!(
     message_type = SaveMediaLibrary,
     return_type = i64,

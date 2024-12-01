@@ -3,6 +3,7 @@ use anyhow::*;
 use async_trait::async_trait;
 use std::sync::Arc;
 
+use super::event::MediaLibraryEventType;
 use crate::infrastructure::{
     event_bus::{
         event_bus::{DomainEvent, EventBus},
@@ -11,8 +12,6 @@ use crate::infrastructure::{
     organizer::organizer::{ParserActor, ScanMediaLibrary},
     task_pool::model::AsyncTask,
 };
-
-use super::event::MediaLibraryEventType;
 
 pub struct MediaLibraryScanTask {
     library_path: String,
@@ -49,9 +48,7 @@ impl AsyncTask for MediaLibraryScanTask {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
 
         let _ = event_bus.publish(
-            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned {
-                ws_client_id: self.ws_client_id.clone(),
-            }),
+            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned),
             self.task_id.clone(),
         );
 

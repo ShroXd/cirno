@@ -148,7 +148,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
 pub enum Notification {
-    MediaLibraryScanned(i64),
+    MediaLibraryScanned(i64, String), // (media_library_id, task_id)
 }
 
 impl Handler<Notification> for WebSocketActor {
@@ -156,13 +156,16 @@ impl Handler<Notification> for WebSocketActor {
 
     fn handle(&mut self, msg: Notification, ctx: &mut Self::Context) -> Self::Result {
         match msg {
-            Notification::MediaLibraryScanned(media_library_id) => {
+            Notification::MediaLibraryScanned(media_library_id, task_id) => {
                 info!(
                     "Media library scan complete for library: {:?}",
                     media_library_id
                 );
 
-                match to_string(&Notification::MediaLibraryScanned(media_library_id)) {
+                match to_string(&Notification::MediaLibraryScanned(
+                    media_library_id,
+                    task_id,
+                )) {
                     Ok(message) => {
                         ctx.text(message);
                     }
