@@ -87,7 +87,7 @@ impl SystemInitializer {
         self.init_logger().await?;
         self.init_database().await?;
         self.init_parser().await?;
-        // self.init_pipeline().await?;
+        self.init_pipeline().await?;
 
         Ok(())
     }
@@ -101,11 +101,6 @@ impl SystemInitializer {
             Err(e) => return Err(anyhow::anyhow!("Failed to create file source: {}", e)),
         };
         debug!("File source created");
-
-        // TODO: temporary hardcode the video path
-        let video_path = "/Users/atriiy/Animes_test/一拳超人 (2015)/S1/S01E01.mp4";
-        source.element.set_property("location", &video_path);
-        debug!("File source location set to {}", video_path);
 
         let decoder = match Decodebin::new(&*self.element_factory) {
             Ok(decoder) => decoder,
@@ -138,7 +133,7 @@ impl SystemInitializer {
         debug!("Pipeline created");
 
         info!("Building pipeline");
-        match pipeline.build(&video_path) {
+        match pipeline.build() {
             Ok(_) => info!("Pipeline built"),
             Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
         }

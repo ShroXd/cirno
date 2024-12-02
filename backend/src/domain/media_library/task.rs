@@ -1,7 +1,7 @@
 use actix::Addr;
 use anyhow::*;
 use async_trait::async_trait;
-use std::sync::Arc;
+use std::{result::Result::Ok, sync::Arc};
 
 use super::event::MediaLibraryEventType;
 use crate::infrastructure::{
@@ -33,7 +33,7 @@ impl AsyncTask for MediaLibraryScanTask {
             self.task_id.clone(),
         );
 
-        let _ = self
+        let media_library = match self
             .parser_addr
             .send(ScanMediaLibrary(
                 self.library_path.clone(),
@@ -41,7 +41,11 @@ impl AsyncTask for MediaLibraryScanTask {
                 event_bus.clone(),
             ))
             .await
-            .map_err(|_| anyhow!("Failed to send scan media library message"))?;
+            .map_err(|_| anyhow!("Failed to send scan media library message"))?
+        {
+            Ok(media_library) => media_library,
+            Err(e) => return Err(anyhow!("Failed to scan media library: {:?}", e)),
+        };
 
         // Artificial delay to test async task execution and UI feedback.
         // TODO: Remove this delay before production

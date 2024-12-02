@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix::{prelude::*, spawn, Actor, Addr, Message, StreamHandler};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
@@ -8,8 +10,10 @@ use uuid::Uuid;
 
 use super::utils::WsConnections;
 use crate::{
+    domain::websocket::event::WebSocketEvent,
     infrastructure::{
         database::database::Database,
+        event_bus::event_bus::{DomainEvent, EventBus},
         organizer::organizer::ParserActor,
         pipeline::{actor::PipelineAction, pipeline::Pipeline},
         task_pool::task_pool::TaskPool,
@@ -45,6 +49,7 @@ pub struct WebSocketActor {
     pub database_addr: Option<Addr<Database>>,
     pub ws_connections: Option<WsConnections>,
     pub task_pool: Option<TaskPool>,
+    pub event_bus: Option<Arc<EventBus>>,
 }
 
 impl Actor for WebSocketActor {
@@ -53,13 +58,9 @@ impl Actor for WebSocketActor {
     #[instrument(skip(self, ctx))]
     fn started(&mut self, ctx: &mut Self::Context) {
         info!("WebSocket actor started");
-
         let addr = ctx.address();
         info!("Started WebSocket actor address: {:?}", addr);
-        // TODO: consider if it's need to let pipeline & parser holds the address of websocket
 
-        let key = self.key.to_string();
-        let key_clone = key.clone();
         let ws_connections = match self.ws_connections.clone() {
             Some(ws_connections) => ws_connections,
             None => {
@@ -67,22 +68,49 @@ impl Actor for WebSocketActor {
                 return;
             }
         };
+        debug!("WebSocket connections: {:?}", ws_connections);
 
-        spawn(async move {
-            ws_connections.add(key, addr).await;
-        });
-
-        let message = match to_string(&EventMessage {
-            event: EventName::RegisterClient,
-            payload: RegisterClient { key: key_clone },
-        }) {
-            Ok(message) => message,
-            Err(e) => {
-                error!("Failed to serialize register client: {:?}", e);
+        let event_bus = match &self.event_bus {
+            Some(event_bus) => event_bus.clone(),
+            None => {
+                error!("Event bus not set");
                 return;
             }
         };
-        ctx.text(message)
+        debug!("Event bus: {:?}", event_bus);
+
+        let key = self.key.to_string();
+
+        // register the client to the ws connections
+        debug!("Registering client to WebSocket connections");
+        let key_for_ws = key.clone();
+        spawn(async move {
+            ws_connections.add(key_for_ws, addr).await;
+        });
+
+        // publish the register client event to the event bus
+        debug!("Publishing register client event to event bus");
+        let key_for_event_bus = key.clone();
+        spawn(async move {
+            event_bus.publish(
+                DomainEvent::WebSocket(WebSocketEvent::RegisterClient {
+                    key: key_for_event_bus.clone(),
+                }),
+                key_for_event_bus,
+            );
+        });
+
+        // send the register client event to the client
+        debug!("Sending register client event to client");
+        match to_string(&EventMessage {
+            event: EventName::RegisterClient,
+            payload: RegisterClient { key },
+        }) {
+            Ok(message) => ctx.text(message),
+            Err(e) => {
+                error!("Failed to serialize register client: {:?}", e)
+            }
+        }
     }
 
     #[instrument(skip(self, ctx))]
@@ -183,6 +211,7 @@ pub trait WebSocketActorBehavior {
         database_addr: Addr<Database>,
         ws_connections: WsConnections,
         task_pool: TaskPool,
+        event_bus: Arc<EventBus>,
     ) -> Self;
     fn handle_pipeline_action(
         &self,
@@ -199,6 +228,7 @@ impl WebSocketActorBehavior for WebSocketActor {
         database_addr: Addr<Database>,
         ws_connections: WsConnections,
         task_pool: TaskPool,
+        event_bus: Arc<EventBus>,
     ) -> Self {
         Self {
             key: Uuid::new_v4(),
@@ -207,6 +237,7 @@ impl WebSocketActorBehavior for WebSocketActor {
             database_addr: Some(database_addr),
             ws_connections: Some(ws_connections),
             task_pool: Some(task_pool),
+            event_bus: Some(event_bus),
         }
     }
 

@@ -90,11 +90,9 @@ impl Pipeline {
 impl PipelinePort for Pipeline {
     // TODO: pass task id from here
     #[instrument(skip(self))]
-    fn build(&mut self, path: &str) -> Result<()> {
+    fn build(&mut self) -> Result<()> {
         // TODO: Figure out how to call new() on each element
         let source = self.source.get_element();
-        source.set_property("location", &path);
-        debug!("Source element location set to {}", path);
 
         let decoder = self.decoder.get_element();
 

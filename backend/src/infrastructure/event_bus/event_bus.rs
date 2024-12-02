@@ -2,13 +2,17 @@ use anyhow::*;
 use tokio::sync::broadcast;
 
 use super::model::GeneralEvent;
-use crate::domain::{media_library::event::MediaLibraryEventType, pipeline::event::PipelineEvent};
+use crate::domain::{
+    media_library::event::MediaLibraryEventType, pipeline::event::PipelineEvent,
+    websocket::event::WebSocketEvent,
+};
 
 #[derive(Debug, Clone)]
 pub enum DomainEvent {
     General(GeneralEvent),
     MediaLibrary(MediaLibraryEventType),
     Pipeline(PipelineEvent),
+    WebSocket(WebSocketEvent),
 }
 
 #[derive(Debug, Clone)]

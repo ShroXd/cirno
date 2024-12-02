@@ -34,7 +34,7 @@ async fn main() -> std::io::Result<()> {
         panic!("Failed to run system: {}", e);
     }
 
-    // let pipeline_addr = initializer.get_pipeline_addr();
+    let pipeline_addr = initializer.get_pipeline_addr();
     let parser_addr = initializer.get_parser_addr();
     let database_addr = initializer.get_database_addr();
 
@@ -44,7 +44,7 @@ async fn main() -> std::io::Result<()> {
     let ws_connections = WsConnections::default();
 
     // TODO: move this to system initializer
-    let pipeline_service = match PipelineService::new(event_bus.clone()) {
+    let pipeline_service = match PipelineService::new(pipeline_addr.clone(), event_bus.clone()) {
         Ok(service) => service,
         Err(e) => {
             panic!("Failed to initialize pipeline service: {}", e);
@@ -61,7 +61,7 @@ async fn main() -> std::io::Result<()> {
         let mut app = App::new()
             .wrap(Logger::default())
             .wrap(cors)
-            // .app_data(web::Data::new(pipeline_addr.clone()))
+            .app_data(web::Data::new(pipeline_addr.clone()))
             .app_data(web::Data::new(parser_addr.clone()))
             .app_data(web::Data::new(database_addr.clone()))
             .app_data(web::Data::new(ws_connections.clone()))

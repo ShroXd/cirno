@@ -7,7 +7,7 @@ use super::model::{Duration, PipelineState, Position};
 use crate::shared::utils::ElementFactoryTrait;
 
 pub trait PipelinePort: Send + Sync {
-    fn build(&mut self, path: &str) -> Result<()>;
+    fn build(&mut self) -> Result<()>;
     fn play(&self) -> Result<()>;
     fn pause(&self) -> Result<()>;
     fn stop(&mut self) -> Result<()>;

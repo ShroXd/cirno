@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix::Addr;
 use actix_web::{error::ErrorInternalServerError, get, web, HttpRequest, Responder};
 use actix_web_actors::ws;
@@ -24,6 +26,7 @@ pub async fn ws_index(
     database_addr: web::Data<Addr<Database>>,
     ws_connections: web::Data<WsConnections>,
     task_pool: web::Data<TaskPool>,
+    event_bus: web::Data<Arc<EventBus>>,
 ) -> impl Responder {
     info!("Starting websocket");
     let ws_actor = WebSocketActor::new(
@@ -32,6 +35,7 @@ pub async fn ws_index(
         database_addr.get_ref().clone(),
         ws_connections.get_ref().clone(),
         task_pool.get_ref().clone(),
+        event_bus.get_ref().clone(),
     );
 
     match ws::start(ws_actor, &r, stream) {
