@@ -260,7 +260,13 @@ impl WebSocketActorBehavior for WebSocketActor {
                     }
                 }
             }
-            PipelineAction::SetSource(_) => {}
+            PipelineAction::SetSource(path) => {
+                if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
+                    if let Err(e) = pipeline_addr.try_send(PipelineAction::SetSource(path)) {
+                        error!("Failed to forward message to pipeline: {:?}", e);
+                    }
+                }
+            }
         }
     }
 

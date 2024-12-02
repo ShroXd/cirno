@@ -52,7 +52,7 @@ impl AsyncTask for MediaLibraryScanTask {
         tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
 
         let _ = event_bus.publish(
-            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned),
+            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(media_library)),
             self.task_id.clone(),
         );
 

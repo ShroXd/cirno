@@ -355,40 +355,40 @@ async fn gst_bus_watch_task(
                     .map_err(|e| error!("Failed to publish end of stream event: {}", e));
             }
             MessageView::StateChanged(state_changed) => {
-                // if state_changed
-                //     .src()
-                //     .map(|s| s.name() == "normal_pipeline")
-                //     .unwrap_or(false)
-                // {
-                //     debug!(
-                //         "Pipeline state changed from {:?} to {:?}",
-                //         state_changed.old(),
-                //         state_changed.current(),
-                //     )
-                // }
-
                 if state_changed
                     .src()
-                    .map(|s| s.path_string())
-                    .unwrap_or_default()
-                    .contains("pipeline")
+                    .map(|s| s.name() == "normal_pipeline")
+                    .unwrap_or(false)
                 {
-                    if let (Some(old), Some(new)) = (
-                        convert_gst_state(state_changed.old()),
-                        convert_gst_state(state_changed.current()),
-                    ) {
-                        debug!("Pipeline state changed from {:?} to {:?}", old, new);
-                        let _ = event_bus
-                            .publish(
-                                DomainEvent::Pipeline(PipelineEvent::StateChanged {
-                                    old_state: old,
-                                    new_state: new,
-                                }),
-                                "".to_string(),
-                            )
-                            .map_err(|e| error!("Failed to publish state changed event: {}", e));
-                    }
+                    debug!(
+                        "Pipeline state changed from {:?} to {:?}",
+                        state_changed.old(),
+                        state_changed.current(),
+                    )
                 }
+
+                // if state_changed
+                //     .src()
+                //     .map(|s| s.path_string())
+                //     .unwrap_or_default()
+                //     .contains("pipeline")
+                // {
+                //     if let (Some(old), Some(new)) = (
+                //         convert_gst_state(state_changed.old()),
+                //         convert_gst_state(state_changed.current()),
+                //     ) {
+                //         debug!("Pipeline state changed from {:?} to {:?}", old, new);
+                //         let _ = event_bus
+                //             .publish(
+                //                 DomainEvent::Pipeline(PipelineEvent::StateChanged {
+                //                     old_state: old,
+                //                     new_state: new,
+                //                 }),
+                //                 "".to_string(),
+                //             )
+                //             .map_err(|e| error!("Failed to publish state changed event: {}", e));
+                //     }
+                // }
             }
             _ => {}
         }

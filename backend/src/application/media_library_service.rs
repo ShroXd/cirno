@@ -5,6 +5,7 @@ use std::{result::Result::Ok, sync::Arc};
 use tracing::*;
 
 use crate::{
+    application::media_item_service::insert_media_item,
     domain::media_library::{
         constant::SENTINEL_MEDIA_LIBRARY_ID, event::MediaLibraryEventType,
         media_library::create_media_library, task::MediaLibraryScanTask,
@@ -58,13 +59,23 @@ pub async fn create_media_library_service(
         while let Ok(event) = subscription.recv().await {
             match event {
                 (
-                    DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned),
+                    DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(
+                        media_library,
+                    )),
                     task_id,
                 ) => {
+                    // TODO: Update task progress
+                    for media_item in media_library.tv_show {
+                        insert_media_item(media_library_id, media_item, database_addr.clone())
+                            .await
+                            .unwrap();
+                    }
+                }
+                (DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved), task_id) => {
                     match ws_connection
                         .try_send(Notification::MediaLibraryScanned(media_library_id, task_id))
                     {
-                        Ok(_) => debug!("Media library scanned notification sent"),
+                        Ok(_) => debug!("Media library saved notification sent"),
                         Err(e) => error!("Failed to send notification: {:?}", e),
                     }
                 }

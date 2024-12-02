@@ -1,12 +1,10 @@
-import { useLocation } from 'react-router-dom'
-import VideoPlayer from '../../components/VideoPlayer/VideoPlayer'
 import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { usePost } from '../../hooks/usePost'
+import VideoPlayer from '../../components/VideoPlayer/VideoPlayer'
 
 export const Video = () => {
   const location = useLocation()
-  console.log('location: ', location)
-
   const post = usePost()
 
   const videoJsOptions = {
@@ -23,9 +21,15 @@ export const Video = () => {
   }
 
   useEffect(() => {
-    post('/video-player/play', {
-      path: location.state?.episode.video_file_path,
-    })
+    const initializePlayer = async () => {
+      await post('/video-player/play', {
+        path: location.state?.episode.video_file_path,
+      })
+    }
+
+    if (location.state?.episode) {
+      initializePlayer()
+    }
   }, [location.state?.episode, post])
 
   return (
