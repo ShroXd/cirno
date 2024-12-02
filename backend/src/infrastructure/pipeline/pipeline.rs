@@ -204,15 +204,32 @@ impl PipelinePort for Pipeline {
     }
 
     #[instrument(skip(self))]
-    fn stop(&self) -> Result<()> {
-        let gst_pipeline = self
-            .gst_pipeline
-            .as_ref()
-            .ok_or(anyhow::anyhow!("Pipeline not built"))?;
-        gst_pipeline.set_state(State::Null)?;
-        debug!("Pipeline stopped");
+    fn stop(&mut self) -> Result<()> {
+        if let Some(pipeline) = self.gst_pipeline.take() {
+            pipeline.send_event(gstreamer::event::Eos::new());
 
-        Ok(())
+            match pipeline.set_state(State::Null) {
+                Ok(_) => debug!("Pipeline stopped"),
+                Err(e) => error!("Failed to stop pipeline: {}", e),
+            }
+
+            let elements = pipeline.iterate_elements();
+            for element in elements {
+                if let Ok(element) = element {
+                    if let Err(err) = element.set_state(State::Null) {
+                        warn!("Failed to set element {} to null: {}", element.name(), err);
+                    }
+                }
+            }
+
+            self.gst_pipeline = None;
+
+            debug!("Pipeline stopped and cleaned");
+            Ok(())
+        } else {
+            debug!("Pipeline already stopped");
+            Ok(())
+        }
     }
 
     #[instrument(skip(self))]

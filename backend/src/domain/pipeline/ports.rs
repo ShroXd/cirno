@@ -10,7 +10,7 @@ pub trait PipelinePort: Send + Sync {
     fn build(&mut self, path: &str) -> Result<()>;
     fn play(&self) -> Result<()>;
     fn pause(&self) -> Result<()>;
-    fn stop(&self) -> Result<()>;
+    fn stop(&mut self) -> Result<()>;
     fn seek(&self, position: Position) -> Result<()>;
     fn get_duration(&self) -> Result<Duration>;
     fn get_state(&self) -> Result<PipelineState>;

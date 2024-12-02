@@ -1,6 +1,9 @@
+use actix_web::{HttpRequest, HttpResponse};
 use anyhow::Result;
 use gstreamer::{Element, ElementFactory as GstElementFactory};
 use std::path::Path;
+
+use crate::interfaces::http_api::controllers::consts::WS_CLIENT_KEY_HEADER;
 
 /// Checks if the given string represents a valid path on the current operating system
 ///
@@ -31,6 +34,16 @@ impl ElementFactoryTrait for ElementFactory {
             .map_err(|e| anyhow::anyhow!("Failed to create element: {}", e))?;
 
         Ok(element)
+    }
+}
+
+pub fn extract_ws_client_key(req: &HttpRequest) -> Result<String> {
+    match req.headers().get(WS_CLIENT_KEY_HEADER) {
+        Some(key) => key
+            .to_str()
+            .map(|s| s.to_string())
+            .map_err(|_| anyhow::anyhow!("Invalid WebSocket Client key")),
+        None => Err(anyhow::anyhow!("Missing WebSocket Client key")),
     }
 }
 

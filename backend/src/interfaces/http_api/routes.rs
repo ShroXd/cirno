@@ -1,13 +1,13 @@
-use std::sync::Arc;
-
 use actix::Addr;
 use actix_web::{
     delete, get, post,
     web::{scope, Data, Json, Path, Query, ServiceConfig},
     HttpRequest, Responder,
 };
+use std::sync::Arc;
 
 use crate::{
+    application::pipeline_service::PipelineService,
     infrastructure::{
         database::database::Database, event_bus::event_bus::EventBus,
         organizer::organizer::ParserActor, task_pool::task_pool::TaskPool,
@@ -21,14 +21,21 @@ use crate::{
                 get_media_libraries_controller,
             },
             tv_show::get_tv_show_seasons_controller,
+            video_player::play_video_with_path_controller,
         },
         ws::utils::WsConnections,
     },
 };
 
+use super::controllers::api_models::PlayVideoWithPathPayload;
+
 // TODO: 1. move data models to database/models.rs
 // TODO: 2. return error messages in the response
 // TODO: 3. rename series to content or media etc.
+
+// --------------------------------
+// Media Library Routes
+// --------------------------------
 
 #[get("/media-items")]
 async fn get_media_items_route(
@@ -81,7 +88,7 @@ async fn delete_media_library_route(
     delete_media_library_controller(id, database_addr).await
 }
 
-pub fn init_routes(cfg: &mut ServiceConfig) {
+pub fn init_media_libraries_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         scope("/media-libraries")
             .service(get_media_items_route)
@@ -90,4 +97,21 @@ pub fn init_routes(cfg: &mut ServiceConfig) {
             .service(get_media_libraries_route)
             .service(delete_media_library_route),
     );
+}
+
+// --------------------------------
+// Video Player Routes
+// --------------------------------
+
+#[post("/play")]
+async fn play_video_with_path(
+    payload: Json<PlayVideoWithPathPayload>,
+    req: HttpRequest,
+    pipeline_service: Data<PipelineService>,
+) -> impl Responder {
+    play_video_with_path_controller(payload, req, pipeline_service).await
+}
+
+pub fn init_video_player_routes(cfg: &mut ServiceConfig) {
+    cfg.service(scope("/video-player").service(play_video_with_path));
 }

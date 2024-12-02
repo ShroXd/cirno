@@ -60,3 +60,13 @@ pub struct CreateMediaLibraryResponse {
 pub struct GetMediaItemsQuery {
     pub media_library_id: Option<i64>,
 }
+
+//------------------------------------------------------------------------------
+// Video Player API Models
+//------------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize, Serialize, TS)]
+#[ts(export)]
+pub struct PlayVideoWithPathPayload {
+    pub path: String,
+}

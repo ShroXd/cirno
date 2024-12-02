@@ -87,7 +87,7 @@ impl SystemInitializer {
         self.init_logger().await?;
         self.init_database().await?;
         self.init_parser().await?;
-        self.init_pipeline().await?;
+        // self.init_pipeline().await?;
 
         Ok(())
     }

@@ -3,17 +3,24 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use tracing::*;
 
-use crate::domain::pipeline::{model::Position, ports::PipelinePort};
+use crate::{
+    domain::pipeline::{builder::build_pipeline, model::Position, ports::PipelinePort},
+    infrastructure::event_bus::event_bus::EventBus,
+};
 
+#[derive(Clone)]
 pub struct PipelineService {
     pipeline: Arc<Mutex<dyn PipelinePort>>,
-    // event_bus: Arc<EventBus>,
 }
 
 impl PipelineService {
-    #[instrument(skip(pipeline))]
-    pub fn new(pipeline: Arc<Mutex<dyn PipelinePort>>) -> Self {
-        Self { pipeline }
+    #[instrument(skip(event_bus))]
+    pub fn new(event_bus: Arc<EventBus>) -> Result<Self> {
+        let pipeline = build_pipeline(event_bus)?;
+
+        Ok(Self {
+            pipeline: Arc::new(Mutex::new(pipeline)),
+        })
     }
 
     #[instrument(skip(self))]
@@ -45,6 +52,14 @@ impl PipelineService {
         debug!("Seeking to position: {:?}", position);
         self.pipeline.lock().await.seek(position)?;
 
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    pub async fn stop_and_clean(&self) -> Result<()> {
+        // TODO: consider if we need to move logic of stopping pipeline to service layer
+        // TODO: once integrate with event bus and websocket, we also need to clean up them
+        self.pipeline.lock().await.stop()?;
         Ok(())
     }
 }
