@@ -5,6 +5,7 @@ import { Route, Routes } from 'react-router-dom'
 import { Test } from '../Test/Test'
 import { Detail } from '../Detail/Detail'
 import { Favorites } from '../Favorites/Favorites'
+import { Video } from '../Video/VIdeo'
 
 export const Home = () => {
   return (
@@ -19,6 +20,7 @@ export const Home = () => {
             <Route path='/test' element={<Test />} />
             <Route path='/detail/:id' element={<Detail />} />
             <Route path='/favorites' element={<Favorites />} />
+            <Route path='/video' element={<Video />} />
           </Routes>
         </div>
       </div>

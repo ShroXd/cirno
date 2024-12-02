@@ -14,10 +14,11 @@ pub async fn play_video_with_path_controller(
     req: HttpRequest,
     pipeline_service: Data<PipelineService>,
 ) -> impl Responder {
-    let ws_client_key = match extract_ws_client_key(&req) {
-        Ok(key) => key,
-        Err(e) => return HttpResponse::Unauthorized().json(e.to_string()),
-    };
+    // let ws_client_key = match extract_ws_client_key(&req) {
+    //     Ok(key) => key,
+    //     Err(e) => return HttpResponse::Unauthorized().json(e.to_string()),
+    // };
+    let ws_client_key = "test";
 
     pipeline_service
         .start_playback(&payload.path)

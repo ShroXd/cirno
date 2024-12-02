@@ -31,6 +31,8 @@ export const Detail = () => {
     (url: string) => fetch(url).then(res => res.json())
   )
 
+  console.log('seasons data: ', data)
+
   useEffect(() => {
     setSerie(location.state.detail)
   }, [location.state.detail])
@@ -120,17 +122,14 @@ export const Detail = () => {
               <TabPanel key={index} value={`${index}`} className='px-0'>
                 <div className='grid grid-cols-4 gap-4 gap-y-10'>
                   {season.episodes.map(episode => (
-                    <div key={episode.title} className='flex flex-col'>
+                    <div className='flex flex-col' key={episode.title}>
                       <div className='w-min-42 relative flex h-40'>
                         <img
                           src={episode.thumb_image ?? ''}
                           alt={episode.title ?? ''}
                           className='h-full w-full rounded-lg object-cover'
                         />
-                        <Link
-                          to={`/play`}
-                          state={{ file: episode.video_file_path }}
-                        >
+                        <Link to={`/video`} state={{ episode: episode }}>
                           <button className='absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50 opacity-0 transition-opacity duration-500 ease-in-out hover:opacity-100'>
                             <PlayIcon className='h-12 w-12 text-white' />
                           </button>
