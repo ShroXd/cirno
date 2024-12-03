@@ -91,6 +91,7 @@ pub async fn create_media_library_service(
             TaskType::MediaLibraryScan,
             ws_client_key.clone(),
             Box::new(task),
+            None,
         )
         .await?;
 

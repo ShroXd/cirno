@@ -20,8 +20,9 @@ mod shared;
 async fn main() -> std::io::Result<()> {
     unsafe {
         env::set_var("GST_DEBUG", "3");
-        env::set_var("RUST_LOG", "actix_web=debug");
     }
+
+    let _guard = SystemInitializer::init_logger();
 
     let mut initializer = match SystemInitializer::new().await {
         Ok(initializer) => initializer,

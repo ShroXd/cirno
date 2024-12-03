@@ -4,6 +4,7 @@ use chrono::Local;
 use gstreamer::prelude::*;
 use std::sync::Arc;
 use tracing::*;
+use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 use crate::{
@@ -84,7 +85,6 @@ impl SystemInitializer {
 
     #[instrument(skip(self))]
     pub async fn run(&mut self) -> Result<()> {
-        self.init_logger().await?;
         self.init_database().await?;
         self.init_parser().await?;
         self.init_pipeline().await?;
@@ -146,8 +146,8 @@ impl SystemInitializer {
         Ok(())
     }
 
-    #[instrument(skip(self))]
-    async fn init_logger(&self) -> Result<()> {
+    #[instrument]
+    pub fn init_logger() -> WorkerGuard {
         let file_name = format!("cirno_{}", Local::now().format("%Y-%m-%d"));
         let file_appender = tracing_appender::rolling::daily("logs", &file_name);
         let (non_blocking_writer, _guard) = tracing_appender::non_blocking(file_appender);
@@ -165,7 +165,7 @@ impl SystemInitializer {
 
         info!("Tracing subscriber initialized");
 
-        Ok(())
+        _guard
     }
 
     #[instrument(skip(self))]

@@ -1,7 +1,8 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
+use tokio::{sync::Mutex, task::JoinHandle};
 
 use crate::infrastructure::event_bus::event_bus::EventBus;
 
@@ -18,7 +19,7 @@ pub enum TaskStatus {
     Failed(String),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct TaskInfo {
     pub id: String,
     pub task_type: TaskType,
@@ -26,6 +27,8 @@ pub struct TaskInfo {
     pub progress: f32,
     /// used to notify the client
     pub websocket_client_key: String,
+    pub cleanup_handle: Option<Arc<Mutex<Option<JoinHandle<()>>>>>,
+    pub retention_period: Duration,
 }
 
 #[async_trait]
