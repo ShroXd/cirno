@@ -41,7 +41,7 @@ pub struct EventMessage<T> {
     pub payload: T,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct WebSocketActor {
     pub key: Uuid,
     pub pipeline_addr: Option<Addr<Pipeline>>,
@@ -77,7 +77,6 @@ impl Actor for WebSocketActor {
                 return;
             }
         };
-        debug!("Event bus: {:?}", event_bus);
 
         let key = self.key.to_string();
 

@@ -23,7 +23,7 @@ pub struct PipelineService {
 }
 
 impl PipelineService {
-    #[instrument(skip(pipeline_addr))]
+    #[instrument(skip(pipeline_addr, event_bus))]
     pub fn new(pipeline_addr: Addr<Pipeline>, event_bus: Arc<EventBus>) -> Result<Self> {
         let event_bus_clone = event_bus.clone();
         let ws_client_key = Arc::new(RwLock::new(Vec::new()));

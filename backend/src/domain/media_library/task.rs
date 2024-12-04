@@ -49,7 +49,7 @@ impl AsyncTask for MediaLibraryScanTask {
 
         // Artificial delay to test async task execution and UI feedback.
         // TODO: Remove this delay before production
-        tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+        tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;
 
         let _ = event_bus.publish(
             DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(media_library)),

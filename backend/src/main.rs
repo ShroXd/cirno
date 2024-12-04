@@ -40,6 +40,8 @@ async fn main() -> std::io::Result<()> {
     let database_addr = initializer.get_database_addr();
 
     let event_bus = Arc::new(EventBus::new(100));
+    event_bus.start();
+
     let task_pool = TaskPool::new(100, event_bus.clone());
 
     let ws_connections = WsConnections::default();

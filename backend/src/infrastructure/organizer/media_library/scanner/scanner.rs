@@ -17,7 +17,7 @@ use crate::{
     },
 };
 
-#[instrument]
+#[instrument(skip(event_bus))]
 pub fn scan_media_library(
     root_dir: &Path,
     task_id: String,

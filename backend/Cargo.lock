@@ -541,6 +541,7 @@ dependencies = [
  "mockall",
  "once_cell",
  "quick-xml",
+ "rand",
  "rayon",
  "regex",
  "serde",

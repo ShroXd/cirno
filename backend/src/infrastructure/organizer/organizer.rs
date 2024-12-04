@@ -22,7 +22,7 @@ impl Actor for ParserActor {
     type Context = Context<Self>;
 }
 
-#[derive(Debug, Message)]
+#[derive(Message)]
 #[rtype(result = "Result<MediaLibrary, Error>")]
 pub struct ScanMediaLibrary(pub String, pub String, pub Arc<EventBus>);
 

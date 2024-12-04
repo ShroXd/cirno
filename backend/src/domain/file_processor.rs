@@ -11,7 +11,7 @@ use crate::infrastructure::{
     organizer::organizer::{ParserActor, ScanMediaLibrary},
 };
 
-#[instrument]
+#[instrument(skip(event_bus))]
 pub async fn scan_media_library(
     directory: String,
     task_id: String,

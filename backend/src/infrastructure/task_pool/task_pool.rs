@@ -4,17 +4,14 @@ use std::result::Result::Ok;
 use std::time::Duration;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::{mpsc, Mutex};
-use tokio::{
-    sync::{broadcast, RwLock},
-    task::JoinHandle,
-};
+use tokio::{sync::RwLock, task::JoinHandle};
 use tracing::*;
 use uuid::Uuid;
 
 use super::model::{AsyncTask, TaskInfo, TaskStatus, TaskType};
-use crate::infrastructure::event_bus::event_bus::{DomainEvent, EventBus};
+use crate::infrastructure::event_bus::event_bus::EventBus;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct TaskPool {
     tasks: Arc<RwLock<HashMap<String, TaskInfo>>>,
     event_bus: Arc<EventBus>,
@@ -22,7 +19,7 @@ pub struct TaskPool {
 }
 
 impl TaskPool {
-    #[instrument]
+    #[instrument(skip(event_bus))]
     pub fn new(max_concurrent_tasks: usize, event_bus: Arc<EventBus>) -> Self {
         let (task_tx, mut task_rx) = mpsc::channel::<Box<dyn AsyncTask>>(100);
         let tasks = Arc::new(RwLock::new(HashMap::<String, TaskInfo>::new()));
