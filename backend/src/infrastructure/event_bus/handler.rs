@@ -74,6 +74,13 @@ impl EventHandlerConfig {
             ..Default::default()
         }
     }
+
+    pub fn with_max_triggers(max_triggers: u32) -> Self {
+        Self {
+            max_triggers: Some(max_triggers),
+            ..Default::default()
+        }
+    }
 }
 
 pub type EventMatcher = Arc<dyn Fn(&DomainEvent) -> bool + Send + Sync + 'static>;
