@@ -9,6 +9,9 @@ use crate::infrastructure::event_bus::event_bus::EventBus;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TaskType {
     MediaLibraryScan,
+
+    /// Test task used only in unit tests
+    TestTask,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

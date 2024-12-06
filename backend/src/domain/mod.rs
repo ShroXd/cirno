@@ -5,5 +5,6 @@ pub mod media_item;
 pub mod media_library;
 pub mod pipeline;
 pub mod season;
+pub mod time;
 pub mod tv_show;
 pub mod websocket;

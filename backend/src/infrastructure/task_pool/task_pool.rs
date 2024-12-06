@@ -9,7 +9,10 @@ use tracing::*;
 use uuid::Uuid;
 
 use super::model::{AsyncTask, TaskInfo, TaskStatus, TaskType};
-use crate::infrastructure::event_bus::event_bus::EventBus;
+use crate::{
+    domain::time::TimeProvider,
+    infrastructure::{event_bus::event_bus::EventBus, time::default::DefaultTimeProvider},
+};
 
 #[derive(Clone)]
 pub struct TaskPool {
@@ -21,10 +24,24 @@ pub struct TaskPool {
 impl TaskPool {
     #[instrument(skip(event_bus))]
     pub fn new(max_concurrent_tasks: usize, event_bus: Arc<EventBus>) -> Self {
+        Self::new_with_time_provider(
+            max_concurrent_tasks,
+            event_bus,
+            Arc::new(DefaultTimeProvider),
+        )
+    }
+
+    #[instrument(skip(event_bus, time_provider))]
+    pub fn new_with_time_provider(
+        max_concurrent_tasks: usize,
+        event_bus: Arc<EventBus>,
+        time_provider: Arc<dyn TimeProvider>,
+    ) -> Self {
         let (task_tx, mut task_rx) = mpsc::channel::<Box<dyn AsyncTask>>(100);
         let tasks = Arc::new(RwLock::new(HashMap::<String, TaskInfo>::new()));
         let event_bus_clone = event_bus.clone();
         let tasks_clone = tasks.clone();
+        let time_provider_clone = time_provider.clone();
 
         debug!(
             "Task pool created with {} max concurrent tasks",
@@ -49,6 +66,7 @@ impl TaskPool {
 
                 let event_bus = event_bus_clone.clone();
                 let tasks = tasks_clone.clone();
+                let time_provider = time_provider_clone.clone();
 
                 handles.push(tokio::spawn(async move {
                     debug!("Executing task: {}", task_id);
@@ -73,6 +91,7 @@ impl TaskPool {
                             tasks.clone(),
                             task_id.clone(),
                             task_info.retention_period,
+                            time_provider.clone(),
                         );
                         task_info.cleanup_handle = Some(Arc::new(Mutex::new(Some(cleanup_handle))));
                     }
@@ -87,15 +106,16 @@ impl TaskPool {
         }
     }
 
-    #[instrument(skip(tasks))]
+    #[instrument(skip(tasks, time_provider))]
     fn schedule_cleanup(
         tasks: Arc<RwLock<HashMap<String, TaskInfo>>>,
         task_id: String,
         retention_period: Duration,
+        time_provider: Arc<dyn TimeProvider>,
     ) -> JoinHandle<()> {
         tokio::spawn(async move {
             debug!("Waiting for cleanup for task: {}", task_id);
-            tokio::time::sleep(retention_period).await;
+            time_provider.sleep(retention_period).await;
             debug!("Cleanup for task: {}", task_id);
             tasks.write().await.remove(&task_id);
         })
@@ -139,6 +159,17 @@ impl TaskPool {
 
     #[instrument(skip(self))]
     pub async fn extend_retention(&self, task_id: String, extension: Duration) -> Result<()> {
+        self.extend_retention_with_time_provider(task_id, extension, Arc::new(DefaultTimeProvider))
+            .await
+    }
+
+    #[instrument(skip(self, time_provider))]
+    pub async fn extend_retention_with_time_provider(
+        &self,
+        task_id: String,
+        extension: Duration,
+        time_provider: Arc<dyn TimeProvider>,
+    ) -> Result<()> {
         debug!("Extending retention for task: {}", task_id);
         let mut tasks = self.tasks.write().await;
         if let Some(task_info) = tasks.get_mut(&task_id) {
@@ -159,6 +190,7 @@ impl TaskPool {
                 self.tasks.clone(),
                 task_id.clone(),
                 new_retention_period,
+                time_provider,
             );
             task_info.cleanup_handle = Some(Arc::new(Mutex::new(Some(new_cleanup_handle))));
             task_info.retention_period = new_retention_period;
@@ -208,5 +240,213 @@ impl TaskPool {
             .get(&task_id)
             .map(|t| t.progress)
             .ok_or(anyhow!("Task not found"))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use async_trait::async_trait;
+    use tokio::sync::Notify;
+
+    use crate::infrastructure::time::testing::test::TestingTimeProvider;
+
+    use super::*;
+
+    struct MockTask {
+        task_id: String,
+        ws_client_id: String,
+        should_fail: bool,
+        completed: Arc<Notify>,
+    }
+
+    impl MockTask {
+        fn new(task_id: String, ws_client_id: String, should_fail: bool) -> Self {
+            let completed = Arc::new(Notify::new());
+
+            Self {
+                task_id,
+                ws_client_id,
+                should_fail,
+                completed,
+            }
+        }
+
+        fn get_completed(&self) -> Arc<Notify> {
+            self.completed.clone()
+        }
+    }
+
+    #[async_trait]
+    impl AsyncTask for MockTask {
+        fn get_task_id(&self) -> String {
+            self.task_id.clone()
+        }
+
+        fn get_ws_client_id(&self) -> String {
+            self.ws_client_id.clone()
+        }
+
+        fn set_task_id(&mut self, task_id: String) {
+            self.task_id = task_id;
+        }
+
+        fn set_ws_client_id(&mut self, ws_client_id: String) {
+            self.ws_client_id = ws_client_id;
+        }
+
+        async fn execute(
+            &self,
+            _ws_client_id: String,
+            _task_id: String,
+            _event_bus: Arc<EventBus>,
+        ) -> Result<()> {
+            self.completed.notify_one();
+            match self.should_fail {
+                true => Err(anyhow!("Task failed")),
+                false => Ok(()),
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn test_register_task() {
+        let event_bus = Arc::new(EventBus::new(16));
+        let pool = TaskPool::new(5, event_bus);
+
+        let task = Box::new(MockTask::new(
+            "task1".to_string(),
+            "client1".to_string(),
+            false,
+        ));
+        let task_id = pool
+            .register_task(TaskType::TestTask, "client1".to_string(), task, None)
+            .await
+            .unwrap();
+
+        assert!(pool.tasks.read().await.contains_key(&task_id));
+    }
+
+    #[tokio::test]
+    async fn test_task_completion() {
+        let event_bus = Arc::new(EventBus::new(16));
+        let pool = TaskPool::new(5, event_bus);
+
+        let task = Box::new(MockTask::new(
+            "task1".to_string(),
+            "client1".to_string(),
+            false,
+        ));
+        let completed = task.get_completed();
+        let task_id = pool
+            .register_task(TaskType::TestTask, "client1".to_string(), task, None)
+            .await
+            .unwrap();
+
+        completed.notified().await;
+
+        let status = pool.get_task_status(task_id).await.unwrap();
+        assert!(matches!(status, TaskStatus::Completed));
+    }
+
+    #[tokio::test]
+    async fn test_task_failure() {
+        let event_bus = Arc::new(EventBus::new(16));
+        let pool = TaskPool::new(5, event_bus);
+
+        let task = Box::new(MockTask::new(
+            "task1".to_string(),
+            "client1".to_string(),
+            true,
+        ));
+        let completed = task.get_completed();
+        let task_id = pool
+            .register_task(TaskType::TestTask, "client1".to_string(), task, None)
+            .await
+            .unwrap();
+
+        completed.notified().await;
+
+        let status = pool.get_task_status(task_id).await.unwrap();
+        assert!(matches!(status, TaskStatus::Failed(_)));
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn test_scheduled_cleanup() {
+        let event_bus = Arc::new(EventBus::new(16));
+        let time_provider = Arc::new(TestingTimeProvider::new());
+        let pool = TaskPool::new_with_time_provider(5, event_bus, time_provider);
+
+        let task = Box::new(MockTask::new(
+            "task1".to_string(),
+            "client1".to_string(),
+            false,
+        ));
+        let completed = task.get_completed();
+        let _ = pool
+            .register_task(
+                TaskType::TestTask,
+                "client1".to_string(),
+                task,
+                Some(Duration::from_secs(60)),
+            )
+            .await
+            .unwrap();
+
+        completed.notified().await;
+
+        assert!(pool.tasks.read().await.is_empty());
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn test_task_retention() {
+        let event_bus = Arc::new(EventBus::new(16));
+        let time_provider = Arc::new(TestingTimeProvider::new());
+        let pool = TaskPool::new_with_time_provider(5, event_bus, time_provider);
+
+        let task = Box::new(MockTask::new(
+            "task1".to_string(),
+            "client1".to_string(),
+            false,
+        ));
+        let completed = task.get_completed();
+        let task_id = pool
+            .register_task(
+                TaskType::TestTask,
+                "client1".to_string(),
+                task,
+                Some(Duration::from_secs(60)),
+            )
+            .await
+            .unwrap();
+
+        pool.extend_retention(task_id.clone(), Duration::from_secs(30))
+            .await
+            .unwrap();
+
+        completed.notified().await;
+
+        assert!(pool.tasks.read().await.is_empty());
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn test_cleanup_task() {
+        let event_bus = Arc::new(EventBus::new(16));
+        let time_provider = Arc::new(TestingTimeProvider::new());
+        let pool = TaskPool::new_with_time_provider(5, event_bus, time_provider);
+
+        let task = Box::new(MockTask::new(
+            "task1".to_string(),
+            "client1".to_string(),
+            false,
+        ));
+        let task_id = pool
+            .register_task(TaskType::TestTask, "client1".to_string(), task, None)
+            .await
+            .unwrap();
+
+        assert!(pool.tasks.read().await.contains_key(&task_id));
+        pool.cleanup_task(task_id).await.unwrap();
+
+        assert!(pool.tasks.read().await.is_empty());
     }
 }
