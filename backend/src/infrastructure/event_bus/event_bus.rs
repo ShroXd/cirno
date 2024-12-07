@@ -17,18 +17,11 @@ use tracing::*;
 use super::{
     domain_event::DomainEvent,
     handler::{EventHandler, EventHandlerConfig},
-    model::GeneralEvent,
 };
-use crate::{
-    domain::{
-        media_library::event::MediaLibraryEventType, pipeline::event::PipelineEvent,
-        websocket::event::WebSocketEvent,
-    },
-    interfaces::ws::notification::{IntoNotification, Notification, NotificationType},
-};
+
 #[derive(Clone)]
 pub struct EventBus {
-    tx: broadcast::Sender<(DomainEvent, String)>, // (event, task id)
+    tx: broadcast::Sender<DomainEvent>,
     handlers: Arc<Mutex<Vec<EventHandler>>>,
 }
 
@@ -41,13 +34,13 @@ impl EventBus {
         }
     }
 
-    pub fn subscribe(&self) -> broadcast::Receiver<(DomainEvent, String)> {
+    pub fn subscribe(&self) -> broadcast::Receiver<DomainEvent> {
         self.tx.subscribe()
     }
 
-    pub fn publish(&self, event: DomainEvent, task_id: String) -> Result<()> {
+    pub fn publish(&self, event: DomainEvent) -> Result<()> {
         self.tx
-            .send((event, task_id))
+            .send(event)
             .map_err(|_| anyhow!("Failed to send event"))?;
 
         Ok(())
@@ -59,14 +52,12 @@ impl EventBus {
         handler: F,
         config: EventHandlerConfig,
     ) where
-        F: Fn(DomainEvent, String, Arc<EventBus>) -> Fut + Send + Sync + 'static,
+        F: Fn(DomainEvent, Arc<EventBus>) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Result<()>> + Send + 'static,
     {
         let handler = EventHandler {
             matcher: Arc::new(matcher),
-            handler: Arc::new(move |event, task_id, event_bus| {
-                Box::pin(handler(event, task_id, event_bus))
-            }),
+            handler: Arc::new(move |event, event_bus| Box::pin(handler(event, event_bus))),
             config,
             trigger_count: Arc::new(AtomicU32::new(0)),
         };
@@ -79,7 +70,7 @@ impl EventBus {
         let mut rx = self.subscribe();
 
         spawn(async move {
-            while let Ok((event, task_id)) = rx.recv().await {
+            while let Ok(event) = rx.recv().await {
                 let handlers = event_bus.handlers.lock().await;
                 let mut to_remove = Vec::new();
 
@@ -99,7 +90,6 @@ impl EventBus {
                     let config = handler.config.clone();
                     let trigger_count = handler.trigger_count.clone();
                     let event = event.clone();
-                    let task_id = task_id.clone();
                     let event_bus_clone = event_bus.clone();
 
                     spawn(async move {
@@ -107,8 +97,7 @@ impl EventBus {
                         let mut attempt = 0;
 
                         loop {
-                            let future =
-                                handler_fn(event.clone(), task_id.clone(), event_bus_clone.clone());
+                            let future = handler_fn(event.clone(), event_bus_clone.clone());
 
                             let result = match config.timeout {
                                 Some(duration) => match timeout(duration, future).await {
@@ -146,6 +135,7 @@ impl EventBus {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::infrastructure::event_bus::model::GeneralEvent;
     use std::{sync::atomic::AtomicBool, time::Duration};
     use tokio::sync::Notify;
 
@@ -159,12 +149,10 @@ mod tests {
         let mut rx = event_bus.subscribe();
 
         let event = create_test_event(1);
-        let task_id = "task1".to_string();
-        event_bus.publish(event.clone(), task_id.clone()).unwrap();
+        event_bus.publish(event.clone()).unwrap();
 
-        if let Ok((received_event, received_task_id)) = rx.recv().await {
+        if let Ok(received_event) = rx.recv().await {
             assert!(matches!(received_event, DomainEvent::General(_)));
-            assert_eq!(received_task_id, task_id);
         }
     }
 
@@ -175,11 +163,10 @@ mod tests {
         let mut rx2 = event_bus.subscribe();
 
         let event = create_test_event(1);
-        let task_id = "task1".to_string();
-        event_bus.publish(event.clone(), task_id.clone()).unwrap();
+        event_bus.publish(event.clone()).unwrap();
 
-        let (event1, _) = rx1.recv().await.unwrap();
-        let (event2, _) = rx2.recv().await.unwrap();
+        let event1 = rx1.recv().await.unwrap();
+        let event2 = rx2.recv().await.unwrap();
 
         assert!(matches!(event1, DomainEvent::General(_)));
         assert!(matches!(event2, DomainEvent::General(_)));
@@ -197,7 +184,7 @@ mod tests {
         event_bus
             .on(
                 |event| matches!(event, DomainEvent::General(_)),
-                move |_, _, _| {
+                move |_, _| {
                     let handled = handled_clone.clone();
                     let completed = completed_clone.clone();
 
@@ -215,7 +202,7 @@ mod tests {
         event_bus.start();
 
         let event = create_test_event(1);
-        event_bus.publish(event, "task1".to_string()).unwrap();
+        event_bus.publish(event.clone()).unwrap();
 
         completed.notified().await;
         assert!(handled.load(Ordering::SeqCst));
@@ -233,7 +220,7 @@ mod tests {
         event_bus
             .on(
                 |event| matches!(event, DomainEvent::General(_)),
-                move |_, _, _| {
+                move |_, _| {
                     let attempts = attempt_count_clone.clone();
                     let completed = completed_clone.clone();
 
@@ -255,7 +242,7 @@ mod tests {
         event_bus.start();
 
         let event = create_test_event(1);
-        event_bus.publish(event, "task1".to_string()).unwrap();
+        event_bus.publish(event.clone()).unwrap();
 
         completed.notified().await;
         assert_eq!(attempt_count.load(Ordering::SeqCst), 3);
@@ -270,7 +257,7 @@ mod tests {
         event_bus
             .on(
                 |event| matches!(event, DomainEvent::General(_)),
-                move |_, _, _| {
+                move |_, _| {
                     let completed = completed_clone.clone();
 
                     async move {
@@ -289,7 +276,7 @@ mod tests {
         event_bus.start();
 
         let event = create_test_event(1);
-        event_bus.publish(event, "task1".to_string()).unwrap();
+        event_bus.publish(event.clone()).unwrap();
 
         completed.notified().await;
 
@@ -310,7 +297,7 @@ mod tests {
         event_bus
             .on(
                 |event| matches!(event, DomainEvent::General(_)),
-                move |_, _, _| {
+                move |_, _| {
                     let trigger_count = trigger_count_clone.clone();
                     let all_done = all_done_clone.clone();
 
@@ -332,9 +319,7 @@ mod tests {
 
         let event = create_test_event(1);
         for _ in 0..3 {
-            event_bus
-                .publish(event.clone(), "task1".to_string())
-                .unwrap();
+            event_bus.publish(event.clone()).unwrap();
         }
 
         all_done.notified().await;

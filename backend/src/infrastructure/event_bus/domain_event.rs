@@ -6,7 +6,7 @@ use super::model::GeneralEvent;
 use crate::{
     domain::{
         media_library::event::MediaLibraryEventType, pipeline::event::PipelineEvent,
-        websocket::event::WebSocketEvent,
+        websocket::event::WebSocketEventType,
     },
     interfaces::ws::{
         actor::{SendNotification, WebSocketActor},
@@ -19,7 +19,7 @@ pub enum DomainEvent {
     General(GeneralEvent),
     MediaLibrary(MediaLibraryEventType),
     Pipeline(PipelineEvent),
-    WebSocket(WebSocketEvent),
+    WebSocket(WebSocketEventType),
 }
 
 impl IntoNotification for DomainEvent {

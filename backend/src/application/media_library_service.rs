@@ -59,7 +59,7 @@ pub async fn create_media_library_service(
         event_bus,
         {
             match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(_)),
-            handler: move |event, task_id, event_bus| {
+            handler: move |event, event_bus| {
                 let database_addr = database_addr.clone();
                 let media_library_id = media_library_id.clone();
                 async move {
@@ -72,7 +72,6 @@ pub async fn create_media_library_service(
                         }
                         event_bus.publish(
                             DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved(media_library_id)),
-                            task_id,
                         )?;
                     }
                     Ok(())
@@ -82,7 +81,7 @@ pub async fn create_media_library_service(
         },
         {
             match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved(_)),
-            handler: move |event, _, _| {
+            handler: move |event, _| {
                 let ws_connection_clone = ws_connection.clone();
                 async move {
                     event.send_notification::<serde_json::Value>(ws_connection_clone);

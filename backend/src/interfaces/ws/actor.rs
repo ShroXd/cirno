@@ -1,16 +1,15 @@
-use std::sync::Arc;
-
 use actix::{prelude::*, spawn, Actor, Addr, Message, StreamHandler};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string};
+use std::sync::Arc;
 use tracing::*;
 use ts_rs::TS;
 use uuid::Uuid;
 
 use super::{notification::Notification, utils::WsConnections};
 use crate::{
-    domain::websocket::event::WebSocketEvent,
+    domain::websocket::event::WebSocketEventType,
     infrastructure::{
         database::database::Database,
         event_bus::{domain_event::DomainEvent, event_bus::EventBus},
@@ -90,14 +89,11 @@ impl Actor for WebSocketActor {
 
         // publish the register client event to the event bus
         debug!("Publishing register client event to event bus");
-        let key_for_event_bus = key.clone();
+        let key_for_register_client = key.clone();
         spawn(async move {
-            event_bus.publish(
-                DomainEvent::WebSocket(WebSocketEvent::RegisterClient {
-                    key: key_for_event_bus.clone(),
-                }),
-                key_for_event_bus,
-            );
+            event_bus.publish(DomainEvent::WebSocket(WebSocketEventType::RegisterClient(
+                key_for_register_client,
+            )))
         });
 
         // send the register client event to the client

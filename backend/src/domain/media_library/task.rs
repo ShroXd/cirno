@@ -21,20 +21,16 @@ pub struct MediaLibraryScanTask {
 impl AsyncTask for MediaLibraryScanTask {
     async fn execute(
         &self,
-        ws_client_id: String,
-        task_id: String,
+        _ws_client_id: String,
+        _task_id: String,
         event_bus: Arc<EventBus>,
     ) -> Result<()> {
-        let _ = event_bus.publish(
-            DomainEvent::General(GeneralEvent::TaskStarted),
-            self.task_id.clone(),
-        );
+        let _ = event_bus.publish(DomainEvent::General(GeneralEvent::TaskStarted));
 
         let media_library = match self
             .parser_addr
             .send(ScanMediaLibrary(
                 self.library_path.clone(),
-                self.task_id.clone(),
                 event_bus.clone(),
             ))
             .await
@@ -48,10 +44,9 @@ impl AsyncTask for MediaLibraryScanTask {
         // TODO: Remove this delay before production
         tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;
 
-        let _ = event_bus.publish(
-            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(media_library)),
-            self.task_id.clone(),
-        );
+        let _ = event_bus.publish(DomainEvent::MediaLibrary(
+            MediaLibraryEventType::MediaLibraryScanned(media_library),
+        ));
 
         Ok(())
     }

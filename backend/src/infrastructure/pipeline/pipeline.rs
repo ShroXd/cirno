@@ -332,26 +332,20 @@ async fn gst_bus_watch_task(
                 );
                 error!("Pipeline error: {}", e.error());
                 let _ = event_bus
-                    .publish(
-                        DomainEvent::Pipeline(PipelineEvent::ErrorOccurred {
-                            message: e.error().to_string(),
-                            component: e
-                                .src()
-                                .map(|s| s.path_string().to_string())
-                                .unwrap_or_default(),
-                        }),
-                        "".to_string(),
-                    )
+                    .publish(DomainEvent::Pipeline(PipelineEvent::ErrorOccurred {
+                        message: e.error().to_string(),
+                        component: e
+                            .src()
+                            .map(|s| s.path_string().to_string())
+                            .unwrap_or_default(),
+                    }))
                     .map_err(|e| error!("Failed to publish error event: {}", e));
             }
             MessageView::Eos(..) => {
                 info!("End of stream received from pipeline");
 
                 let _ = event_bus
-                    .publish(
-                        DomainEvent::Pipeline(PipelineEvent::EndOfStream),
-                        "".to_string(),
-                    )
+                    .publish(DomainEvent::Pipeline(PipelineEvent::EndOfStream))
                     .map_err(|e| error!("Failed to publish end of stream event: {}", e));
             }
             MessageView::StateChanged(state_changed) => {

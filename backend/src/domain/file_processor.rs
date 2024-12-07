@@ -14,7 +14,6 @@ use crate::infrastructure::{
 #[instrument(skip(event_bus))]
 pub async fn scan_media_library(
     directory: String,
-    task_id: String,
     event_bus: Arc<EventBus>,
     parser_addr: Data<Addr<ParserActor>>,
 ) -> Result<MediaLibrary> {
@@ -22,7 +21,7 @@ pub async fn scan_media_library(
 
     // TODO: move complex logic in the scanner into domain layer
     match parser_addr
-        .send(ScanMediaLibrary(directory, task_id, event_bus))
+        .send(ScanMediaLibrary(directory, event_bus))
         .await
     {
         Ok(result) => result,

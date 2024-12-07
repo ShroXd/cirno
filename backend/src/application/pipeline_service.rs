@@ -1,13 +1,13 @@
 use actix::{spawn, Addr};
 use anyhow::*;
 use std::{result::Result::Ok, sync::Arc};
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::RwLock;
 use tracing::*;
 
 use crate::{
     domain::{
         pipeline::{builder::build_pipeline, model::Position, ports::PipelinePort},
-        websocket::event::WebSocketEvent,
+        websocket::event::WebSocketEventType,
     },
     infrastructure::{
         event_bus::{domain_event::DomainEvent, event_bus::EventBus},
@@ -33,7 +33,7 @@ impl PipelineService {
             let mut subscription = event_bus_clone.subscribe();
             while let Ok(event) = subscription.recv().await {
                 match event {
-                    (DomainEvent::WebSocket(WebSocketEvent::RegisterClient { key }), _) => {
+                    DomainEvent::WebSocket(WebSocketEventType::RegisterClient(key)) => {
                         debug!("Registering client to pipeline service with key: {}", key);
                         ws_client_key_clone.write().await.push(key);
                     }

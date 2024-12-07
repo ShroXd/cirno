@@ -15,11 +15,7 @@ use crate::{
 };
 
 #[instrument(skip(event_bus))]
-pub fn scan_media_library(
-    root_dir: &Path,
-    task_id: String,
-    event_bus: Arc<EventBus>,
-) -> MediaLibrary {
+pub fn scan_media_library(root_dir: &Path, event_bus: Arc<EventBus>) -> MediaLibrary {
     debug!("Scanning media library in: {:?}", root_dir);
 
     let series_dirs: Vec<PathBuf> = WalkDir::new(root_dir)
@@ -39,10 +35,9 @@ pub fn scan_media_library(
         .collect();
     debug!("Found {} series directories", series_dirs.len());
 
-    event_bus.publish(
-        DomainEvent::General(GeneralEvent::TaskProgressUpdated { progress: 50.0 }),
-        task_id,
-    );
+    event_bus.publish(DomainEvent::General(GeneralEvent::TaskProgressUpdated {
+        progress: 50.0,
+    }));
 
     let series_data: Vec<TvShow> = series_dirs
         .par_iter()

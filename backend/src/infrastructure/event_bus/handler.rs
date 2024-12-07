@@ -113,7 +113,7 @@ impl EventHandlerConfig {
 
 pub type EventMatcher = Arc<dyn Fn(&DomainEvent) -> bool + Send + Sync + 'static>;
 pub type HandlerFn = Arc<
-    dyn Fn(DomainEvent, String, Arc<EventBus>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>>
+    dyn Fn(DomainEvent, Arc<EventBus>) -> Pin<Box<dyn Future<Output = Result<()>> + Send>>
         + Send
         + Sync,
 >;

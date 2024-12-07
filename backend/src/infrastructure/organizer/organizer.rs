@@ -24,14 +24,14 @@ impl Actor for ParserActor {
 
 #[derive(Message)]
 #[rtype(result = "Result<MediaLibrary, Error>")]
-pub struct ScanMediaLibrary(pub String, pub String, pub Arc<EventBus>);
+pub struct ScanMediaLibrary(pub String, pub Arc<EventBus>);
 
 impl Handler<ScanMediaLibrary> for ParserActor {
     type Result = Result<MediaLibrary, Error>;
 
     fn handle(&mut self, msg: ScanMediaLibrary, _: &mut Self::Context) -> Self::Result {
         let root_dir = Path::new(&msg.0);
-        let media_library = scan_media_library(root_dir, msg.1, msg.2);
+        let media_library = scan_media_library(root_dir, msg.1);
         // TODO: insert into database
         Ok(media_library)
     }
