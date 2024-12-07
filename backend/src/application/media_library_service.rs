@@ -6,6 +6,7 @@ use tracing::*;
 
 use crate::{
     application::media_item_service::insert_media_item,
+    chain_events,
     domain::media_library::{
         constant::SENTINEL_MEDIA_LIBRARY_ID, event::MediaLibraryEventType,
         media_library::create_media_library, task::MediaLibraryScanTask,
@@ -57,83 +58,50 @@ pub async fn create_media_library_service(
         }
     };
 
-    event_bus
-        .on(
-            |event| {
-                matches!(
-                    event,
-                    DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(_)),
-                )
-            },
-            move |event, task_id, event_bus| {
+    chain_events!(
+        event_bus,
+        {
+            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(_)),
+            handler: move |event, task_id, event_bus| {
                 let database_addr = database_addr.clone();
                 let media_library_id = media_library_id.clone();
-
                 async move {
-                    debug!(
-                        "Processing media library scanned event with task id: {}",
-                        task_id
-                    );
-
-                    // TODO: Update task progress
-                    if let DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(
-                        media_library,
-                    )) = event
-                    {
+                    if let DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(media_library)) = event {
                         for media_item in media_library.tv_show {
                             debug!("Processing media item: {:?}", media_item.title);
                             insert_media_item(media_library_id, media_item, database_addr.clone())
                                 .await
                                 .inspect_err(|e| error!("Failed to insert media item: {:?}", e))?;
                         }
-
-                        debug!("Publishing media library saved event");
-                        event_bus
-                            .publish(
-                                DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved),
-                                task_id,
-                            )
-                            .inspect_err(|e| error!("Failed to publish event: {:?}", e))?;
+                        event_bus.publish(
+                            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved),
+                            task_id,
+                        )?;
                     }
-
                     Ok(())
                 }
             },
-            EventHandlerConfig::one_time(),
-        )
-        .await;
-
-    event_bus
-        .on(
-            |event| {
-                matches!(
-                    event,
-                    DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved)
-                )
-            },
-            move |_, task_id, _| {
+            config: EventHandlerConfig::one_time()
+        },
+        {
+            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved),
+            handler: move |_, task_id, _| {
                 let ws_connection_clone = ws_connection.clone();
                 async move {
-                    debug!(
-                        "Sending media library saved notification for library {} with task {}",
-                        media_library_id, task_id
-                    );
                     ws_connection_clone
-                        .try_send(Notification::MediaLibraryScanned(media_library_id, task_id))
-                        .inspect_err(|e| error!("Failed to send notification: {:?}", e))?;
-
+                        .try_send(Notification::MediaLibraryScanned(media_library_id, task_id))?;
                     Ok(())
                 }
             },
-            EventHandlerConfig::with_exponential_retry(
+            config: EventHandlerConfig::with_exponential_retry(
                 Duration::from_secs(1),
                 Duration::from_secs(10),
                 3,
                 2.0,
                 0.5,
-            ),
-        )
-        .await;
+            )
+        }
+    );
 
     let mut task = MediaLibraryScanTask::new(directory_clone, parser_addr.into_inner());
     task.set_ws_client_id(ws_client_key.clone());
