@@ -5,10 +5,7 @@ use std::{result::Result::Ok, sync::Arc};
 
 use super::event::MediaLibraryEventType;
 use crate::infrastructure::{
-    event_bus::{
-        event_bus::{DomainEvent, EventBus},
-        model::GeneralEvent,
-    },
+    event_bus::{domain_event::DomainEvent, event_bus::EventBus, model::GeneralEvent},
     organizer::organizer::{ParserActor, ScanMediaLibrary},
     task_pool::model::AsyncTask,
 };

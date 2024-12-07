@@ -15,22 +15,17 @@ use tokio::{
 use tracing::*;
 
 use super::{
+    domain_event::DomainEvent,
     handler::{EventHandler, EventHandlerConfig},
     model::GeneralEvent,
 };
-use crate::domain::{
-    media_library::event::MediaLibraryEventType, pipeline::event::PipelineEvent,
-    websocket::event::WebSocketEvent,
+use crate::{
+    domain::{
+        media_library::event::MediaLibraryEventType, pipeline::event::PipelineEvent,
+        websocket::event::WebSocketEvent,
+    },
+    interfaces::ws::notification::{IntoNotification, Notification, NotificationType},
 };
-
-#[derive(Debug, Clone)]
-pub enum DomainEvent {
-    General(GeneralEvent),
-    MediaLibrary(MediaLibraryEventType),
-    Pipeline(PipelineEvent),
-    WebSocket(WebSocketEvent),
-}
-
 #[derive(Clone)]
 pub struct EventBus {
     tx: broadcast::Sender<(DomainEvent, String)>, // (event, task id)

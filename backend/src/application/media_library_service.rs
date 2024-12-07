@@ -1,7 +1,7 @@
 use actix::Addr;
 use actix_web::web::Data;
-use anyhow::*;
-use std::{result::Result::Ok, sync::Arc, time::Duration};
+use anyhow::{Ok, *};
+use std::{sync::Arc, time::Duration};
 use tracing::*;
 
 use crate::{
@@ -13,10 +13,7 @@ use crate::{
     },
     infrastructure::{
         database::database::Database,
-        event_bus::{
-            event_bus::{DomainEvent, EventBus},
-            handler::EventHandlerConfig,
-        },
+        event_bus::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
         organizer::organizer::ParserActor,
         task_pool::{
             model::{AsyncTask, TaskType},
@@ -25,7 +22,7 @@ use crate::{
     },
     interfaces::{
         http_api::controllers::api_models::{CreateMediaLibraryResponse, SaveMediaLibraryPayload},
-        ws::{actor::Notification, utils::WsConnections},
+        ws::utils::WsConnections,
     },
 };
 
@@ -74,7 +71,7 @@ pub async fn create_media_library_service(
                                 .inspect_err(|e| error!("Failed to insert media item: {:?}", e))?;
                         }
                         event_bus.publish(
-                            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved),
+                            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved(media_library_id)),
                             task_id,
                         )?;
                     }
@@ -84,12 +81,11 @@ pub async fn create_media_library_service(
             config: EventHandlerConfig::one_time()
         },
         {
-            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved),
-            handler: move |_, task_id, _| {
+            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved(_)),
+            handler: move |event, _, _| {
                 let ws_connection_clone = ws_connection.clone();
                 async move {
-                    ws_connection_clone
-                        .try_send(Notification::MediaLibraryScanned(media_library_id, task_id))?;
+                    event.send_notification::<serde_json::Value>(ws_connection_clone);
                     Ok(())
                 }
             },

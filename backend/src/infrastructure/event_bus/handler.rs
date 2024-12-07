@@ -8,7 +8,8 @@ use std::{
 use tracing::*;
 
 use super::{
-    event_bus::{DomainEvent, EventBus},
+    domain_event::DomainEvent,
+    event_bus::EventBus,
     retry::{ExponentialRetryStrategy, FixedRetryStrategy, RetryStrategy},
 };
 
@@ -41,6 +42,33 @@ impl EventHandlerConfig {
         }
     }
 
+    /// Creates an event handler configuration with exponential backoff retry strategy
+    ///
+    /// ## Arguments
+    ///
+    /// * `initial_delay` - Initial delay between retries
+    /// * `max_delay` - Maximum delay between retries
+    /// * `max_attempts` - Maximum number of retry attempts
+    /// * `multiplier` - Factor to multiply delay by after each attempt
+    /// * `jitter` - Random factor to add to delay (0.0-1.0)
+    ///
+    /// ## Returns
+    ///
+    /// Returns an EventHandlerConfig with exponential retry strategy configured
+    ///
+    /// ## Example
+    ///
+    /// ```
+    /// use std::time::Duration;
+    ///
+    /// let config = EventHandlerConfig::with_exponential_retry(
+    ///     Duration::from_secs(1),    // Start with 1 second delay
+    ///     Duration::from_secs(30),   // Max delay of 30 seconds
+    ///     3,                         // Retry up to 3 times
+    ///     2.0,                       // Double the delay each time
+    ///     0.1                        // Add up to 10% random jitter
+    /// );
+    /// ```
     #[instrument]
     pub fn with_exponential_retry(
         initial_delay: Duration,

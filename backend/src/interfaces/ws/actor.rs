@@ -8,12 +8,12 @@ use tracing::*;
 use ts_rs::TS;
 use uuid::Uuid;
 
-use super::utils::WsConnections;
+use super::{notification::Notification, utils::WsConnections};
 use crate::{
     domain::websocket::event::WebSocketEvent,
     infrastructure::{
         database::database::Database,
-        event_bus::event_bus::{DomainEvent, EventBus},
+        event_bus::{domain_event::DomainEvent, event_bus::EventBus},
         organizer::organizer::ParserActor,
         pipeline::{actor::PipelineAction, pipeline::Pipeline},
         task_pool::task_pool::TaskPool,
@@ -173,34 +173,22 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[derive(Debug, Serialize, Deserialize, Message)]
 #[rtype(result = "()")]
-#[ts(export)]
-pub enum Notification {
-    MediaLibraryScanned(i64, String), // (media_library_id, task_id)
-}
+pub struct SendNotification<T>(pub Notification<T>);
 
-impl Handler<Notification> for WebSocketActor {
+impl<T> Handler<SendNotification<T>> for WebSocketActor
+where
+    T: Serialize,
+{
     type Result = ();
 
-    fn handle(&mut self, msg: Notification, ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: SendNotification<T>, ctx: &mut Self::Context) -> Self::Result {
         match msg {
-            Notification::MediaLibraryScanned(media_library_id, task_id) => {
-                info!(
-                    "Media library scan complete for library: {:?}",
-                    media_library_id
-                );
-
-                match to_string(&EventMessage {
-                    event: EventName::MediaLibraryScanned,
-                    payload: Notification::MediaLibraryScanned(media_library_id, task_id),
-                }) {
-                    Ok(message) => {
-                        ctx.text(message);
-                    }
-                    Err(e) => error!("Failed to serialize notification: {:?}", e),
-                }
-            }
+            SendNotification(notification) => match to_string(&notification) {
+                Ok(message) => ctx.text(message),
+                Err(e) => error!("Failed to serialize notification: {:?}", e),
+            },
         }
     }
 }

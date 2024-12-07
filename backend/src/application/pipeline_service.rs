@@ -10,7 +10,7 @@ use crate::{
         websocket::event::WebSocketEvent,
     },
     infrastructure::{
-        event_bus::event_bus::{DomainEvent, EventBus},
+        event_bus::{domain_event::DomainEvent, event_bus::EventBus},
         pipeline::{actor::PipelineAction, pipeline::Pipeline},
     },
 };
