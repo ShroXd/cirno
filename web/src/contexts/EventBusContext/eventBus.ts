@@ -4,7 +4,7 @@ export type EventHandler = (payload: unknown) => void
 
 // TODO: 1. async tasks
 
-export type AllEvents = EventName
+export type AllEvents = EventName | Notification
 
 export type EventBusType = {
   on: (event: AllEvents, handler: EventHandler) => void

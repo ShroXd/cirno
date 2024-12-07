@@ -35,6 +35,12 @@ export const WebSocketProvider: FC<WebSocketProviderProps> = ({ children }) => {
           payload: data.payload,
         })
         break
+      case 'MediaLibraryScanned':
+        sendMessage({
+          event: 'MediaLibraryScanned',
+          payload: data.payload,
+        })
+        break
     }
   }
 
