@@ -1,7 +1,7 @@
 import { createContext, FC, ReactNode, useState } from 'react'
 import { NotificationItem } from '../components/NotificationItem/NotificationItem'
 
-export type NotificationType = {
+export type NotificationModel = {
   id: string
   message: string
   title?: string
@@ -11,7 +11,7 @@ export type NotificationType = {
 }
 
 interface NotificationContextProps {
-  addNotification: (notification: Omit<NotificationType, 'id'>) => string // id of the notification
+  addNotification: (notification: Omit<NotificationModel, 'id'>) => string // id of the notification
   removeNotification: (id: string) => void
 }
 
@@ -23,9 +23,9 @@ export const NotificationContext = createContext<NotificationContextProps>({
 export const NotificationProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [notifications, setNotifications] = useState<NotificationType[]>([])
+  const [notifications, setNotifications] = useState<NotificationModel[]>([])
 
-  const addNotification = (notification: Omit<NotificationType, 'id'>) => {
+  const addNotification = (notification: Omit<NotificationModel, 'id'>) => {
     const id = crypto.randomUUID()
     setNotifications([...notifications, { id, ...notification }])
     return id

@@ -1,4 +1,4 @@
-use actix_web::{HttpRequest, HttpResponse};
+use actix_web::HttpRequest;
 use anyhow::Result;
 use gstreamer::{Element, ElementFactory as GstElementFactory};
 use std::path::Path;

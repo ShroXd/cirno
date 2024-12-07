@@ -2,7 +2,7 @@ import { createContext, FC, ReactNode, useEffect, useState } from 'react'
 import axios, { AxiosInstance } from 'axios'
 
 import { useEventBus } from '../hooks/useEventBus'
-import { isRegisterClientPayload } from '../utils/typeGuards'
+import { isWebSocketEventType } from '../utils/typeGuards'
 
 export interface AxiosContextProps {
   axiosInstance: AxiosInstance
@@ -19,8 +19,8 @@ export const AxiosProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const { listenForMessages } = useEventBus()
   listenForMessages('RegisterClient', (payload: unknown) => {
-    if (isRegisterClientPayload(payload)) {
-      setWsClientKey(payload.key)
+    if (isWebSocketEventType(payload)) {
+      setWsClientKey(payload.RegisterClient)
     }
   })
 
@@ -37,11 +37,6 @@ export const AxiosProvider: FC<{ children: ReactNode }> = ({ children }) => {
       })
     }
   }, [wsClientKey, axiosInstance.interceptors.request])
-
-  // axiosInstance.interceptors.request.use(request => {
-  //   request.headers['X-WS-CLIENT-KEY'] = 'hello world'
-  //   return request
-  // })
 
   axiosInstance.interceptors.response.use(
     response => response,

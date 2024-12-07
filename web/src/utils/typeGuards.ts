@@ -1,14 +1,15 @@
-import { RegisterClient } from '../bindings/RegisterClient'
-import { EventMessage } from '../bindings/EventMessage'
+import { Notification } from '../bindings/Notification'
+import { WebSocketEventType } from '../bindings/WebSocketEventType'
 
-export const isEventMessage = (
-  data: unknown
-): data is EventMessage<unknown> => {
-  return typeof data === 'object' && data !== null && 'event' in data
-}
-
-export const isRegisterClientPayload = (
+export const isWebSocketEventType = (
   payload: unknown
-): payload is RegisterClient => {
-  return typeof payload === 'object' && payload !== null && 'key' in payload
-}
+): payload is WebSocketEventType =>
+  typeof payload === 'object' && payload !== null && 'RegisterClient' in payload
+
+export const isNotification = (
+  payload: unknown
+): payload is Notification<unknown> =>
+  typeof payload === 'object' &&
+  payload !== null &&
+  'event' in payload &&
+  'payload' in payload

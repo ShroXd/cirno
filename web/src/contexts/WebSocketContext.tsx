@@ -1,7 +1,7 @@
 import { createContext, FC } from 'react'
 
 import { useEventBus } from '../hooks/useEventBus'
-import { isEventMessage } from '../utils/typeGuards'
+import { isNotification } from '../utils/typeGuards'
 
 // NOTE: During development mode, React renders components twice for strict mode enforcement.
 // This can lead to the creation of multiple WebSocket clients, causing issues with backend negotiation.
@@ -25,7 +25,7 @@ export const WebSocketProvider: FC<WebSocketProviderProps> = ({ children }) => {
     // NOTE: rs_ts converts Rust enums into string literal union types in TypeScript.
     // This makes it difficult to ensure type safety and clean code when using these types directly.
     // To solve this, we use type guards to enable proper type inference in the event handling process.
-    if (!isEventMessage(data)) {
+    if (!isNotification(data)) {
       return
     }
     switch (data.event) {

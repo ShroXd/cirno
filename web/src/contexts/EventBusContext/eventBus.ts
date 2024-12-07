@@ -1,15 +1,15 @@
-import { EventName } from '../../bindings/EventName'
+import { NotificationType } from '../../bindings/NotificationType'
 
 export type EventHandler = (payload: unknown) => void
 
 // TODO: 1. async tasks
 
-export type AllEvents = EventName | Notification
+export type EventType = NotificationType
 
 export type EventBusType = {
-  on: (event: AllEvents, handler: EventHandler) => void
-  off: (event: AllEvents, handler: EventHandler) => void
-  emit: (event: AllEvents, payload: unknown) => void
+  on: (event: EventType, handler: EventHandler) => void
+  off: (event: EventType, handler: EventHandler) => void
+  emit: (event: EventType, payload: unknown) => void
 }
 
 /**
@@ -18,15 +18,15 @@ export type EventBusType = {
  * @returns {Object} Event bus methods {on, off, emit}
  */
 export const createEventBus = (): EventBusType => {
-  const registry = new Map<AllEvents, EventHandler[]>()
+  const registry = new Map<EventType, EventHandler[]>()
 
-  const on = (event: AllEvents, handler: EventHandler) => {
+  const on = (event: EventType, handler: EventHandler) => {
     const eventHandlers = registry.get(event) || []
     eventHandlers.push(handler)
     registry.set(event, eventHandlers)
   }
 
-  const off = (event: AllEvents, handler: EventHandler) => {
+  const off = (event: EventType, handler: EventHandler) => {
     const eventHandlers = registry.get(event) || []
     registry.set(
       event,
@@ -34,7 +34,7 @@ export const createEventBus = (): EventBusType => {
     )
   }
 
-  const emit = (event: AllEvents, payload: unknown) => {
+  const emit = (event: EventType, payload: unknown) => {
     const eventHandlers = registry.get(event) || []
     eventHandlers.forEach(handler => handler(payload))
   }

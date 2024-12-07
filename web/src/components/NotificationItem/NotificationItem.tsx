@@ -1,10 +1,10 @@
 import { XMarkIcon } from '@heroicons/react/16/solid'
 import { IconButton } from '@material-tailwind/react'
 import { useEffect } from 'react'
-import { NotificationType } from '../../contexts/NotificationContext'
+import { NotificationModel } from '../../contexts/NotificationContext'
 
 export type NotificationItemProps = {
-  notification: NotificationType
+  notification: NotificationModel
   onRemove: (id: string) => void
 }
 

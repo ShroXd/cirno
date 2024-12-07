@@ -4,9 +4,8 @@ use actix_web::{
 };
 use tracing::*;
 
-use crate::{application::pipeline_service::PipelineService, shared::utils::extract_ws_client_key};
-
 use super::api_models::PlayVideoWithPathPayload;
+use crate::{application::pipeline_service::PipelineService, shared::utils::extract_ws_client_key};
 
 #[instrument(skip(req, pipeline_service))]
 pub async fn play_video_with_path_controller(
