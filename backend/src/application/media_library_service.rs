@@ -37,6 +37,7 @@ pub async fn create_media_library_service(
     ws_client_key: String,
 ) -> Result<CreateMediaLibraryResponse> {
     let directory_clone = payload.directory.clone();
+    let media_library_name = payload.name.clone();
     let database_addr = database_addr.into_inner();
 
     let media_library_id = create_media_library(payload, database_addr.clone()).await?;
@@ -62,6 +63,8 @@ pub async fn create_media_library_service(
             handler: move |event, event_bus| {
                 let database_addr = database_addr.clone();
                 let media_library_id = media_library_id.clone();
+                let media_library_name = media_library_name.clone();
+
                 async move {
                     if let DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(media_library)) = event {
                         for media_item in media_library.tv_show {
@@ -70,9 +73,10 @@ pub async fn create_media_library_service(
                                 .await
                                 .inspect_err(|e| error!("Failed to insert media item: {:?}", e))?;
                         }
-                        event_bus.publish(
-                            DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved(media_library_id)),
-                        )?;
+                        event_bus.publish(DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved {
+                            media_library_id,
+                            media_library_name,
+                        }))?;
                     }
                     Ok(())
                 }
@@ -80,7 +84,7 @@ pub async fn create_media_library_service(
             config: EventHandlerConfig::one_time()
         },
         {
-            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved(_)),
+            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved { .. }),
             handler: move |event, _| {
                 let ws_connection_clone = ws_connection.clone();
                 async move {

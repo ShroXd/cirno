@@ -53,5 +53,8 @@
       "rating": "评分",
       "episode_number": "集数"
     }
+  },
+  "notification": {
+    "mediaLibrarySaved": "已保存媒体库：{{mediaLibraryName}}"
   }
 }

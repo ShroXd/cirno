@@ -26,9 +26,22 @@ impl IntoNotification for DomainEvent {
     type Payload = serde_json::Value;
     fn into_notification(self) -> Notification<Self::Payload> {
         match self {
-            DomainEvent::MediaLibrary(payload) => Notification {
-                event: NotificationType::MediaLibraryScanned,
-                payload: Some(serde_json::to_value(payload).unwrap()),
+            DomainEvent::MediaLibrary(event) => match event {
+                MediaLibraryEventType::MediaLibrarySaved {
+                    media_library_id,
+                    media_library_name,
+                } => {
+                    let payload = serde_json::json!({
+                        "media_library_id": media_library_id,
+                        "media_library_name": media_library_name,
+                    });
+
+                    Notification {
+                        event: NotificationType::MediaLibrarySaved,
+                        payload: Some(payload),
+                    }
+                }
+                _ => unimplemented!(),
             },
             DomainEvent::WebSocket(payload) => Notification {
                 event: NotificationType::RegisterClient,

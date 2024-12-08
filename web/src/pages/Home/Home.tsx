@@ -9,18 +9,24 @@ import { Favorites } from '../Favorites/Favorites'
 import { Video } from '../Video/VIdeo'
 import { useNotification } from '../../hooks/useNotification'
 import { useEventBus } from '../../hooks/useEventBus'
+import { useTranslation } from 'react-i18next'
 
 export const Home = () => {
   const { addNotification } = useNotification()
-  const { listenForMessages } = useEventBus()
+  const { onEvent } = useEventBus()
+  const { t } = useTranslation()
 
   useEffect(() => {
-    listenForMessages('MediaLibraryScanned', (payload: unknown) => {
+    onEvent('MediaLibrarySaved', (payload: unknown) =>
       addNotification({
-        message: `Media library scanned: ${(payload as Array<unknown>)[1]}`,
+        message: t('notification.mediaLibrarySaved', {
+          mediaLibraryName: (payload as Record<string, unknown>)[
+            'media_library_name'
+          ],
+        }),
       })
-    })
-  }, [listenForMessages, addNotification])
+    )
+  }, [onEvent, addNotification, t])
 
   return (
     <>

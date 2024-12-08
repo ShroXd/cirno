@@ -53,5 +53,8 @@
       "rating": "Rating",
       "episode_number": "Episode Number"
     }
+  },
+  "notification": {
+    "mediaLibrarySaved": "Media library saved: {{mediaLibraryName}}"
   }
 }

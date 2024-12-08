@@ -1,8 +1,8 @@
 import { createContext, FC, ReactNode, useEffect, useState } from 'react'
 import axios, { AxiosInstance } from 'axios'
 
-import { useEventBus } from '../hooks/useEventBus'
-import { isWebSocketEventType } from '../utils/typeGuards'
+import { useEventBus } from '../../hooks/useEventBus'
+import { isWebSocketEventType } from './utils'
 
 export interface AxiosContextProps {
   axiosInstance: AxiosInstance
@@ -17,7 +17,7 @@ export const AxiosProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // const [authToken, setAuthToken] = useState<string | null>(null)
   const [wsClientKey, setWsClientKey] = useState<string | null>(null)
 
-  const { listenForMessages } = useEventBus()
+  const { onEvent: listenForMessages } = useEventBus()
   listenForMessages('RegisterClient', (payload: unknown) => {
     if (isWebSocketEventType(payload)) {
       setWsClientKey(payload.RegisterClient)

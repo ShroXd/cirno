@@ -53,5 +53,8 @@
       "rating": "評価",
       "episode_number": "エピソード番号"
     }
+  },
+  "notification": {
+    "mediaLibrarySaved": "メディアライブラリが保存されました: {{mediaLibraryName}}"
   }
 }

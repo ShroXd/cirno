@@ -5,7 +5,7 @@ use ts_rs::TS;
 #[ts(export)]
 pub enum NotificationType {
     RegisterClient,
-    MediaLibraryScanned,
+    MediaLibrarySaved,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

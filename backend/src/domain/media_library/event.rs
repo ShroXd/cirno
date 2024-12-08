@@ -7,5 +7,8 @@ use super::model::MediaLibrary;
 #[ts(export)]
 pub enum MediaLibraryEventType {
     MediaLibraryScanned(MediaLibrary),
-    MediaLibrarySaved(i64), // media library id
+    MediaLibrarySaved {
+        media_library_id: i64,
+        media_library_name: String,
+    },
 }
