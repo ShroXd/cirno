@@ -1,4 +1,4 @@
-import { createContext, FC, ReactNode, useState } from 'react'
+import { createContext, FC, ReactNode, useCallback, useState } from 'react'
 import { NotificationItem } from '../components/NotificationItem/NotificationItem'
 
 export type NotificationModel = {
@@ -7,7 +7,7 @@ export type NotificationModel = {
   title?: string
   type?: 'success' | 'error' | 'info' | 'warning' | (string & {})
   duration?: number
-  onRemove?: () => void
+  onRemove?: (id: string) => void
 }
 
 interface NotificationContextProps {
@@ -31,23 +31,18 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({
     return id
   }
 
-  const removeNotification = (id: string) => {
+  const removeNotification = useCallback((id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id))
-  }
+  }, [])
 
   return (
     <NotificationContext.Provider
       value={{ addNotification, removeNotification }}
     >
       {children}
-
-      <div className='fixed bottom-0 right-0 w-full max-w-md p-4'>
+      <div className='fixed top-0 right-0 w-full max-w-md p-4'>
         {notifications.map(n => (
-          <NotificationItem
-            key={n.id}
-            notification={n}
-            onRemove={() => removeNotification(n.id)}
-          />
+          <NotificationItem {...n} key={n.id} onRemove={removeNotification} />
         ))}
       </div>
     </NotificationContext.Provider>
