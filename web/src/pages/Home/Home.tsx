@@ -31,7 +31,9 @@ export const Home = () => {
 
   const testNotification = () => {
     addNotification({
-      message: 'test',
+      title: 'test title',
+      message:
+        'This is a longer test message that demonstrates the notification system. It shows how notifications can display multiple lines of text and handle longer content gracefully.',
     })
   }
 
