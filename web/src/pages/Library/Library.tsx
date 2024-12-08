@@ -1,9 +1,11 @@
-import { ReactNode, useCallback } from 'react'
+import { ReactNode, useCallback, useEffect } from 'react'
 import { Typography } from '@material-tailwind/react'
 import { NavLink } from 'react-router-dom'
 
 import { MediaItemDto } from '../../bindings/MediaItemDto'
 import { useFetch } from '../../hooks/useFetch'
+import { useEventBus } from '../../hooks/useEventBus'
+import { mutate } from 'swr'
 
 export const Library = () => {
   const { data, error, isLoading } = useFetch<MediaItemDto[]>(
@@ -19,6 +21,14 @@ export const Library = () => {
     ),
     []
   )
+
+  const { onEvent } = useEventBus()
+
+  useEffect(() => {
+    onEvent('MediaLibrarySaved', () => {
+      mutate('/media-libraries/media-items')
+    })
+  }, [onEvent])
 
   if (isLoading) {
     const skeletons = Array.from({ length: 10 }, (_, i) => (

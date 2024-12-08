@@ -10,7 +10,6 @@ import { Video } from '../Video/VIdeo'
 import { useNotification } from '../../hooks/useNotification'
 import { useEventBus } from '../../hooks/useEventBus'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@material-tailwind/react'
 
 export const Home = () => {
   const { addNotification } = useNotification()
@@ -20,7 +19,8 @@ export const Home = () => {
   useEffect(() => {
     onEvent('MediaLibrarySaved', (payload: unknown) =>
       addNotification({
-        message: t('notification.mediaLibrarySaved', {
+        title: t('notification.mediaLibrarySaved.title'),
+        message: t('notification.mediaLibrarySaved.message', {
           mediaLibraryName: (payload as Record<string, unknown>)[
             'media_library_name'
           ],
@@ -29,21 +29,12 @@ export const Home = () => {
     )
   }, [onEvent, addNotification, t])
 
-  const testNotification = () => {
-    addNotification({
-      title: 'test title',
-      message:
-        'This is a longer test message that demonstrates the notification system. It shows how notifications can display multiple lines of text and handle longer content gracefully.',
-    })
-  }
-
   return (
     <>
       <div className='flex h-screen w-screen px-1 py-1'>
         <Sidebar />
 
         <div className='ml-6 h-full w-auto'>
-          <Button onClick={testNotification}>test</Button>
           <Routes>
             <Route path='/' element={<Library />} />
             <Route path='/settings' element={<Settings />} />

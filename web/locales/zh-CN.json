@@ -55,6 +55,9 @@
     }
   },
   "notification": {
-    "mediaLibrarySaved": "已保存媒体库：{{mediaLibraryName}}"
+    "mediaLibrarySaved": {
+      "title": "媒体整理完成",
+      "message": "我们已经为您成功整理了“{{mediaLibraryName}}”，所有内容都一目了然！"
+    }
   }
 }

@@ -55,6 +55,9 @@
     }
   },
   "notification": {
-    "mediaLibrarySaved": "Media library saved: {{mediaLibraryName}}"
+    "mediaLibrarySaved": {
+      "title": "Media Library Organized",
+      "message": "We have successfully organized your “{{mediaLibraryName}}”. All content is now easy to find!"
+    }
   }
 }

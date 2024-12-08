@@ -55,6 +55,9 @@
     }
   },
   "notification": {
-    "mediaLibrarySaved": "メディアライブラリが保存されました: {{mediaLibraryName}}"
+    "mediaLibrarySaved": {
+      "title": "メディア整理完了",
+      "message": "「{{mediaLibraryName}}」の内容を整理しました。すべての情報が一目瞭然です！"
+    }
   }
 }
