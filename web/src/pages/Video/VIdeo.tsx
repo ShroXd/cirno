@@ -30,11 +30,7 @@ export const Video = () => {
     if (location.state?.episode) {
       initializePlayer()
     }
-  }, [location.state?.episode, post])
+  }, [])
 
-  return (
-    <div className='aspect-w-16 aspect-h-9'>
-      <VideoPlayer options={videoJsOptions} />
-    </div>
-  )
+  return <VideoPlayer options={videoJsOptions} />
 }

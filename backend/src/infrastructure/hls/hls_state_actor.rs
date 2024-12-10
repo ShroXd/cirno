@@ -1,15 +1,15 @@
+use super::stream::HlsStream;
+use crate::infrastructure::pipeline::pipeline::Pipeline;
 use actix::{Actor, Addr, AsyncContext, Context, Handler, Message};
 use anyhow::*;
 use std::collections::HashMap;
-
-use super::stream::HlsStream;
-use crate::infrastructure::pipeline::pipeline::Pipeline;
+use std::sync::atomic::AtomicU32;
 
 pub struct HlsStateActor {
     // path -> playlist stream
     streams: HashMap<String, HlsStream>,
     pipeline_addr: Option<Addr<Pipeline>>,
-    segment_index: u32,
+    segment_index: AtomicU32,
     pipeline_duration: Option<u64>,
     segment_duration: Option<u64>,
 }
@@ -23,7 +23,7 @@ impl HlsStateActor {
         Self {
             pipeline_addr: None,
             streams: HashMap::new(),
-            segment_index: 0,
+            segment_index: AtomicU32::new(0),
             pipeline_duration: None,
             segment_duration: None,
         }
@@ -74,16 +74,30 @@ impl Handler<GetPipelineAddr> for HlsStateActor {
 }
 
 #[derive(Debug, Message)]
-#[rtype(result = "Result<u32>")]
-pub struct GetAndIncrementSegmentIndex;
+#[rtype(result = "Result<()>")]
+pub struct IncrementSegmentIndex;
 
-impl Handler<GetAndIncrementSegmentIndex> for HlsStateActor {
+impl Handler<IncrementSegmentIndex> for HlsStateActor {
+    type Result = Result<()>;
+
+    fn handle(&mut self, _: IncrementSegmentIndex, _: &mut Self::Context) -> Self::Result {
+        self.segment_index
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Ok(())
+    }
+}
+
+#[derive(Debug, Message)]
+#[rtype(result = "Result<u32>")]
+pub struct GetSegmentIndex;
+
+impl Handler<GetSegmentIndex> for HlsStateActor {
     type Result = Result<u32>;
 
-    fn handle(&mut self, _: GetAndIncrementSegmentIndex, _: &mut Self::Context) -> Self::Result {
-        let current = self.segment_index;
-        self.segment_index += 1;
-        Ok(current)
+    fn handle(&mut self, _: GetSegmentIndex, _: &mut Self::Context) -> Self::Result {
+        Ok(self
+            .segment_index
+            .load(std::sync::atomic::Ordering::Relaxed))
     }
 }
 

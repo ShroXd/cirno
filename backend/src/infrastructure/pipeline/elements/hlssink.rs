@@ -9,7 +9,7 @@ use tracing::*;
 use crate::{
     domain::pipeline::ports::HlsSink,
     infrastructure::hls::hls_state_actor::{
-        GetAndIncrementSegmentIndex, GetPlaylistStream, HlsStateActor,
+        GetPlaylistStream, GetSegmentIndex, HlsStateActor, IncrementSegmentIndex,
     },
 };
 
@@ -51,9 +51,10 @@ impl HlsSink for HlsSinkImpl {
                 let path = Path::new(&path_str);
                 let parent_path = path.parent().expect("Failed to get parent path");
 
-                let index = match Runtime::new().unwrap().block_on(async {
-                    hls_state_actor_addr.send(GetAndIncrementSegmentIndex).await
-                }) {
+                let index = match Runtime::new()
+                    .unwrap()
+                    .block_on(async { hls_state_actor_addr.send(GetSegmentIndex).await })
+                {
                     Ok(Ok(index)) => index,
                     Ok(Err(e)) => {
                         error!("Failed to get segment index: {}", e);
@@ -80,7 +81,15 @@ impl HlsSink for HlsSinkImpl {
                     gio::FileCreateFlags::REPLACE_DESTINATION,
                     gio::Cancellable::NONE,
                 ) {
-                    Ok(stream) => stream,
+                    Ok(stream) => {
+                        match Runtime::new().unwrap().block_on(async {
+                            hls_state_actor_addr.send(IncrementSegmentIndex).await
+                        }) {
+                            Ok(_) => (),
+                            Err(e) => error!("Failed to increment segment index: {}", e),
+                        };
+                        stream
+                    }
                     Err(e) => {
                         error!("Failed to create file: {}", e);
                         return None;

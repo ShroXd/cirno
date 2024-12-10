@@ -2,6 +2,8 @@
 import { useEffect, useRef } from 'react'
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css'
+import './style.css'
+
 import { useWebSocket } from '../../hooks/useWebSocket'
 
 export const VideoPlayer = (props: any) => {
@@ -60,7 +62,7 @@ export const VideoPlayer = (props: any) => {
   }, [playerRef])
 
   return (
-    <div data-vjs-player>
+    <div className='player-container' data-vjs-player>
       <div ref={videoRef} />
     </div>
   )
