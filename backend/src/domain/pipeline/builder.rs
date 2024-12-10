@@ -1,3 +1,4 @@
+use actix::Addr;
 use anyhow::*;
 use gstreamer::prelude::*;
 use std::{result::Result::Ok, sync::Arc};
@@ -7,6 +8,7 @@ use crate::{
     domain::pipeline::ports::{Decoder, HlsSink, Source, StreamBranch},
     infrastructure::{
         event_bus::event_bus::EventBus,
+        hls::hls_state_actor::HlsStateActor,
         pipeline::{
             elements::{
                 branch::{AudioBranch, VideoBranch},
@@ -24,7 +26,10 @@ use crate::{
 // we use a functional approach here. We can migrate to OOP later if
 // state management becomes necessary.
 #[instrument(skip(event_bus))]
-pub fn build_pipeline(event_bus: Arc<EventBus>) -> Result<Pipeline> {
+pub fn build_pipeline(
+    event_bus: Arc<EventBus>,
+    hls_state_actor_addr: Addr<HlsStateActor>,
+) -> Result<Pipeline> {
     debug!("Building pipeline");
 
     let element_factory = Arc::new(ElementFactory);
@@ -53,7 +58,7 @@ pub fn build_pipeline(event_bus: Arc<EventBus>) -> Result<Pipeline> {
     };
     debug!("Audio branch created");
 
-    let hls_sink = match HlsSinkImpl::new() {
+    let hls_sink = match HlsSinkImpl::new(hls_state_actor_addr) {
         Ok(hls_sink) => hls_sink,
         Err(e) => return Err(anyhow::anyhow!("Failed to initialize hls sink: {}", e)),
     };

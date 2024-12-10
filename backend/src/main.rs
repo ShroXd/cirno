@@ -35,9 +35,10 @@ async fn main() -> std::io::Result<()> {
         panic!("Failed to run system: {}", e);
     }
 
-    let pipeline_addr = initializer.get_pipeline_addr();
+    // let pipeline_addr = initializer.get_pipeline_addr();
     let parser_addr = initializer.get_parser_addr();
     let database_addr = initializer.get_database_addr();
+    let hls_state_actor_addr = initializer.get_hls_state_actor_addr();
 
     let event_bus = Arc::new(EventBus::new(100));
     event_bus.start();
@@ -47,7 +48,11 @@ async fn main() -> std::io::Result<()> {
     let ws_connections = WsConnections::default();
 
     // TODO: move this to system initializer
-    let pipeline_service = match PipelineService::new(pipeline_addr.clone(), event_bus.clone()) {
+    let pipeline_service = match PipelineService::new(
+        event_bus.clone(),
+        // pipeline_addr.clone(),
+        hls_state_actor_addr.clone(),
+    ) {
         Ok(service) => service,
         Err(e) => {
             panic!("Failed to initialize pipeline service: {}", e);
@@ -64,13 +69,14 @@ async fn main() -> std::io::Result<()> {
         let mut app = App::new()
             .wrap(Logger::default())
             .wrap(cors)
-            .app_data(web::Data::new(pipeline_addr.clone()))
+            // .app_data(web::Data::new(pipeline_addr.clone()))
             .app_data(web::Data::new(parser_addr.clone()))
             .app_data(web::Data::new(database_addr.clone()))
             .app_data(web::Data::new(ws_connections.clone()))
             .app_data(web::Data::new(task_pool.clone()))
             .app_data(web::Data::new(event_bus.clone()))
             .app_data(web::Data::new(pipeline_service.clone()))
+            .app_data(web::Data::new(hls_state_actor_addr.clone()))
             .configure(interfaces::http_api::routes::init_media_libraries_routes)
             .configure(interfaces::http_api::routes::init_video_player_routes)
             .service(Files::new("/hls", "./tmp").show_files_listing())

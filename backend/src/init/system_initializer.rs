@@ -12,6 +12,7 @@ use crate::{
     infrastructure::{
         database::database::Database,
         event_bus::event_bus::EventBus,
+        hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
         organizer::organizer::ParserActor,
         pipeline::{
             elements::{
@@ -29,12 +30,12 @@ use crate::{
 
 pub struct SystemInitializer {
     element_factory: Arc<ElementFactory>,
-    hls_sink: Arc<HlsSinkImpl>,
 
     // Actor addresses
     pipeline_addr: Option<Addr<Pipeline>>,
     parser_addr: Option<Addr<ParserActor>>,
     database_addr: Option<Addr<Database>>,
+    hls_state_actor_addr: Option<Addr<HlsStateActor>>,
 }
 
 impl SystemInitializer {
@@ -48,23 +49,21 @@ impl SystemInitializer {
         // TODO: remove this
         let element_factory = Arc::new(ElementFactory);
 
-        let hls_sink = match HlsSinkImpl::new() {
-            Ok(hls_sink) => hls_sink,
-            Err(e) => return Err(anyhow::anyhow!("Failed to initialize hls sink: {}", e)),
-        };
-
         Ok(Self {
             element_factory,
-            hls_sink: Arc::new(hls_sink),
             pipeline_addr: None,
             parser_addr: None,
             database_addr: None,
+            hls_state_actor_addr: None,
         })
     }
 
     #[instrument(skip(self))]
     pub fn get_pipeline_addr(&self) -> Addr<Pipeline> {
-        app_state::get_pipeline_addr()
+        match self.pipeline_addr.clone() {
+            Some(addr) => addr,
+            None => panic!("Pipeline actor not started"),
+        }
     }
 
     #[instrument(skip(self))]
@@ -84,10 +83,19 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
+    pub fn get_hls_state_actor_addr(&self) -> Addr<HlsStateActor> {
+        match self.hls_state_actor_addr.clone() {
+            Some(addr) => addr,
+            None => panic!("Hls state actor not started"),
+        }
+    }
+
+    #[instrument(skip(self))]
     pub async fn run(&mut self) -> Result<()> {
         self.init_database().await?;
         self.init_parser().await?;
-        self.init_pipeline().await?;
+        self.init_hls_state_actor().await?;
+        // self.init_pipeline().await?;
 
         Ok(())
     }
@@ -122,26 +130,44 @@ impl SystemInitializer {
 
         let event_bus = Arc::new(EventBus::new(16));
 
-        let mut pipeline = Pipeline::new(
+        let hls_sink = match HlsSinkImpl::new(self.get_hls_state_actor_addr()) {
+            Ok(hls_sink) => hls_sink,
+            Err(e) => return Err(anyhow::anyhow!("Failed to initialize hls sink: {}", e)),
+        };
+
+        let pipeline = Pipeline::new(
             Arc::new(source),
             Arc::new(decoder),
             Arc::new(video_branch),
             Arc::new(audio_branch),
-            Arc::new(self.hls_sink.as_ref().clone()),
+            Arc::new(hls_sink),
             event_bus,
         );
         debug!("Pipeline created");
 
-        info!("Building pipeline");
-        match pipeline.build() {
-            Ok(_) => info!("Pipeline built"),
-            Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
-        }
+        // info!("Building pipeline");
+        // match pipeline.build() {
+        //     Ok(_) => info!("Pipeline built"),
+        //     Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
+        // }
 
         // TODO: consider if this is the best way to start the pipeline
         info!("Starting pipeline actor");
         let addr = pipeline.start();
-        app_state::set_pipeline_addr(addr.clone());
+        let addr_clone = addr.clone();
+        // app_state::set_pipeline_addr(addr.clone());
+        self.pipeline_addr = Some(addr);
+
+        let hls_state_actor = self.get_hls_state_actor_addr();
+        match hls_state_actor.send(SetPipelineAddr(addr_clone)).await {
+            Ok(_) => info!("Hls state actor set pipeline address"),
+            Err(e) => {
+                return Err(anyhow::anyhow!(
+                    "Failed to set hls state actor pipeline address: {}",
+                    e
+                ))
+            }
+        }
 
         Ok(())
     }
@@ -185,6 +211,17 @@ impl SystemInitializer {
         let parser_actor = ParserActor::default();
         let addr = parser_actor.start();
         self.parser_addr = Some(addr);
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    async fn init_hls_state_actor(&mut self) -> Result<()> {
+        info!("Initializing hls state actor");
+
+        let hls_state_actor = HlsStateActor::new();
+        let addr = hls_state_actor.start();
+        self.hls_state_actor_addr = Some(addr);
 
         Ok(())
     }

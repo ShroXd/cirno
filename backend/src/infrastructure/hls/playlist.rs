@@ -2,33 +2,12 @@ use actix_web::rt::Runtime;
 use gio::WriteOutputStream;
 use std::{collections::HashMap, io::Write, path::Path};
 use tracing::*;
-use ts_rs::TS;
 
+use super::model::M3u8Tag;
 use crate::{
     infrastructure::pipeline::actor::QueryDuration,
     init::app_state::{get_pipeline_addr, set_pipeline_duration, set_pipeline_segment_duration},
 };
-
-#[derive(Debug, TS, Clone, PartialEq, Eq, Hash)]
-#[ts(export)]
-pub enum M3u8Tag {
-    ExtXVersion,
-    ExtXMediaSequence,
-    ExtXTargetDuration,
-    ExtInf,
-}
-
-impl M3u8Tag {
-    pub fn from_str(s: &str) -> Option<Self> {
-        match s {
-            "#EXT-X-VERSION" => Some(Self::ExtXVersion),
-            "#EXT-X-MEDIA-SEQUENCE" => Some(Self::ExtXMediaSequence),
-            "#EXT-X-TARGETDURATION" => Some(Self::ExtXTargetDuration),
-            "#EXTINF" => Some(Self::ExtInf),
-            _ => None,
-        }
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct PlaylistStream {

@@ -1,8 +1,6 @@
 use actix::{Actor, Context, Handler, Message};
 use anyhow::Error;
-use serde::{Deserialize, Serialize};
 use std::{path::Path, sync::Arc};
-use ts_rs::TS;
 
 use super::media_library::scanner::scanner::scan_media_library;
 use crate::{

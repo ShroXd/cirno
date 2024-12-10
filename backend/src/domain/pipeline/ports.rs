@@ -1,14 +1,17 @@
+use actix::Addr;
 use anyhow::Result;
 use gstreamer::{prelude::*, Element};
 use std::fmt::Debug;
 use tracing::*;
 
 use super::model::{Duration, PipelineState, Position};
-use crate::shared::utils::ElementFactoryTrait;
+use crate::{
+    infrastructure::hls::hls_state_actor::HlsStateActor, shared::utils::ElementFactoryTrait,
+};
 
 pub trait PipelinePort: Send + Sync {
     fn build(&mut self) -> Result<()>;
-    fn play(&self) -> Result<()>;
+    fn play(&mut self) -> Result<()>;
     fn pause(&self) -> Result<()>;
     fn stop(&mut self) -> Result<()>;
     fn seek(&self, position: Position) -> Result<()>;
@@ -62,7 +65,7 @@ pub trait Decoder: Send + Sync {
 }
 
 pub trait HlsSink: Send + Sync {
-    fn new() -> Result<Self>
+    fn new(hls_state_actor_addr: Addr<HlsStateActor>) -> Result<Self>
     where
         Self: Sized;
     fn get_element(&self) -> &Element;

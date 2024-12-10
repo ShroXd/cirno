@@ -1,4 +1,4 @@
-use actix::{spawn, Addr};
+use actix::{spawn, Actor, Addr};
 use anyhow::*;
 use std::{result::Result::Ok, sync::Arc};
 use tokio::sync::RwLock;
@@ -11,20 +11,24 @@ use crate::{
     },
     infrastructure::{
         event_bus::{domain_event::DomainEvent, event_bus::EventBus},
+        hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
         pipeline::{actor::PipelineAction, pipeline::Pipeline},
     },
 };
 
 #[derive(Clone)]
 pub struct PipelineService {
-    pipeline_addr: Addr<Pipeline>,
     event_bus: Arc<EventBus>,
     ws_client_key: Arc<RwLock<Vec<String>>>,
+    hls_state_actor_addr: Addr<HlsStateActor>,
 }
 
 impl PipelineService {
-    #[instrument(skip(pipeline_addr, event_bus))]
-    pub fn new(pipeline_addr: Addr<Pipeline>, event_bus: Arc<EventBus>) -> Result<Self> {
+    #[instrument(skip(event_bus))]
+    pub fn new(
+        event_bus: Arc<EventBus>,
+        hls_state_actor_addr: Addr<HlsStateActor>,
+    ) -> Result<Self> {
         let event_bus_clone = event_bus.clone();
         let ws_client_key = Arc::new(RwLock::new(Vec::new()));
         let ws_client_key_clone = ws_client_key.clone();
@@ -43,9 +47,9 @@ impl PipelineService {
         });
 
         Ok(Self {
-            pipeline_addr,
             event_bus,
             ws_client_key,
+            hls_state_actor_addr,
         })
     }
 
@@ -53,16 +57,28 @@ impl PipelineService {
     pub async fn start_playback(&self, path: &str) -> Result<()> {
         debug!("Starting playback for path: {}", path);
 
-        if let Err(e) = self
-            .pipeline_addr
-            .send(PipelineAction::SetSource(path.to_string()))
+        let pipeline =
+            match build_pipeline(self.event_bus.clone(), self.hls_state_actor_addr.clone()) {
+                Ok(pipeline) => pipeline,
+                Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
+            };
+
+        let pipeline_addr = pipeline.start();
+        match self
+            .hls_state_actor_addr
+            .send(SetPipelineAddr(pipeline_addr.clone()))
             .await
         {
-            error!("Failed to set source: {:?}", e);
-            return Err(anyhow!("Failed to set source"));
+            Ok(_) => info!("Hls state actor set pipeline address"),
+            Err(e) => {
+                return Err(anyhow::anyhow!(
+                    "Failed to set hls state actor pipeline address: {}",
+                    e
+                ))
+            }
         }
 
-        if let Err(e) = self.pipeline_addr.send(PipelineAction::Play).await {
+        if let Err(e) = pipeline_addr.send(PipelineAction::Play).await {
             error!("Failed to start playback: {:?}", e);
             return Err(anyhow!("Failed to start playback"));
         }

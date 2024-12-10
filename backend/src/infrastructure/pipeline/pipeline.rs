@@ -177,7 +177,10 @@ impl PipelinePort for Pipeline {
     }
 
     #[instrument(skip(self))]
-    fn play(&self) -> Result<()> {
+    fn play(&mut self) -> Result<()> {
+        debug!("Building pipeline");
+        self.build()?;
+
         let gst_pipeline = match &self.gst_pipeline {
             Some(pipeline) => pipeline.clone(),
             None => return Err(anyhow::anyhow!("Pipeline not built")),
