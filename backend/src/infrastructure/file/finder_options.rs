@@ -46,3 +46,7 @@ pub fn by_extension(extension: &[&str]) -> impl Fn(&Path) -> bool + Send + Sync 
             .unwrap_or(false)
     }
 }
+
+pub fn all_files() -> impl Fn(&Path) -> bool + Send + Sync + 'static {
+    move |_| true
+}

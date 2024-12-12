@@ -9,6 +9,7 @@ use crate::{
     },
 };
 
+#[derive(Clone)]
 pub struct FileService {
     file_repository: Arc<dyn FileRepository>,
     event_bus: Arc<EventBus>,
@@ -22,13 +23,14 @@ impl FileService {
         }
     }
 
-    pub async fn delete_files(&self, folder_path: &str) -> Result<()> {
+    pub async fn delete_files_in_folder(
+        &self,
+        folder_path: &str,
+        options: FinderOptions,
+    ) -> Result<()> {
         let files = self
             .file_repository
-            .find_files(
-                folder_path.as_ref(),
-                FinderOptions::new().filters(by_extension(&["ts"])),
-            )
+            .find_files(folder_path.as_ref(), options)
             .await?;
 
         for file in files {

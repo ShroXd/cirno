@@ -11,10 +11,13 @@ use crate::{
     },
     infrastructure::{
         event_bus::{domain_event::DomainEvent, event_bus::EventBus},
+        file::finder_options::{all_files, FinderOptions},
         hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
         pipeline::{actor::PipelineAction, pipeline::Pipeline},
     },
 };
+
+use super::file_service::FileService;
 
 #[derive(Clone)]
 pub struct PipelineService {
@@ -53,10 +56,18 @@ impl PipelineService {
         })
     }
 
-    #[instrument(skip(self))]
-    pub async fn start_playback(&self, path: &str) -> Result<()> {
-        debug!("Starting playback for path: {}", path);
+    #[instrument(skip(self, file_service))]
+    pub async fn start_playback(&self, path: &str, file_service: Arc<FileService>) -> Result<()> {
+        debug!("Deleting files in tmp folder");
+        let options = FinderOptions::new()
+            .filters(all_files())
+            .include_hidden(true);
+        file_service
+            .delete_files_in_folder("./tmp", options)
+            .await
+            .inspect_err(|e| error!("Failed to delete files in tmp folder: {}", e))?;
 
+        debug!("Starting playback for path: {}", path);
         let pipeline =
             match build_pipeline(self.event_bus.clone(), self.hls_state_actor_addr.clone()) {
                 Ok(pipeline) => pipeline,
@@ -64,24 +75,15 @@ impl PipelineService {
             };
 
         let pipeline_addr = pipeline.start();
-        match self
-            .hls_state_actor_addr
+        self.hls_state_actor_addr
             .send(SetPipelineAddr(pipeline_addr.clone()))
             .await
-        {
-            Ok(_) => info!("Hls state actor set pipeline address"),
-            Err(e) => {
-                return Err(anyhow::anyhow!(
-                    "Failed to set hls state actor pipeline address: {}",
-                    e
-                ))
-            }
-        }
+            .inspect_err(|e| error!("Failed to set hls state actor pipeline address: {}", e))?;
 
-        if let Err(e) = pipeline_addr.send(PipelineAction::Play).await {
-            error!("Failed to start playback: {:?}", e);
-            return Err(anyhow!("Failed to start playback"));
-        }
+        pipeline_addr
+            .send(PipelineAction::Play)
+            .await
+            .inspect_err(|e| error!("Failed to start playback: {:?}", e))?;
 
         Ok(())
     }

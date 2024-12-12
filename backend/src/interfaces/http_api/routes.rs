@@ -7,7 +7,7 @@ use actix_web::{
 use std::sync::Arc;
 
 use crate::{
-    application::pipeline_service::PipelineService,
+    application::{file_service::FileService, pipeline_service::PipelineService},
     infrastructure::{
         database::database::Database, event_bus::event_bus::EventBus,
         organizer::organizer::ParserActor, task_pool::task_pool::TaskPool,
@@ -108,8 +108,9 @@ async fn play_video_with_path(
     payload: Json<PlayVideoWithPathPayload>,
     req: HttpRequest,
     pipeline_service: Data<PipelineService>,
+    file_service: Data<FileService>,
 ) -> impl Responder {
-    play_video_with_path_controller(payload, req, pipeline_service).await
+    play_video_with_path_controller(payload, req, pipeline_service, file_service).await
 }
 
 pub fn init_video_player_routes(cfg: &mut ServiceConfig) {

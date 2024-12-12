@@ -49,15 +49,14 @@ impl Handler<GetPlaylistStream> for HlsStateActor {
 }
 
 #[derive(Debug, Message)]
-#[rtype(result = "Result<()>")]
+#[rtype(result = "()")]
 pub struct SetPipelineAddr(pub Addr<Pipeline>);
 
 impl Handler<SetPipelineAddr> for HlsStateActor {
-    type Result = Result<()>;
+    type Result = ();
 
     fn handle(&mut self, msg: SetPipelineAddr, _: &mut Self::Context) -> Self::Result {
         self.pipeline_addr = Some(msg.0);
-        Ok(())
     }
 }
 
