@@ -58,7 +58,7 @@ pub fn build_pipeline(
     };
     debug!("Audio branch created");
 
-    let hls_sink = match HlsSinkImpl::new(hls_state_actor_addr) {
+    let hls_sink = match HlsSinkImpl::new(hls_state_actor_addr.clone()) {
         Ok(hls_sink) => hls_sink,
         Err(e) => return Err(anyhow::anyhow!("Failed to initialize hls sink: {}", e)),
     };

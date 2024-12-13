@@ -5,10 +5,7 @@ use application::{file_service::FileService, pipeline_service::PipelineService};
 use std::{env, sync::Arc};
 use tracing::*;
 
-use infrastructure::{
-    event_bus::event_bus::EventBus, file::repository_impl::FileRepositoryImpl,
-    task_pool::task_pool::TaskPool,
-};
+use infrastructure::{file::repository_impl::FileRepositoryImpl, task_pool::task_pool::TaskPool};
 use init::system_initializer::SystemInitializer;
 use interfaces::ws::utils::WsConnections;
 
@@ -23,6 +20,10 @@ mod shared;
 async fn main() -> std::io::Result<()> {
     unsafe {
         env::set_var("GST_DEBUG", "3");
+        env::set_var(
+            "RUST_LOG",
+            "actix_web=info,actix_server=info,actix_rt=info,gstreamer=info",
+        );
     }
 
     let _guard = SystemInitializer::init_logger();
@@ -42,8 +43,7 @@ async fn main() -> std::io::Result<()> {
     let parser_addr = initializer.get_parser_addr();
     let database_addr = initializer.get_database_addr();
     let hls_state_actor_addr = initializer.get_hls_state_actor_addr();
-
-    let event_bus = Arc::new(EventBus::new(100));
+    let event_bus = initializer.get_event_bus();
     event_bus.start();
 
     let task_pool = TaskPool::new(100, event_bus.clone());

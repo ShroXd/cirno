@@ -47,6 +47,13 @@ impl IntoNotification for DomainEvent {
                 event: NotificationType::RegisterClient,
                 payload: Some(serde_json::to_value(payload).unwrap()),
             },
+            DomainEvent::Pipeline(event) => match event {
+                PipelineEvent::HlsStreamInitialized { path } => Notification {
+                    event: NotificationType::HlsStreamInitialized,
+                    payload: Some(serde_json::to_value(path).unwrap()),
+                },
+                _ => unimplemented!(),
+            },
             _ => unimplemented!(),
         }
     }

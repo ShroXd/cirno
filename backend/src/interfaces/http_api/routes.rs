@@ -10,7 +10,8 @@ use crate::{
     application::{file_service::FileService, pipeline_service::PipelineService},
     infrastructure::{
         database::database::Database, event_bus::event_bus::EventBus,
-        organizer::organizer::ParserActor, task_pool::task_pool::TaskPool,
+        hls::hls_state_actor::HlsStateActor, organizer::organizer::ParserActor,
+        task_pool::task_pool::TaskPool,
     },
     interfaces::{
         http_api::controllers::{
@@ -109,8 +110,22 @@ async fn play_video_with_path(
     req: HttpRequest,
     pipeline_service: Data<PipelineService>,
     file_service: Data<FileService>,
+    event_bus: Data<Arc<EventBus>>,
+    hls_state_actor_addr: Data<Addr<HlsStateActor>>,
+    task_pool: Data<TaskPool>,
+    ws_connections: Data<WsConnections>,
 ) -> impl Responder {
-    play_video_with_path_controller(payload, req, pipeline_service, file_service).await
+    play_video_with_path_controller(
+        payload,
+        req,
+        pipeline_service,
+        file_service,
+        event_bus,
+        hls_state_actor_addr,
+        task_pool,
+        ws_connections,
+    )
+    .await
 }
 
 pub fn init_video_player_routes(cfg: &mut ServiceConfig) {

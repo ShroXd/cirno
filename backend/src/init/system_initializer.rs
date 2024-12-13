@@ -31,6 +31,8 @@ use crate::{
 pub struct SystemInitializer {
     element_factory: Arc<ElementFactory>,
 
+    event_bus: Option<Arc<EventBus>>,
+
     // Actor addresses
     pipeline_addr: Option<Addr<Pipeline>>,
     parser_addr: Option<Addr<ParserActor>>,
@@ -51,6 +53,7 @@ impl SystemInitializer {
 
         Ok(Self {
             element_factory,
+            event_bus: None,
             pipeline_addr: None,
             parser_addr: None,
             database_addr: None,
@@ -83,6 +86,14 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
+    pub fn get_event_bus(&self) -> Arc<EventBus> {
+        match self.event_bus.clone() {
+            Some(event_bus) => event_bus,
+            None => panic!("Event bus not started"),
+        }
+    }
+
+    #[instrument(skip(self))]
     pub fn get_hls_state_actor_addr(&self) -> Addr<HlsStateActor> {
         match self.hls_state_actor_addr.clone() {
             Some(addr) => addr,
@@ -94,6 +105,7 @@ impl SystemInitializer {
     pub async fn run(&mut self) -> Result<()> {
         self.init_database().await?;
         self.init_parser().await?;
+        self.init_event_bus().await?;
         self.init_hls_state_actor().await?;
         // self.init_pipeline().await?;
 
@@ -130,7 +142,7 @@ impl SystemInitializer {
 
         let event_bus = Arc::new(EventBus::new(16));
 
-        let hls_sink = match HlsSinkImpl::new(self.get_hls_state_actor_addr()) {
+        let hls_sink = match HlsSinkImpl::new(self.get_hls_state_actor_addr().into()) {
             Ok(hls_sink) => hls_sink,
             Err(e) => return Err(anyhow::anyhow!("Failed to initialize hls sink: {}", e)),
         };
@@ -216,10 +228,20 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
+    async fn init_event_bus(&mut self) -> Result<()> {
+        info!("Initializing event bus");
+
+        let event_bus = Arc::new(EventBus::new(100));
+        self.event_bus = Some(event_bus);
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
     async fn init_hls_state_actor(&mut self) -> Result<()> {
         info!("Initializing hls state actor");
 
-        let hls_state_actor = HlsStateActor::new();
+        let hls_state_actor = HlsStateActor::new(self.get_event_bus());
         let addr = hls_state_actor.start();
         self.hls_state_actor_addr = Some(addr);
 

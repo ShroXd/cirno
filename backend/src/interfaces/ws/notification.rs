@@ -6,6 +6,7 @@ use ts_rs::TS;
 pub enum NotificationType {
     RegisterClient,
     MediaLibrarySaved,
+    HlsStreamInitialized,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

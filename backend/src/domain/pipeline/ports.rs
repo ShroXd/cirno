@@ -1,7 +1,7 @@
 use actix::Addr;
 use anyhow::Result;
 use gstreamer::{prelude::*, Element};
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Arc};
 use tracing::*;
 
 use super::model::{Duration, PipelineState, Position};

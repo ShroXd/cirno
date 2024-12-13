@@ -16,4 +16,9 @@ pub enum PipelineEvent {
         duration: Duration,
     },
     EndOfStream,
+    PreparationStarted,
+    PreparationFinished,
+    HlsStreamInitialized {
+        path: String,
+    },
 }

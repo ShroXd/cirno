@@ -1,6 +1,6 @@
-use actix_web::rt::Runtime;
 use gio::WriteOutputStream;
 use std::{collections::HashMap, io::Write, path::Path};
+use tokio::runtime::Runtime;
 use tracing::*;
 
 use super::model::M3u8Tag;

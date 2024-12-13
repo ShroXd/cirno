@@ -1,10 +1,11 @@
-use actix::{prelude::*, spawn, Actor, Addr, Message, StreamHandler};
+use actix::{prelude::*, Actor, Addr, Message, StreamHandler};
 use actix_web_actors::ws;
 use anyhow::*;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string};
 use std::result::Result::Ok;
 use std::sync::Arc;
+use tokio::spawn;
 use tracing::*;
 use ts_rs::TS;
 use uuid::Uuid;
@@ -22,7 +23,6 @@ use crate::{
 #[derive(Clone)]
 pub struct WebSocketActor {
     pub key: Uuid,
-    pub pipeline_addr: Option<Addr<Pipeline>>,
     pub ws_connections: Option<WsConnections>,
     pub event_bus: Option<Arc<EventBus>>,
 }
@@ -154,14 +154,9 @@ where
 }
 
 impl WebSocketActor {
-    pub fn new(
-        pipeline_addr: Addr<Pipeline>,
-        ws_connections: WsConnections,
-        event_bus: Arc<EventBus>,
-    ) -> Self {
+    pub fn new(ws_connections: WsConnections, event_bus: Arc<EventBus>) -> Self {
         Self {
             key: Uuid::new_v4(),
-            pipeline_addr: Some(pipeline_addr),
             ws_connections: Some(ws_connections),
             event_bus: Some(event_bus),
         }
@@ -172,28 +167,29 @@ impl WebSocketActor {
         action: PipelineAction,
         _: &mut <WebSocketActor as Actor>::Context,
     ) {
-        match action {
-            PipelineAction::Play => process_pipeline_action!(self, Play),
-            PipelineAction::Pause => process_pipeline_action!(self, Pause),
-            PipelineAction::Stop => process_pipeline_action!(self, Stop),
-            // TODO: refactor and use the macro to avoid code duplication
-            PipelineAction::Seek(position) => {
-                debug!("WebSocket actor received seek action: {:?}", position);
+        // match action {
+        //     PipelineAction::Play => process_pipeline_action!(self, Play),
+        //     PipelineAction::Pause => process_pipeline_action!(self, Pause),
+        //     PipelineAction::Stop => process_pipeline_action!(self, Stop),
+        //     // TODO: refactor and use the macro to avoid code duplication
+        //     PipelineAction::Seek(position) => {
+        //         debug!("WebSocket actor received seek action: {:?}", position);
 
-                if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
-                    if let Err(e) = pipeline_addr.try_send(PipelineAction::Seek(position)) {
-                        error!("Failed to forward message to pipeline: {:?}", e);
-                    }
-                }
-            }
-            PipelineAction::SetSource(path) => {
-                if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
-                    if let Err(e) = pipeline_addr.try_send(PipelineAction::SetSource(path)) {
-                        error!("Failed to forward message to pipeline: {:?}", e);
-                    }
-                }
-            }
-        }
+        //         if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
+        //             if let Err(e) = pipeline_addr.try_send(PipelineAction::Seek(position)) {
+        //                 error!("Failed to forward message to pipeline: {:?}", e);
+        //             }
+        //         }
+        //     }
+        //     PipelineAction::SetSource(path) => {
+        //         if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
+        //             if let Err(e) = pipeline_addr.try_send(PipelineAction::SetSource(path)) {
+        //                 error!("Failed to forward message to pipeline: {:?}", e);
+        //             }
+        //         }
+        //     }
+        // }
+        unimplemented!()
     }
 
     fn handle_system(&self, system: System, _: &mut <WebSocketActor as Actor>::Context) {

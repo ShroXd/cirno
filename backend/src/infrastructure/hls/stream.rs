@@ -1,35 +1,42 @@
 use actix::Addr;
-use actix_web::rt::Runtime;
 use anyhow::*;
 use gio::WriteOutputStream;
+use gstreamer::EventType;
 use std::result::Result::Ok;
+use std::sync::Arc;
 use std::{collections::HashMap, fs::OpenOptions, io::Write, path::Path};
+use tokio::runtime::Runtime;
 use tracing::*;
 
 use super::{
     hls_state_actor::{GetPipelineAddr, GetPipelineDuration, HlsStateActor},
     model::M3u8Tag,
 };
+use crate::domain::pipeline::event::PipelineEvent;
+use crate::infrastructure::event_bus::domain_event::DomainEvent;
+use crate::infrastructure::event_bus::event_bus::EventBus;
 use crate::infrastructure::{
     hls::hls_state_actor::SetSegmentDuration, pipeline::actor::QueryDuration,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct HlsStream {
     path_str: String,
     header: HashMap<M3u8Tag, String>,
     state: Addr<HlsStateActor>,
     initialized: bool,
+    event_bus: Arc<EventBus>,
 }
 
 impl HlsStream {
-    #[instrument(skip(state))]
-    pub fn new(path_str: String, state: Addr<HlsStateActor>) -> Self {
+    #[instrument(skip(state, event_bus))]
+    pub fn new(path_str: String, state: Addr<HlsStateActor>, event_bus: Arc<EventBus>) -> Self {
         Self {
             path_str,
             header: HashMap::new(),
             state,
             initialized: false,
+            event_bus,
         }
     }
 
@@ -196,6 +203,11 @@ impl Write for HlsStream {
                 }
             }
             self.initialized = true;
+            self.event_bus
+                .publish(DomainEvent::Pipeline(PipelineEvent::HlsStreamInitialized {
+                    path: self.path_str.clone(),
+                }))
+                .inspect_err(|e| error!("Failed to publish hls stream initialized event: {}", e));
         }
 
         let mut file = std::fs::OpenOptions::new()

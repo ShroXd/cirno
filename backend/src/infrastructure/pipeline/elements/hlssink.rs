@@ -1,9 +1,9 @@
 use actix::Addr;
-use actix_web::rt::Runtime;
 use anyhow::Result;
 use gio::prelude::*;
 use gstreamer::{Element, ElementFactory};
-use std::path::Path;
+use std::{path::Path, sync::Arc};
+use tokio::runtime::Runtime;
 use tracing::*;
 
 use crate::{

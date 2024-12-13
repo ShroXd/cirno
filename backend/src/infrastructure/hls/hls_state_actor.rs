@@ -1,9 +1,11 @@
 use super::stream::HlsStream;
+use crate::infrastructure::event_bus::event_bus::EventBus;
 use crate::infrastructure::pipeline::pipeline::Pipeline;
 use actix::{Actor, Addr, AsyncContext, Context, Handler, Message};
 use anyhow::*;
 use std::collections::HashMap;
 use std::sync::atomic::AtomicU32;
+use std::sync::Arc;
 
 pub struct HlsStateActor {
     // path -> playlist stream
@@ -12,6 +14,8 @@ pub struct HlsStateActor {
     segment_index: AtomicU32,
     pipeline_duration: Option<u64>,
     segment_duration: Option<u64>,
+
+    event_bus: Arc<EventBus>,
 }
 
 impl Actor for HlsStateActor {
@@ -19,13 +23,14 @@ impl Actor for HlsStateActor {
 }
 
 impl HlsStateActor {
-    pub fn new() -> Self {
+    pub fn new(event_bus: Arc<EventBus>) -> Self {
         Self {
             pipeline_addr: None,
             streams: HashMap::new(),
             segment_index: AtomicU32::new(0),
             pipeline_duration: None,
             segment_duration: None,
+            event_bus,
         }
     }
 }
@@ -41,7 +46,13 @@ impl Handler<GetPlaylistStream> for HlsStateActor {
         let stream = self
             .streams
             .entry(msg.0.clone())
-            .or_insert_with(|| HlsStream::new(msg.0.clone(), context.address().clone()))
+            .or_insert_with(|| {
+                HlsStream::new(
+                    msg.0.clone(),
+                    context.address().clone(),
+                    self.event_bus.clone(),
+                )
+            })
             .clone();
 
         Ok(stream)

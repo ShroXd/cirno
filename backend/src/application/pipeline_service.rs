@@ -1,20 +1,26 @@
-use actix::{spawn, Actor, Addr};
+use actix::{Actor, Addr};
 use anyhow::*;
-use std::{result::Result::Ok, sync::Arc};
-use tokio::sync::RwLock;
+use std::{result::Result::Ok, sync::Arc, time::Duration};
+use tokio::{spawn, sync::RwLock};
 use tracing::*;
 
 use crate::{
     domain::{
-        pipeline::{builder::build_pipeline, model::Position, ports::PipelinePort},
+        pipeline::{
+            builder::build_pipeline, event::PipelineEvent, model::Position, ports::PipelinePort,
+            task::PipelinePreparationTask,
+        },
         websocket::event::WebSocketEventType,
     },
     infrastructure::{
-        event_bus::{domain_event::DomainEvent, event_bus::EventBus},
+        event_bus::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
         file::finder_options::{all_files, FinderOptions},
         hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
         pipeline::{actor::PipelineAction, pipeline::Pipeline},
+        task_pool::{model::TaskType, task_pool::TaskPool},
     },
+    interfaces::ws::utils::WsConnections,
+    listen_event,
 };
 
 use super::file_service::FileService;
@@ -56,18 +62,32 @@ impl PipelineService {
         })
     }
 
-    #[instrument(skip(self, file_service))]
-    pub async fn start_playback(&self, path: &str, file_service: Arc<FileService>) -> Result<()> {
+    #[instrument(skip(self, file_service, event_bus, task_pool))]
+    pub async fn start_playback(
+        &self,
+        path: &str,
+        file_service: Arc<FileService>,
+        event_bus: Arc<EventBus>,
+        task_pool: Arc<TaskPool>,
+        ws_client_key: String,
+        ws_connections: WsConnections,
+    ) -> Result<String> {
         debug!("Deleting files in tmp folder");
-        let options = FinderOptions::new()
-            .filters(all_files())
-            .include_hidden(true);
-        file_service
-            .delete_files_in_folder("./tmp", options)
-            .await
-            .inspect_err(|e| error!("Failed to delete files in tmp folder: {}", e))?;
 
-        debug!("Starting playback for path: {}", path);
+        let task = PipelinePreparationTask::new(
+            file_service,
+            event_bus.clone(),
+            self.hls_state_actor_addr.clone(),
+        );
+        let task_id = task_pool
+            .register_task(
+                TaskType::PipelinePreparation,
+                ws_client_key.clone(),
+                Box::new(task),
+                None,
+            )
+            .await?;
+
         let pipeline =
             match build_pipeline(self.event_bus.clone(), self.hls_state_actor_addr.clone()) {
                 Ok(pipeline) => pipeline,
@@ -85,7 +105,28 @@ impl PipelineService {
             .await
             .inspect_err(|e| error!("Failed to start playback: {:?}", e))?;
 
-        Ok(())
+        let ws_connection = match ws_connections.get(ws_client_key.clone()).await {
+            Some(ws_connection) => ws_connection,
+            None => {
+                error!("WebSocket connection not found");
+                return Err(anyhow!("WebSocket connection not found"));
+            }
+        };
+
+        listen_event!(
+            event_bus,
+            DomainEvent::Pipeline(PipelineEvent::HlsStreamInitialized { .. }),
+            move |event, _| {
+                let ws_connection_clone = ws_connection.clone();
+                async move {
+                    event.send_notification::<serde_json::Value>(ws_connection_clone);
+                    Ok(())
+                }
+            },
+            EventHandlerConfig::one_time(),
+        );
+
+        Ok(task_id)
     }
 
     #[instrument(skip(self))]
