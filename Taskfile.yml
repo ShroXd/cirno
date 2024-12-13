@@ -225,3 +225,14 @@ tasks:
         else
           echo "🚫 No process found on port 5173."
         fi
+
+  count-lines:
+    desc: "📊 Count lines of code excluding unnecessary files and directories"
+    cmds:
+      - |
+        echo "📊 Counting lines of code..."
+        cloc . \
+        --exclude-dir=node_modules,target,dist,build,.git,vendor,logs,tmp \
+        --exclude-ext=lock,tsbuildinfo \
+        --not-match-f="(package-lock\.json|pnpm-lock\.yaml|Cargo\.lock)"
+        echo "✅ Code line count completed."
