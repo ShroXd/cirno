@@ -1,20 +1,26 @@
 use actix::Addr;
+use ambassador::Delegate;
 use anyhow::*;
 use async_trait::async_trait;
 use std::{result::Result::Ok, sync::Arc};
 
 use super::event::MediaLibraryEventType;
-use crate::infrastructure::{
-    event_bus::{domain_event::DomainEvent, event_bus::EventBus, model::GeneralEvent},
-    organizer::organizer::{ParserActor, ScanMediaLibrary},
-    task_pool::model::AsyncTask,
+use crate::{
+    domain::task::task::{
+        ambassador_impl_TaskIdentifiable, AsyncTask, BaseTask, TaskId, TaskIdentifiable,
+    },
+    infrastructure::{
+        event_bus::{domain_event::DomainEvent, event_bus::EventBus, model::GeneralEvent},
+        organizer::organizer::{ParserActor, ScanMediaLibrary},
+    },
 };
 
+#[derive(Delegate)]
+#[delegate(TaskIdentifiable, target = "base")]
 pub struct MediaLibraryScanTask {
+    base: BaseTask,
     library_path: String,
     parser_addr: Arc<Addr<ParserActor>>,
-    task_id: String,
-    ws_client_id: String,
 }
 
 #[async_trait]
@@ -22,7 +28,7 @@ impl AsyncTask for MediaLibraryScanTask {
     async fn execute(
         &self,
         _ws_client_id: String,
-        _task_id: String,
+        _task_id: TaskId,
         event_bus: Arc<EventBus>,
     ) -> Result<()> {
         let _ = event_bus.publish(DomainEvent::General(GeneralEvent::TaskStarted));
@@ -50,31 +56,14 @@ impl AsyncTask for MediaLibraryScanTask {
 
         Ok(())
     }
-
-    fn set_task_id(&mut self, task_id: String) {
-        self.task_id = task_id;
-    }
-
-    fn get_task_id(&self) -> String {
-        self.task_id.clone()
-    }
-
-    fn set_ws_client_id(&mut self, ws_client_id: String) {
-        self.ws_client_id = ws_client_id;
-    }
-
-    fn get_ws_client_id(&self) -> String {
-        self.ws_client_id.clone()
-    }
 }
 
 impl MediaLibraryScanTask {
     pub fn new(library_path: String, parser_addr: Arc<Addr<ParserActor>>) -> Self {
         Self {
+            base: BaseTask::default(),
             library_path,
             parser_addr,
-            task_id: String::new(),
-            ws_client_id: String::new(),
         }
     }
 }

@@ -1,29 +1,28 @@
 use actix::{Actor, Addr};
 use anyhow::*;
-use std::{result::Result::Ok, sync::Arc, time::Duration};
+use std::{result::Result::Ok, sync::Arc};
 use tokio::{spawn, sync::RwLock};
 use tracing::*;
 
+use super::file_service::FileService;
 use crate::{
     domain::{
         pipeline::{
-            builder::build_pipeline, event::PipelineEvent, model::Position, ports::PipelinePort,
+            builder::build_pipeline, event::PipelineEvent, model::Position,
             task::PipelinePreparationTask,
         },
+        task::task::{TaskId, TaskType},
         websocket::event::WebSocketEventType,
     },
     infrastructure::{
         event_bus::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
-        file::finder_options::{all_files, FinderOptions},
         hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
-        pipeline::{actor::PipelineAction, pipeline::Pipeline},
-        task_pool::{model::TaskType, task_pool::TaskPool},
+        pipeline::actor::PipelineAction,
+        task_pool::task_pool::TaskPool,
     },
     interfaces::ws::utils::WsConnections,
     listen_event,
 };
-
-use super::file_service::FileService;
 
 #[derive(Clone)]
 pub struct PipelineService {
@@ -71,9 +70,7 @@ impl PipelineService {
         task_pool: Arc<TaskPool>,
         ws_client_key: String,
         ws_connections: WsConnections,
-    ) -> Result<String> {
-        debug!("Deleting files in tmp folder");
-
+    ) -> Result<TaskId> {
         let task = PipelinePreparationTask::new(
             file_service,
             event_bus.clone(),

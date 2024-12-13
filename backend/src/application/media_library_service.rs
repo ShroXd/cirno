@@ -7,22 +7,21 @@ use tracing::*;
 use crate::{
     application::media_item_service::insert_media_item,
     chain_events,
-    domain::media_library::{
-        constant::SENTINEL_MEDIA_LIBRARY_ID, event::MediaLibraryEventType,
-        media_library::create_media_library, task::MediaLibraryScanTask,
+    domain::{
+        media_library::{
+            constant::SENTINEL_MEDIA_LIBRARY_ID, event::MediaLibraryEventType,
+            media_library::create_media_library, task::MediaLibraryScanTask,
+        },
+        task::task::{AsyncTaskResponse, TaskIdentifiable, TaskType},
     },
     infrastructure::{
         database::database::Database,
         event_bus::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
         organizer::organizer::ParserActor,
-        task_pool::{
-            model::{AsyncTask, TaskType},
-            task_pool::TaskPool,
-        },
+        task_pool::task_pool::TaskPool,
     },
     interfaces::{
-        http_api::controllers::api_models::{CreateMediaLibraryResponse, SaveMediaLibraryPayload},
-        ws::utils::WsConnections,
+        http_api::controllers::api_models::SaveMediaLibraryPayload, ws::utils::WsConnections,
     },
 };
 
@@ -35,7 +34,7 @@ pub async fn create_media_library_service(
     task_pool: Data<TaskPool>,
     event_bus: Data<Arc<EventBus>>,
     ws_client_key: String,
-) -> Result<CreateMediaLibraryResponse> {
+) -> Result<AsyncTaskResponse<i64>> {
     let directory_clone = payload.directory.clone();
     let media_library_name = payload.name.clone();
     let database_addr = database_addr.into_inner();
@@ -113,8 +112,9 @@ pub async fn create_media_library_service(
         )
         .await?;
 
-    Ok(CreateMediaLibraryResponse {
-        media_library_id,
-        async_task_id: task_id,
+    Ok(AsyncTaskResponse {
+        task_id,
+        task_type: TaskType::MediaLibraryScan,
+        payload: Some(media_library_id),
     })
 }

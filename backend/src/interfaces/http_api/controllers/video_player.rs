@@ -33,7 +33,7 @@ pub async fn play_video_with_path_controller(
         Err(e) => return HttpResponse::Unauthorized().json(e.to_string()),
     };
 
-    let task_id = pipeline_service
+    match pipeline_service
         .start_playback(
             &payload.path,
             file_service.into_inner(),
@@ -43,7 +43,11 @@ pub async fn play_video_with_path_controller(
             ws_connections.get_ref().clone(),
         )
         .await
-        .unwrap();
-
-    HttpResponse::Ok().json(task_id)
+    {
+        Ok(task_id) => HttpResponse::Ok().json(task_id),
+        Err(e) => {
+            error!("Failed to start playback: {:?}", e);
+            HttpResponse::InternalServerError().json("Failed to start playback")
+        }
+    }
 }
