@@ -137,3 +137,62 @@ macro_rules! process_pipeline_action {
         }
     }};
 }
+
+/// A macro for defining event payload structs with type field and constructor
+///
+/// ## Arguments
+///
+/// * `$vis` - Visibility modifier for the struct
+/// * `$name` - Name of the struct to define
+/// * `$field_name` - Name of each field in the struct
+/// * `$field_ty` - Type of each field in the struct
+///
+/// ## Example
+/// ```
+/// define_payload!(
+///     pub RegisterClient {
+///         client_key: String
+///     }
+/// )
+/// ```
+///
+/// ## Returns
+/// Defines a struct that:
+/// - Has a "type" field with the struct name
+/// - Has the specified fields with their types
+/// - Includes a constructor that sets the type and fields
+///
+
+#[macro_export]
+macro_rules! define_payload {
+    (
+        $(#[$outer:meta])*
+        $vis:vis $name:ident {
+            $(
+                $(#[$field_meta:meta])*
+                $field_name:ident: $field_ty:ty
+            ),* $(,)?
+        }
+    ) => {
+        $(#[$outer])*
+        #[derive(Debug, Clone, Serialize, Deserialize, TS)]
+        #[ts(export)]
+        $vis struct $name {
+            #[serde(rename = "type")]
+            event_type: String,
+            $(
+                $(#[$field_meta])*
+                $field_name: $field_ty,
+            )*
+        }
+
+        impl $name {
+            $vis fn new($($field_name: $field_ty,)*) -> Self {
+                Self {
+                    event_type: stringify!($name).to_string(),
+                    $($field_name,)*
+                }
+            }
+        }
+    };
+}

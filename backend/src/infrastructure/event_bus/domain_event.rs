@@ -28,30 +28,26 @@ impl IntoNotification for DomainEvent {
     fn into_notification(self) -> Notification<Self::Payload> {
         match self {
             DomainEvent::AsyncTask(event) => match event {
-                AsyncTaskEvent::ProgressUpdated { .. } => Notification {
-                    notification_type: NotificationType::TaskProgressUpdated,
-                    payload: Some(event.to_json_payload()),
-                },
+                AsyncTaskEvent::ProgressUpdated { .. } => {
+                    Notification::new(NotificationType::TaskProgressUpdated, event)
+                }
                 _ => unimplemented!(),
             },
             DomainEvent::MediaLibrary(event) => match event {
-                MediaLibraryEventType::MediaLibrarySaved { .. } => Notification {
-                    notification_type: NotificationType::MediaLibrarySaved,
-                    payload: Some(event.to_json_payload()),
-                },
+                MediaLibraryEventType::MediaLibrarySaved { .. } => {
+                    Notification::new(NotificationType::MediaLibrarySaved, event)
+                }
                 _ => unimplemented!(),
-            },
-            DomainEvent::WebSocket(payload) => Notification {
-                notification_type: NotificationType::RegisterClient,
-                payload: Some(serde_json::to_value(payload).unwrap()),
             },
             DomainEvent::Pipeline(event) => match event {
-                PipelineEvent::HlsStreamInitialized { path } => Notification {
-                    notification_type: NotificationType::HlsStreamInitialized,
-                    payload: Some(serde_json::to_value(path).unwrap()),
-                },
+                PipelineEvent::HlsStreamInitialized { .. } => {
+                    Notification::new(NotificationType::HlsStreamInitialized, event)
+                }
                 _ => unimplemented!(),
             },
+            DomainEvent::WebSocket(event) => {
+                Notification::new(NotificationType::RegisterClient, event)
+            }
             _ => unimplemented!(),
         }
     }

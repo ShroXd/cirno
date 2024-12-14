@@ -1,5 +1,7 @@
 use serde::Serialize;
 
+use crate::interfaces::ws::notification::ToJsonPayload;
+
 use super::model::{Duration, PipelineState, Position};
 
 #[derive(Debug, Clone, Serialize)]
@@ -24,4 +26,15 @@ pub enum PipelineEvent {
     HlsStreamInitialized {
         path: String,
     },
+}
+
+impl ToJsonPayload for PipelineEvent {
+    fn to_json_payload(&self) -> serde_json::Value {
+        match self {
+            PipelineEvent::HlsStreamInitialized { path } => {
+                serde_json::json!({ "type": "HlsStreamInitialized", "path": path })
+            }
+            _ => unimplemented!(),
+        }
+    }
 }
