@@ -1,8 +1,9 @@
 use anyhow::*;
 use gstreamer::ClockTime;
+use serde::Serialize;
 use std::time;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 pub enum PipelineState {
     Null,
     Ready,

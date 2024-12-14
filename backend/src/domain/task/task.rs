@@ -7,7 +7,9 @@ use tokio::{sync::Mutex, task::JoinHandle};
 use ts_rs::TS;
 use uuid::Uuid;
 
-use crate::infrastructure::event_bus::event_bus::EventBus;
+use crate::{
+    infrastructure::event_bus::event_bus::EventBus, interfaces::ws::notification::ToJsonPayload,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TaskType {
@@ -46,6 +48,30 @@ pub struct AsyncTaskProgress {
     pub progress: f32,
     pub message: String,
     pub error: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum AsyncTaskEvent {
+    Started {
+        identifier: TaskIdentifier,
+    },
+    ProgressUpdated {
+        identifier: TaskIdentifier,
+        progress: f32,
+    },
+    Completed {
+        identifier: TaskIdentifier,
+    },
+    Error {
+        identifier: TaskIdentifier,
+        error: String,
+    },
+}
+
+impl ToJsonPayload for AsyncTaskEvent {
+    fn to_json_payload(&self) -> serde_json::Value {
+        serde_json::to_value(self).unwrap()
+    }
 }
 
 #[derive(Debug, Clone)]

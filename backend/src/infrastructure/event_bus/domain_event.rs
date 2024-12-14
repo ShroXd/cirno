@@ -6,17 +6,18 @@ use super::model::GeneralEvent;
 use crate::{
     domain::{
         media_library::event::MediaLibraryEventType, pipeline::event::PipelineEvent,
-        websocket::event::WebSocketEventType,
+        task::task::AsyncTaskEvent, websocket::event::WebSocketEventType,
     },
     interfaces::ws::{
         actor::{SendNotification, WebSocketActor},
-        notification::{IntoNotification, Notification, NotificationType},
+        notification::{IntoNotification, Notification, NotificationType, ToJsonPayload},
     },
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum DomainEvent {
     General(GeneralEvent),
+    AsyncTask(AsyncTaskEvent),
     MediaLibrary(MediaLibraryEventType),
     Pipeline(PipelineEvent),
     WebSocket(WebSocketEventType),
@@ -26,32 +27,27 @@ impl IntoNotification for DomainEvent {
     type Payload = serde_json::Value;
     fn into_notification(self) -> Notification<Self::Payload> {
         match self {
+            DomainEvent::AsyncTask(event) => match event {
+                AsyncTaskEvent::ProgressUpdated { .. } => Notification {
+                    notification_type: NotificationType::TaskProgressUpdated,
+                    payload: Some(event.to_json_payload()),
+                },
+                _ => unimplemented!(),
+            },
             DomainEvent::MediaLibrary(event) => match event {
-                MediaLibraryEventType::MediaLibrarySaved {
-                    task_identifier,
-                    media_library_id,
-                    media_library_name,
-                } => {
-                    let payload = serde_json::json!({
-                        "task_identifier": task_identifier,
-                        "media_library_id": media_library_id,
-                        "media_library_name": media_library_name,
-                    });
-
-                    Notification {
-                        event: NotificationType::MediaLibrarySaved,
-                        payload: Some(payload),
-                    }
-                }
+                MediaLibraryEventType::MediaLibrarySaved { .. } => Notification {
+                    notification_type: NotificationType::MediaLibrarySaved,
+                    payload: Some(event.to_json_payload()),
+                },
                 _ => unimplemented!(),
             },
             DomainEvent::WebSocket(payload) => Notification {
-                event: NotificationType::RegisterClient,
+                notification_type: NotificationType::RegisterClient,
                 payload: Some(serde_json::to_value(payload).unwrap()),
             },
             DomainEvent::Pipeline(event) => match event {
                 PipelineEvent::HlsStreamInitialized { path } => Notification {
-                    event: NotificationType::HlsStreamInitialized,
+                    notification_type: NotificationType::HlsStreamInitialized,
                     payload: Some(serde_json::to_value(path).unwrap()),
                 },
                 _ => unimplemented!(),

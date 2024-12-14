@@ -16,7 +16,7 @@ interface WebSocketProviderProps {
 }
 
 export const WebSocketProvider: FC<WebSocketProviderProps> = ({ children }) => {
-  const { emitEvent: sendMessage } = useEventBus()
+  const { emitEvent } = useEventBus()
 
   ws.onmessage = event => {
     const data = JSON.parse(event.data)
@@ -26,7 +26,7 @@ export const WebSocketProvider: FC<WebSocketProviderProps> = ({ children }) => {
     // This makes it difficult to ensure type safety and clean code when using these types directly.
     // To solve this, we use type guards to enable proper type inference in the event handling process.
     if (isNotification(data)) {
-      sendMessage(data)
+      emitEvent({ event: data.notification_type, payload: data.payload })
     }
   }
 

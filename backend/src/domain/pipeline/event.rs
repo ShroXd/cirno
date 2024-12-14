@@ -1,6 +1,8 @@
+use serde::Serialize;
+
 use super::model::{Duration, PipelineState, Position};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum PipelineEvent {
     StateChanged {
         old_state: PipelineState,
@@ -11,10 +13,11 @@ pub enum PipelineEvent {
         message: String,
         component: String,
     },
-    PositionUpdated {
-        position: Position,
-        duration: Duration,
-    },
+    // TODO: implement custom serde for Position and Duration
+    // PositionUpdated {
+    //     position: Position,
+    //     duration: Duration,
+    // },
     EndOfStream,
     PreparationStarted,
     PreparationFinished,

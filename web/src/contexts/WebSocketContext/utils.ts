@@ -5,5 +5,5 @@ export const isNotification = (
 ): payload is Notification<unknown> =>
   typeof payload === 'object' &&
   payload !== null &&
-  'event' in payload &&
+  'notification_type' in payload &&
   'payload' in payload

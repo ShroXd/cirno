@@ -7,7 +7,7 @@ export interface NotificationItemProps extends NotificationModel {
   onRemove: (id: string) => void
 }
 
-export const DefaultNotificationTimeout = 500000
+export const DefaultNotificationTimeout = 5 * 1000 // 5 seconds
 
 export const NotificationItem = ({
   id,
