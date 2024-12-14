@@ -58,14 +58,14 @@ pub async fn create_media_library_service(
     chain_events!(
         event_bus,
         {
-            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(_)),
+            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned { .. }),
             handler: move |event, event_bus| {
                 let database_addr = database_addr.clone();
                 let media_library_id = media_library_id.clone();
                 let media_library_name = media_library_name.clone();
 
                 async move {
-                    if let DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned(media_library)) = event {
+                    if let DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned { media_library, task_identifier }) = event {
                         for media_item in media_library.tv_show {
                             debug!("Processing media item: {:?}", media_item.title);
                             insert_media_item(media_library_id, media_item, database_addr.clone())
@@ -73,6 +73,7 @@ pub async fn create_media_library_service(
                                 .inspect_err(|e| error!("Failed to insert media item: {:?}", e))?;
                         }
                         event_bus.publish(DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved {
+                            task_identifier,
                             media_library_id,
                             media_library_name,
                         }))?;

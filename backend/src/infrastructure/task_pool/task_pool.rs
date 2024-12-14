@@ -8,7 +8,7 @@ use tokio::{sync::RwLock, task::JoinHandle};
 use tracing::*;
 use uuid::Uuid;
 
-use crate::domain::task::task::{AsyncTask, TaskId};
+use crate::domain::task::task::{AsyncTask, TaskId, TaskIdentifier};
 use crate::{
     domain::{
         task::task::{
@@ -58,9 +58,15 @@ impl TaskPool {
 
             while let Some(task) = task_rx.recv().await {
                 let task_id = task.get_task_id();
-                let ws_client_id = task.get_ws_client_id();
-                debug!("Task received: {:?}", task_id);
-                debug!("Task ws client id: {}", ws_client_id);
+                let ws_client_id = match task.get_ws_client_id() {
+                    Some(ws_client_id) => ws_client_id,
+                    None => {
+                        error!("Task ws client id is not set");
+                        continue;
+                    }
+                };
+                let identifier = TaskIdentifier::new(task_id, Some(ws_client_id));
+                debug!("Task identifier: {}", identifier);
 
                 if handles.len() >= max_concurrent_tasks {
                     debug!("Max concurrent tasks reached, waiting for one to finish");
@@ -74,27 +80,25 @@ impl TaskPool {
                 let time_provider = time_provider_clone.clone();
 
                 handles.push(tokio::spawn(async move {
-                    debug!("Executing task: {:?}", task_id);
-                    let result = task
-                        .execute(ws_client_id.clone(), task_id.clone(), event_bus)
-                        .await;
+                    debug!("Executing task: {}", identifier);
+                    let result = task.execute(identifier.clone(), event_bus).await;
 
                     let mut tasks_write = tasks.write().await;
-                    if let Some(task_info) = tasks_write.get_mut(&task_id) {
+                    if let Some(task_info) = tasks_write.get_mut(&identifier.get_task_id()) {
                         task_info.status = match result {
                             Ok(_) => TaskStatus::Completed,
                             Err(e) => {
-                                debug!("Task {:?} failed: {}", task_id, e);
+                                debug!("Task {:?} failed: {}", identifier.get_task_id(), e);
                                 TaskStatus::Failed
                             }
                         };
                         task_info.progress = 100.0;
-                        debug!("Task completed: {:?}", task_id);
+                        debug!("Task completed: {}", identifier);
 
-                        debug!("Scheduling cleanup for task: {:?}", task_id);
+                        debug!("Scheduling cleanup for task: {}", identifier);
                         let cleanup_handle = TaskPool::schedule_cleanup(
                             tasks.clone(),
-                            task_id.clone(),
+                            identifier.get_task_id(),
                             task_info.retention_period,
                             time_provider.clone(),
                         );
@@ -248,7 +252,8 @@ impl TaskPool {
 #[cfg(test)]
 mod tests {
     use crate::{
-        domain::task::task::BaseTask, infrastructure::time::testing::test::TestingTimeProvider,
+        domain::task::task::TaskIdentifier,
+        infrastructure::time::testing::test::TestingTimeProvider,
     };
     use ambassador::Delegate;
     use async_trait::async_trait;
@@ -259,7 +264,7 @@ mod tests {
     #[derive(Delegate)]
     #[delegate(TaskIdentifiable, target = "base")]
     struct MockTask {
-        base: BaseTask,
+        base: TaskIdentifier,
         should_fail: bool,
         completed: Arc<Notify>,
     }
@@ -269,7 +274,7 @@ mod tests {
             let completed = Arc::new(Notify::new());
 
             Self {
-                base: BaseTask::default(),
+                base: TaskIdentifier::new(task_id, Some(ws_client_id)),
                 should_fail,
                 completed,
             }
@@ -284,8 +289,7 @@ mod tests {
     impl AsyncTask for MockTask {
         async fn execute(
             &self,
-            _ws_client_id: String,
-            _task_id: TaskId,
+            _identifier: TaskIdentifier,
             _event_bus: Arc<EventBus>,
         ) -> Result<()> {
             self.completed.notify_one();

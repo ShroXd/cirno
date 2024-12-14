@@ -28,10 +28,12 @@ impl IntoNotification for DomainEvent {
         match self {
             DomainEvent::MediaLibrary(event) => match event {
                 MediaLibraryEventType::MediaLibrarySaved {
+                    task_identifier,
                     media_library_id,
                     media_library_name,
                 } => {
                     let payload = serde_json::json!({
+                        "task_identifier": task_identifier,
                         "media_library_id": media_library_id,
                         "media_library_name": media_library_name,
                     });

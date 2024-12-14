@@ -2,8 +2,9 @@ use ambassador::delegatable_trait;
 use anyhow::*;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use std::{sync::Arc, time::Duration};
+use std::{fmt::Display, sync::Arc, time::Duration};
 use tokio::{sync::Mutex, task::JoinHandle};
+use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::infrastructure::event_bus::event_bus::EventBus;
@@ -25,7 +26,9 @@ pub enum TaskStatus {
     Cancelled,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash, TS)]
+#[ts(export)]
+#[ts(type = "string")]
 pub struct TaskId(pub Uuid);
 
 #[derive(Debug, Clone, Serialize)]
@@ -59,12 +62,7 @@ pub struct AsyncTaskInfo {
 
 #[async_trait]
 pub trait AsyncTask: Send + Sync + TaskIdentifiable {
-    async fn execute(
-        &self,
-        ws_client_id: String,
-        task_id: TaskId,
-        event_bus: Arc<EventBus>,
-    ) -> Result<()>;
+    async fn execute(&self, identifier: TaskIdentifier, event_bus: Arc<EventBus>) -> Result<()>;
 }
 
 #[delegatable_trait]
@@ -72,24 +70,50 @@ pub trait TaskIdentifiable {
     fn set_task_id(&mut self, task_id: TaskId);
     fn get_task_id(&self) -> TaskId;
     fn set_ws_client_id(&mut self, ws_client_id: String);
-    fn get_ws_client_id(&self) -> String;
+    fn get_ws_client_id(&self) -> Option<String>;
 }
 
-pub struct BaseTask {
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
+pub struct TaskIdentifier {
     task_id: TaskId,
-    ws_client_id: String,
+    ws_client_id: Option<String>,
 }
 
-impl Default for BaseTask {
-    fn default() -> Self {
+impl TaskIdentifier {
+    pub fn new(task_id: TaskId, ws_client_id: Option<String>) -> Self {
         Self {
-            task_id: TaskId(Uuid::nil()),
-            ws_client_id: "".to_string(),
+            task_id,
+            ws_client_id,
         }
     }
 }
 
-impl TaskIdentifiable for BaseTask {
+impl Display for TaskIdentifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let ws_client_display = match &self.ws_client_id {
+            Some(id) => id.to_string(),
+            None => "<no client>".to_string(),
+        };
+
+        write!(
+            f,
+            "Task[id: {}, client: {}]",
+            self.task_id.0, ws_client_display
+        )
+    }
+}
+
+impl Default for TaskIdentifier {
+    fn default() -> Self {
+        Self {
+            task_id: TaskId(Uuid::nil()),
+            ws_client_id: None,
+        }
+    }
+}
+
+impl TaskIdentifiable for TaskIdentifier {
     fn set_task_id(&mut self, task_id: TaskId) {
         self.task_id = task_id;
     }
@@ -99,10 +123,10 @@ impl TaskIdentifiable for BaseTask {
     }
 
     fn set_ws_client_id(&mut self, ws_client_id: String) {
-        self.ws_client_id = ws_client_id;
+        self.ws_client_id = Some(ws_client_id);
     }
 
-    fn get_ws_client_id(&self) -> String {
+    fn get_ws_client_id(&self) -> Option<String> {
         self.ws_client_id.clone()
     }
 }

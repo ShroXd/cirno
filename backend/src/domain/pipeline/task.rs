@@ -10,7 +10,7 @@ use crate::{
     domain::{
         pipeline::event::PipelineEvent,
         task::task::{
-            ambassador_impl_TaskIdentifiable, AsyncTask, BaseTask, TaskId, TaskIdentifiable,
+            ambassador_impl_TaskIdentifiable, AsyncTask, TaskId, TaskIdentifiable, TaskIdentifier,
         },
     },
     infrastructure::{
@@ -21,9 +21,9 @@ use crate::{
 };
 
 #[derive(Delegate)]
-#[delegate(TaskIdentifiable, target = "base")]
+#[delegate(TaskIdentifiable, target = "identifier")]
 pub struct PipelinePreparationTask {
-    base: BaseTask,
+    identifier: TaskIdentifier,
     file_service: Arc<FileService>,
     event_bus: Arc<EventBus>,
     hls_state_actor_addr: Addr<HlsStateActor>,
@@ -31,12 +31,7 @@ pub struct PipelinePreparationTask {
 
 #[async_trait]
 impl AsyncTask for PipelinePreparationTask {
-    async fn execute(
-        &self,
-        _ws_client_id: String,
-        task_id: TaskId,
-        event_bus: Arc<EventBus>,
-    ) -> Result<()> {
+    async fn execute(&self, _identifier: TaskIdentifier, event_bus: Arc<EventBus>) -> Result<()> {
         debug!("Preparing pipeline");
 
         event_bus
@@ -66,7 +61,7 @@ impl PipelinePreparationTask {
         hls_state_actor_addr: Addr<HlsStateActor>,
     ) -> Self {
         Self {
-            base: BaseTask::default(),
+            identifier: TaskIdentifier::default(),
             file_service,
             event_bus,
             hls_state_actor_addr,
