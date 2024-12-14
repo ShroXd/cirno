@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Chip,
@@ -18,27 +18,51 @@ import useSWR from 'swr'
 
 import { MediaItemDto } from '../../bindings/MediaItemDto'
 import { SeasonDto } from '../../bindings/SeasonDto'
+import { EpisodeDto } from '../../bindings/EpisodeDto'
+import { usePost } from '../../hooks/usePost'
+import { useEventBus } from '../../hooks/useEventBus'
 
 export const Detail = () => {
   const [serie, setSerie] = useState<MediaItemDto>()
   const [sortBy, setSortBy] = useState<string>('episode_number')
+  const [isWaitingForHlsStream, setIsWaitingForHlsStream] = useState(false)
 
   const location = useLocation()
   const { t } = useTranslation()
+  const post = usePost()
+  const navigate = useNavigate()
+  const { onEvent } = useEventBus()
 
   const { data, error, isLoading } = useSWR<SeasonDto[]>(
     `/media-libraries/series/${location.state.detail.id}/seasons`,
     (url: string) => fetch(url).then(res => res.json())
   )
 
-  console.log('seasons data: ', data)
-
   useEffect(() => {
     setSerie(location.state.detail)
   }, [location.state.detail])
 
+  const handlePlay = useCallback(
+    (episode: EpisodeDto) => {
+      setIsWaitingForHlsStream(true)
+      post('/video-player/play', {
+        path: episode.video_file_path,
+      })
+
+      onEvent('HlsStreamInitialized', () => {
+        setIsWaitingForHlsStream(false)
+        navigate('/video', {
+          state: {
+            episode: episode,
+          },
+        })
+      })
+    },
+    [navigate, onEvent, post]
+  )
+
   // TODO: encapsulate the loading and error states
-  if (isLoading) return <div>Loading...</div>
+  if (isLoading || isWaitingForHlsStream) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
 
   return (
@@ -129,11 +153,12 @@ export const Detail = () => {
                           alt={episode.title ?? ''}
                           className='h-full w-full rounded-lg object-cover'
                         />
-                        <Link to={`/video`} state={{ episode: episode }}>
-                          <button className='absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50 opacity-0 transition-opacity duration-500 ease-in-out hover:opacity-100'>
-                            <PlayIcon className='h-12 w-12 text-white' />
-                          </button>
-                        </Link>
+                        <button
+                          className='absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-50 opacity-0 transition-opacity duration-500 ease-in-out hover:opacity-100'
+                          onClick={() => handlePlay(episode)}
+                        >
+                          <PlayIcon className='h-12 w-12 text-white' />
+                        </button>
                       </div>
                       <div className='mb-1 mt-2 truncate text-base font-semibold'>
                         {episode.title ?? 'Untitled Episode'}
