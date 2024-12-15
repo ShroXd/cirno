@@ -182,7 +182,7 @@ tasks:
 
   create-database:
     desc: "🗂️ Create the SQLite database file by running the setup script"
-    dir: scripts
+    dir: backend/scripts
     cmds:
       - echo "📂 Running database setup script..."
       - ./create_db.sh
