@@ -85,11 +85,14 @@ impl PipelineService {
             )
             .await?;
 
-        let pipeline =
-            match build_pipeline(self.event_bus.clone(), self.hls_state_actor_addr.clone()) {
-                Ok(pipeline) => pipeline,
-                Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
-            };
+        let pipeline = match build_pipeline(
+            path,
+            self.event_bus.clone(),
+            self.hls_state_actor_addr.clone(),
+        ) {
+            Ok(pipeline) => pipeline,
+            Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
+        };
 
         let pipeline_addr = pipeline.start();
         self.hls_state_actor_addr

@@ -112,14 +112,19 @@ impl SystemInitializer {
         Ok(())
     }
 
+    /// TODO;
+    /// Initialize a pipeline for auxiliary tasks like taking screenshots or generating preview WebRTC streams.
+    /// The main playback pipeline will be built dynamically when a user plays a video.
+    /// This pipeline serves as a utility pipeline for background tasks.
     #[instrument(skip(self))]
     async fn init_pipeline(&mut self) -> Result<()> {
         info!("Initializing pipeline");
 
-        let source = match FileSource::new() {
-            Ok(source) => source,
-            Err(e) => return Err(anyhow::anyhow!("Failed to create file source: {}", e)),
-        };
+        let source =
+            match FileSource::new("/Users/atriiy/Animes_test/一拳超人 (2015)/S1/S01E01.mp4") {
+                Ok(source) => source,
+                Err(e) => return Err(anyhow::anyhow!("Failed to create file source: {}", e)),
+            };
         debug!("File source created");
 
         let decoder = match Decodebin::new(&*self.element_factory) {

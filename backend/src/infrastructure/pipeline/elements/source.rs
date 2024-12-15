@@ -14,16 +14,13 @@ unsafe impl Send for FileSource {}
 
 impl Source for FileSource {
     #[instrument]
-    fn new() -> Result<Self> {
+    fn new(source_path: &str) -> Result<Self> {
         let element = ElementFactory::make("filesrc")
             .build()
             .map_err(|e| anyhow::anyhow!("Failed to create filesrc element: {}", e))?;
         debug!("Created filesrc element");
 
-        element.set_property(
-            "location",
-            "/Users/atriiy/Animes_test/一拳超人 (2015)/S1/S01E01.mp4",
-        );
+        element.set_property("location", source_path);
 
         Ok(Self { element })
     }

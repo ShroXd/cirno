@@ -1,7 +1,7 @@
 use actix::Addr;
 use anyhow::Result;
 use gstreamer::{prelude::*, Element};
-use std::{fmt::Debug, sync::Arc};
+use std::fmt::Debug;
 use tracing::*;
 
 use super::model::{Duration, PipelineState, Position};
@@ -20,20 +20,24 @@ pub trait PipelinePort: Send + Sync {
 }
 
 pub trait Source: Send + Sync {
-    fn new() -> Result<Self>
+    fn new(source_path: &str) -> Result<Self>
     where
         Self: Sized;
     fn set_name(&mut self, name: &str);
     fn set_properties(&mut self, properties: Vec<(&str, &dyn ToValue)>);
     fn get_element(&self) -> &Element;
 
-    fn build(name: &str, properties: Vec<(&str, &dyn ToValue)>) -> Result<Element>
+    fn build(
+        name: &str,
+        properties: Vec<(&str, &dyn ToValue)>,
+        source_path: &str,
+    ) -> Result<Element>
     where
         Self: Sized,
     {
         info!("Created pipeline source {}", name);
 
-        let mut source = Self::new()?;
+        let mut source = Self::new(source_path)?;
         source.set_name(name);
         source.set_properties(properties);
 

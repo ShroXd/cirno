@@ -17,7 +17,15 @@ use crate::{
     shared::utils::extract_ws_client_key,
 };
 
-#[instrument(skip(req, pipeline_service, file_service, event_bus, task_pool))]
+#[instrument(skip(
+    req,
+    pipeline_service,
+    file_service,
+    event_bus,
+    hls_state_actor_addr,
+    task_pool,
+    ws_connections,
+))]
 pub async fn play_video_with_path_controller(
     payload: Json<PlayVideoWithPathPayload>,
     req: HttpRequest,

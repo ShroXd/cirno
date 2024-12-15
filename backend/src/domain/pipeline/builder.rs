@@ -27,6 +27,7 @@ use crate::{
 // state management becomes necessary.
 #[instrument(skip(event_bus))]
 pub fn build_pipeline(
+    source_path: &str,
     event_bus: Arc<EventBus>,
     hls_state_actor_addr: Addr<HlsStateActor>,
 ) -> Result<Pipeline> {
@@ -34,7 +35,7 @@ pub fn build_pipeline(
 
     let element_factory = Arc::new(ElementFactory);
 
-    let source = match FileSource::new() {
+    let source = match FileSource::new(source_path) {
         Ok(source) => source,
         Err(e) => return Err(anyhow::anyhow!("Failed to create file source: {}", e)),
     };
