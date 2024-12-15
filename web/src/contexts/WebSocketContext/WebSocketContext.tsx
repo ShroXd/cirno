@@ -1,6 +1,6 @@
 import { createContext, FC } from 'react'
 
-import { useEventBus } from '../../hooks/useEventBus'
+import { useEventBus } from '@/hooks/useEventBus'
 import { isNotification } from './utils'
 
 // NOTE: During development mode, React renders components twice for strict mode enforcement.

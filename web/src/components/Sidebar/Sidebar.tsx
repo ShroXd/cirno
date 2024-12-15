@@ -22,12 +22,12 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-
-import { LibraryManageDialog } from '../LibraryManageDialog/LibraryManageDialog'
-import { useFetch } from '../../hooks/useFetch'
-import { MediaLibraryDto } from '../../bindings/MediaLibraryDto'
-import { DeleteConfirmationDialog } from '../DeleteConfirmationDialog/DeleteConfirmationDialog'
 import { mutate } from 'swr'
+
+import { LibraryManageDialog } from '@/components/LibraryManageDialog/LibraryManageDialog'
+import { useFetch } from '@/hooks/useFetch'
+import { MediaLibraryDto } from '@/bindings/MediaLibraryDto'
+import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog/DeleteConfirmationDialog'
 
 export const Sidebar = () => {
   const [expanded, setExpanded] = useState(0)

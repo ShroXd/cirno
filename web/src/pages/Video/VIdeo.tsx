@@ -1,4 +1,4 @@
-import VideoPlayer from '../../components/VideoPlayer/VideoPlayer'
+import VideoPlayer from '@/components/VideoPlayer/VideoPlayer'
 
 export const Video = () => {
   const videoJsOptions = {

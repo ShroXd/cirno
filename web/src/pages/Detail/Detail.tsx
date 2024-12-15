@@ -16,11 +16,11 @@ import {
 import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
 import useSWR from 'swr'
 
-import { MediaItemDto } from '../../bindings/MediaItemDto'
-import { SeasonDto } from '../../bindings/SeasonDto'
-import { EpisodeDto } from '../../bindings/EpisodeDto'
-import { usePost } from '../../hooks/usePost'
-import { useEventBus } from '../../hooks/useEventBus'
+import { MediaItemDto } from '@bindings/MediaItemDto'
+import { SeasonDto } from '@bindings/SeasonDto'
+import { EpisodeDto } from '@bindings/EpisodeDto'
+import { usePost } from '@/hooks/usePost'
+import { useEventBus } from '@/hooks/useEventBus'
 
 export const Detail = () => {
   const [serie, setSerie] = useState<MediaItemDto>()

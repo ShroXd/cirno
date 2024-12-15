@@ -4,7 +4,7 @@ import videojs from 'video.js'
 import 'video.js/dist/video-js.css'
 import './style.css'
 
-import { useWebSocket } from '../../hooks/useWebSocket'
+import { useWebSocket } from '@/hooks/useWebSocket'
 
 export const VideoPlayer = (props: any) => {
   const videoRef = useRef<any>(null)

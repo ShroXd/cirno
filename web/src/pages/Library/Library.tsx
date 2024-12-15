@@ -1,11 +1,11 @@
 import { ReactNode, useCallback, useEffect } from 'react'
 import { Typography } from '@material-tailwind/react'
 import { NavLink } from 'react-router-dom'
-
-import { MediaItemDto } from '../../bindings/MediaItemDto'
-import { useFetch } from '../../hooks/useFetch'
-import { useEventBus } from '../../hooks/useEventBus'
 import { mutate } from 'swr'
+
+import { MediaItemDto } from '@bindings/MediaItemDto'
+import { useFetch } from '@/hooks/useFetch'
+import { useEventBus } from '@/hooks/useEventBus'
 
 export const Library = () => {
   const { data, error, isLoading } = useFetch<MediaItemDto[]>(

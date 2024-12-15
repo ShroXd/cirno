@@ -21,7 +21,14 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Types */
-    "types": ["@types/wicg-file-system-access"]
+    "types": ["@types/wicg-file-system-access"],
+
+    /* Paths */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@bindings/*": ["src/bindings/*"]
+    }
   },
   "include": ["src"]
 }

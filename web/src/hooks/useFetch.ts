@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios'
 import useSWR, { SWRConfiguration } from 'swr'
-import { useAxios } from './useAxios'
+import { useAxios } from '@/hooks/useAxios'
 
 const fetcher =
   (axios: AxiosInstance) =>
