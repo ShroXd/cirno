@@ -8,6 +8,7 @@ use crate::{
     infrastructure::database::{
         actor::{CheckCategoryExists, DeleteMediaLibrary, QueryMediaLibraries, SaveMediaLibrary},
         database::Database,
+        media_library::repository::MediaLibraryRepository,
     },
     interfaces::{
         dtos::MediaLibraryDto, http_api::controllers::api_models::SaveMediaLibraryPayload,
@@ -44,12 +45,12 @@ pub async fn create_media_library(
     }
 }
 
-#[instrument(skip(database_addr))]
+#[instrument(skip(media_library_repository))]
 pub async fn get_media_libraries(
-    database_addr: Data<Addr<Database>>,
+    media_library_repository: Arc<MediaLibraryRepository>,
 ) -> Result<Vec<MediaLibraryDto>> {
-    database_addr
-        .send(QueryMediaLibraries)
+    media_library_repository
+        .get_media_libraries()
         .await
         .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))
 }

@@ -1,6 +1,6 @@
 use actix::Addr;
-use actix_web::web::Data;
 use anyhow::*;
+use std::sync::Arc;
 use tracing::*;
 
 use crate::{
@@ -8,13 +8,14 @@ use crate::{
     interfaces::dtos::MediaLibraryDto,
 };
 
+#[derive(Clone)]
 pub struct MediaLibraryRepository {
-    database_addr: Data<Addr<Database>>,
+    database_addr: Addr<Database>,
 }
 
 impl MediaLibraryRepository {
-    pub fn new(database_addr: Data<Addr<Database>>) -> Self {
-        Self { database_addr }
+    pub fn new(database_addr: Addr<Database>) -> Arc<Self> {
+        Arc::new(Self { database_addr })
     }
 
     #[instrument(skip(self))]

@@ -46,8 +46,8 @@ async fn main() -> std::io::Result<()> {
     let event_bus = initializer.get_event_bus();
     event_bus.start();
 
+    let repositories = initializer.get_repositories();
     let task_pool = TaskPool::new(100, event_bus.clone());
-
     let ws_connections = WsConnections::default();
 
     // TODO: move this to system initializer
@@ -84,6 +84,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pipeline_service.clone()))
             .app_data(web::Data::new(hls_state_actor_addr.clone()))
             .app_data(web::Data::new(file_service.clone()))
+            .app_data(web::Data::new(repositories.clone()))
             .configure(interfaces::http_api::routes::init_media_libraries_routes)
             .configure(interfaces::http_api::routes::init_video_player_routes)
             .service(Files::new("/hls", "./tmp").show_files_listing())

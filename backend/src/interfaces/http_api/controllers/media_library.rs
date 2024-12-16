@@ -15,6 +15,7 @@ use crate::{
         database::database::Database, event_bus::event_bus::EventBus,
         organizer::organizer::ParserActor, task_pool::task_pool::TaskPool,
     },
+    init::repository_manager::Repositories,
     interfaces::{http_api::controllers::consts::WS_CLIENT_KEY_HEADER, ws::utils::WsConnections},
 };
 
@@ -55,12 +56,12 @@ pub async fn create_media_library_controller(
     )
 }
 
-#[instrument(skip(database_addr))]
-pub async fn get_media_libraries_controller(database_addr: Data<Addr<Database>>) -> impl Responder {
+#[instrument(skip(repositories))]
+pub async fn get_media_libraries_controller(repositories: Data<Repositories>) -> impl Responder {
     debug!("Getting all media libraries");
 
     handle_controller_result!(
-        get_media_libraries(database_addr).await,
+        get_media_libraries(repositories.media_library.clone()).await,
         HttpResponse::Ok(),
         HttpResponse::InternalServerError()
     )

@@ -13,6 +13,7 @@ use crate::{
         hls::hls_state_actor::HlsStateActor, organizer::organizer::ParserActor,
         task_pool::task_pool::TaskPool,
     },
+    init::repository_manager::Repositories,
     interfaces::{
         http_api::controllers::{
             api_models::{GetMediaItemsQuery, SaveMediaLibraryPayload},
@@ -77,8 +78,8 @@ async fn create_media_library_route(
 }
 
 #[get("/")]
-async fn get_media_libraries_route(database_addr: Data<Addr<Database>>) -> impl Responder {
-    get_media_libraries_controller(database_addr).await
+async fn get_media_libraries_route(repositories: Data<Repositories>) -> impl Responder {
+    get_media_libraries_controller(repositories).await
 }
 
 #[delete("/{id}")]

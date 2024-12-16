@@ -8,7 +8,7 @@ use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 use crate::{
-    domain::pipeline::ports::{Decoder, HlsSink, PipelinePort, Source, StreamBranch},
+    domain::pipeline::ports::{Decoder, HlsSink, Source, StreamBranch},
     infrastructure::{
         database::{
             database::Database,
@@ -27,14 +27,17 @@ use crate::{
             pipeline::Pipeline,
         },
     },
-    init::app_state,
+    init::repository_manager::RepositoryManager,
     shared::utils::ElementFactory,
 };
+
+use super::repository_manager::Repositories;
 
 pub struct SystemInitializer {
     element_factory: Arc<ElementFactory>,
 
     event_bus: Option<Arc<EventBus>>,
+    repositories: Option<Repositories>,
 
     // Actor addresses
     pipeline_addr: Option<Addr<Pipeline>>,
@@ -57,6 +60,7 @@ impl SystemInitializer {
         Ok(Self {
             element_factory,
             event_bus: None,
+            repositories: None,
             pipeline_addr: None,
             parser_addr: None,
             database_addr: None,
@@ -105,11 +109,20 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
+    pub fn get_repositories(&self) -> Repositories {
+        match self.repositories.clone() {
+            Some(repositories) => repositories,
+            None => panic!("Repositories not initialized"),
+        }
+    }
+
+    #[instrument(skip(self))]
     pub async fn run(&mut self) -> Result<()> {
         self.init_database().await?;
         self.init_parser().await?;
         self.init_event_bus().await?;
         self.init_hls_state_actor().await?;
+        self.init_repositories().await?;
         // self.init_pipeline().await?;
 
         Ok(())
@@ -260,6 +273,17 @@ impl SystemInitializer {
         let hls_state_actor = HlsStateActor::new(self.get_event_bus());
         let addr = hls_state_actor.start();
         self.hls_state_actor_addr = Some(addr);
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    async fn init_repositories(&mut self) -> Result<()> {
+        info!("Initializing repositories");
+
+        let repository_manager = RepositoryManager::new(self.get_database_addr());
+        let repositories = repository_manager.init_repositories()?;
+        self.repositories = Some(repositories);
 
         Ok(())
     }
