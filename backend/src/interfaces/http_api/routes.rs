@@ -63,6 +63,7 @@ async fn create_media_library_route(
     ws_connections: Data<WsConnections>,
     task_pool: Data<TaskPool>,
     event_bus: Data<Arc<EventBus>>,
+    repositories: Data<Repositories>,
     req: HttpRequest,
 ) -> impl Responder {
     create_media_library_controller(
@@ -72,6 +73,7 @@ async fn create_media_library_route(
         ws_connections,
         task_pool,
         event_bus,
+        repositories,
         req,
     )
     .await
@@ -85,9 +87,9 @@ async fn get_media_libraries_route(repositories: Data<Repositories>) -> impl Res
 #[delete("/{id}")]
 async fn delete_media_library_route(
     id: Path<i64>,
-    database_addr: Data<Addr<Database>>,
+    repositories: Data<Repositories>,
 ) -> impl Responder {
-    delete_media_library_controller(id, database_addr).await
+    delete_media_library_controller(id, repositories).await
 }
 
 pub fn init_media_libraries_routes(cfg: &mut ServiceConfig) {

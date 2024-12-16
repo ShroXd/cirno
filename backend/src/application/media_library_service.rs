@@ -15,7 +15,7 @@ use crate::{
         task::task::{AsyncTaskResponse, TaskIdentifiable, TaskType},
     },
     infrastructure::{
-        database::database::Database,
+        database::{database::Database, media_library::repository::MediaLibraryRepository},
         event_bus::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
         organizer::organizer::ParserActor,
         task_pool::task_pool::TaskPool,
@@ -25,7 +25,14 @@ use crate::{
     },
 };
 
-#[instrument(skip(database_addr, parser_addr, ws_connections, task_pool, event_bus))]
+#[instrument(skip(
+    database_addr,
+    parser_addr,
+    ws_connections,
+    task_pool,
+    event_bus,
+    media_library_repository
+))]
 pub async fn create_media_library_service(
     payload: SaveMediaLibraryPayload,
     database_addr: Data<Addr<Database>>,
@@ -34,12 +41,13 @@ pub async fn create_media_library_service(
     task_pool: Data<TaskPool>,
     event_bus: Data<Arc<EventBus>>,
     ws_client_key: String,
+    media_library_repository: Arc<MediaLibraryRepository>,
 ) -> Result<AsyncTaskResponse<i64>> {
     let directory_clone = payload.directory.clone();
     let media_library_name = payload.name.clone();
     let database_addr = database_addr.into_inner();
 
-    let media_library_id = create_media_library(payload, database_addr.clone()).await?;
+    let media_library_id = create_media_library(payload, media_library_repository.clone()).await?;
     debug!("Media library created with id: {:?}", media_library_id);
 
     if media_library_id == SENTINEL_MEDIA_LIBRARY_ID {

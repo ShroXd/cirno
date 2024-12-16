@@ -4,8 +4,13 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    infrastructure::database::{actor::QueryMediaLibraries, database::Database},
-    interfaces::dtos::MediaLibraryDto,
+    infrastructure::database::{
+        actor::{DeleteMediaLibrary, QueryMediaLibraries, SaveMediaLibrary, ValidateCategory},
+        database::Database,
+    },
+    interfaces::{
+        dtos::MediaLibraryDto, http_api::controllers::api_models::SaveMediaLibraryPayload,
+    },
 };
 
 #[derive(Clone)]
@@ -24,5 +29,29 @@ impl MediaLibraryRepository {
             .send(QueryMediaLibraries)
             .await
             .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))
+    }
+
+    #[instrument(skip(self))]
+    pub async fn validate_category(&self, category_id: i64) -> Result<bool> {
+        self.database_addr
+            .send(ValidateCategory { category_id })
+            .await
+            .map_err(|e| anyhow::anyhow!("Error checking if category exists: {:?}", e))
+    }
+
+    #[instrument(skip(self))]
+    pub async fn save_media_library(&self, payload: SaveMediaLibraryPayload) -> Result<i64> {
+        self.database_addr
+            .send(SaveMediaLibrary { payload })
+            .await
+            .map_err(|e| anyhow::anyhow!("Error creating media library: {:?}", e))
+    }
+
+    #[instrument(skip(self))]
+    pub async fn delete_media_library(&self, id: i64) -> Result<()> {
+        self.database_addr
+            .send(DeleteMediaLibrary { id })
+            .await
+            .map_err(|e| anyhow::anyhow!("Error deleting media library: {:?}", e))
     }
 }

@@ -215,18 +215,20 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "i64")]
-pub struct SaveMediaLibrary(pub SaveMediaLibraryPayload, pub i64);
+pub struct SaveMediaLibrary {
+    pub payload: SaveMediaLibraryPayload,
+}
 
 impl Display for SaveMediaLibrary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "CreateMediaLibrary({:?}, {})", self.0, self.1)
+        write!(f, "CreateMediaLibrary({:?})", self.payload)
     }
 }
 
 define_actor_message_handler!(
     message_type = SaveMediaLibrary,
     return_type = i64,
-    db_call = |pool, _, msg: SaveMediaLibrary| save_media_library(pool, msg.0, msg.1),
+    db_call = |pool, _, msg: SaveMediaLibrary| save_media_library(pool, msg.payload),
     success_return = |res| res,
     error_return = SENTINEL_MEDIA_LIBRARY_ID
 );
@@ -251,36 +253,44 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
-pub struct DeleteMediaLibrary(pub i64);
+pub struct DeleteMediaLibrary {
+    pub id: i64,
+}
 
 impl Display for DeleteMediaLibrary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "DeleteMediaLibrary({})", self.0)
+        write!(f, "DeleteMediaLibrary({})", self.id)
     }
 }
 
 define_actor_message_handler!(
     message_type = DeleteMediaLibrary,
     return_type = (),
-    db_call = |pool, _, msg: DeleteMediaLibrary| delete_media_library(pool, msg.0),
+    db_call = |pool, _, msg: DeleteMediaLibrary| delete_media_library(pool, msg.id),
     success_return = |_| (),
     error_return = ()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "()")]
-pub struct CheckCategoryExists(pub i64);
+#[rtype(result = "bool")]
+pub struct ValidateCategory {
+    pub category_id: i64,
+}
 
-impl Display for CheckCategoryExists {
+impl Display for ValidateCategory {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "CheckCategoryExists({})", self.0)
+        write!(f, "CheckCategoryExists({})", self.category_id)
     }
 }
 
 define_actor_message_handler!(
-    message_type = CheckCategoryExists,
-    return_type = (),
-    db_call = |pool, _, msg: CheckCategoryExists| check_category_exists(pool, msg.0),
-    success_return = |_| (),
-    error_return = ()
+    message_type = ValidateCategory,
+    return_type = bool,
+    db_call = |pool, query_manager, msg: ValidateCategory| check_category_exists(
+        pool,
+        query_manager,
+        msg.category_id
+    ),
+    success_return = |_| true,
+    error_return = false
 );

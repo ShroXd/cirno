@@ -1,15 +1,9 @@
-use actix::Addr;
-use actix_web::web::Data;
 use anyhow::Result;
 use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    infrastructure::database::{
-        actor::{CheckCategoryExists, DeleteMediaLibrary, QueryMediaLibraries, SaveMediaLibrary},
-        database::Database,
-        media_library::repository::MediaLibraryRepository,
-    },
+    infrastructure::database::media_library::repository::MediaLibraryRepository,
     interfaces::{
         dtos::MediaLibraryDto, http_api::controllers::api_models::SaveMediaLibraryPayload,
     },
@@ -18,10 +12,10 @@ use crate::{
 
 /// Creates a new media library after validating the directory path and checking if the category exists.
 /// Returns the ID of the created media library or an error if validation fails or database operations fail.
-#[instrument(skip(database_addr))]
+#[instrument(skip(media_library_repository))]
 pub async fn create_media_library(
     payload: SaveMediaLibraryPayload,
-    database_addr: Arc<Addr<Database>>,
+    media_library_repository: Arc<MediaLibraryRepository>,
 ) -> Result<i64> {
     debug!("Validating path");
     if !is_valid_path(&payload.directory) {
@@ -30,37 +24,36 @@ pub async fn create_media_library(
 
     debug!("Checking if category exists");
     let category_id = i64::from(payload.category.clone());
-    database_addr
-        .send(CheckCategoryExists(category_id))
-        .await
-        .map_err(|e| anyhow::anyhow!("Error checking if category exists: {:?}", e))?;
+    if !media_library_repository
+        .validate_category(category_id)
+        .await?
+    {
+        return Err(anyhow::anyhow!("Category does not exist"));
+    }
 
     debug!("Creating media library");
-    match database_addr
-        .send(SaveMediaLibrary(payload, category_id))
-        .await
-    {
-        Ok(media_library_id) => Ok(media_library_id),
-        Err(e) => Err(anyhow::anyhow!("Error creating media library: {:?}", e)),
-    }
+    let media_library_id = media_library_repository.save_media_library(payload).await?;
+
+    Ok(media_library_id)
 }
 
 #[instrument(skip(media_library_repository))]
 pub async fn get_media_libraries(
     media_library_repository: Arc<MediaLibraryRepository>,
 ) -> Result<Vec<MediaLibraryDto>> {
-    media_library_repository
-        .get_media_libraries()
-        .await
-        .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))
+    debug!("Getting media libraries");
+    let media_libraries = media_library_repository.get_media_libraries().await?;
+
+    Ok(media_libraries)
 }
 
-#[instrument(skip(database_addr))]
-pub async fn delete_media_library(id: i64, database_addr: Data<Addr<Database>>) -> Result<()> {
+#[instrument(skip(media_library_repository))]
+pub async fn delete_media_library(
+    id: i64,
+    media_library_repository: Arc<MediaLibraryRepository>,
+) -> Result<()> {
     debug!("Deleting media library with id: {}", id);
+    media_library_repository.delete_media_library(id).await?;
 
-    database_addr
-        .send(DeleteMediaLibrary(id))
-        .await
-        .map_err(|e| anyhow::anyhow!("Error deleting media library: {:?}", e))
+    Ok(())
 }
