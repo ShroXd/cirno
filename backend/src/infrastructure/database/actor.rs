@@ -52,7 +52,7 @@ impl Display for SaveTvShow {
 define_actor_message_handler!(
     message_type = SaveTvShow,
     return_type = i64,
-    db_call = |pool, msg: SaveTvShow| save_tv_show(pool, msg.0, msg.1),
+    db_call = |pool, _, msg: SaveTvShow| save_tv_show(pool, msg.0, msg.1),
     success_return = |res| res,
     error_return = -1
 );
@@ -70,7 +70,7 @@ impl Display for SaveGenre {
 define_actor_message_handler!(
     message_type = SaveGenre,
     return_type = (),
-    db_call = |pool, msg: SaveGenre| save_genre(pool, msg.0, msg.1),
+    db_call = |pool, _, msg: SaveGenre| save_genre(pool, msg.0, msg.1),
     success_return = |_| (),
     error_return = ()
 );
@@ -88,7 +88,7 @@ impl Display for SaveActor {
 define_actor_message_handler!(
     message_type = SaveActor,
     return_type = (),
-    db_call = |pool, msg: SaveActor| save_actor(pool, msg.0, msg.1),
+    db_call = |pool, _, msg: SaveActor| save_actor(pool, msg.0, msg.1),
     success_return = |_| (),
     error_return = ()
 );
@@ -110,7 +110,7 @@ impl Display for SaveSeason {
 define_actor_message_handler!(
     message_type = SaveSeason,
     return_type = i64,
-    db_call = |pool, msg: SaveSeason| save_season(pool, msg.0, msg.1, msg.2),
+    db_call = |pool, _, msg: SaveSeason| save_season(pool, msg.0, msg.1, msg.2),
     success_return = |res| res,
     error_return = -1
 );
@@ -132,7 +132,7 @@ impl Display for SaveEpisode {
 define_actor_message_handler!(
     message_type = SaveEpisode,
     return_type = (),
-    db_call = |pool, msg: SaveEpisode| save_episode(pool, msg.0, msg.1, msg.2, msg.3),
+    db_call = |pool, _, msg: SaveEpisode| save_episode(pool, msg.0, msg.1, msg.2, msg.3),
     success_return = |_| (),
     error_return = ()
 );
@@ -150,7 +150,7 @@ impl Display for QueryMediaItemsByMediaLibraryId {
 define_actor_message_handler!(
     message_type = QueryMediaItemsByMediaLibraryId,
     return_type = Vec<MediaItemDto>,
-    db_call = |pool, msg: QueryMediaItemsByMediaLibraryId| query_series_by_media_library_id(pool, msg.0, |rows| map_rows(rows)),
+    db_call = |pool, _, msg: QueryMediaItemsByMediaLibraryId| query_series_by_media_library_id(pool, msg.0, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
 );
@@ -168,7 +168,7 @@ impl Display for QueryAllMediaItems {
 define_actor_message_handler!(
     message_type = QueryAllMediaItems,
     return_type = Vec<MediaItemDto>,
-    db_call = |pool, _: QueryAllMediaItems| query_all_media_items(pool, |rows| map_rows(rows)),
+    db_call = |pool, _, _: QueryAllMediaItems| query_all_media_items(pool, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
 );
@@ -186,7 +186,7 @@ impl Display for QuerySeasons {
 define_actor_message_handler!(
     message_type = QuerySeasons,
     return_type = Vec<SeasonDto>,
-    db_call = |pool, msg: QuerySeasons| query_seasons(pool, msg.0, |rows| map_rows(rows)),
+    db_call = |pool, _, msg: QuerySeasons| query_seasons(pool, msg.0, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<SeasonDto>::new()
 );
@@ -208,7 +208,7 @@ impl Display for QueryEpisodes {
 define_actor_message_handler!(
     message_type = QueryEpisodes,
     return_type = Vec<EpisodeDto>,
-    db_call = |pool, msg: QueryEpisodes| query_episodes(pool, msg.0, msg.1),
+    db_call = |pool, _, msg: QueryEpisodes| query_episodes(pool, msg.0, msg.1),
     success_return = |res| res,
     error_return = Vec::<EpisodeDto>::new()
 );
@@ -226,7 +226,7 @@ impl Display for SaveMediaLibrary {
 define_actor_message_handler!(
     message_type = SaveMediaLibrary,
     return_type = i64,
-    db_call = |pool, msg: SaveMediaLibrary| save_media_library(pool, msg.0, msg.1),
+    db_call = |pool, _, msg: SaveMediaLibrary| save_media_library(pool, msg.0, msg.1),
     success_return = |res| res,
     error_return = SENTINEL_MEDIA_LIBRARY_ID
 );
@@ -244,7 +244,7 @@ impl Display for QueryMediaLibraries {
 define_actor_message_handler!(
     message_type = QueryMediaLibraries,
     return_type = Vec<MediaLibraryDto>,
-    db_call = |pool, _: QueryMediaLibraries| query_media_libraries(pool, |rows| map_rows(rows)),
+    db_call = |pool, query_manager, _: QueryMediaLibraries| query_media_libraries(pool, query_manager, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<MediaLibraryDto>::new()
 );
@@ -262,7 +262,7 @@ impl Display for DeleteMediaLibrary {
 define_actor_message_handler!(
     message_type = DeleteMediaLibrary,
     return_type = (),
-    db_call = |pool, msg: DeleteMediaLibrary| delete_media_library(pool, msg.0),
+    db_call = |pool, _, msg: DeleteMediaLibrary| delete_media_library(pool, msg.0),
     success_return = |_| (),
     error_return = ()
 );
@@ -280,7 +280,7 @@ impl Display for CheckCategoryExists {
 define_actor_message_handler!(
     message_type = CheckCategoryExists,
     return_type = (),
-    db_call = |pool, msg: CheckCategoryExists| check_category_exists(pool, msg.0),
+    db_call = |pool, _, msg: CheckCategoryExists| check_category_exists(pool, msg.0),
     success_return = |_| (),
     error_return = ()
 );

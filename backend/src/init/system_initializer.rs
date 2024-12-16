@@ -2,7 +2,7 @@ use actix::prelude::*;
 use anyhow::Result;
 use chrono::Local;
 use gstreamer::prelude::*;
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 use tracing::*;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
@@ -10,7 +10,10 @@ use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 use crate::{
     domain::pipeline::ports::{Decoder, HlsSink, PipelinePort, Source, StreamBranch},
     infrastructure::{
-        database::database::Database,
+        database::{
+            database::Database,
+            query_manager::{FileQueryManager, QueryManager},
+        },
         event_bus::event_bus::EventBus,
         hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
         organizer::organizer::ParserActor,
@@ -215,7 +218,15 @@ impl SystemInitializer {
     async fn init_database(&mut self) -> Result<()> {
         info!("Initializing database");
 
-        let database = Database::new("media_library.db").await?;
+        // TODO: move this to env vars
+        let cargo_project_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let sql_dir = cargo_project_dir.join("sql");
+
+        debug!("SQL directory: {:?}", sql_dir);
+
+        let query_manager = Arc::new(FileQueryManager::new(sql_dir).await?);
+        query_manager.reload().await?;
+        let database = Database::new("media_library.db", query_manager).await?;
         self.database_addr = Some(database.start());
 
         Ok(())

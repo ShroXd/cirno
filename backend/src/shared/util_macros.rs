@@ -75,12 +75,13 @@ macro_rules! define_actor_message_handler {
             fn handle(&mut self, msg: $msg_type, _: &mut Self::Context) -> Self::Result {
                 debug!("Processing {}", msg);
                 let pool = self.get_connection_pool();
+                let query_manager = self.get_query_manager();
 
                 Box::pin(
                     // TODO: Currently we pass parameters by value to database functions due to limitations
                     // in macro parameter type handling. This incurs copy overhead. Need to find a way to
                     // pass references through macros in the future.
-                    async move { ($db_call)(&pool, msg).await }
+                    async move { ($db_call)(&pool, query_manager, msg).await }
                         .into_actor(self)
                         .then(|result, _actor, _ctx| match result {
                             // Use parentheses to ensure success_return is parsed as an closure function

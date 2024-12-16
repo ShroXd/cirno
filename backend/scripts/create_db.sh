@@ -2,7 +2,7 @@
 
 # Get the project root path dynamically (assumes the script is located in a subfolder of the project root)
 PROJECT_ROOT=$(dirname "$(realpath "$0")")/../..
-SCHEMA_FILE="$PROJECT_ROOT/backend/db/schema.sql"
+SCHEMA_FILE="$PROJECT_ROOT/backend/sql/schema.sql"
 
 # Check if the first argument is provided, if not use the default path
 if [ -z "$1" ]; then
