@@ -4,15 +4,14 @@ import { NavLink } from 'react-router-dom'
 import { mutate } from 'swr'
 import { useTranslation } from 'react-i18next'
 
-import { MediaItemDto } from '@bindings/MediaItemDto'
 import { useFetch } from '@/hooks/useFetch'
 import { useEventBus } from '@/hooks/useEventBus'
+import { MediaLibraryDto } from '@/bindings/MediaLibraryDto'
 
 export const Library = () => {
   // TODO: fetch media libraries instead of media items
-  const { data, error, isLoading } = useFetch<MediaItemDto[]>(
-    '/media-libraries/media-items'
-  )
+  const { data, error, isLoading } =
+    useFetch<MediaLibraryDto[]>('/media-libraries/')
   const { t } = useTranslation()
   const { onEvent } = useEventBus()
 
@@ -46,27 +45,31 @@ export const Library = () => {
         {t('page.library.recent')}
       </Typography>
       {container(
-        data?.map((serie: MediaItemDto) => (
+        data?.map((mediaLibrary: MediaLibraryDto) => (
           <div
-            className='group flex cursor-pointer select-none flex-col overflow-hidden pb-2'
-            key={serie.id.toString()}
+            className='group flex cursor-pointer select-none flex-col pb-2'
+            key={mediaLibrary.id.toString()}
           >
-            <NavLink to={`/detail/${serie.id}`} state={{ detail: serie }}>
-              <figure className='relative h-72'>
+            <NavLink
+              // to={`/detail/${mediaLibrary.id}`}
+              to={''}
+              state={{ detail: mediaLibrary }}
+            >
+              <div className='max-w-sm rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300'>
                 <img
-                  className='h-full w-full rounded-xl object-cover object-center'
-                  src={serie.poster_path ?? ''}
-                  alt={serie.title ?? ''}
+                  className='w-full h-64 object-cover'
+                  src={mediaLibrary.posters[0].poster_path ?? ''}
+                  alt={mediaLibrary.name}
                 />
-                <figcaption className='absolute bottom-2 left-2/4 flex w-[calc(100%-1rem)] -translate-x-2/4 justify-between rounded-xl border border-white bg-white/75 px-2 py-1 shadow-lg shadow-black/5 saturate-200 backdrop-blur-sm transition-transform duration-500 ease-in-out group-hover:-translate-y-2'>
-                  <div>
-                    <Typography variant='paragraph'>{serie.title}</Typography>
-                    <Typography variant='small' color='gray'>
-                      {serie.year}
-                    </Typography>
-                  </div>
-                </figcaption>
-              </figure>
+                <div className='px-4 py-3 bg-white'>
+                  <Typography
+                    variant='paragraph'
+                    className='text-center font-medium truncate'
+                  >
+                    {mediaLibrary.name}
+                  </Typography>
+                </div>
+              </div>
             </NavLink>
           </div>
         ))

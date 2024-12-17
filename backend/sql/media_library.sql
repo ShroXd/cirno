@@ -14,7 +14,5 @@ from
     tv_series ts
 where
     ts.media_library_id = ?
-order by
-    random ()
 limit
-    3;
+    1;
