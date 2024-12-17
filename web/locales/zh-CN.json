@@ -43,6 +43,9 @@
     }
   },
   "page": {
+    "library": {
+      "recent": "最近"
+    },
     "detail": {
       "watch": "观看",
       "add_to_favorites": "添加到收藏",

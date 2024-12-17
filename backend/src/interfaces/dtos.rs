@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+use crate::domain::media_library::model::MediaLibraryPoster;
+
 use super::http_api::controllers::api_models::MediaLibraryCategory;
 
 #[derive(Debug, Deserialize, Serialize, TS)]
@@ -22,6 +24,7 @@ pub struct MediaLibraryDto {
     pub id: i64,
     pub name: String,
     pub category: MediaLibraryCategory,
+    pub posters: Vec<MediaLibraryPoster>,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS)]

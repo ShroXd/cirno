@@ -43,6 +43,9 @@
     }
   },
   "page": {
+    "library": {
+      "recent": "最近"
+    },
     "detail": {
       "watch": "見る",
       "add_to_favorites": "お気に入りに追加",

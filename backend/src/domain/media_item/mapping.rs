@@ -3,7 +3,7 @@ use sqlx::{sqlite::SqliteRow, Row};
 use crate::{interfaces::dtos::MediaItemDto, shared::util_traits::SqliteRowMapper};
 
 impl SqliteRowMapper<MediaItemDto> for MediaItemDto {
-    fn map_row(row: SqliteRow) -> Self {
+    fn from_row(row: SqliteRow) -> Self {
         MediaItemDto {
             id: row.get::<i64, _>("id"),
             title: row.get::<String, _>("title"),

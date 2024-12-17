@@ -1,11 +1,15 @@
 use actix::Addr;
 use anyhow::*;
+use std::result::Result::Ok;
 use std::sync::Arc;
 use tracing::*;
 
 use crate::{
     infrastructure::database::{
-        actor::{DeleteMediaLibrary, QueryMediaLibraries, SaveMediaLibrary, ValidateCategory},
+        actor::{
+            DeleteMediaLibrary, QueryMediaLibraries, QueryMediaLibraryPosters, SaveMediaLibrary,
+            ValidateCategory,
+        },
         database::Database,
     },
     interfaces::{
@@ -25,10 +29,44 @@ impl MediaLibraryRepository {
 
     #[instrument(skip(self))]
     pub async fn get_media_libraries(&self) -> Result<Vec<MediaLibraryDto>> {
-        self.database_addr
+        let media_library_briefs = self
+            .database_addr
             .send(QueryMediaLibraries)
             .await
-            .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))
+            .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))?;
+
+        let futures: Vec<_> = media_library_briefs
+            .into_iter()
+            .map(|media_library_brief| async move {
+                let media_library_posters = match self
+                    .database_addr
+                    .send(QueryMediaLibraryPosters {
+                        media_library_id: media_library_brief.id,
+                    })
+                    .await
+                {
+                    Ok(posters) => posters,
+                    Err(e) => {
+                        error!(
+                            "Error getting posters for media library {}: {:?}",
+                            media_library_brief.id, e
+                        );
+                        vec![]
+                    }
+                };
+
+                MediaLibraryDto {
+                    id: media_library_brief.id,
+                    name: media_library_brief.name,
+                    category: media_library_brief.category,
+                    posters: media_library_posters,
+                }
+            })
+            .collect();
+
+        let res = futures::future::join_all(futures).await;
+
+        Ok(res)
     }
 
     #[instrument(skip(self))]

@@ -7,8 +7,13 @@ use ts_rs::TS;
 use crate::{
     define_actor_message_handler,
     domain::{
-        episode::model::Episode, media_actor::model::MediaActor,
-        media_library::constant::SENTINEL_MEDIA_LIBRARY_ID, season::model::Season,
+        episode::model::Episode,
+        media_actor::model::MediaActor,
+        media_library::{
+            constant::SENTINEL_MEDIA_LIBRARY_ID,
+            model::{MediaLibraryBrief, MediaLibraryPoster},
+        },
+        season::model::Season,
         tv_show::model::TvShow,
     },
     infrastructure::database::{
@@ -19,13 +24,15 @@ use crate::{
         media_actor::create::save_actor,
         media_item::query::{query_all_media_items, query_series_by_media_library_id},
         media_library::{
-            create::save_media_library, delete::delete_media_library, query::query_media_libraries,
+            create::save_media_library,
+            delete::delete_media_library,
+            query::{query_media_libraries, query_media_library_posters},
         },
         season::{create::save_season, query::query_seasons},
         tv_show::create::save_tv_show,
     },
     interfaces::{
-        dtos::{EpisodeDto, MediaItemDto, MediaLibraryDto, SeasonDto},
+        dtos::{EpisodeDto, MediaItemDto, SeasonDto},
         http_api::controllers::api_models::SaveMediaLibraryPayload,
     },
     shared::util_traits::map_rows,
@@ -234,9 +241,8 @@ define_actor_message_handler!(
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "Vec<MediaLibraryDto>")]
+#[rtype(result = "Vec<MediaLibraryBrief>")]
 pub struct QueryMediaLibraries;
-
 impl Display for QueryMediaLibraries {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "GetMediaLibraries")
@@ -245,10 +251,30 @@ impl Display for QueryMediaLibraries {
 
 define_actor_message_handler!(
     message_type = QueryMediaLibraries,
-    return_type = Vec<MediaLibraryDto>,
+    return_type = Vec<MediaLibraryBrief>,
     db_call = |pool, query_manager, _: QueryMediaLibraries| query_media_libraries(pool, query_manager, |rows| map_rows(rows)),
     success_return = |res| res,
-    error_return = Vec::<MediaLibraryDto>::new()
+    error_return = Vec::<MediaLibraryBrief>::new()
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "Vec<MediaLibraryPoster>")]
+pub struct QueryMediaLibraryPosters {
+    pub media_library_id: i64,
+}
+
+impl Display for QueryMediaLibraryPosters {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GetMediaLibraryPosters({})", self.media_library_id)
+    }
+}
+
+define_actor_message_handler!(
+    message_type = QueryMediaLibraryPosters,
+    return_type = Vec<MediaLibraryPoster>,
+    db_call = |pool, query_manager, msg: QueryMediaLibraryPosters| query_media_library_posters(msg.media_library_id, pool, query_manager, |rows| map_rows(rows)),
+    success_return = |res| res,
+    error_return = Vec::<MediaLibraryPoster>::new()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]

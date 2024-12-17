@@ -2,15 +2,19 @@ import { ReactNode, useCallback, useEffect } from 'react'
 import { Typography } from '@material-tailwind/react'
 import { NavLink } from 'react-router-dom'
 import { mutate } from 'swr'
+import { useTranslation } from 'react-i18next'
 
 import { MediaItemDto } from '@bindings/MediaItemDto'
 import { useFetch } from '@/hooks/useFetch'
 import { useEventBus } from '@/hooks/useEventBus'
 
 export const Library = () => {
+  // TODO: fetch media libraries instead of media items
   const { data, error, isLoading } = useFetch<MediaItemDto[]>(
     '/media-libraries/media-items'
   )
+  const { t } = useTranslation()
+  const { onEvent } = useEventBus()
 
   const container = useCallback(
     (children: ReactNode) => (
@@ -21,8 +25,6 @@ export const Library = () => {
     ),
     []
   )
-
-  const { onEvent } = useEventBus()
 
   useEffect(() => {
     onEvent('MediaLibrarySaved', () => {
@@ -41,7 +43,7 @@ export const Library = () => {
   return (
     <>
       <Typography className='mb-4 mt-2' variant='h4' color='blue-gray'>
-        Recent
+        {t('page.library.recent')}
       </Typography>
       {container(
         data?.map((serie: MediaItemDto) => (

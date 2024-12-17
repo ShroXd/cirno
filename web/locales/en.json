@@ -43,6 +43,9 @@
     }
   },
   "page": {
+    "library": {
+      "recent": "Recent"
+    },
     "detail": {
       "watch": "Watch",
       "add_to_favorites": "Add to Favorites",
