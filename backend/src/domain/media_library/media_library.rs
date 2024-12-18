@@ -48,6 +48,18 @@ pub async fn get_media_libraries(
 }
 
 #[instrument(skip(media_library_repository))]
+pub async fn get_media_library_by_id(
+    id: i64,
+    media_library_repository: Arc<MediaLibraryRepository>,
+) -> Result<MediaLibraryDto> {
+    debug!("Getting media library for id: {}", id);
+
+    let media_library = media_library_repository.get_media_library_by_id(id).await?;
+
+    Ok(media_library)
+}
+
+#[instrument(skip(media_library_repository))]
 pub async fn delete_media_library(
     id: i64,
     media_library_repository: Arc<MediaLibraryRepository>,

@@ -10,21 +10,31 @@ use crate::{
 
 // TODO: after finishing the user system, query the media libraries for the current user
 #[instrument(skip(conn_pool, query_manager, mapper))]
-pub async fn query_media_libraries(
+pub async fn query_media_library(
     conn_pool: &SqlitePool,
     query_manager: Arc<dyn QueryManager>,
+    id: Option<i64>,
     mapper: impl Fn(Vec<SqliteRow>) -> Vec<MediaLibraryBrief>,
 ) -> Result<Vec<MediaLibraryBrief>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    let query = query_manager
-        .get_query("media_library", "get_media_libraries")
-        .await?;
+    let raw_media_library = match id {
+        Some(id) => {
+            let query = query_manager
+                .get_query("media_library", "find_media_library_by_id")
+                .await?;
+            sqlx::query(&query).bind(id).fetch_all(&mut *tx).await?
+        }
+        None => {
+            let query = query_manager
+                .get_query("media_library", "find_all_media_libraries")
+                .await?;
+            sqlx::query(&query).fetch_all(&mut *tx).await?
+        }
+    };
 
-    let raw_media_libraries: Vec<SqliteRow> = sqlx::query(&query).fetch_all(&mut *tx).await?;
-
-    Ok(mapper(raw_media_libraries))
+    Ok(mapper(raw_media_library))
 }
 
 #[instrument(skip(conn_pool, query_manager, mapper))]

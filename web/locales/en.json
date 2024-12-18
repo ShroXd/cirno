@@ -44,7 +44,7 @@
   },
   "page": {
     "library": {
-      "recent": "Recent"
+      "recent_added": "Recently Added"
     },
     "detail": {
       "watch": "Watch",

@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { Typography } from '@material-tailwind/react'
 import { NavLink } from 'react-router-dom'
 import { mutate } from 'swr'
@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next'
 
 import { useFetch } from '@/hooks/useFetch'
 import { useEventBus } from '@/hooks/useEventBus'
-import { MediaLibraryDto } from '@/bindings/MediaLibraryDto'
+import { wrapInGrid } from '@/pages/utils'
+import { MediaLibraryDto } from '@/bindings/MediaLibraryDTO'
 
 export const Library = () => {
   // TODO: fetch media libraries instead of media items
@@ -14,16 +15,7 @@ export const Library = () => {
     useFetch<MediaLibraryDto[]>('/media-libraries/')
   const { t } = useTranslation()
   const { onEvent } = useEventBus()
-
-  const container = useCallback(
-    (children: ReactNode) => (
-      // TODO: optimize the grid layout for different screen sizes
-      <div className='grid grid-cols-1 gap-4 gap-y-12 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'>
-        {children}
-      </div>
-    ),
-    []
-  )
+  const container = useCallback(wrapInGrid, [])
 
   useEffect(() => {
     onEvent('MediaLibrarySaved', () => {
@@ -42,7 +34,7 @@ export const Library = () => {
   return (
     <>
       <Typography className='mb-4 mt-2' variant='h4' color='blue-gray'>
-        {t('page.library.recent')}
+        {t('page.library.recent_added')}
       </Typography>
       {container(
         data?.map((mediaLibrary: MediaLibraryDto) => (
@@ -50,11 +42,7 @@ export const Library = () => {
             className='group flex cursor-pointer select-none flex-col pb-2'
             key={mediaLibrary.id.toString()}
           >
-            <NavLink
-              // to={`/detail/${mediaLibrary.id}`}
-              to={''}
-              state={{ detail: mediaLibrary }}
-            >
+            <NavLink to={`/library-detail/${mediaLibrary.id}`}>
               <div className='max-w-sm rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300'>
                 <img
                   className='w-full h-64 object-cover'

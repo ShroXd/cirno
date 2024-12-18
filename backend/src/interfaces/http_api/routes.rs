@@ -16,11 +16,11 @@ use crate::{
     init::repository_manager::Repositories,
     interfaces::{
         http_api::controllers::{
-            api_models::{GetMediaItemsQuery, SaveMediaLibraryPayload},
+            api_models::SaveMediaLibraryPayload,
             media_item::get_media_items_controller,
             media_library::{
                 create_media_library_controller, delete_media_library_controller,
-                get_media_libraries_controller,
+                get_media_libraries_controller, get_media_library_by_id_controller,
             },
             tv_show::get_tv_show_seasons_controller,
             video_player::play_video_with_path_controller,
@@ -39,12 +39,12 @@ use super::controllers::api_models::PlayVideoWithPathPayload;
 // Media Library Routes
 // --------------------------------
 
-#[get("/media-items")]
+#[get("/{id}/media-items")]
 async fn get_media_items_route(
     database_addr: Data<Addr<Database>>,
-    query: Query<GetMediaItemsQuery>,
+    id: Path<i64>,
 ) -> impl Responder {
-    get_media_items_controller(database_addr, query).await
+    get_media_items_controller(database_addr, id).await
 }
 
 #[get("/series/{id}/seasons")]
@@ -84,6 +84,14 @@ async fn get_media_libraries_route(repositories: Data<Repositories>) -> impl Res
     get_media_libraries_controller(repositories).await
 }
 
+#[get("/{id}")]
+async fn get_media_library_route(
+    id: Path<i64>,
+    repositories: Data<Repositories>,
+) -> impl Responder {
+    get_media_library_by_id_controller(id, repositories).await
+}
+
 #[delete("/{id}")]
 async fn delete_media_library_route(
     id: Path<i64>,
@@ -99,6 +107,7 @@ pub fn init_media_libraries_routes(cfg: &mut ServiceConfig) {
             .service(get_tv_show_seasons_route)
             .service(create_media_library_route)
             .service(get_media_libraries_route)
+            .service(get_media_library_route)
             .service(delete_media_library_route),
     );
 }

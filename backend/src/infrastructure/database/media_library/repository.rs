@@ -7,7 +7,7 @@ use tracing::*;
 use crate::{
     infrastructure::database::{
         actor::{
-            DeleteMediaLibrary, QueryMediaLibraries, QueryMediaLibraryPosters, SaveMediaLibrary,
+            DeleteMediaLibrary, QueryMediaLibrary, QueryMediaLibraryPosters, SaveMediaLibrary,
             ValidateCategory,
         },
         database::Database,
@@ -29,9 +29,28 @@ impl MediaLibraryRepository {
 
     #[instrument(skip(self))]
     pub async fn get_media_libraries(&self) -> Result<Vec<MediaLibraryDto>> {
+        self.get_media_library_internal(None).await
+    }
+
+    #[instrument(skip(self))]
+    pub async fn get_media_library_by_id(&self, id: i64) -> Result<MediaLibraryDto> {
+        let results = self.get_media_library_internal(Some(id)).await?;
+
+        if results.is_empty() {
+            return Err(anyhow::anyhow!("Media library not found"));
+        }
+
+        Ok(results.into_iter().next().unwrap())
+    }
+
+    #[instrument(skip(self))]
+    pub async fn get_media_library_internal(
+        &self,
+        id: Option<i64>,
+    ) -> Result<Vec<MediaLibraryDto>> {
         let media_library_briefs = self
             .database_addr
-            .send(QueryMediaLibraries)
+            .send(QueryMediaLibrary { id })
             .await
             .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))?;
 

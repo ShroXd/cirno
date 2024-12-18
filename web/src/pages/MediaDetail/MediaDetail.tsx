@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -16,14 +16,13 @@ import {
 import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
 import useSWR from 'swr'
 
-import { MediaItemDto } from '@bindings/MediaItemDto'
 import { SeasonDto } from '@bindings/SeasonDto'
 import { EpisodeDto } from '@bindings/EpisodeDto'
 import { usePost } from '@/hooks/usePost'
 import { useEventBus } from '@/hooks/useEventBus'
 
-export const Detail = () => {
-  const [serie, setSerie] = useState<MediaItemDto>()
+// TODO: fetch media item details from backend instead of use the passed state
+export const MediaDetail = () => {
   const [sortBy, setSortBy] = useState<string>('episode_number')
   const [isWaitingForHlsStream, setIsWaitingForHlsStream] = useState(false)
 
@@ -37,10 +36,6 @@ export const Detail = () => {
     `/media-libraries/series/${location.state.detail.id}/seasons`,
     (url: string) => fetch(url).then(res => res.json())
   )
-
-  useEffect(() => {
-    setSerie(location.state.detail)
-  }, [location.state.detail])
 
   const handlePlay = useCallback(
     (episode: EpisodeDto) => {
@@ -72,13 +67,15 @@ export const Detail = () => {
           <div className='flex w-full flex-row items-start gap-10'>
             <img
               className='h-80 w-52 rounded-xl object-cover shadow-xl shadow-blue-gray-900/50'
-              src={serie?.poster_path ?? ''}
-              alt={serie?.title}
+              src={location.state.detail.poster_path ?? ''}
+              alt={location.state.detail.title}
             />
             <div className='flex flex-col justify-center gap-4'>
-              <Typography variant='h2'>{serie?.title}</Typography>
+              <Typography variant='h2'>
+                {location.state.detail.title}
+              </Typography>
               <div className='flex flex-row gap-2'>
-                {serie?.genres.map(genre => (
+                {location.state.detail.genres.map((genre: string) => (
                   <Chip
                     size='md'
                     variant='outlined'
@@ -88,7 +85,7 @@ export const Detail = () => {
                 ))}
               </div>
               <Typography variant='paragraph' className='mb-6'>
-                {serie?.plot}
+                {location.state.detail.plot}
               </Typography>
               <div className='mt-auto flex flex-row flex-wrap gap-4'>
                 <Button

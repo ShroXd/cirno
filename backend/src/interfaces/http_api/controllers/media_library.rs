@@ -9,7 +9,9 @@ use tracing::*;
 use super::api_models::SaveMediaLibraryPayload;
 use crate::{
     application::media_library_service::create_media_library_service,
-    domain::media_library::media_library::{delete_media_library, get_media_libraries},
+    domain::media_library::media_library::{
+        delete_media_library, get_media_libraries, get_media_library_by_id,
+    },
     handle_controller_result,
     infrastructure::{
         database::database::Database, event_bus::event_bus::EventBus,
@@ -61,11 +63,23 @@ pub async fn create_media_library_controller(
 #[instrument(skip(repositories))]
 pub async fn get_media_libraries_controller(repositories: Data<Repositories>) -> impl Responder {
     debug!("Getting all media libraries");
-
     handle_controller_result!(
         get_media_libraries(repositories.media_library.clone()).await,
         HttpResponse::Ok(),
-        HttpResponse::InternalServerError()
+        HttpResponse::NotFound()
+    )
+}
+
+#[instrument(skip(repositories))]
+pub async fn get_media_library_by_id_controller(
+    id: Path<i64>,
+    repositories: Data<Repositories>,
+) -> impl Responder {
+    debug!("Getting media library for id: {}", id);
+    handle_controller_result!(
+        get_media_library_by_id(id.into_inner(), repositories.media_library.clone()).await,
+        HttpResponse::Ok(),
+        HttpResponse::NotFound()
     )
 }
 

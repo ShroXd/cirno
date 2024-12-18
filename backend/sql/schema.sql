@@ -97,5 +97,8 @@ CREATE TABLE IF NOT EXISTS media_library (
     name TEXT NOT NULL,
     directory TEXT NOT NULL,
     category_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME,
     FOREIGN KEY (category_id) REFERENCES category_mapping (id) ON DELETE SET NULL ON UPDATE CASCADE
 )

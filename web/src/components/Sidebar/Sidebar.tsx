@@ -26,8 +26,8 @@ import { mutate } from 'swr'
 
 import { LibraryManageDialog } from '@/components/LibraryManageDialog/LibraryManageDialog'
 import { useFetch } from '@/hooks/useFetch'
-import { MediaLibraryDto } from '@/bindings/MediaLibraryDto'
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog/DeleteConfirmationDialog'
+import { MediaLibraryDto } from '@/bindings/MediaLibraryDTO'
 
 export const Sidebar = () => {
   const [expanded, setExpanded] = useState(0)
