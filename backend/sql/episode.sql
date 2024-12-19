@@ -12,7 +12,7 @@ select
     e.episodes_number,
     e.runtime,
     s.season_number,
-    s.title
+    s.title as season_title
 from
     episodes e
     join seasons s on e.season_id = s.id

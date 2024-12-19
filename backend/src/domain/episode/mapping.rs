@@ -17,7 +17,7 @@ impl SqliteRowMapper<EpisodeDto> for EpisodeDto {
             episodes_number: row.get::<Option<i64>, _>("episodes_number"),
             runtime: row.get::<Option<i64>, _>("runtime"),
             season_number: row.get::<Option<i64>, _>("season_number"),
-            season_title: row.get::<Option<String>, _>("title"),
+            season_title: row.get::<Option<String>, _>("season_title"),
         }
     }
 }

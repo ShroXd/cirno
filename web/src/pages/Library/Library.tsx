@@ -41,7 +41,7 @@ export const Library = () => {
             className='group flex cursor-pointer select-none flex-col pb-2'
             key={library.id.toString()}
           >
-            <NavLink to={`/library-detail/${library.id}`}>
+            <NavLink to={`/library/${library.id}`}>
               <div className='max-w-sm rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300'>
                 <img
                   className='w-full h-64 object-cover'

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import { Settings } from '@/pages/Settings/Settings'
 import { Sidebar } from '@/components/Sidebar/Sidebar'
 import { Library } from '@/pages/Library/Library'
@@ -11,11 +11,13 @@ import { useNotification } from '@/hooks/useNotification'
 import { useEventBus } from '@/hooks/useEventBus'
 import { useTranslation } from 'react-i18next'
 import { LibraryDetail } from '../LibraryDetail/LibraryDetail'
+import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
 
 export const Home = () => {
   const { addNotification } = useNotification()
   const { onEvent } = useEventBus()
   const { t } = useTranslation()
+  const location = useLocation()
 
   useEffect(() => {
     onEvent('LibrarySaved', (payload: unknown) =>
@@ -33,13 +35,17 @@ export const Home = () => {
       <div className='flex h-screen w-screen px-1 py-1'>
         <Sidebar />
 
-        <div className='ml-6 h-full w-auto'>
+        <div className='ml-6 mt-2 h-full w-auto'>
+          {location.pathname !== '/' && <Breadcrumb />}
           <Routes>
             <Route path='/' element={<Library />} />
-            <Route path='/library-detail/:id' element={<LibraryDetail />} />
+            <Route path='/library/:libraryId' element={<LibraryDetail />} />
             <Route path='/settings' element={<Settings />} />
             <Route path='/test' element={<Test />} />
-            <Route path='/media-detail/:id' element={<MediaDetail />} />
+            <Route
+              path='/library/:libraryId/media/:mediaId'
+              element={<MediaDetail />}
+            />
             <Route path='/favorites' element={<Favorites />} />
             <Route path='/video' element={<Video />} />
           </Routes>

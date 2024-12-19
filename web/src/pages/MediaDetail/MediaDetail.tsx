@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Chip,
@@ -14,11 +14,12 @@ import {
   Option,
 } from '@material-tailwind/react'
 import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
-import useSWR from 'swr'
 
 import { EpisodeDto } from '@bindings/EpisodeDto'
 import { usePost } from '@/hooks/usePost'
 import { useEventBus } from '@/hooks/useEventBus'
+import { MediaItemDto } from '@/bindings/MediaItemDto'
+import { useFetch } from '@/hooks/useFetch'
 
 const transformEpisodesToSeasons = (episodes: EpisodeDto[] | undefined) => {
   if (!episodes) return []
@@ -43,25 +44,33 @@ const transformEpisodesToSeasons = (episodes: EpisodeDto[] | undefined) => {
   }))
 }
 
-// TODO: fetch media item details from backend instead of use the passed state
 export const MediaDetail = () => {
   const [sortBy, setSortBy] = useState<string>('episode_number')
   const [isWaitingForHlsStream, setIsWaitingForHlsStream] = useState(false)
 
-  const location = useLocation()
   const { t } = useTranslation()
   const post = usePost()
   const navigate = useNavigate()
   const { onEvent } = useEventBus()
 
-  const { data, error, isLoading } = useSWR<EpisodeDto[]>(
-    `/library/${location.state.detail.id}/media/${location.state.detail.id}/episodes`,
-    {
-      fetcher: (url: string) => fetch(url).then(res => res.json()),
-    }
-  )
+  const { libraryId, mediaId } = useParams()
 
-  const seasons = useMemo(() => transformEpisodesToSeasons(data), [data])
+  const {
+    data: media,
+    error: mediaError,
+    isLoading: mediaIsLoading,
+  } = useFetch<MediaItemDto>(`/library/${libraryId}/media/${mediaId}`)
+
+  const {
+    data: episodes,
+    error: episodesError,
+    isLoading: episodesIsLoading,
+  } = useFetch<EpisodeDto[]>(`/library/${libraryId}/media/${mediaId}/episodes`)
+
+  const seasons = useMemo(
+    () => transformEpisodesToSeasons(episodes),
+    [episodes]
+  )
 
   const handlePlay = useCallback(
     (episode: EpisodeDto) => {
@@ -82,9 +91,10 @@ export const MediaDetail = () => {
     [navigate, onEvent, post]
   )
 
-  // TODO: encapsulate the loading and error states
-  if (isLoading || isWaitingForHlsStream) return <div>Loading...</div>
-  if (error) return <div>Error: {error.message}</div>
+  if (mediaIsLoading || episodesIsLoading || isWaitingForHlsStream)
+    return <div>Loading...</div>
+  if (mediaError || episodesError)
+    return <div>Error: {mediaError?.message}</div>
 
   return (
     <>
@@ -93,15 +103,13 @@ export const MediaDetail = () => {
           <div className='flex w-full flex-row items-start gap-10'>
             <img
               className='h-80 w-52 rounded-xl object-cover shadow-xl shadow-blue-gray-900/50'
-              src={location.state.detail.poster_path ?? ''}
-              alt={location.state.detail.title}
+              src={media?.poster_path ?? ''}
+              alt={media?.title}
             />
             <div className='flex flex-col justify-center gap-4'>
-              <Typography variant='h2'>
-                {location.state.detail.title}
-              </Typography>
+              <Typography variant='h2'>{media?.title}</Typography>
               <div className='flex flex-row gap-2'>
-                {location.state.detail.genres.map((genre: string) => (
+                {media?.genres.map((genre: string) => (
                   <Chip
                     size='md'
                     variant='outlined'
@@ -111,7 +119,7 @@ export const MediaDetail = () => {
                 ))}
               </div>
               <Typography variant='paragraph' className='mb-6'>
-                {location.state.detail.plot}
+                {media?.plot}
               </Typography>
               <div className='mt-auto flex flex-row flex-wrap gap-4'>
                 <Button
