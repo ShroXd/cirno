@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "DELETE FROM media_library WHERE id = ?",
+  "query": "DELETE FROM library WHERE id = ?",
   "describe": {
     "columns": [],
     "parameters": {
@@ -8,5 +8,5 @@
     },
     "nullable": []
   },
-  "hash": "3e0badeda74c3e2f4c2e280cfe6313636185a2595e450e4bc1778813ffac9318"
+  "hash": "20d94cf1cf2bc3b643b27a75a58f0517156d112ccfba01d5f6a5785175e6a878"
 }

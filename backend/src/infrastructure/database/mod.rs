@@ -5,7 +5,7 @@ pub mod episode;
 pub mod genre;
 pub mod media_actor;
 pub mod media_item;
-pub mod media_library;
+pub mod library;
 pub mod query_manager;
 pub mod season;
 pub mod tv_show;

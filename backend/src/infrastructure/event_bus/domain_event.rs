@@ -5,7 +5,7 @@ use tracing::*;
 use super::model::GeneralEvent;
 use crate::{
     domain::{
-        media_library::event::MediaLibraryEventType, pipeline::event::PipelineEvent,
+        library::event::LibraryEventType, pipeline::event::PipelineEvent,
         task::task::AsyncTaskEvent, websocket::event::WebSocketEventType,
     },
     interfaces::ws::{
@@ -18,7 +18,7 @@ use crate::{
 pub enum DomainEvent {
     General(GeneralEvent),
     AsyncTask(AsyncTaskEvent),
-    MediaLibrary(MediaLibraryEventType),
+    Library(LibraryEventType),
     Pipeline(PipelineEvent),
     WebSocket(WebSocketEventType),
 }
@@ -33,9 +33,9 @@ impl IntoNotification for DomainEvent {
                 }
                 _ => unimplemented!(),
             },
-            DomainEvent::MediaLibrary(event) => match event {
-                MediaLibraryEventType::MediaLibrarySaved { .. } => {
-                    Notification::new(NotificationType::MediaLibrarySaved, event)
+            DomainEvent::Library(event) => match event {
+                LibraryEventType::LibrarySaved { .. } => {
+                    Notification::new(NotificationType::LibrarySaved, event)
                 }
                 _ => unimplemented!(),
             },

@@ -8,11 +8,11 @@ use crate::{
     define_actor_message_handler,
     domain::{
         episode::model::Episode,
-        media_actor::model::MediaActor,
-        media_library::{
-            constant::SENTINEL_MEDIA_LIBRARY_ID,
-            model::{MediaLibraryBrief, MediaLibraryPoster},
+        library::{
+            constant::SENTINEL_LIBRARY_ID,
+            model::{LibraryBrief, LibraryPoster},
         },
+        media_actor::model::MediaActor,
         season::model::Season,
         tv_show::model::TvShow,
     },
@@ -21,22 +21,21 @@ use crate::{
         database::Database,
         episode::{create::save_episode, query::query_episodes},
         genre::create::save_genre,
+        library::{
+            create::save_library,
+            delete::delete_library,
+            query::{query_library, query_library_posters},
+        },
         media_actor::create::save_actor,
         media_item::query::{
-            query_all_media, query_all_media_items, query_media_by_id,
-            query_series_by_media_library_id,
-        },
-        media_library::{
-            create::save_media_library,
-            delete::delete_media_library,
-            query::{query_media_library, query_media_library_posters},
+            query_all_media, query_all_media_items, query_media_by_id, query_series_by_library_id,
         },
         season::{create::save_season, query::query_seasons},
         tv_show::create::save_tv_show,
     },
     interfaces::{
         dtos::{EpisodeDto, MediaItemDto, SeasonDto},
-        http_api::controllers::api_models::SaveMediaLibraryPayload,
+        http_api::controllers::api_models::SaveLibraryPayload,
     },
     shared::util_traits::map_rows,
 };
@@ -53,7 +52,7 @@ impl Display for SaveTvShow {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "WriteTvShowes({:?}, media_library_id: {})",
+            "WriteTvShowes({:?}, library_id: {})",
             self.0.title, self.1
         )
     }
@@ -160,7 +159,7 @@ impl Display for QueryMediaItemsByMediaLibraryId {
 define_actor_message_handler!(
     message_type = QueryMediaItemsByMediaLibraryId,
     return_type = Vec<MediaItemDto>,
-    db_call = |pool, _, msg: QueryMediaItemsByMediaLibraryId| query_series_by_media_library_id(pool, msg.0, |rows| map_rows(rows)),
+    db_call = |pool, _, msg: QueryMediaItemsByMediaLibraryId| query_series_by_library_id(pool, msg.0, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
 );
@@ -287,84 +286,81 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "i64")]
-pub struct SaveMediaLibrary {
-    pub payload: SaveMediaLibraryPayload,
+pub struct SaveLibrary {
+    pub payload: SaveLibraryPayload,
 }
 
-impl Display for SaveMediaLibrary {
+impl Display for SaveLibrary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "CreateMediaLibrary({:?})", self.payload)
+        write!(f, "SaveLibrary({:?})", self.payload)
     }
 }
 
 define_actor_message_handler!(
-    message_type = SaveMediaLibrary,
+    message_type = SaveLibrary,
     return_type = i64,
-    db_call = |pool, query_manager, msg: SaveMediaLibrary| save_media_library(
-        pool,
-        query_manager,
-        msg.payload
-    ),
+    db_call =
+        |pool, query_manager, msg: SaveLibrary| save_library(pool, query_manager, msg.payload),
     success_return = |res| res,
-    error_return = SENTINEL_MEDIA_LIBRARY_ID
+    error_return = SENTINEL_LIBRARY_ID
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "Vec<MediaLibraryBrief>")]
-pub struct QueryMediaLibrary {
+#[rtype(result = "Vec<LibraryBrief>")]
+pub struct QueryLibrary {
     pub id: Option<i64>,
 }
 
-impl Display for QueryMediaLibrary {
+impl Display for QueryLibrary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "GetMediaLibrary({:?})", self.id)
+        write!(f, "GetLibrary({:?})", self.id)
     }
 }
 
 define_actor_message_handler!(
-    message_type = QueryMediaLibrary,
-    return_type = Vec<MediaLibraryBrief>,
-    db_call = |pool, query_manager, msg: QueryMediaLibrary| query_media_library(pool, query_manager, msg.id, |rows| map_rows(rows)),
+    message_type = QueryLibrary,
+    return_type = Vec<LibraryBrief>,
+    db_call = |pool, query_manager, msg: QueryLibrary| query_library(pool, query_manager, msg.id, |rows| map_rows(rows)),
     success_return = |res| res,
-    error_return = Vec::<MediaLibraryBrief>::new()
+    error_return = Vec::<LibraryBrief>::new()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "Vec<MediaLibraryPoster>")]
-pub struct QueryMediaLibraryPosters {
-    pub media_library_id: i64,
+#[rtype(result = "Vec<LibraryPoster>")]
+pub struct QueryLibraryPosters {
+    pub library_id: i64,
 }
 
-impl Display for QueryMediaLibraryPosters {
+impl Display for QueryLibraryPosters {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "GetMediaLibraryPosters({})", self.media_library_id)
+        write!(f, "GetLibraryPosters({})", self.library_id)
     }
 }
 
 define_actor_message_handler!(
-    message_type = QueryMediaLibraryPosters,
-    return_type = Vec<MediaLibraryPoster>,
-    db_call = |pool, query_manager, msg: QueryMediaLibraryPosters| query_media_library_posters(msg.media_library_id, pool, query_manager, |rows| map_rows(rows)),
+    message_type = QueryLibraryPosters,
+    return_type = Vec<LibraryPoster>,
+    db_call = |pool, query_manager, msg: QueryLibraryPosters| query_library_posters(msg.library_id, pool, query_manager, |rows| map_rows(rows)),
     success_return = |res| res,
-    error_return = Vec::<MediaLibraryPoster>::new()
+    error_return = Vec::<LibraryPoster>::new()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
-pub struct DeleteMediaLibrary {
+pub struct DeleteLibrary {
     pub id: i64,
 }
 
-impl Display for DeleteMediaLibrary {
+impl Display for DeleteLibrary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "DeleteMediaLibrary({})", self.id)
+        write!(f, "DeleteLibrary({})", self.id)
     }
 }
 
 define_actor_message_handler!(
-    message_type = DeleteMediaLibrary,
+    message_type = DeleteLibrary,
     return_type = (),
-    db_call = |pool, _, msg: DeleteMediaLibrary| delete_media_library(pool, msg.id),
+    db_call = |pool, _, msg: DeleteLibrary| delete_library(pool, msg.id),
     success_return = |_| (),
     error_return = ()
 );

@@ -7,39 +7,39 @@ use ts_rs::TS;
 
 #[derive(Debug, Deserialize, Serialize, Clone, TS)]
 #[ts(export)]
-pub struct SaveMediaLibraryPayload {
+pub struct SaveLibraryPayload {
     pub name: String,
     pub directory: String,
-    pub category: MediaLibraryCategory,
+    pub category: LibraryCategory,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export)]
-pub enum MediaLibraryCategory {
+pub enum LibraryCategory {
     Movie,
     TvShow,
     Animation,
 }
 
-impl From<MediaLibraryCategory> for i64 {
-    fn from(category: MediaLibraryCategory) -> Self {
+impl From<LibraryCategory> for i64 {
+    fn from(category: LibraryCategory) -> Self {
         match category {
-            MediaLibraryCategory::Movie => 1,
-            MediaLibraryCategory::TvShow => 2,
-            MediaLibraryCategory::Animation => 3,
+            LibraryCategory::Movie => 1,
+            LibraryCategory::TvShow => 2,
+            LibraryCategory::Animation => 3,
         }
     }
 }
 
-impl TryFrom<i64> for MediaLibraryCategory {
+impl TryFrom<i64> for LibraryCategory {
     type Error = String;
 
     fn try_from(value: i64) -> Result<Self, Self::Error> {
         Ok(match value {
-            1 => MediaLibraryCategory::Movie,
-            2 => MediaLibraryCategory::TvShow,
-            3 => MediaLibraryCategory::Animation,
-            _ => return Err("Invalid media library category".to_string()),
+            1 => LibraryCategory::Movie,
+            2 => LibraryCategory::TvShow,
+            3 => LibraryCategory::Animation,
+            _ => return Err("Invalid library category".to_string()),
         })
     }
 }
@@ -51,7 +51,7 @@ impl TryFrom<i64> for MediaLibraryCategory {
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct GetMediaItemsQuery {
-    pub media_library_id: Option<i64>,
+    pub library_id: Option<i64>,
 }
 
 //------------------------------------------------------------------------------

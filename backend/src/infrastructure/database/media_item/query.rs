@@ -32,9 +32,9 @@ pub async fn query_all_media_items(
 }
 
 #[instrument(skip(conn_pool, mapper))]
-pub async fn query_series_by_media_library_id(
+pub async fn query_series_by_library_id(
     conn_pool: &SqlitePool,
-    media_library_id: i64,
+    library_id: i64,
     mapper: impl Fn(Vec<SqliteRow>) -> Vec<MediaItemDto>,
 ) -> Result<Vec<MediaItemDto>> {
     let mut conn = conn_pool.acquire().await?;
@@ -46,10 +46,10 @@ pub async fn query_series_by_media_library_id(
         FROM tv_series ts
         JOIN tv_series_genres tsg ON ts.id = tsg.series_id
         JOIN genres g ON tsg.genre_id = g.id
-        WHERE ts.media_library_id = ?
+        WHERE ts.library_id = ?
         GROUP BY ts.id, ts.title",
     )
-    .bind(media_library_id)
+    .bind(library_id)
     .fetch_all(&mut *tx)
     .await?;
 

@@ -18,13 +18,11 @@ export const Home = () => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    onEvent('MediaLibrarySaved', (payload: unknown) =>
+    onEvent('LibrarySaved', (payload: unknown) =>
       addNotification({
-        title: t('notification.mediaLibrarySaved.title'),
-        message: t('notification.mediaLibrarySaved.message', {
-          mediaLibraryName: (payload as Record<string, unknown>)[
-            'media_library_name'
-          ],
+        title: t('notification.librarySaved.title'),
+        message: t('notification.librarySaved.message', {
+          libraryName: (payload as Record<string, unknown>)['library_name'],
         }),
       })
     )

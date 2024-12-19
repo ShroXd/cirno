@@ -192,7 +192,7 @@ tasks:
     cmds:
       - |
         echo "📂 Setting DATABASE_URL for the database..."
-        export DATABASE_URL="sqlite://$(pwd)/backend/media_library.db"
+        export DATABASE_URL="sqlite://$(pwd)/backend/database.db"
         echo "DATABASE_URL is set to: $DATABASE_URL"
         cd backend
         echo "🏗️ Running cargo sqlx prepare..."

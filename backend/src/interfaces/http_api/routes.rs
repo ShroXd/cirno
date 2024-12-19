@@ -16,13 +16,13 @@ use crate::{
     init::repository_manager::Repositories,
     interfaces::{
         http_api::controllers::{
-            api_models::SaveMediaLibraryPayload,
+            api_models::SaveLibraryPayload,
+            library::{
+                create_library_controller, delete_library_controller,
+                get_libraries_controller, get_library_by_id_controller,
+            },
             media_item::{
                 get_all_media_controller, get_media_controller, get_media_episodes_controller,
-            },
-            media_library::{
-                create_media_library_controller, delete_media_library_controller,
-                get_media_libraries_controller, get_media_library_by_id_controller,
             },
             video_player::play_video_with_path_controller,
         },
@@ -65,8 +65,8 @@ async fn get_media_episodes_route(
 }
 
 #[post("/")]
-async fn create_media_library_route(
-    payload: Json<SaveMediaLibraryPayload>,
+async fn create_library_route(
+    payload: Json<SaveLibraryPayload>,
     database_addr: Data<Addr<Database>>,
     parser_addr: Data<Addr<ParserActor>>,
     ws_connections: Data<WsConnections>,
@@ -75,7 +75,7 @@ async fn create_media_library_route(
     repositories: Data<Repositories>,
     req: HttpRequest,
 ) -> impl Responder {
-    create_media_library_controller(
+    create_library_controller(
         payload,
         database_addr,
         parser_addr,
@@ -89,24 +89,24 @@ async fn create_media_library_route(
 }
 
 #[get("/")]
-async fn get_media_libraries_route(repositories: Data<Repositories>) -> impl Responder {
-    get_media_libraries_controller(repositories).await
+async fn get_libraries_route(repositories: Data<Repositories>) -> impl Responder {
+    get_libraries_controller(repositories).await
 }
 
 #[get("/{id}")]
-async fn get_media_library_route(
+async fn get_library_route(
     id: Path<i64>,
     repositories: Data<Repositories>,
 ) -> impl Responder {
-    get_media_library_by_id_controller(id, repositories).await
+    get_library_by_id_controller(id, repositories).await
 }
 
 #[delete("/{id}")]
-async fn delete_media_library_route(
+async fn delete_library_route(
     id: Path<i64>,
     repositories: Data<Repositories>,
 ) -> impl Responder {
-    delete_media_library_controller(id, repositories).await
+    delete_library_controller(id, repositories).await
 }
 
 pub fn init_library_routes(cfg: &mut ServiceConfig) {
@@ -115,10 +115,10 @@ pub fn init_library_routes(cfg: &mut ServiceConfig) {
             .service(get_all_media_route)
             .service(get_media_route)
             .service(get_media_episodes_route)
-            .service(create_media_library_route)
-            .service(get_media_libraries_route)
-            .service(get_media_library_route)
-            .service(delete_media_library_route),
+            .service(create_library_route)
+            .service(get_libraries_route)
+            .service(get_library_route)
+            .service(delete_library_route),
     );
 }
 

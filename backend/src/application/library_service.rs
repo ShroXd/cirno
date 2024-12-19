@@ -8,21 +8,19 @@ use crate::{
     application::media_item_service::insert_media_item,
     chain_events,
     domain::{
-        media_library::{
-            constant::SENTINEL_MEDIA_LIBRARY_ID, event::MediaLibraryEventType,
-            media_library::create_media_library, task::MediaLibraryScanTask,
+        library::{
+            constant::SENTINEL_LIBRARY_ID, event::LibraryEventType,
+            library::create_library, task::LibraryScanTask,
         },
         task::task::{AsyncTaskResponse, TaskIdentifiable, TaskType},
     },
     infrastructure::{
-        database::{database::Database, media_library::repository::MediaLibraryRepository},
+        database::{database::Database, library::repository::LibraryRepository},
         event_bus::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
         organizer::organizer::ParserActor,
         task_pool::task_pool::TaskPool,
     },
-    interfaces::{
-        http_api::controllers::api_models::SaveMediaLibraryPayload, ws::utils::WsConnections,
-    },
+    interfaces::{http_api::controllers::api_models::SaveLibraryPayload, ws::utils::WsConnections},
 };
 
 #[instrument(skip(
@@ -31,28 +29,28 @@ use crate::{
     ws_connections,
     task_pool,
     event_bus,
-    media_library_repository
+    library_repository
 ))]
-pub async fn create_media_library_service(
-    payload: SaveMediaLibraryPayload,
+pub async fn create_library_service(
+    payload: SaveLibraryPayload,
     database_addr: Data<Addr<Database>>,
     parser_addr: Data<Addr<ParserActor>>,
     ws_connections: Data<WsConnections>,
     task_pool: Data<TaskPool>,
     event_bus: Data<Arc<EventBus>>,
     ws_client_key: String,
-    media_library_repository: Arc<MediaLibraryRepository>,
+    library_repository: Arc<LibraryRepository>,
 ) -> Result<AsyncTaskResponse<i64>> {
     let directory_clone = payload.directory.clone();
-    let media_library_name = payload.name.clone();
+    let library_name = payload.name.clone();
     let database_addr = database_addr.into_inner();
 
-    let media_library_id = create_media_library(payload, media_library_repository.clone()).await?;
-    debug!("Media library created with id: {:?}", media_library_id);
+    let library_id = create_library(payload, library_repository.clone()).await?;
+    debug!("Library created with id: {:?}", library_id);
 
-    if media_library_id == SENTINEL_MEDIA_LIBRARY_ID {
-        error!("Failed to create media library");
-        return Err(anyhow!("Failed to create media library"));
+    if library_id == SENTINEL_LIBRARY_ID {
+        error!("Failed to create library");
+        return Err(anyhow!("Failed to create library"));
     }
 
     let ws_connection = match ws_connections.get(ws_client_key.clone()).await {
@@ -66,24 +64,24 @@ pub async fn create_media_library_service(
     chain_events!(
         event_bus,
         {
-            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned { .. }),
+            match_pattern: DomainEvent::Library(LibraryEventType::LibraryScanned { .. }),
             handler: move |event, event_bus| {
                 let database_addr = database_addr.clone();
-                let media_library_id = media_library_id.clone();
-                let media_library_name = media_library_name.clone();
+                let library_id = library_id.clone();
+                let library_name = library_name.clone();
 
                 async move {
-                    if let DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibraryScanned { media_library, task_identifier }) = event {
-                        for media_item in media_library.tv_show {
+                    if let DomainEvent::Library(LibraryEventType::LibraryScanned { library, task_identifier }) = event {
+                        for media_item in library.tv_show {
                             debug!("Processing media item: {:?}", media_item.title);
-                            insert_media_item(media_library_id, media_item, database_addr.clone())
+                            insert_media_item(library_id, media_item, database_addr.clone())
                                 .await
                                 .inspect_err(|e| error!("Failed to insert media item: {:?}", e))?;
                         }
-                        event_bus.publish(DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved {
+                        event_bus.publish(DomainEvent::Library(LibraryEventType::LibrarySaved {
                             task_identifier,
-                            media_library_id,
-                            media_library_name,
+                            library_id,
+                            library_name,
                         }))?;
                     }
                     Ok(())
@@ -92,7 +90,7 @@ pub async fn create_media_library_service(
             config: EventHandlerConfig::one_time()
         },
         {
-            match_pattern: DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved { .. }),
+            match_pattern: DomainEvent::Library(LibraryEventType::LibrarySaved { .. }),
             handler: move |event, _| {
                 let ws_connection_clone = ws_connection.clone();
                 async move {
@@ -110,7 +108,7 @@ pub async fn create_media_library_service(
         }
     );
 
-    let mut task = MediaLibraryScanTask::new(directory_clone, parser_addr.into_inner());
+    let mut task = LibraryScanTask::new(directory_clone, parser_addr.into_inner());
     task.set_ws_client_id(ws_client_key.clone());
     let task_id = task_pool
         .register_task(
@@ -124,6 +122,6 @@ pub async fn create_media_library_service(
     Ok(AsyncTaskResponse {
         task_id,
         task_type: TaskType::MediaLibraryScan,
-        payload: Some(media_library_id),
+        payload: Some(library_id),
     })
 }

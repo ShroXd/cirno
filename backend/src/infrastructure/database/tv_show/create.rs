@@ -5,17 +5,13 @@ use tracing::*;
 use crate::domain::tv_show::model::TvShow;
 
 #[instrument(skip(conn_pool, tv_show))]
-pub async fn save_tv_show(
-    conn_pool: &SqlitePool,
-    tv_show: TvShow,
-    media_library_id: i64,
-) -> Result<i64> {
+pub async fn save_tv_show(conn_pool: &SqlitePool, tv_show: TvShow, library_id: i64) -> Result<i64> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
     let id: i64 = sqlx::query_scalar!(
         "
-        INSERT INTO tv_series (title, nfo_path, poster_path, fanart_path, country, year, plot, tmdb_id, imdb_id, wikidata_id, tvdb_id, media_library_id)
+        INSERT INTO tv_series (title, nfo_path, poster_path, fanart_path, country, year, plot, tmdb_id, imdb_id, wikidata_id, tvdb_id, library_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(title) DO UPDATE SET id = id
         RETURNING id
@@ -31,7 +27,7 @@ pub async fn save_tv_show(
         tv_show.imdb_id,
         tv_show.wikidata_id,
         tv_show.tvdb_id,
-        media_library_id,
+        library_id,
     )
     .fetch_one(&mut *tx)
     .await?;

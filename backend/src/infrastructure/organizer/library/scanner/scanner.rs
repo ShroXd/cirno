@@ -7,16 +7,16 @@ use tracing::*;
 use walkdir::WalkDir;
 
 use crate::{
-    domain::{media_library::model::MediaLibrary, tv_show::model::TvShow},
+    domain::{library::model::Library, tv_show::model::TvShow},
     infrastructure::{
         event_bus::{domain_event::DomainEvent, event_bus::EventBus, model::GeneralEvent},
-        organizer::media_library::processor::process_series,
+        organizer::library::processor::process_series,
     },
 };
 
 #[instrument(skip(event_bus))]
-pub fn scan_media_library(root_dir: &Path, event_bus: Arc<EventBus>) -> MediaLibrary {
-    debug!("Scanning media library in: {:?}", root_dir);
+pub fn scan_library(root_dir: &Path, event_bus: Arc<EventBus>) -> Library {
+    debug!("Scanning library in: {:?}", root_dir);
 
     let series_dirs: Vec<PathBuf> = WalkDir::new(root_dir)
         .min_depth(1)
@@ -45,7 +45,7 @@ pub fn scan_media_library(root_dir: &Path, event_bus: Arc<EventBus>) -> MediaLib
         .collect();
     debug!("Processed {} series", series_data.len());
 
-    MediaLibrary {
+    Library {
         tv_show: series_data,
     }
 }

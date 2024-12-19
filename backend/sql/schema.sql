@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS tv_series (
     imdb_id TEXT,
     wikidata_id TEXT,
     tvdb_id TEXT,
-    media_library_id INTEGER,
-    FOREIGN KEY (media_library_id) REFERENCES media_library (id)
+    library_id INTEGER,
+    FOREIGN KEY (library_id) REFERENCES library (id)
 );
 
 CREATE TABLE IF NOT EXISTS seasons (
@@ -92,7 +92,7 @@ INSERT INTO
 VALUES
     (3, 'Animation');
 
-CREATE TABLE IF NOT EXISTS media_library (
+CREATE TABLE IF NOT EXISTS library (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     directory TEXT NOT NULL,

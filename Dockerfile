@@ -61,9 +61,9 @@ COPY scripts/create_db.sh /app/create_db.sh
 # 🌍 Expose Port and Set Environment Variables
 ENV ROCKET_ADDRESS=0.0.0.0
 ENV ROCKET_PORT=8000
-ENV DATABASE_URL="sqlite://app/media_library.db"
+ENV DATABASE_URL="sqlite://app/database.db"
 EXPOSE 8000
 
 # 🏁 Switch to Non-Root User and Start Application
 USER cirno
-CMD ["/bin/sh", "-c", "/app/create_db.sh /app/media_library.db && ./cirno-backend"]
+CMD ["/bin/sh", "-c", "/app/create_db.sh /app/database.db && ./cirno-backend"]

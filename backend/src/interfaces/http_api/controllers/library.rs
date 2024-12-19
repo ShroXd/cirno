@@ -6,12 +6,10 @@ use actix_web::{
 use std::{result::Result::Ok, sync::Arc};
 use tracing::*;
 
-use super::api_models::SaveMediaLibraryPayload;
+use super::api_models::SaveLibraryPayload;
 use crate::{
-    application::media_library_service::create_media_library_service,
-    domain::media_library::media_library::{
-        delete_media_library, get_media_libraries, get_media_library_by_id,
-    },
+    application::library_service::create_library_service,
+    domain::library::library::{delete_library, get_libraries, get_library_by_id},
     handle_controller_result,
     infrastructure::{
         database::database::Database, event_bus::event_bus::EventBus,
@@ -21,8 +19,8 @@ use crate::{
     interfaces::{http_api::controllers::consts::WS_CLIENT_KEY_HEADER, ws::utils::WsConnections},
 };
 
-pub async fn create_media_library_controller(
-    payload: Json<SaveMediaLibraryPayload>,
+pub async fn create_library_controller(
+    payload: Json<SaveLibraryPayload>,
     database_addr: Data<Addr<Database>>,
     parser_addr: Data<Addr<ParserActor>>,
     ws_connections: Data<WsConnections>,
@@ -39,12 +37,12 @@ pub async fn create_media_library_controller(
     let payload = payload.into_inner();
 
     debug!(
-        "Creating media library with name: {}, directory: {}, category: {:?}",
+        "Creating library with name: {}, directory: {}, category: {:?}",
         payload.name, payload.directory, payload.category
     );
 
     handle_controller_result!(
-        create_media_library_service(
+        create_library_service(
             payload,
             database_addr,
             parser_addr,
@@ -52,7 +50,7 @@ pub async fn create_media_library_controller(
             task_pool,
             event_bus,
             ws_client_key,
-            repositories.media_library.clone()
+            repositories.library.clone()
         )
         .await,
         HttpResponse::Ok(),
@@ -61,38 +59,38 @@ pub async fn create_media_library_controller(
 }
 
 #[instrument(skip(repositories))]
-pub async fn get_media_libraries_controller(repositories: Data<Repositories>) -> impl Responder {
-    debug!("Getting all media libraries");
+pub async fn get_libraries_controller(repositories: Data<Repositories>) -> impl Responder {
+    debug!("Getting all libraries");
     handle_controller_result!(
-        get_media_libraries(repositories.media_library.clone()).await,
+        get_libraries(repositories.library.clone()).await,
         HttpResponse::Ok(),
         HttpResponse::NotFound()
     )
 }
 
 #[instrument(skip(repositories))]
-pub async fn get_media_library_by_id_controller(
+pub async fn get_library_by_id_controller(
     id: Path<i64>,
     repositories: Data<Repositories>,
 ) -> impl Responder {
-    debug!("Getting media library for id: {}", id);
+    debug!("Getting library for id: {}", id);
     handle_controller_result!(
-        get_media_library_by_id(id.into_inner(), repositories.media_library.clone()).await,
+        get_library_by_id(id.into_inner(), repositories.library.clone()).await,
         HttpResponse::Ok(),
         HttpResponse::NotFound()
     )
 }
 
 #[instrument(skip(repositories))]
-pub async fn delete_media_library_controller(
+pub async fn delete_library_controller(
     id: Path<i64>,
     repositories: Data<Repositories>,
 ) -> impl Responder {
-    let media_library_id = id.into_inner();
-    debug!("Deleting media library for id: {}", media_library_id);
+    let library_id = id.into_inner();
+    debug!("Deleting library for id: {}", library_id);
 
     handle_controller_result!(
-        delete_media_library(media_library_id, repositories.media_library.clone()).await,
+        delete_library(library_id, repositories.library.clone()).await,
         HttpResponse::Ok(),
         HttpResponse::InternalServerError()
     )

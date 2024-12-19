@@ -239,7 +239,7 @@ impl SystemInitializer {
 
         let query_manager = Arc::new(FileQueryManager::new(sql_dir).await?);
         query_manager.reload().await?;
-        let database = Database::new("media_library.db", query_manager).await?;
+        let database = Database::new("database.db", query_manager).await?;
         self.database_addr = Some(database.start());
 
         Ok(())

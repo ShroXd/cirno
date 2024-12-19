@@ -1,2 +1,2 @@
-pub mod media_library;
+pub mod library;
 pub mod organizer;

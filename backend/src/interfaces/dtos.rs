@@ -3,10 +3,10 @@ use sqlx::sqlite::SqliteRow;
 use ts_rs::TS;
 
 use crate::{
-    domain::media_library::model::MediaLibraryPoster, shared::util_traits::SqliteRowMapper,
+    domain::library::model::LibraryPoster, shared::util_traits::SqliteRowMapper,
 };
 
-use super::http_api::controllers::api_models::MediaLibraryCategory;
+use super::http_api::controllers::api_models::LibraryCategory;
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export)]
@@ -38,11 +38,11 @@ impl Default for MediaItemDto {
 
 #[derive(Debug, Deserialize, Serialize, TS)]
 #[ts(export)]
-pub struct MediaLibraryDto {
+pub struct LibraryDto {
     pub id: i64,
     pub name: String,
-    pub category: MediaLibraryCategory,
-    pub posters: Vec<MediaLibraryPoster>,
+    pub category: LibraryCategory,
+    pub posters: Vec<LibraryPoster>,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS)]

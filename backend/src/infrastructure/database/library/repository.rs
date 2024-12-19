@@ -7,34 +7,32 @@ use tracing::*;
 use crate::{
     infrastructure::database::{
         actor::{
-            DeleteMediaLibrary, QueryMediaLibrary, QueryMediaLibraryPosters, SaveMediaLibrary,
+            DeleteLibrary, QueryLibrary, QueryLibraryPosters, SaveLibrary,
             ValidateCategory,
         },
         database::Database,
     },
-    interfaces::{
-        dtos::MediaLibraryDto, http_api::controllers::api_models::SaveMediaLibraryPayload,
-    },
+    interfaces::{dtos::LibraryDto, http_api::controllers::api_models::SaveLibraryPayload},
 };
 
 #[derive(Clone)]
-pub struct MediaLibraryRepository {
+pub struct LibraryRepository {
     database_addr: Addr<Database>,
 }
 
-impl MediaLibraryRepository {
+impl LibraryRepository {
     pub fn new(database_addr: Addr<Database>) -> Arc<Self> {
         Arc::new(Self { database_addr })
     }
 
     #[instrument(skip(self))]
-    pub async fn get_media_libraries(&self) -> Result<Vec<MediaLibraryDto>> {
-        self.get_media_library_internal(None).await
+    pub async fn get_libraries(&self) -> Result<Vec<LibraryDto>> {
+        self.get_library_internal(None).await
     }
 
     #[instrument(skip(self))]
-    pub async fn get_media_library_by_id(&self, id: i64) -> Result<MediaLibraryDto> {
-        let results = self.get_media_library_internal(Some(id)).await?;
+    pub async fn get_library_by_id(&self, id: i64) -> Result<LibraryDto> {
+        let results = self.get_library_internal(Some(id)).await?;
 
         if results.is_empty() {
             return Err(anyhow::anyhow!("Media library not found"));
@@ -44,13 +42,10 @@ impl MediaLibraryRepository {
     }
 
     #[instrument(skip(self))]
-    pub async fn get_media_library_internal(
-        &self,
-        id: Option<i64>,
-    ) -> Result<Vec<MediaLibraryDto>> {
+    pub async fn get_library_internal(&self, id: Option<i64>) -> Result<Vec<LibraryDto>> {
         let media_library_briefs = self
             .database_addr
-            .send(QueryMediaLibrary { id })
+            .send(QueryLibrary { id })
             .await
             .map_err(|e| anyhow::anyhow!("Error getting media libraries: {:?}", e))?;
 
@@ -59,22 +54,22 @@ impl MediaLibraryRepository {
             .map(|media_library_brief| async move {
                 let media_library_posters = match self
                     .database_addr
-                    .send(QueryMediaLibraryPosters {
-                        media_library_id: media_library_brief.id,
+                    .send(QueryLibraryPosters {
+                        library_id: media_library_brief.id,
                     })
                     .await
                 {
                     Ok(posters) => posters,
                     Err(e) => {
                         error!(
-                            "Error getting posters for media library {}: {:?}",
+                            "Error getting posters for library {}: {:?}",
                             media_library_brief.id, e
                         );
                         vec![]
                     }
                 };
 
-                MediaLibraryDto {
+                LibraryDto {
                     id: media_library_brief.id,
                     name: media_library_brief.name,
                     category: media_library_brief.category,
@@ -97,18 +92,18 @@ impl MediaLibraryRepository {
     }
 
     #[instrument(skip(self))]
-    pub async fn save_media_library(&self, payload: SaveMediaLibraryPayload) -> Result<i64> {
+    pub async fn save_library(&self, payload: SaveLibraryPayload) -> Result<i64> {
         self.database_addr
-            .send(SaveMediaLibrary { payload })
+            .send(SaveLibrary { payload })
             .await
-            .map_err(|e| anyhow::anyhow!("Error creating media library: {:?}", e))
+            .map_err(|e| anyhow::anyhow!("Error creating library: {:?}", e))
     }
 
     #[instrument(skip(self))]
-    pub async fn delete_media_library(&self, id: i64) -> Result<()> {
+    pub async fn delete_library(&self, id: i64) -> Result<()> {
         self.database_addr
-            .send(DeleteMediaLibrary { id })
+            .send(DeleteLibrary { id })
             .await
-            .map_err(|e| anyhow::anyhow!("Error deleting media library: {:?}", e))
+            .map_err(|e| anyhow::anyhow!("Error deleting library: {:?}", e))
     }
 }

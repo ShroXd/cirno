@@ -11,7 +11,7 @@
 /// ```
 /// listen_event!(
 ///     event_bus,
-///     DomainEvent::MediaLibrary(MediaLibraryEventType::MediaLibrarySaved),
+///     DomainEvent::Library(LibraryEventType::LibrarySaved),
 ///     |event| async move { println!("Event received: {:?}", event) }
 /// )
 /// ```

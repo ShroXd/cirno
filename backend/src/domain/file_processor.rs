@@ -5,26 +5,26 @@ use actix_web::web::Data;
 use anyhow::Result;
 use tracing::*;
 
-use super::media_library::model::MediaLibrary;
+use super::library::model::Library;
 use crate::infrastructure::{
     event_bus::event_bus::EventBus,
-    organizer::organizer::{ParserActor, ScanMediaLibrary},
+    organizer::organizer::{ParserActor, ScanLibrary},
 };
 
 #[instrument(skip(event_bus))]
-pub async fn scan_media_library(
+pub async fn scan_library(
     directory: String,
     event_bus: Arc<EventBus>,
     parser_addr: Data<Addr<ParserActor>>,
-) -> Result<MediaLibrary> {
-    debug!("Scanning media library: {}", directory);
+) -> Result<Library> {
+    debug!("Scanning library: {}", directory);
 
     // TODO: move complex logic in the scanner into domain layer
     match parser_addr
-        .send(ScanMediaLibrary(directory, event_bus))
+        .send(ScanLibrary(directory, event_bus))
         .await
     {
         Ok(result) => result,
-        Err(e) => return Err(anyhow::anyhow!("Error scanning media library: {:?}", e)),
+        Err(e) => return Err(anyhow::anyhow!("Error scanning library: {:?}", e)),
     }
 }

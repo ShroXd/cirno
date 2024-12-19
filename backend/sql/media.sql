@@ -13,7 +13,7 @@ from
     join tv_series_genres tsg on ts.id = tsg.series_id
     join genres g on tsg.genre_id = g.id
 where
-    ts.media_library_id = ?
+    ts.library_id = ?
     and ts.id = ?
 group by
     ts.id,
@@ -34,7 +34,7 @@ from
     join tv_series_genres tsg on ts.id = tsg.series_id
     join genres g on tsg.genre_id = g.id
 where
-    ts.media_library_id = ?
+    ts.library_id = ?
 group by
     ts.id,
     ts.title;

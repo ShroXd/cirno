@@ -4,7 +4,7 @@ use tracing::*;
 
 use crate::{
     domain::{episode::model::Episode, season::model::Season, tv_show::model::TvShow},
-    infrastructure::organizer::media_library::{
+    infrastructure::organizer::library::{
         parser::{
             parsers::{parse_episode, parse_season, parse_tv_serie},
             utils::{parse_meta_files, parse_seasons_nfo, parse_tv_series_nfo},

@@ -5,31 +5,29 @@ use tracing::*;
 
 use crate::{
     infrastructure::database::query_manager::QueryManager,
-    interfaces::http_api::controllers::api_models::SaveMediaLibraryPayload,
+    interfaces::http_api::controllers::api_models::SaveLibraryPayload,
 };
 
 #[instrument(skip(conn_pool, query_manager))]
-pub async fn save_media_library(
+pub async fn save_library(
     conn_pool: &SqlitePool,
     query_manager: Arc<dyn QueryManager>,
-    media_library: SaveMediaLibraryPayload,
+    library: SaveLibraryPayload,
 ) -> Result<i64> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    let query = query_manager
-        .get_query("media_library", "save_media_library")
-        .await?;
+    let query = query_manager.get_query("library", "save_library").await?;
 
-    let category_id = i64::from(media_library.category.clone());
-    let media_library_id: i64 = sqlx::query(&query)
-        .bind(media_library.name)
-        .bind(media_library.directory)
+    let category_id = i64::from(library.category.clone());
+    let library_id: i64 = sqlx::query(&query)
+        .bind(library.name)
+        .bind(library.directory)
         .bind(category_id)
         .fetch_one(&mut *tx)
         .await?
         .get(0);
 
     tx.commit().await?;
-    Ok(media_library_id)
+    Ok(library_id)
 }

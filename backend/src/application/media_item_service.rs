@@ -13,7 +13,7 @@ use crate::{
 
 #[instrument(skip(media_item, database_addr))]
 pub async fn insert_media_item(
-    media_library_id: i64,
+    library_id: i64,
     media_item: TvShow,
     database_addr: Arc<Addr<Database>>,
 ) -> Result<()> {
@@ -26,7 +26,7 @@ pub async fn insert_media_item(
 
     debug!("Inserting tv show: {:?}", media_item.title);
     let tv_show_id = database_addr
-        .send(SaveTvShow(media_item, media_library_id))
+        .send(SaveTvShow(media_item, library_id))
         .await
         .map_err(|e| anyhow::anyhow!("Error inserting media item: {:?}", e))?;
 

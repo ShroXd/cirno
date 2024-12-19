@@ -6,7 +6,7 @@ SCHEMA_FILE="$PROJECT_ROOT/backend/sql/schema.sql"
 
 # Check if the first argument is provided, if not use the default path
 if [ -z "$1" ]; then
-    DB_PATH="$PROJECT_ROOT/backend/media_library.db"
+    DB_PATH="$PROJECT_ROOT/backend/database.db"
 else
     DB_PATH="$1"
 fi
