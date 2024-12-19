@@ -85,7 +85,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(hls_state_actor_addr.clone()))
             .app_data(web::Data::new(file_service.clone()))
             .app_data(web::Data::new(repositories.clone()))
-            .configure(interfaces::http_api::routes::init_media_libraries_routes)
+            .configure(interfaces::http_api::routes::init_library_routes)
             .configure(interfaces::http_api::routes::init_video_player_routes)
             .service(Files::new("/hls", "./tmp").show_files_listing())
             .service(interfaces::ws::routes::ws_index);

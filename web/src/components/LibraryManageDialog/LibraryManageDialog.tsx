@@ -43,7 +43,7 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
   }, [reset, handleOpen])
 
   const onSubmit = handleSubmit(data => {
-    post('/media-libraries/', data)
+    post('/library/', data)
     handleClose()
   })
 

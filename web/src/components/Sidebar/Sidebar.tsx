@@ -27,7 +27,7 @@ import { mutate } from 'swr'
 import { LibraryManageDialog } from '@/components/LibraryManageDialog/LibraryManageDialog'
 import { useFetch } from '@/hooks/useFetch'
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog/DeleteConfirmationDialog'
-import { MediaLibraryDto } from '@/bindings/MediaLibraryDTO'
+import { MediaLibraryDto } from '@/bindings/MediaLibraryDto'
 
 export const Sidebar = () => {
   const [expanded, setExpanded] = useState(0)
@@ -41,7 +41,7 @@ export const Sidebar = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const { data, isLoading } = useFetch<MediaLibraryDto[]>('/media-libraries/')
+  const { data, isLoading } = useFetch<MediaLibraryDto[]>('/library/')
 
   const toggleExpand = (value: number) => {
     setExpanded(expanded === value ? 0 : value)
@@ -64,7 +64,7 @@ export const Sidebar = () => {
   }
 
   const handleDeleteMediaLibraryConfirmation = () => {
-    mutate(`/media-libraries/`)
+    mutate(`/library/`)
     setShowDeleteConfirmation(false)
     setMediaLibraryToDelete(null)
   }

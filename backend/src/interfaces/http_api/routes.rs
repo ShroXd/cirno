@@ -1,7 +1,7 @@
 use actix::Addr;
 use actix_web::{
     delete, get, post,
-    web::{scope, Data, Json, Path, Query, ServiceConfig},
+    web::{scope, Data, Json, Path, ServiceConfig},
     HttpRequest, Responder,
 };
 use std::sync::Arc;
@@ -17,12 +17,13 @@ use crate::{
     interfaces::{
         http_api::controllers::{
             api_models::SaveMediaLibraryPayload,
-            media_item::get_media_items_controller,
+            media_item::{
+                get_all_media_controller, get_media_controller, get_media_episodes_controller,
+            },
             media_library::{
                 create_media_library_controller, delete_media_library_controller,
                 get_media_libraries_controller, get_media_library_by_id_controller,
             },
-            tv_show::get_tv_show_seasons_controller,
             video_player::play_video_with_path_controller,
         },
         ws::utils::WsConnections,
@@ -36,23 +37,31 @@ use super::controllers::api_models::PlayVideoWithPathPayload;
 // TODO: 3. rename series to content or media etc.
 
 // --------------------------------
-// Media Library Routes
+// Library Routes
 // --------------------------------
 
-#[get("/{id}/media-items")]
-async fn get_media_items_route(
-    database_addr: Data<Addr<Database>>,
-    id: Path<i64>,
+#[get("/{library_id}/media")]
+async fn get_all_media_route(
+    library_id: Path<i64>,
+    repositories: Data<Repositories>,
 ) -> impl Responder {
-    get_media_items_controller(database_addr, id).await
+    get_all_media_controller(library_id, repositories).await
 }
 
-#[get("/series/{id}/seasons")]
-async fn get_tv_show_seasons_route(
-    database_addr: Data<Addr<Database>>,
-    id: Path<i64>,
+#[get("/{library_id}/media/{media_id}")]
+async fn get_media_route(
+    path: Path<(i64, i64)>,
+    repositories: Data<Repositories>,
 ) -> impl Responder {
-    get_tv_show_seasons_controller(database_addr, id).await
+    get_media_controller(path, repositories).await
+}
+
+#[get("/{library_id}/media/{media_id}/episodes")]
+async fn get_media_episodes_route(
+    path: Path<(i64, i64)>,
+    repositories: Data<Repositories>,
+) -> impl Responder {
+    get_media_episodes_controller(path, repositories).await
 }
 
 #[post("/")]
@@ -100,11 +109,12 @@ async fn delete_media_library_route(
     delete_media_library_controller(id, repositories).await
 }
 
-pub fn init_media_libraries_routes(cfg: &mut ServiceConfig) {
+pub fn init_library_routes(cfg: &mut ServiceConfig) {
     cfg.service(
-        scope("/media-libraries")
-            .service(get_media_items_route)
-            .service(get_tv_show_seasons_route)
+        scope("/library")
+            .service(get_all_media_route)
+            .service(get_media_route)
+            .service(get_media_episodes_route)
             .service(create_media_library_route)
             .service(get_media_libraries_route)
             .service(get_media_library_route)

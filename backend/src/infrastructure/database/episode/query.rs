@@ -1,31 +1,30 @@
 use anyhow::*;
-use sqlx::{Acquire, SqlitePool};
+use sqlx::{sqlite::SqliteRow, Acquire, SqlitePool};
+use std::sync::Arc;
 use tracing::*;
 
-use crate::interfaces::dtos::EpisodeDto;
+use crate::{infrastructure::database::query_manager::QueryManager, interfaces::dtos::EpisodeDto};
 
-#[instrument(skip(conn_pool))]
+#[instrument(skip(conn_pool, query_manager, mapper))]
 pub async fn query_episodes(
+    library_id: i64,
+    media_id: i64,
     conn_pool: &SqlitePool,
-    series_id: i64,
-    season_id: i64,
+    query_manager: Arc<dyn QueryManager>,
+    mapper: impl Fn(Vec<SqliteRow>) -> Vec<EpisodeDto>,
 ) -> Result<Vec<EpisodeDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    let episodes = sqlx::query_as!(
-        EpisodeDto,
-        "
-        SELECT e.id, e.title, e.original_title, e.plot, e.nfo_path, e.video_file_path, e.subtitle_file_path, e.thumb_image_url, e.thumb_image, e.season_number, e.episodes_number, e.runtime
-        FROM episodes e
-        WHERE e.season_number = ? AND e.series_id = ?
-        ORDER BY e.episodes_number ASC
-        ",
-        season_id,
-        series_id
-    )
-    .fetch_all(&mut *tx)
-    .await?;
+    let query = query_manager
+        .get_query("episode", "find_episodes_by_media_id")
+        .await?;
 
-    Ok(episodes)
+    // TODO: we many need to add a intermediate table to store the library_id
+    let episodes = sqlx::query(&query)
+        .bind(media_id)
+        .fetch_all(&mut *tx)
+        .await?;
+
+    Ok(mapper(episodes))
 }

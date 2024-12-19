@@ -22,7 +22,10 @@ use crate::{
         episode::{create::save_episode, query::query_episodes},
         genre::create::save_genre,
         media_actor::create::save_actor,
-        media_item::query::{query_all_media_items, query_series_by_media_library_id},
+        media_item::query::{
+            query_all_media, query_all_media_items, query_media_by_id,
+            query_series_by_media_library_id,
+        },
         media_library::{
             create::save_media_library,
             delete::delete_media_library,
@@ -164,7 +167,9 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "Vec<MediaItemDto>")]
-pub struct QueryAllMediaItems;
+pub struct QueryAllMediaItems {
+    pub library_id: i64,
+}
 
 impl Display for QueryAllMediaItems {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -178,6 +183,88 @@ define_actor_message_handler!(
     db_call = |pool, _, _: QueryAllMediaItems| query_all_media_items(pool, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "Vec<MediaItemDto>")]
+pub struct QueryMediaById {
+    pub library_id: i64,
+    pub media_id: i64,
+}
+
+impl Display for QueryMediaById {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "GetMediaById(library_id: {}, media_id: {})",
+            self.library_id, self.media_id
+        )
+    }
+}
+
+define_actor_message_handler!(
+    message_type = QueryMediaById,
+    return_type = Vec<MediaItemDto>,
+    db_call = |pool, query_manager, msg: QueryMediaById| query_media_by_id(
+        msg.library_id,
+        msg.media_id,
+        pool,
+        query_manager,
+        |rows| map_rows(rows)
+    ),
+    success_return = |res| res,
+    error_return = Vec::<MediaItemDto>::new()
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "Vec<MediaItemDto>")]
+pub struct QueryAllMedia {
+    pub library_id: i64,
+}
+
+impl Display for QueryAllMedia {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GetAllMedia({})", self.library_id)
+    }
+}
+
+define_actor_message_handler!(
+    message_type = QueryAllMedia,
+    return_type = Vec<MediaItemDto>,
+    db_call = |pool, query_manager, msg: QueryAllMedia| query_all_media(msg.library_id, pool, query_manager, |rows| map_rows(rows)),
+    success_return = |res| res,
+    error_return = Vec::<MediaItemDto>::new()
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "Vec<EpisodeDto>")]
+pub struct QueryEpisodes {
+    pub library_id: i64,
+    pub media_id: i64,
+}
+
+impl Display for QueryEpisodes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Querying episodes for media(library_id: {}, media_id: {})",
+            self.library_id, self.media_id
+        )
+    }
+}
+
+define_actor_message_handler!(
+    message_type = QueryEpisodes,
+    return_type = Vec<EpisodeDto>,
+    db_call = |pool, query_manager, msg: QueryEpisodes| query_episodes(
+        msg.library_id,
+        msg.media_id,
+        pool,
+        query_manager,
+        |rows| map_rows(rows)
+    ),
+    success_return = |res| res,
+    error_return = Vec::<EpisodeDto>::new()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
@@ -196,28 +283,6 @@ define_actor_message_handler!(
     db_call = |pool, _, msg: QuerySeasons| query_seasons(pool, msg.0, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<SeasonDto>::new()
-);
-
-#[derive(Debug, Serialize, Deserialize, TS, Message)]
-#[rtype(result = "Vec<EpisodeDto>")]
-pub struct QueryEpisodes(pub i64, pub i64);
-
-impl Display for QueryEpisodes {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Querying episodes for TV show {} and season {}",
-            self.0, self.1
-        )
-    }
-}
-
-define_actor_message_handler!(
-    message_type = QueryEpisodes,
-    return_type = Vec<EpisodeDto>,
-    db_call = |pool, _, msg: QueryEpisodes| query_episodes(pool, msg.0, msg.1),
-    success_return = |res| res,
-    error_return = Vec::<EpisodeDto>::new()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]

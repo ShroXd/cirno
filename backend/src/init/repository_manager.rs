@@ -3,12 +3,14 @@ use anyhow::*;
 use std::sync::Arc;
 
 use crate::infrastructure::database::{
-    database::Database, media_library::repository::MediaLibraryRepository,
+    database::Database, media_item::repository::MediaRepository,
+    media_library::repository::MediaLibraryRepository,
 };
 
 #[derive(Clone)]
 pub struct Repositories {
     pub media_library: Arc<MediaLibraryRepository>,
+    pub media: Arc<MediaRepository>,
 }
 
 pub struct RepositoryManager {
@@ -23,6 +25,7 @@ impl RepositoryManager {
     pub fn init_repositories(&self) -> Result<Repositories> {
         Ok(Repositories {
             media_library: MediaLibraryRepository::new(self.database_addr.clone()),
+            media: MediaRepository::new(self.database_addr.clone()),
         })
     }
 }

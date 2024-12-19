@@ -1,4 +1,3 @@
-use actix::Addr;
 use actix_web::{
     web::{Data, Path},
     HttpResponse, Responder,
@@ -6,20 +5,51 @@ use actix_web::{
 use std::result::Result::Ok;
 use tracing::*;
 
-use crate::{
-    domain::media_item::media_item::get_media_items, handle_controller_result,
-    infrastructure::database::database::Database,
-};
+use crate::{handle_controller_result, init::repository_manager::Repositories};
 
-#[instrument(skip(database_addr))]
-pub async fn get_media_items_controller(
-    database_addr: Data<Addr<Database>>,
-    id: Path<i64>,
+#[instrument(skip(repositories))]
+pub async fn get_all_media_controller(
+    library_id: Path<i64>,
+    repositories: Data<Repositories>,
 ) -> impl Responder {
-    let media_library_id = id.into_inner();
+    handle_controller_result!(
+        repositories
+            .media
+            .get_all_media(library_id.into_inner())
+            .await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
+}
+
+#[instrument(skip(repositories))]
+pub async fn get_media_controller(
+    path: Path<(i64, i64)>,
+    repositories: Data<Repositories>,
+) -> impl Responder {
+    let (library_id, media_id) = path.into_inner();
+    handle_controller_result!(
+        repositories
+            .media
+            .get_media_by_id(library_id, media_id)
+            .await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
+}
+
+#[instrument(skip(repositories))]
+pub async fn get_media_episodes_controller(
+    path: Path<(i64, i64)>,
+    repositories: Data<Repositories>,
+) -> impl Responder {
+    let (library_id, media_id) = path.into_inner();
 
     handle_controller_result!(
-        get_media_items(Some(media_library_id), database_addr).await,
+        repositories
+            .media
+            .get_media_episodes(library_id, media_id)
+            .await,
         HttpResponse::Ok(),
         HttpResponse::InternalServerError()
     )

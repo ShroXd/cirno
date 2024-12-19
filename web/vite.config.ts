@@ -29,7 +29,7 @@ export default defineConfig({
         changeOrigin: true,
         proxyTimeout: 30000,
       },
-      '/media-libraries': {
+      '/library': {
         target: 'http://localhost:8000',
         changeOrigin: true,
       },

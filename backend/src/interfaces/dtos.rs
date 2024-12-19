@@ -1,11 +1,14 @@
 use serde::{Deserialize, Serialize};
+use sqlx::sqlite::SqliteRow;
 use ts_rs::TS;
 
-use crate::domain::media_library::model::MediaLibraryPoster;
+use crate::{
+    domain::media_library::model::MediaLibraryPoster, shared::util_traits::SqliteRowMapper,
+};
 
 use super::http_api::controllers::api_models::MediaLibraryCategory;
 
-#[derive(Debug, Deserialize, Serialize, TS)]
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export)]
 pub struct MediaItemDto {
     pub id: i64,
@@ -16,6 +19,21 @@ pub struct MediaItemDto {
     pub country: Option<String>,
     pub year: Option<String>,
     pub genres: Vec<String>,
+}
+
+impl Default for MediaItemDto {
+    fn default() -> Self {
+        MediaItemDto {
+            id: 0,
+            title: String::new(),
+            plot: None,
+            poster_path: None,
+            fanart_path: None,
+            country: None,
+            year: None,
+            genres: Vec::new(),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, TS)]
@@ -47,7 +65,8 @@ pub struct EpisodeDto {
     pub subtitle_file_path: Option<String>,
     pub thumb_image_url: Option<String>,
     pub thumb_image: Option<String>,
-    pub season_number: Option<i64>,
     pub episodes_number: Option<i64>,
     pub runtime: Option<i64>,
+    pub season_number: Option<i64>,
+    pub season_title: Option<String>,
 }

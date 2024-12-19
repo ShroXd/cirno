@@ -28,7 +28,7 @@ export const DeleteConfirmationDialog = ({
 
   const handleDelete = async () => {
     console.log('delete media library', mediaLibraryId)
-    const res = await del(`/media-libraries/${mediaLibraryId}`)
+    const res = await del(`/library/${mediaLibraryId}`)
     console.log('res', res)
     handleOpen()
   }

@@ -7,19 +7,18 @@ import { useTranslation } from 'react-i18next'
 import { useFetch } from '@/hooks/useFetch'
 import { useEventBus } from '@/hooks/useEventBus'
 import { wrapInGrid } from '@/pages/utils'
-import { MediaLibraryDto } from '@/bindings/MediaLibraryDTO'
+import { MediaLibraryDto } from '@/bindings/MediaLibraryDto'
 
 export const Library = () => {
   // TODO: fetch media libraries instead of media items
-  const { data, error, isLoading } =
-    useFetch<MediaLibraryDto[]>('/media-libraries/')
+  const { data, error, isLoading } = useFetch<MediaLibraryDto[]>('/library/')
   const { t } = useTranslation()
   const { onEvent } = useEventBus()
   const container = useCallback(wrapInGrid, [])
 
   useEffect(() => {
     onEvent('MediaLibrarySaved', () => {
-      mutate('/media-libraries/media-items')
+      mutate('/library/')
     })
   }, [onEvent])
 

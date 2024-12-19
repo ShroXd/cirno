@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -16,10 +16,32 @@ import {
 import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
 import useSWR from 'swr'
 
-import { SeasonDto } from '@bindings/SeasonDto'
 import { EpisodeDto } from '@bindings/EpisodeDto'
 import { usePost } from '@/hooks/usePost'
 import { useEventBus } from '@/hooks/useEventBus'
+
+const transformEpisodesToSeasons = (episodes: EpisodeDto[] | undefined) => {
+  if (!episodes) return []
+
+  const groupedEpisodes = episodes.reduce(
+    (acc: { [key: number]: EpisodeDto[] }, episode) => {
+      const seasonNumber = Number(episode.season_number)
+      if (!acc[seasonNumber]) {
+        acc[seasonNumber] = []
+      }
+      acc[seasonNumber].push(episode)
+      return acc
+    },
+    {}
+  )
+
+  return Object.entries(groupedEpisodes).map(([season, episodes]) => ({
+    season: parseInt(season),
+    episodes: episodes.sort(
+      (a, b) => Number(a.episodes_number) - Number(b.episodes_number)
+    ),
+  }))
+}
 
 // TODO: fetch media item details from backend instead of use the passed state
 export const MediaDetail = () => {
@@ -32,10 +54,14 @@ export const MediaDetail = () => {
   const navigate = useNavigate()
   const { onEvent } = useEventBus()
 
-  const { data, error, isLoading } = useSWR<SeasonDto[]>(
-    `/media-libraries/series/${location.state.detail.id}/seasons`,
-    (url: string) => fetch(url).then(res => res.json())
+  const { data, error, isLoading } = useSWR<EpisodeDto[]>(
+    `/library/${location.state.detail.id}/media/${location.state.detail.id}/episodes`,
+    {
+      fetcher: (url: string) => fetch(url).then(res => res.json()),
+    }
   )
+
+  const seasons = useMemo(() => transformEpisodesToSeasons(data), [data])
 
   const handlePlay = useCallback(
     (episode: EpisodeDto) => {
@@ -109,7 +135,7 @@ export const MediaDetail = () => {
         <Tabs id='seasons' value='0' className='px-4'>
           <div className='flex flex-row items-center justify-start py-2'>
             <TabsHeader className='w-auto'>
-              {data?.map((_, index) => (
+              {seasons?.map((_, index) => (
                 <Tab className='w-40' key={index} value={`${index}`}>
                   {t('page.detail.seasons')} {index + 1}
                 </Tab>
@@ -139,7 +165,7 @@ export const MediaDetail = () => {
               unmount: { y: 100 },
             }}
           >
-            {data?.map((season, index) => (
+            {seasons?.map((season, index) => (
               <TabPanel key={index} value={`${index}`} className='px-0'>
                 <div className='grid grid-cols-4 gap-4 gap-y-10'>
                   {season.episodes.map(episode => (

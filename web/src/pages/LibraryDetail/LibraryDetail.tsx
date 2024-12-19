@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import { wrapInGrid } from '@/pages/utils'
 import { Typography } from '@material-tailwind/react'
-import { MediaLibraryDto } from '@/bindings/MediaLibraryDTO'
+import { MediaLibraryDto } from '@/bindings/MediaLibraryDto'
 
 export const LibraryDetail = () => {
   const { id } = useParams()
@@ -12,10 +12,10 @@ export const LibraryDetail = () => {
     data: detail,
     error: detailError,
     isLoading: detailIsLoading,
-  } = useFetch<MediaLibraryDto>(`/media-libraries/${id}`)
+  } = useFetch<MediaLibraryDto>(`/library/${id}`)
 
   const { data, error, isLoading } = useFetch<MediaItemDto[]>(
-    `/media-libraries/${id}/media-items`
+    `/library/${id}/media`
   )
 
   const container = useCallback(wrapInGrid, [])
