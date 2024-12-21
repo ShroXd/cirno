@@ -40,6 +40,13 @@
     "deleteConfirmationDialog": {
       "title": "メディアライブラリの削除",
       "description": "本当にこのメディアライブラリを削除しますか？"
+    },
+    "breadcrumb": {
+      "home": "ホーム",
+      "library": "ライブラリ",
+      "media": "メディア",
+      "favorites": "お気に入り",
+      "settings": "設定"
     }
   },
   "page": {

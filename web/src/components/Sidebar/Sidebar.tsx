@@ -17,6 +17,7 @@ import {
   ChevronDownIcon,
   PlusIcon,
   TrashIcon,
+  HomeIcon,
 } from '@heroicons/react/24/solid'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom'
@@ -90,7 +91,7 @@ export const Sidebar = () => {
         title={t('component.deleteConfirmationDialog.title')}
         description={t('component.deleteConfirmationDialog.description')}
       />
-      <div className='w-full max-w-[20rem] p-4 border-r border-blue-gray-50 overflow-y-auto h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
+      <div className='w-full max-w-[20rem] p-4 border-r border-blue-gray-50 overflow-y-auto h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] select-none'>
         <div className='mb-2 flex items-center gap-4 p-4'>
           <img
             src='https://docs.material-tailwind.com/img/logo-ct-dark.png'
@@ -108,6 +109,14 @@ export const Sidebar = () => {
           />
         </div>
         <List>
+          <ListItem onClick={() => navigate('/')}>
+            <ListItemPrefix>
+              <HomeIcon className='h-5 w-5' />
+            </ListItemPrefix>
+            <Typography color='blue-gray' className='mr-auto font-normal'>
+              {t('component.sidebar.home')}
+            </Typography>
+          </ListItem>
           <Accordion
             open={expanded === 1}
             icon={
@@ -120,7 +129,7 @@ export const Sidebar = () => {
             }
           >
             <div className='flex flex-row items-center gap-3'>
-              <ListItem className='p-0' onClick={() => navigate('/')}>
+              <ListItem className='p-0'>
                 <AccordionHeader
                   onClick={() => toggleExpand(1)}
                   className='border-b-0 p-3'
@@ -161,7 +170,12 @@ export const Sidebar = () => {
                       className='flex flex-row justify-between gap-3'
                       key={mediaLibrary.id.toString()}
                     >
-                      <ListItem className='pl-6'>{mediaLibrary.name}</ListItem>
+                      <ListItem
+                        className='pl-6'
+                        onClick={() => navigate(`/library/${mediaLibrary.id}`)}
+                      >
+                        {mediaLibrary.name}
+                      </ListItem>
                       <Button
                         className={`p-3 !overflow-visible transition-all duration-1000 ${isManaging ? 'opacity-100' : 'opacity-0 pointer-events-none hidden'}`}
                         color='red'

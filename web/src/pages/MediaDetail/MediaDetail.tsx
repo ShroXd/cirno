@@ -99,7 +99,7 @@ export const MediaDetail = () => {
   return (
     <>
       <div className='h-full w-full overflow-y-auto'>
-        <div className='bg-base-300 mb-12 rounded-2xl p-4'>
+        <div className='bg-base-300 mb-12 rounded-2xl py-4'>
           <div className='flex w-full flex-row items-start gap-10'>
             <img
               className='h-80 w-52 rounded-xl object-cover shadow-xl shadow-blue-gray-900/50'

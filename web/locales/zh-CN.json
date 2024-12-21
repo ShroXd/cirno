@@ -40,6 +40,13 @@
     "deleteConfirmationDialog": {
       "title": "删除媒体库",
       "description": "你确定要删除这个媒体库吗？"
+    },
+    "breadcrumb": {
+      "home": "首页",
+      "library": "媒体库",
+      "media": "媒体",
+      "favorites": "收藏",
+      "settings": "设置"
     }
   },
   "page": {

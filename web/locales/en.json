@@ -40,6 +40,13 @@
     "deleteConfirmationDialog": {
       "title": "Delete Media Library",
       "description": "Are you sure you want to delete this media library?"
+    },
+    "breadcrumb": {
+      "home": "Home",
+      "library": "Library",
+      "media": "Media",
+      "favorites": "Favorites",
+      "settings": "Settings"
     }
   },
   "page": {
