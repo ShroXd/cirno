@@ -12,6 +12,7 @@ import { useEventBus } from '@/hooks/useEventBus'
 import { useTranslation } from 'react-i18next'
 import { LibraryDetail } from '../LibraryDetail/LibraryDetail'
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
+import { Container } from '@/components/Container/Container'
 
 export const Home = () => {
   const { addNotification } = useNotification()
@@ -35,8 +36,12 @@ export const Home = () => {
       <div className='flex h-screen w-screen px-1 py-1'>
         <Sidebar />
 
-        <div className='ml-6 mt-2 h-full w-auto'>
-          {location.pathname !== '/' && <Breadcrumb />}
+        <div className='mt-2 h-full w-auto'>
+          {location.pathname !== '/' && (
+            <Container className='mb-6'>
+              <Breadcrumb />
+            </Container>
+          )}
           <Routes>
             <Route path='/' element={<Library />} />
             <Route path='/library/:libraryId' element={<LibraryDetail />} />

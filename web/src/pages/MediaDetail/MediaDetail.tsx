@@ -20,6 +20,7 @@ import { usePost } from '@/hooks/usePost'
 import { useEventBus } from '@/hooks/useEventBus'
 import { MediaItemDto } from '@/bindings/MediaItemDto'
 import { useFetch } from '@/hooks/useFetch'
+import { Divider } from '@/components/Divider/Divider'
 
 const transformEpisodesToSeasons = (episodes: EpisodeDto[] | undefined) => {
   if (!episodes) return []
@@ -98,8 +99,8 @@ export const MediaDetail = () => {
 
   return (
     <>
-      <div className='h-full w-full overflow-y-auto'>
-        <div className='bg-base-300 mb-12 rounded-2xl py-4'>
+      <div className='h-full w-full overflow-y-auto overflow-x-hidden pb-12'>
+        <div className='bg-base-300 rounded-2xl py-4 px-6'>
           <div className='flex w-full flex-row items-start gap-10'>
             <img
               className='h-80 w-52 rounded-xl object-cover shadow-xl shadow-blue-gray-900/50'
@@ -140,15 +141,18 @@ export const MediaDetail = () => {
             </div>
           </div>
         </div>
-        <Tabs id='seasons' value='0' className='px-4'>
+        <Divider className='my-6 mx-6' />
+        <Tabs id='seasons' value='0' className='px-6'>
           <div className='flex flex-row items-center justify-start py-2'>
-            <TabsHeader className='w-auto'>
-              {seasons?.map((_, index) => (
-                <Tab className='w-40' key={index} value={`${index}`}>
-                  {t('page.detail.seasons')} {index + 1}
-                </Tab>
-              ))}
-            </TabsHeader>
+            {seasons.length > 1 && (
+              <TabsHeader className='w-auto'>
+                {seasons.map((_, index) => (
+                  <Tab className='w-40' key={index} value={`${index}`}>
+                    {t('page.detail.seasons')} {index + 1}
+                  </Tab>
+                ))}
+              </TabsHeader>
+            )}
 
             <div className='ml-auto w-72'>
               <Select
