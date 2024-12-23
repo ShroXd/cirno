@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { Settings } from '@/pages/Settings/Settings'
 import { Sidebar } from '@/components/Sidebar/Sidebar'
 import { Library } from '@/pages/Library/Library'
@@ -11,14 +11,14 @@ import { useNotification } from '@/hooks/useNotification'
 import { useEventBus } from '@/hooks/useEventBus'
 import { useTranslation } from 'react-i18next'
 import { LibraryDetail } from '../LibraryDetail/LibraryDetail'
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
-import { Container } from '@/components/Container/Container'
+import { usePost } from '@/hooks/usePost'
+import { VideoPlayerEventType } from '@/contexts/EventBusContext/eventBus'
 
 export const Home = () => {
   const { addNotification } = useNotification()
   const { onEvent } = useEventBus()
   const { t } = useTranslation()
-  const location = useLocation()
+  const post = usePost()
 
   useEffect(() => {
     onEvent('LibrarySaved', (payload: unknown) =>
@@ -29,7 +29,11 @@ export const Home = () => {
         }),
       })
     )
-  }, [onEvent, addNotification, t])
+
+    onEvent(VideoPlayerEventType.Stop, () => {
+      post('/video-player/stop')
+    })
+  }, [onEvent, addNotification, t, post])
 
   return (
     <>
@@ -37,11 +41,6 @@ export const Home = () => {
         <Sidebar />
 
         <div className='mt-2 h-full w-auto'>
-          {location.pathname !== '/' && (
-            <Container className='mb-6'>
-              <Breadcrumb />
-            </Container>
-          )}
           <Routes>
             <Route path='/' element={<Library />} />
             <Route path='/library/:libraryId' element={<LibraryDetail />} />
@@ -53,6 +52,10 @@ export const Home = () => {
             />
             <Route path='/favorites' element={<Favorites />} />
             <Route path='/video' element={<Video />} />
+            <Route
+              path='/library/:libraryId/media/:mediaId/video/:episodeId'
+              element={<Video />}
+            />
           </Routes>
         </div>
       </div>

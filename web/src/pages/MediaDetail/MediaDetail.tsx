@@ -21,6 +21,8 @@ import { useEventBus } from '@/hooks/useEventBus'
 import { MediaItemDto } from '@/bindings/MediaItemDto'
 import { useFetch } from '@/hooks/useFetch'
 import { Divider } from '@/components/Divider/Divider'
+import { Container } from '@/components/Container/Container'
+import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
 
 const transformEpisodesToSeasons = (episodes: EpisodeDto[] | undefined) => {
   if (!episodes) return []
@@ -82,14 +84,14 @@ export const MediaDetail = () => {
 
       onEvent('HlsStreamInitialized', () => {
         setIsWaitingForHlsStream(false)
-        navigate('/video', {
+        navigate(`/library/${libraryId}/media/${mediaId}/video/${episode.id}`, {
           state: {
             episode: episode,
           },
         })
       })
     },
-    [navigate, onEvent, post]
+    [navigate, onEvent, post, libraryId, mediaId]
   )
 
   if (mediaIsLoading || episodesIsLoading || isWaitingForHlsStream)
@@ -99,6 +101,9 @@ export const MediaDetail = () => {
 
   return (
     <>
+      <Container className='mb-6'>
+        <Breadcrumb />
+      </Container>
       <div className='h-full w-full overflow-y-auto overflow-x-hidden pb-12'>
         <div className='bg-base-300 rounded-2xl py-4 px-6'>
           <div className='flex w-full flex-row items-start gap-10'>

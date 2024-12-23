@@ -4,7 +4,12 @@ export type EventHandler = (payload: unknown) => void
 
 // TODO: 1. async tasks
 
-export type EventType = NotificationType
+export enum VideoPlayerEventType {
+  Play = 'Play',
+  Stop = 'Stop',
+}
+
+export type EventType = NotificationType | VideoPlayerEventType
 
 export type EventBusType = {
   on: (event: EventType, handler: EventHandler) => void

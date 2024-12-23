@@ -1,11 +1,16 @@
-import { HomeIcon } from '@heroicons/react/24/outline'
-import { Breadcrumbs } from '@material-tailwind/react'
+import { ChevronLeftIcon, HomeIcon } from '@heroicons/react/24/outline'
+import { Breadcrumbs, Button } from '@material-tailwind/react'
 import { useTranslation } from 'react-i18next'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
-export const Breadcrumb = () => {
+interface BreadcrumbProps {
+  onBack?: () => void
+}
+
+export const Breadcrumb = ({ onBack }: BreadcrumbProps) => {
   const location = useLocation()
   const { t } = useTranslation()
+  const navigate = useNavigate()
 
   const pathSegments = location.pathname.split('/').filter(Boolean)
   const pathSegmentsIds = pathSegments.filter(
@@ -22,26 +27,29 @@ export const Breadcrumb = () => {
     }
   }
 
-  // const handleGoBack = () => {
-  //   if (pathSegmentsView.length > 1) {
-  //     const parentPath = '/' + pathSegments.slice(0, -2).join('/')
-  //     navigate(parentPath)
-  //   } else {
-  //     navigate('/')
-  //   }
-  // }
+  const handleGoBack = () => {
+    console.log('pathSegmentsView', pathSegmentsView)
+    if (pathSegmentsView.length > 1) {
+      const parentPath = '/' + pathSegments.slice(0, -2).join('/')
+      onBack?.()
+      navigate(parentPath)
+    } else {
+      onBack?.()
+      navigate('/')
+    }
+  }
 
   return (
     <div className='flex flex-row items-center justify-start gap-2'>
-      {/* <Button
+      <Button
         onClick={handleGoBack}
-        className='flex items-center text-sm rounded-full'
+        className='flex items-center text-sm bg-gray-200'
         variant='text'
         ripple={false}
         size='sm'
       >
         <ChevronLeftIcon className='h-4 w-4' />
-      </Button> */}
+      </Button>
       <Breadcrumbs>
         <Link to={{ pathname: '/' }} className='opacity-60'>
           <HomeIcon className='h-4 w-4' />
