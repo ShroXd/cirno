@@ -209,18 +209,13 @@ impl PipelinePort for Pipeline {
         if let Some(pipeline) = self.gst_pipeline.take() {
             pipeline.send_event(gstreamer::event::Eos::new());
 
+            let bus = pipeline.bus().expect("Pipeline has no bus");
+            let _eos =
+                bus.timed_pop_filtered(ClockTime::from_seconds(1), &[gstreamer::MessageType::Eos]);
+
             match pipeline.set_state(State::Null) {
                 Ok(_) => debug!("Pipeline stopped"),
                 Err(e) => error!("Failed to stop pipeline: {}", e),
-            }
-
-            let elements = pipeline.iterate_elements();
-            for element in elements {
-                if let Ok(element) = element {
-                    if let Err(err) = element.set_state(State::Null) {
-                        warn!("Failed to set element {} to null: {}", element.name(), err);
-                    }
-                }
             }
 
             self.gst_pipeline = None;
@@ -321,7 +316,7 @@ async fn gst_bus_watch_task(
     event_bus: Arc<EventBus>,
 ) {
     debug!("Event bus watch task started");
-    let pipeline = match gst_pipeline_weak.upgrade() {
+    let _pipeline = match gst_pipeline_weak.upgrade() {
         Some(pipeline) => pipeline,
         None => return,
     };
@@ -389,15 +384,5 @@ async fn gst_bus_watch_task(
             }
             _ => {}
         }
-    }
-}
-
-fn convert_gst_state(state: State) -> Option<PipelineState> {
-    match state {
-        State::Null => Some(PipelineState::Null),
-        State::Ready => Some(PipelineState::Ready),
-        State::Paused => Some(PipelineState::Paused),
-        State::Playing => Some(PipelineState::Playing),
-        _ => None,
     }
 }

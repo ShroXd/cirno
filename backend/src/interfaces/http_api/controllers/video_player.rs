@@ -3,16 +3,12 @@ use actix_web::{
     web::{Data, Json},
     HttpRequest, HttpResponse, Responder,
 };
-use std::sync::Arc;
 use tracing::*;
 
 use super::api_models::PlayVideoWithPathPayload;
 use crate::{
     application::{file_service::FileService, pipeline_service::PipelineService},
-    infrastructure::{
-        event_bus::event_bus::EventBus, hls::hls_state_actor::HlsStateActor,
-        task_pool::task_pool::TaskPool,
-    },
+    infrastructure::{hls::hls_state_actor::HlsStateActor, task_pool::task_pool::TaskPool},
     interfaces::ws::utils::WsConnections,
     shared::utils::extract_ws_client_key,
 };
@@ -21,7 +17,6 @@ use crate::{
     req,
     pipeline_service,
     file_service,
-    event_bus,
     hls_state_actor_addr,
     task_pool,
     ws_connections,
@@ -31,7 +26,6 @@ pub async fn play_video_with_path_controller(
     req: HttpRequest,
     pipeline_service: Data<PipelineService>,
     file_service: Data<FileService>,
-    event_bus: Data<Arc<EventBus>>,
     hls_state_actor_addr: Data<Addr<HlsStateActor>>,
     task_pool: Data<TaskPool>,
     ws_connections: Data<WsConnections>,
@@ -45,7 +39,6 @@ pub async fn play_video_with_path_controller(
         .start_playback(
             &payload.path,
             file_service.into_inner(),
-            event_bus.get_ref().clone(),
             task_pool.into_inner(),
             ws_client_key.clone(),
             ws_connections.get_ref().clone(),
@@ -56,6 +49,19 @@ pub async fn play_video_with_path_controller(
         Err(e) => {
             error!("Failed to start playback: {:?}", e);
             HttpResponse::InternalServerError().json("Failed to start playback")
+        }
+    }
+}
+
+#[instrument(skip(pipeline_service))]
+pub async fn stop_video_player_controller(
+    pipeline_service: Data<PipelineService>,
+) -> impl Responder {
+    match pipeline_service.stop_and_clean().await {
+        Ok(_) => HttpResponse::Ok().json("Pipeline stopped"),
+        Err(e) => {
+            error!("Failed to stop pipeline: {:?}", e);
+            HttpResponse::InternalServerError().json("Failed to stop pipeline")
         }
     }
 }

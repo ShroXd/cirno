@@ -18,13 +18,13 @@ use crate::{
         http_api::controllers::{
             api_models::SaveLibraryPayload,
             library::{
-                create_library_controller, delete_library_controller,
-                get_libraries_controller, get_library_by_id_controller,
+                create_library_controller, delete_library_controller, get_libraries_controller,
+                get_library_by_id_controller,
             },
             media_item::{
                 get_all_media_controller, get_media_controller, get_media_episodes_controller,
             },
-            video_player::play_video_with_path_controller,
+            video_player::{play_video_with_path_controller, stop_video_player_controller},
         },
         ws::utils::WsConnections,
     },
@@ -94,18 +94,12 @@ async fn get_libraries_route(repositories: Data<Repositories>) -> impl Responder
 }
 
 #[get("/{id}")]
-async fn get_library_route(
-    id: Path<i64>,
-    repositories: Data<Repositories>,
-) -> impl Responder {
+async fn get_library_route(id: Path<i64>, repositories: Data<Repositories>) -> impl Responder {
     get_library_by_id_controller(id, repositories).await
 }
 
 #[delete("/{id}")]
-async fn delete_library_route(
-    id: Path<i64>,
-    repositories: Data<Repositories>,
-) -> impl Responder {
+async fn delete_library_route(id: Path<i64>, repositories: Data<Repositories>) -> impl Responder {
     delete_library_controller(id, repositories).await
 }
 
@@ -132,7 +126,6 @@ async fn play_video_with_path(
     req: HttpRequest,
     pipeline_service: Data<PipelineService>,
     file_service: Data<FileService>,
-    event_bus: Data<Arc<EventBus>>,
     hls_state_actor_addr: Data<Addr<HlsStateActor>>,
     task_pool: Data<TaskPool>,
     ws_connections: Data<WsConnections>,
@@ -142,7 +135,6 @@ async fn play_video_with_path(
         req,
         pipeline_service,
         file_service,
-        event_bus,
         hls_state_actor_addr,
         task_pool,
         ws_connections,
@@ -150,6 +142,15 @@ async fn play_video_with_path(
     .await
 }
 
+#[post("/stop")]
+async fn stop_video_player_route(pipeline_service: Data<PipelineService>) -> impl Responder {
+    stop_video_player_controller(pipeline_service).await
+}
+
 pub fn init_video_player_routes(cfg: &mut ServiceConfig) {
-    cfg.service(scope("/video-player").service(play_video_with_path));
+    cfg.service(
+        scope("/video-player")
+            .service(play_video_with_path)
+            .service(stop_video_player_route),
+    );
 }

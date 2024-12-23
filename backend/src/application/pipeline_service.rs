@@ -61,16 +61,16 @@ impl PipelineService {
         })
     }
 
-    #[instrument(skip(self, file_service, event_bus, task_pool))]
+    #[instrument(skip(self, file_service, task_pool))]
     pub async fn start_playback(
         &self,
         path: &str,
         file_service: Arc<FileService>,
-        event_bus: Arc<EventBus>,
         task_pool: Arc<TaskPool>,
         ws_client_key: String,
         ws_connections: WsConnections,
     ) -> Result<TaskId> {
+        let event_bus = self.event_bus.clone();
         let task = PipelinePreparationTask::new(
             file_service,
             event_bus.clone(),
@@ -85,14 +85,11 @@ impl PipelineService {
             )
             .await?;
 
-        let pipeline = match build_pipeline(
-            path,
-            self.event_bus.clone(),
-            self.hls_state_actor_addr.clone(),
-        ) {
-            Ok(pipeline) => pipeline,
-            Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
-        };
+        let pipeline =
+            match build_pipeline(path, event_bus.clone(), self.hls_state_actor_addr.clone()) {
+                Ok(pipeline) => pipeline,
+                Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
+            };
 
         let pipeline_addr = pipeline.start();
         self.hls_state_actor_addr
@@ -126,6 +123,27 @@ impl PipelineService {
             EventHandlerConfig::one_time(),
         );
 
+        listen_event!(
+            event_bus,
+            DomainEvent::Pipeline(PipelineEvent::PipelineStopped),
+            move |_, _| {
+                let pipeline_addr_clone = pipeline_addr.clone();
+                async move {
+                    match pipeline_addr_clone.send(PipelineAction::Stop).await {
+                        Ok(_) => {
+                            info!("Pipeline stopped");
+                            Ok(())
+                        }
+                        Err(e) => {
+                            error!("Failed to stop pipeline: {:?}", e);
+                            Err(anyhow::anyhow!("Failed to stop pipeline: {:?}", e))
+                        }
+                    }
+                }
+            },
+            EventHandlerConfig::one_time(),
+        );
+
         Ok(task_id)
     }
 
@@ -136,8 +154,15 @@ impl PipelineService {
 
     #[instrument(skip(self))]
     pub async fn stop_and_clean(&self) -> Result<()> {
-        // TODO: consider if we need to move logic of stopping pipeline to service layer
-        // TODO: once integrate with event bus and websocket, we also need to clean up them
-        Ok(())
+        match self
+            .event_bus
+            .publish(DomainEvent::Pipeline(PipelineEvent::PipelineStopped))
+        {
+            Ok(_) => Ok(()),
+            Err(e) => Err(anyhow::anyhow!(
+                "Failed to publish pipeline stopped event: {:?}",
+                e
+            )),
+        }
     }
 }

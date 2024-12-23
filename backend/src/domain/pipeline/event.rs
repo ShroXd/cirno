@@ -26,6 +26,7 @@ pub enum PipelineEvent {
     HlsStreamInitialized {
         path: String,
     },
+    PipelineStopped,
 }
 
 impl ToJsonPayload for PipelineEvent {

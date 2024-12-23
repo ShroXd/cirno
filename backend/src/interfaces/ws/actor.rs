@@ -106,7 +106,6 @@ pub enum System {
 #[rtype(result = "()")]
 #[ts(export)]
 pub enum WebSocketMessage {
-    PipelineAction(PipelineAction),
     System(System),
 }
 
@@ -119,9 +118,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketActor {
             }
             Ok(ws::Message::Text(msg)) => match from_str::<WebSocketMessage>(&msg) {
                 Ok(message) => match message {
-                    WebSocketMessage::PipelineAction(action) => {
-                        self.handle_pipeline_action(action, ctx)
-                    }
+                    // WebSocketMessage::PipelineAction(action) => {
+                    //     self.handle_pipeline_action(action, ctx)
+                    // }
                     WebSocketMessage::System(system) => self.handle_system(system, ctx),
                 },
                 Err(e) => {
