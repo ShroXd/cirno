@@ -36,6 +36,23 @@ impl HlsStateActor {
 }
 
 #[derive(Debug, Message)]
+#[rtype(result = "Result<()>")]
+pub struct Reset;
+
+impl Handler<Reset> for HlsStateActor {
+    type Result = Result<()>;
+
+    fn handle(&mut self, _: Reset, _: &mut Self::Context) -> Self::Result {
+        self.segment_index
+            .store(0, std::sync::atomic::Ordering::Relaxed);
+        self.pipeline_duration = None;
+        self.segment_duration = None;
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Message)]
 #[rtype(result = "Result<HlsStream>")]
 pub struct GetPlaylistStream(pub String); // path
 

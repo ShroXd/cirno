@@ -16,7 +16,8 @@ use crate::{
     },
     infrastructure::{
         event_bus::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
-        hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
+        file::finder_options::{all_files, FinderOptions},
+        hls::hls_state_actor::{HlsStateActor, Reset, SetPipelineAddr},
         pipeline::actor::PipelineAction,
         task_pool::task_pool::TaskPool,
     },
@@ -72,7 +73,7 @@ impl PipelineService {
     ) -> Result<TaskId> {
         let event_bus = self.event_bus.clone();
         let task = PipelinePreparationTask::new(
-            file_service,
+            file_service.clone(),
             event_bus.clone(),
             self.hls_state_actor_addr.clone(),
         );
@@ -123,22 +124,42 @@ impl PipelineService {
             EventHandlerConfig::one_time(),
         );
 
+        let hls_state_actor_addr_clone = self.hls_state_actor_addr.clone();
         listen_event!(
             event_bus,
             DomainEvent::Pipeline(PipelineEvent::PipelineStopped),
             move |_, _| {
                 let pipeline_addr_clone = pipeline_addr.clone();
+                let hls_state_actor_addr_clone = hls_state_actor_addr_clone.clone();
+                let file_service_clone = file_service.clone();
+
                 async move {
-                    match pipeline_addr_clone.send(PipelineAction::Stop).await {
-                        Ok(_) => {
+                    let _ = pipeline_addr_clone
+                        .send(PipelineAction::Stop)
+                        .await
+                        .map(|_| {
                             info!("Pipeline stopped");
                             Ok(())
-                        }
-                        Err(e) => {
+                        })
+                        .unwrap_or_else(|e| {
                             error!("Failed to stop pipeline: {:?}", e);
                             Err(anyhow::anyhow!("Failed to stop pipeline: {:?}", e))
-                        }
-                    }
+                        });
+
+                    let _ = hls_state_actor_addr_clone
+                        .send(Reset)
+                        .await
+                        .inspect_err(|e| error!("Failed to reset hls state actor: {:?}", e));
+
+                    let options = FinderOptions::new()
+                        .filters(all_files())
+                        .include_hidden(true);
+                    let _ = file_service_clone
+                        .delete_files_in_folder("./tmp", options)
+                        .await
+                        .inspect_err(|e| error!("Failed to delete files in tmp folder: {}", e));
+
+                    Ok(())
                 }
             },
             EventHandlerConfig::one_time(),
