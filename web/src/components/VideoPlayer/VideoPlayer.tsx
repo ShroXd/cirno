@@ -35,11 +35,11 @@ export const VideoPlayer = (props: any) => {
       player.on('seeking', () => {
         const currentTime = Math.floor(player.currentTime() ?? 0)
         console.log('seeking: ', currentTime)
-        sendMessage({
-          PipelineAction: {
-            Seek: currentTime,
-          },
-        })
+        // sendMessage({
+        //   PipelineAction: {
+        //     Seek: currentTime,
+        //   },
+        // })
       })
     } else {
       const player = playerRef.current

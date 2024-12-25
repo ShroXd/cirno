@@ -7,7 +7,6 @@ import { useFetch } from '@/hooks/useFetch'
 import { wrapInGrid } from '@/pages/utils'
 import { LibraryDto } from '@/bindings/LibraryDto'
 import { Container } from '@/components/Container/Container'
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
 
 export const LibraryDetail = () => {
   const { libraryId } = useParams()
@@ -28,9 +27,6 @@ export const LibraryDetail = () => {
 
   return (
     <>
-      <Container className='mb-6'>
-        <Breadcrumb />
-      </Container>
       <Container>
         <Typography className='mb-4 mt-2' variant='h4' color='blue-gray'>
           {detail?.name}

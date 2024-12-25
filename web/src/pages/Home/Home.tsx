@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { Settings } from '@/pages/Settings/Settings'
-import { Sidebar } from '@/components/Sidebar/Sidebar'
 import { Library } from '@/pages/Library/Library'
 import { Test } from '@/pages/Test/Test'
 import { MediaDetail } from '@/pages/MediaDetail/MediaDetail'
@@ -13,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { LibraryDetail } from '../LibraryDetail/LibraryDetail'
 import { usePost } from '@/hooks/usePost'
 import { VideoPlayerEventType } from '@/contexts/EventBusContext/eventBus'
+import { StickyNavbar } from '@/components/Navbar/Navbar'
 
 export const Home = () => {
   const { addNotification } = useNotification()
@@ -37,10 +37,11 @@ export const Home = () => {
 
   return (
     <>
-      <div className='flex h-screen w-screen px-1 py-1'>
-        <Sidebar />
+      <div className='flex h-screen flex-col'>
+        <StickyNavbar />
 
-        <div className='mt-2 h-full w-auto'>
+        <div className='pt-20 h-full w-auto overflow-y-auto'>
+          <div className='h-2'></div>
           <Routes>
             <Route path='/' element={<Library />} />
             <Route path='/library/:libraryId' element={<LibraryDetail />} />
