@@ -4,9 +4,9 @@
 
 # Cirno
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/yourusername/cirno?style=social)](https://github.com/yourusername/cirno)
-[![Docker Pulls](https://img.shields.io/docker/pulls/yourusername/cirno)](https://hub.docker.com/r/yourusername/cirno)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/ShroXd/cirno?style=social)](https://github.com/ShroXd/cirno)
+[![Docker Pulls](https://img.shields.io/docker/pulls/shroxd/cirno)](https://hub.docker.com/r/shroxd/cirno)
 
 _Your Personal Media Management Platform_
 
@@ -122,7 +122,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## 💖 Support
 
