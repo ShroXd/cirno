@@ -1,8 +1,8 @@
-# Cirno
-
 <div align="center">
 
-![Cirno Logo](path/to/your/logo.png)
+<img src="./assets/images/logo.svg" width="240" alt="Cirno Logo">
+
+# Cirno
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/yourusername/cirno?style=social)](https://github.com/yourusername/cirno)
@@ -10,7 +10,7 @@
 
 _Your Personal Media Management Platform_
 
-[Features](#features) • [Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Contributing](#contributing) • [Support](#support)
+[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Development](#%EF%B8%8F-development) • [Contributing](#-contributing) • [License](#-license) • [Support](#-support)
 
 </div>
 
