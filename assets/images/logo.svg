@@ -3,9 +3,9 @@
   <rect x="40" y="40" width="120" height="120" rx="24" fill="#0F172A"/>
   
   <!-- Main circle -->
-  <circle cx="100" cy="100" r="38" fill="#22D3EE"/>
+  <circle cx="100" cy="100" r="38" fill="#4C78D1"/>
   
   <!-- Play triangle -->
   <path d="M92 85 L115 100 L92 115 Z" 
-        fill="white"/>
+        fill="#FFFFFF"/>
 </svg>
