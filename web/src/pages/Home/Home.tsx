@@ -12,7 +12,7 @@ import { useNotification } from '~/hooks/useNotification'
 import { useEventBus } from '~/hooks/useEventBus'
 import { LibraryDetail } from '~/pages/LibraryDetail/LibraryDetail'
 import { usePost } from '~/hooks/usePost'
-import { VideoPlayerEventType } from '~/contexts/EventBusContext/eventBus'
+import { VideoPlayerEventType } from '~/contexts/EventBusContext/types'
 import { StickyNavbar } from '~/components/Navbar/Navbar'
 
 export const Home = () => {
@@ -22,11 +22,11 @@ export const Home = () => {
   const post = usePost()
 
   useEffect(() => {
-    onEvent('LibrarySaved', (payload: unknown) =>
+    onEvent('LibrarySaved', payload =>
       addNotification({
         title: t('notification.librarySaved.title'),
         message: t('notification.librarySaved.message', {
-          libraryName: (payload as Record<string, unknown>)['library_name'],
+          libraryName: payload.libraryName,
         }),
       })
     )

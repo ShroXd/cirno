@@ -2,7 +2,6 @@ import { createContext, FC, ReactNode, useEffect, useState } from 'react'
 import axios, { AxiosInstance } from 'axios'
 
 import { useEventBus } from '~/hooks/useEventBus'
-import { RegisterClient } from '~/bindings/RegisterClient'
 
 export interface AxiosContextProps {
   axiosInstance: AxiosInstance
@@ -17,9 +16,9 @@ export const AxiosProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // const [authToken, setAuthToken] = useState<string | null>(null)
   const [wsClientKey, setWsClientKey] = useState<string | null>(null)
 
-  const { onEvent: listenForMessages } = useEventBus()
-  listenForMessages('RegisterClient', (payload: unknown) => {
-    setWsClientKey((payload as RegisterClient).client_key)
+  const { onEvent } = useEventBus()
+  onEvent('RegisterClient', payload => {
+    setWsClientKey(payload.clientKey)
   })
 
   // TODO: config url via env variable

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createEventBus, EventBusType, VideoPlayerEventType } from './eventBus'
+import { createEventBus } from './eventBus'
+import { EventBusType } from './types'
 
 describe('EventBus', () => {
   let eventBus: EventBusType
@@ -10,10 +11,10 @@ describe('EventBus', () => {
 
   it('should work correctly', () => {
     const handler = vi.fn()
-    const payload = { id: '123' }
+    const payload = { clientKey: '123' }
 
-    eventBus.on(VideoPlayerEventType.Play, handler)
-    eventBus.emit(VideoPlayerEventType.Play, payload)
+    eventBus.on('RegisterClient', handler)
+    eventBus.emit('RegisterClient', payload)
 
     expect(handler).toHaveBeenCalledWith(payload)
   })
@@ -22,11 +23,11 @@ describe('EventBus', () => {
     const handler1 = vi.fn()
     const handler2 = vi.fn()
 
-    eventBus.on(VideoPlayerEventType.Play, handler1)
-    eventBus.on(VideoPlayerEventType.Play, handler2)
+    eventBus.on('RegisterClient', handler1)
+    eventBus.on('RegisterClient', handler2)
 
-    const payload = { id: '123' }
-    eventBus.emit(VideoPlayerEventType.Play, payload)
+    const payload = { clientKey: '123' }
+    eventBus.emit('RegisterClient', payload)
 
     expect(handler1).toHaveBeenCalledWith(payload)
     expect(handler2).toHaveBeenCalledWith(payload)
@@ -34,11 +35,11 @@ describe('EventBus', () => {
 
   it('should unsubscribe from events with off() method', () => {
     const handler = vi.fn()
-    const payload = { id: '123' }
+    const payload = { clientKey: '123' }
 
-    eventBus.on(VideoPlayerEventType.Play, handler)
-    eventBus.off(VideoPlayerEventType.Play, handler)
-    eventBus.emit(VideoPlayerEventType.Play, payload)
+    eventBus.on('RegisterClient', handler)
+    eventBus.off('RegisterClient', handler)
+    eventBus.emit('RegisterClient', payload)
 
     expect(handler).not.toHaveBeenCalled()
   })
@@ -47,52 +48,27 @@ describe('EventBus', () => {
     const handler1 = vi.fn()
     const handler2 = vi.fn()
 
-    eventBus.on(VideoPlayerEventType.Play, handler1)
-    eventBus.on(VideoPlayerEventType.Play, handler2)
-    eventBus.off(VideoPlayerEventType.Play, handler1)
+    eventBus.on('RegisterClient', handler1)
+    eventBus.on('RegisterClient', handler2)
+    eventBus.off('RegisterClient', handler1)
 
-    const payload = { id: '123' }
-    eventBus.emit(VideoPlayerEventType.Play, payload)
+    const payload = { clientKey: '123' }
+    eventBus.emit('RegisterClient', payload)
 
     expect(handler1).not.toHaveBeenCalled()
     expect(handler2).toHaveBeenCalledWith(payload)
   })
 
-  it('should handle events with different payload types', () => {
-    const handler = vi.fn()
-    eventBus.on(VideoPlayerEventType.Play, handler)
-
-    const payloads = [
-      { id: '123' },
-      { id: '123', duration: 120 },
-      { error: new Error('Test error') },
-      { metadata: { title: 'Test Video' } },
-    ]
-
-    payloads.forEach(payload => {
-      eventBus.emit(VideoPlayerEventType.Play, payload)
-      expect(handler).toHaveBeenCalledWith(payload)
-    })
-  })
-
   it('should not fail when emitting event with no handlers', () => {
     expect(() => {
-      eventBus.emit(VideoPlayerEventType.Play, { id: '123' })
+      eventBus.emit('RegisterClient', { clientKey: '123' })
     }).not.toThrow()
   })
 
   it('should not fail when unsubscribing non-existent handler', () => {
     const handler = vi.fn()
     expect(() => {
-      eventBus.off(VideoPlayerEventType.Play, handler)
+      eventBus.off('RegisterClient', handler)
     }).not.toThrow()
   })
-
-  //   it('should maintain type safety for event types', () => {
-  //     const handler: EventHandler = payload => {
-  //       console.log(payload)
-  //     }
-
-  //     eventBus.on(VideoPlayerEventType.Play, handler)
-  //   })
 })

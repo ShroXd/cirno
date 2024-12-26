@@ -1,9 +1,10 @@
 import { createContext, FC, ReactNode, useMemo } from 'react'
-import { createEventBus, EventHandler, EventType } from './eventBus'
+import { createEventBus } from './eventBus'
+import { EventHandler, EventType, PayloadMap } from './types'
 
 interface EventBusContextProps {
   emitEvent: (message: { event: EventType; payload: unknown }) => void
-  onEvent: (event: EventType, handler: EventHandler) => void
+  onEvent: <E extends EventType>(event: E, handler: EventHandler<E>) => void
 }
 
 export const EventBusContext = createContext<EventBusContextProps | undefined>(
@@ -13,11 +14,14 @@ export const EventBusContext = createContext<EventBusContextProps | undefined>(
 export const EventBusProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const eventBus = useMemo(() => createEventBus(), [])
 
-  const emitEvent = (message: { event: EventType; payload: unknown }) => {
+  const emitEvent = <E extends EventType>(message: {
+    event: E
+    payload: PayloadMap[E]
+  }) => {
     eventBus.emit(message.event, message.payload)
   }
 
-  const onEvent = (event: EventType, handler: EventHandler) => {
+  const onEvent = <E extends EventType>(event: E, handler: EventHandler<E>) => {
     eventBus.on(event, handler)
   }
 

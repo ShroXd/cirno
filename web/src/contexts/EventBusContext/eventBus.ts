@@ -1,21 +1,6 @@
-import { NotificationType } from '~/bindings/NotificationType'
-
-export type EventHandler = (payload: unknown) => void
+import { EventBusType, EventHandler, EventType, PayloadMap } from './types'
 
 // TODO: 1. async tasks
-
-export enum VideoPlayerEventType {
-  Play = 'Play',
-  Stop = 'Stop',
-}
-
-export type EventType = NotificationType | VideoPlayerEventType
-
-export type EventBusType = {
-  on: (event: EventType, handler: EventHandler) => void
-  off: (event: EventType, handler: EventHandler) => void
-  emit: (event: EventType, payload: unknown) => void
-}
 
 /**
  * Creates an event bus instance for handling pub/sub events.
@@ -23,15 +8,17 @@ export type EventBusType = {
  * @returns {Object} Event bus methods {on, off, emit}
  */
 export const createEventBus = (): EventBusType => {
-  const registry = new Map<EventType, EventHandler[]>()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  const registry = new Map<EventType, Function[]>()
 
-  const on = (event: EventType, handler: EventHandler) => {
+  const on = <E extends EventType>(event: E, handler: EventHandler<E>) => {
     const eventHandlers = registry.get(event) || []
-    eventHandlers.push(handler)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    eventHandlers.push(handler as Function)
     registry.set(event, eventHandlers)
   }
 
-  const off = (event: EventType, handler: EventHandler) => {
+  const off = <E extends EventType>(event: E, handler: EventHandler<E>) => {
     const eventHandlers = registry.get(event) || []
     registry.set(
       event,
@@ -39,9 +26,9 @@ export const createEventBus = (): EventBusType => {
     )
   }
 
-  const emit = (event: EventType, payload: unknown) => {
+  const emit = <E extends EventType>(event: E, payload: PayloadMap[E]) => {
     const eventHandlers = registry.get(event) || []
-    eventHandlers.forEach(handler => handler(payload))
+    eventHandlers.forEach(handler => (handler as EventHandler<E>)(payload))
   }
 
   return { on, off, emit }
