@@ -56,13 +56,16 @@ export const useWebSocket = (options: WebSocketOptions = {}) => {
     reconnectAttempts.current += 1
     console.log(`Reconnecting in ${interval}ms...`)
 
-    reconnectTimer.current = setTimeout(() => {
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current)
+    }
+    reconnectTimer.current = window.setTimeout(() => {
       connect()
     }, interval)
   }
 
   const startHeartbeat = () => {
-    heartbeatTimer.current = setInterval(() => {
+    heartbeatTimer.current = window.setInterval(() => {
       if (ws.readyState === WebSocket.OPEN) {
         console.log('Sending heartbeat message...')
         ws.send(
