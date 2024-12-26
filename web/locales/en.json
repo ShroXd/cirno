@@ -11,10 +11,13 @@
     "loading": "Loading..."
   },
   "component": {
+    "navbar": {
+      "addLibrary": "Add Library",
+      "favorites": "Favorites"
+    },
     "sidebar": {
       "home": "Home",
       "media": "Media",
-      "favorites": "Favorites",
       "library": "Library",
       "plugins": "Plugins",
       "test": "Test",

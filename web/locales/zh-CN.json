@@ -11,10 +11,13 @@
     "loading": "加载中..."
   },
   "component": {
+    "navbar": {
+      "addLibrary": "添加媒体库",
+      "favorites": "收藏"
+    },
     "sidebar": {
       "home": "首页",
       "media": "媒体",
-      "favorites": "收藏",
       "library": "库",
       "plugins": "插件",
       "test": "测试",
