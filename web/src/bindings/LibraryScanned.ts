@@ -2,4 +2,4 @@
 import type { Library } from "./Library";
 import type { TaskIdentifier } from "./TaskIdentifier";
 
-export type LibraryScanned = { type: string, task_identifier: TaskIdentifier, library: Library, };
+export type LibraryScanned = { taskIdentifier: TaskIdentifier, library: Library, };

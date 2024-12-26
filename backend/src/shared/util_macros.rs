@@ -162,6 +162,9 @@ macro_rules! process_pipeline_action {
 /// - Has a "type" field with the struct name
 /// - Has the specified fields with their types
 /// - Includes a constructor that sets the type and fields
+/// - Field names are converted to camelCase in both Rust and TypeScript
+///   since the JSON payload will be sent via WebSocket to the web client
+///   and consumed by TypeScript code
 ///
 
 #[macro_export]
@@ -177,10 +180,9 @@ macro_rules! define_payload {
     ) => {
         $(#[$outer])*
         #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-        #[ts(export)]
+        #[serde(rename_all = "camelCase")]
+        #[ts(export, rename_all = "camelCase")]
         $vis struct $name {
-            #[serde(rename = "type")]
-            event_type: String,
             $(
                 $(#[$field_meta])*
                 $field_name: $field_ty,
@@ -190,7 +192,6 @@ macro_rules! define_payload {
         impl $name {
             $vis fn new($($field_name: $field_ty,)*) -> Self {
                 Self {
-                    event_type: stringify!($name).to_string(),
                     $($field_name,)*
                 }
             }

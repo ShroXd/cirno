@@ -11,7 +11,7 @@ describe('EventBus', () => {
 
   it('should work correctly', () => {
     const handler = vi.fn()
-    const payload = { clientKey: '123' }
+    const payload = { clientKey: '123', type: 'RegisterClient' }
 
     eventBus.on('RegisterClient', handler)
     eventBus.emit('RegisterClient', payload)
