@@ -1,12 +1,12 @@
+import { ReactNode } from 'react'
 import {
   FaceSmileIcon,
   FilmIcon,
   InboxStackIcon,
   TvIcon,
 } from '@heroicons/react/24/outline'
-import { ReactNode } from 'react'
 
-import { LibraryCategory } from '@/bindings/LibraryCategory'
+import { LibraryCategory } from '~/bindings/LibraryCategory'
 
 export const getIconAccordingToCategory = (
   category: LibraryCategory

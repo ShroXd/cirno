@@ -15,9 +15,9 @@ import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { mutate } from 'swr'
 
-import { useFetch } from '@/hooks/useFetch'
-import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog/DeleteConfirmationDialog'
-import { LibraryDto } from '@/bindings/LibraryDto'
+import { useFetch } from '~/hooks/useFetch'
+import { DeleteConfirmationDialog } from '~/components/DeleteConfirmationDialog/DeleteConfirmationDialog'
+import { LibraryDto } from '~/bindings/LibraryDto'
 import { getIconAccordingToCategory } from './utils'
 
 interface SidebarProps {

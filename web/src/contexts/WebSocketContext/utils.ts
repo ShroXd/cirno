@@ -1,4 +1,4 @@
-import { Notification } from '@/bindings/Notification'
+import { Notification } from '~/bindings/Notification'
 
 export const isNotification = (
   payload: unknown

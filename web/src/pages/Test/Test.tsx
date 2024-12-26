@@ -1,5 +1,5 @@
 import 'video.js/dist/video-js.css'
-import VideoPlayer from '@/components/VideoPlayer/VideoPlayer'
+import VideoPlayer from '~/components/VideoPlayer/VideoPlayer'
 
 export const Test = () => {
   const videoJsOptions = {

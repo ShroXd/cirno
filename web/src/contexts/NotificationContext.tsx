@@ -1,5 +1,6 @@
 import { createContext, FC, ReactNode, useCallback, useState } from 'react'
-import { NotificationItem } from '../components/NotificationItem/NotificationItem'
+
+import { NotificationItem } from '~/components/NotificationItem/NotificationItem'
 
 export type NotificationModel = {
   id: string

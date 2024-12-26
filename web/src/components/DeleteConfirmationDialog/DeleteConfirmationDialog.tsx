@@ -5,8 +5,9 @@ import {
   DialogFooter,
   DialogHeader,
 } from '@material-tailwind/react'
-import { useDelete } from '@/hooks/useDelete'
 import { useTranslation } from 'react-i18next'
+
+import { useDelete } from '~/hooks/useDelete'
 
 interface DeleteConfirmationDialogProps {
   mediaLibraryId: number

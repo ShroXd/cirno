@@ -1,4 +1,4 @@
-import { useAxios } from '@/hooks/useAxios'
+import { useAxios } from '~/hooks/useAxios'
 
 export const useDelete = () => {
   const { axiosInstance } = useAxios()

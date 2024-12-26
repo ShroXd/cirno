@@ -5,7 +5,6 @@ import {
   Input,
   Button,
 } from '@material-tailwind/react'
-import { Sidebar } from '../Sidebar/Sidebar'
 import { useState } from 'react'
 import {
   MagnifyingGlassIcon,
@@ -15,7 +14,9 @@ import {
 } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { LibraryManageDialog } from '../LibraryManageDialog/LibraryManageDialog'
+
+import { Sidebar } from '~/components/Sidebar/Sidebar'
+import { LibraryManageDialog } from '~/components/LibraryManageDialog/LibraryManageDialog'
 
 export const StickyNavbar = () => {
   const [open, setOpen] = useState(false)

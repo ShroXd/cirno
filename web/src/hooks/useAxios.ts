@@ -1,8 +1,9 @@
 import { useContext } from 'react'
+
 import {
   AxiosContext,
   AxiosContextProps,
-} from '@/contexts/AxiosContext/AxiosContext'
+} from '~/contexts/AxiosContext/AxiosContext'
 
 export const useAxios = (): AxiosContextProps => {
   const context = useContext(AxiosContext)

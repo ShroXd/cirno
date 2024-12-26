@@ -1,4 +1,4 @@
-import { WebSocketEventType } from '@/bindings/WebSocketEventType'
+import { WebSocketEventType } from '~/bindings/WebSocketEventType'
 
 export const isWebSocketEventType = (
   payload: unknown

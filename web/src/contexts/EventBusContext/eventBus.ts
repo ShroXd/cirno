@@ -1,4 +1,4 @@
-import { NotificationType } from '@/bindings/NotificationType'
+import { NotificationType } from '~/bindings/NotificationType'
 
 export type EventHandler = (payload: unknown) => void
 

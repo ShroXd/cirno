@@ -15,12 +15,12 @@ import {
 } from '@material-tailwind/react'
 import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
 
-import { EpisodeDto } from '@bindings/EpisodeDto'
-import { usePost } from '@/hooks/usePost'
-import { useEventBus } from '@/hooks/useEventBus'
-import { MediaItemDto } from '@/bindings/MediaItemDto'
-import { useFetch } from '@/hooks/useFetch'
-import { Divider } from '@/components/Divider/Divider'
+import { EpisodeDto } from '~/bindings/EpisodeDto'
+import { usePost } from '~/hooks/usePost'
+import { useEventBus } from '~/hooks/useEventBus'
+import { MediaItemDto } from '~/bindings/MediaItemDto'
+import { useFetch } from '~/hooks/useFetch'
+import { Divider } from '~/components/Divider/Divider'
 
 const transformEpisodesToSeasons = (episodes: EpisodeDto[] | undefined) => {
   if (!episodes) return []

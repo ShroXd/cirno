@@ -14,7 +14,8 @@ import {
 import { FC, useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { usePost } from '@/hooks/usePost'
+
+import { usePost } from '~/hooks/usePost'
 
 interface LibraryManageDialogProps {
   open: boolean

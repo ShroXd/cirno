@@ -3,11 +3,11 @@ import { Typography } from '@material-tailwind/react'
 import { NavLink } from 'react-router-dom'
 import { mutate } from 'swr'
 
-import { useFetch } from '@/hooks/useFetch'
-import { useEventBus } from '@/hooks/useEventBus'
-import { wrapInGrid } from '@/pages/utils'
-import { LibraryDto } from '@/bindings/LibraryDto'
-import { Container } from '@/components/Container/Container'
+import { useFetch } from '~/hooks/useFetch'
+import { useEventBus } from '~/hooks/useEventBus'
+import { wrapInGrid } from '~/pages/utils'
+import { LibraryDto } from '~/bindings/LibraryDto'
+import { Container } from '~/components/Container/Container'
 import { useTranslation } from 'react-i18next'
 
 export const Library = () => {
