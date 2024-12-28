@@ -93,6 +93,27 @@ tasks:
     cmds:
       - cargo fmt -- --check --verbose
 
+  # ---------------------------- 🌮 Check Code 🌮 ----------------------------
+
+  check:
+    desc: "🌮 Check front-end and back-end code"
+    deps:
+      - check:frontend
+      - check:backend
+
+  check:frontend:
+    desc: "🌮 Check front-end code"
+    dir: web
+    cmds:
+      - pnpm run lint
+
+  check:backend:
+    desc: "🌮 Check back-end code"
+    dir: backend
+    cmds:
+      - cargo check
+      - cargo clippy -- -D warnings
+
   # ---------------------------- 🏗️ Build for Production 🏗️ ----------------------------
 
   build:
