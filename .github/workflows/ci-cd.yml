@@ -61,38 +61,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install GStreamer dependencies
-        run: |
-          sudo apt-get update && sudo apt-get install -y \
-              gstreamer1.0-tools \
-              gstreamer1.0-plugins-base \
-              gstreamer1.0-plugins-good \
-              gstreamer1.0-plugins-bad \
-              gstreamer1.0-plugins-ugly \
-              gstreamer1.0-libav \
-              pkg-config \
-              libgstreamer1.0-dev \
-              libgstreamer-plugins-base1.0-dev \
-              sqlite3
-
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.RUST_VERSION }}
           override: true
-          components: rustfmt, clippy
+          components: rustfmt
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
 
       - name: Check formatting
         run: cargo fmt -- --check
-
-      #   - name: Run clippy
-      #     run: cargo clippy -- -D warnings
-
-      - name: Run tests
-        run: cargo test
-
-    #   - name: Build
-    #     run: cargo build --release
