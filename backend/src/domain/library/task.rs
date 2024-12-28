@@ -42,12 +42,10 @@ impl AsyncTask for LibraryScanTask {
         // TODO: Remove this delay before production
         // tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;
 
-        let _ = event_bus.publish(DomainEvent::Library(
-            LibraryEventType::LibraryScanned {
-                task_identifier: self.identifier.clone(),
-                library,
-            },
-        ));
+        let _ = event_bus.publish(DomainEvent::Library(LibraryEventType::LibraryScanned {
+            task_identifier: self.identifier.clone(),
+            library,
+        }));
 
         Ok(())
     }

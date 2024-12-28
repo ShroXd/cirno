@@ -6,10 +6,7 @@ use tracing::*;
 
 use crate::{
     infrastructure::database::{
-        actor::{
-            DeleteLibrary, QueryLibrary, QueryLibraryPosters, SaveLibrary,
-            ValidateCategory,
-        },
+        actor::{DeleteLibrary, QueryLibrary, QueryLibraryPosters, SaveLibrary, ValidateCategory},
         database::Database,
     },
     interfaces::{dtos::LibraryDto, http_api::controllers::api_models::SaveLibraryPayload},

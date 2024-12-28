@@ -3,8 +3,8 @@ use anyhow::*;
 use std::sync::Arc;
 
 use crate::infrastructure::database::{
-    database::Database, media_item::repository::MediaRepository,
-    library::repository::LibraryRepository,
+    database::Database, library::repository::LibraryRepository,
+    media_item::repository::MediaRepository,
 };
 
 #[derive(Clone)]

@@ -2,8 +2,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::{
-    domain::tv_show::model::TvShow,
-    interfaces::http_api::controllers::api_models::LibraryCategory,
+    domain::tv_show::model::TvShow, interfaces::http_api::controllers::api_models::LibraryCategory,
 };
 
 #[derive(Debug, Deserialize, Serialize, Clone, TS)]

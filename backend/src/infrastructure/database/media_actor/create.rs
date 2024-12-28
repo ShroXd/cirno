@@ -2,7 +2,7 @@ use anyhow::*;
 use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 
-use crate::domain::media_actor::model::MediaActor as MediaActor;
+use crate::domain::media_actor::model::MediaActor;
 
 #[instrument(skip(conn_pool, actor))]
 pub async fn save_actor(conn_pool: &SqlitePool, tv_show_id: i64, actor: MediaActor) -> Result<()> {

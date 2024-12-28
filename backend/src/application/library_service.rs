@@ -9,8 +9,8 @@ use crate::{
     chain_events,
     domain::{
         library::{
-            constant::SENTINEL_LIBRARY_ID, event::LibraryEventType,
-            library::create_library, task::LibraryScanTask,
+            constant::SENTINEL_LIBRARY_ID, event::LibraryEventType, library::create_library,
+            task::LibraryScanTask,
         },
         task::task::{AsyncTaskResponse, TaskIdentifiable, TaskType},
     },

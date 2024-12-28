@@ -6,7 +6,7 @@ use quick_xml::Reader;
 use tracing::*;
 
 use crate::domain::{
-    episode::model::Episode, media_actor::model::MediaActor as MediaActor, season::model::Season,
+    episode::model::Episode, media_actor::model::MediaActor, season::model::Season,
     tv_show::model::TvShow,
 };
 

@@ -2,9 +2,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqliteRow;
 use ts_rs::TS;
 
-use crate::{
-    domain::library::model::LibraryPoster, shared::util_traits::SqliteRowMapper,
-};
+use crate::{domain::library::model::LibraryPoster, shared::util_traits::SqliteRowMapper};
 
 use super::http_api::controllers::api_models::LibraryCategory;
 

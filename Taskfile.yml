@@ -86,7 +86,7 @@ tasks:
     desc: "🎨 Format back-end Rust code"
     dir: backend
     cmds:
-      - cargo fmt
+      - cargo fmt -- --check --verbose
 
   # ---------------------------- 🏗️ Build for Production 🏗️ ----------------------------
 
