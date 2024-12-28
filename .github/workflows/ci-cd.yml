@@ -65,7 +65,7 @@ jobs:
         run: |
           docker build \
             --tag backend-ci \
-            --file Dockerfile.backend.ci \
+            --file Dockerfile.ci \
             .
           docker run --rm backend-ci
 
