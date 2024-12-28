@@ -2,7 +2,7 @@ use actix::prelude::*;
 use anyhow::Result;
 use chrono::Local;
 use gstreamer::prelude::*;
-use std::{path::PathBuf, sync::Arc};
+use std::{env, path::PathBuf, sync::Arc};
 use tracing::*;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
@@ -239,7 +239,9 @@ impl SystemInitializer {
 
         let query_manager = Arc::new(FileQueryManager::new(sql_dir).await?);
         query_manager.reload().await?;
-        let database = Database::new("database.db", query_manager).await?;
+
+        let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "database.db".to_string());
+        let database = Database::new(&database_url, query_manager).await?;
         self.database_addr = Some(database.start());
 
         Ok(())

@@ -1,6 +1,9 @@
 version: "3"
 silent: true
 
+env:
+  DATABASE_URL: sqlite:///{{.TASK_DIR}}/database.db
+
 tasks:
   # TODO: add command to setup the project.
   # 1. install taskfile runtime
@@ -65,6 +68,8 @@ tasks:
   dev:backend:
     desc: "🚀 Start back-end development server"
     dir: backend
+    env:
+      DATABASE_URL:
     cmds:
       - cargo run
 

@@ -12,12 +12,8 @@ pub struct Database {
 
 impl Database {
     #[instrument(skip(query_manager))]
-    pub async fn new(
-        file_path: &'static str,
-        query_manager: Arc<dyn QueryManager>,
-    ) -> Result<Self> {
-        let pool = SqlitePool::connect(&format!("sqlite:{}", file_path)).await?;
-        debug!("Initialized database at {}", file_path);
+    pub async fn new(database_url: &str, query_manager: Arc<dyn QueryManager>) -> Result<Self> {
+        let pool = SqlitePool::connect(database_url).await?;
 
         Ok(Self {
             pool,
