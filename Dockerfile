@@ -51,12 +51,16 @@ ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
 # 👤 Set up User and Permissions
 RUN useradd -m cirno
 WORKDIR /app
-RUN mkdir logs && chown cirno:cirno logs && chown cirno:cirno ./
+RUN mkdir -p /app/backend /app/logs && \
+    chown -R cirno:cirno /app && \
+    chmod -R 755 /app
 
 # 📤 Copy Build Artifacts
 COPY --from=frontend-builder /app/web/dist /app/web/dist
-COPY --from=backend-builder /app/backend/target/release/cirno-backend /app/cirno-backend
-COPY scripts/create_db.sh /app/create_db.sh
+COPY --from=backend-builder /app/backend/target/release/cirno-backend /app/backend/cirno-backend
+COPY backend/scripts/create_db.sh /app/backend/scripts/create_db.sh
+COPY backend/sql /app/backend/sql
+RUN chown -R cirno:cirno /app
 
 # 🌍 Expose Port and Set Environment Variables
 ENV ROCKET_ADDRESS=0.0.0.0
@@ -66,4 +70,4 @@ EXPOSE 8000
 
 # 🏁 Switch to Non-Root User and Start Application
 USER cirno
-CMD ["/bin/sh", "-c", "/app/create_db.sh /app/database.db && ./cirno-backend"]
+CMD ["/bin/sh", "-c", "./backend/scripts/create_db.sh && ./backend/cirno-backend"]
