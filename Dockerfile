@@ -65,9 +65,9 @@ RUN chown -R cirno:cirno /app
 # 🌍 Expose Port and Set Environment Variables
 ENV ROCKET_ADDRESS=0.0.0.0
 ENV ROCKET_PORT=8000
-ENV DATABASE_URL="sqlite://app/backend/database.db"
+ENV DATABASE_URL="sqlite:///app/backend/database.db"
 EXPOSE 8000
 
 # 🏁 Switch to Non-Root User and Start Application
 USER cirno
-CMD ["/bin/sh", "-c", "./backend/scripts/create_db.sh && ./backend/cirno-backend"]
+CMD ["/bin/sh", "-c", "./backend/scripts/create_db.sh && ./cirno-backend"]

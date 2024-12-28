@@ -241,6 +241,9 @@ impl SystemInitializer {
         query_manager.reload().await?;
 
         let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "database.db".to_string());
+
+        debug!("Dabase url: {:?}", database_url);
+
         let database = Database::new(&database_url, query_manager).await?;
         self.database_addr = Some(database.start());
 
