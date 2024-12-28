@@ -8,7 +8,7 @@
   "jsxSingleQuote": true,
   "arrowParens": "avoid",
   "plugins": ["@trivago/prettier-plugin-sort-imports"],
-  "importOrder": ["^react", "^[^~]", "^~"],
+  "importOrder": ["^react", "^[^~./]", "^[~./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true
 }
