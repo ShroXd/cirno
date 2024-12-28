@@ -1,5 +1,6 @@
-import { Select, Option } from '@material-tailwind/react'
 import { useTranslation } from 'react-i18next'
+
+import { Option, Select } from '@material-tailwind/react'
 
 export const Settings = () => {
   const { t, i18n } = useTranslation()

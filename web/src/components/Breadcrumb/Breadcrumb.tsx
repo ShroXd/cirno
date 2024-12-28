@@ -1,7 +1,8 @@
-import { ChevronLeftIcon, HomeIcon } from '@heroicons/react/24/outline'
-import { Breadcrumbs, Button } from '@material-tailwind/react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+
+import { ChevronLeftIcon, HomeIcon } from '@heroicons/react/24/outline'
+import { Breadcrumbs, Button } from '@material-tailwind/react'
 
 interface BreadcrumbProps {
   onBack?: () => void

@@ -1,6 +1,7 @@
+import { FC } from 'react'
+
 import { FolderIcon } from '@heroicons/react/16/solid'
 import { IconButton } from '@material-tailwind/react'
-import { FC } from 'react'
 
 interface DirectoryPickerProps {
   setDirectoryHandle: (handle: FileSystemDirectoryHandle | null) => void

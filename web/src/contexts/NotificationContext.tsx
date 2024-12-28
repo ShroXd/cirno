@@ -1,4 +1,4 @@
-import { createContext, FC, ReactNode, useCallback, useState } from 'react'
+import { FC, ReactNode, createContext, useCallback, useState } from 'react'
 
 import { NotificationItem } from '~/components/NotificationItem/NotificationItem'
 

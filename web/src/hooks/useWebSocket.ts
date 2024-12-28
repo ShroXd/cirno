@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from 'react'
 
-import { WebSocketContext } from '~/contexts/WebSocketContext/WebSocketContext.tsx'
 import { WebSocketMessage } from '~/bindings/WebSocketMessage'
+import { WebSocketContext } from '~/contexts/WebSocketContext/WebSocketContext.tsx'
 
 export interface WebSocketOptions {
   reconnectInterval?: number

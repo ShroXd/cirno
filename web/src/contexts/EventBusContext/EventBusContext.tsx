@@ -1,4 +1,5 @@
-import { createContext, FC, ReactNode, useMemo } from 'react'
+import { FC, ReactNode, createContext, useMemo } from 'react'
+
 import { createEventBus } from './eventBus'
 import { EventHandler, EventType, PayloadMap } from './types'
 

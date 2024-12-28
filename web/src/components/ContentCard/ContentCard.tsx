@@ -1,5 +1,6 @@
-import { Typography } from '@material-tailwind/react'
 import { FC } from 'react'
+
+import { Typography } from '@material-tailwind/react'
 
 interface CardProps {
   imageUrl: string

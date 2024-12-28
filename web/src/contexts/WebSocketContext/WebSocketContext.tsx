@@ -1,7 +1,7 @@
-import { createContext, FC } from 'react'
+import { FC, createContext } from 'react'
 
-import { useEventBus } from '~/hooks/useEventBus'
 import { isNotification } from './utils'
+import { useEventBus } from '~/hooks/useEventBus'
 
 // NOTE: During development mode, React renders components twice for strict mode enforcement.
 // This can lead to the creation of multiple WebSocket clients, causing issues with backend negotiation.

@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from 'react'
+
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css'
-import './style.css'
 
+import './style.css'
 import { useWebSocket } from '~/hooks/useWebSocket'
 
 export const VideoPlayer = (props: any) => {

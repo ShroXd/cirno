@@ -1,26 +1,27 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useNavigate, useParams } from 'react-router-dom'
+
+import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
 import {
-  Chip,
-  Typography,
   Button,
-  Tabs,
-  TabsHeader,
-  TabsBody,
+  Chip,
+  Option,
+  Select,
   Tab,
   TabPanel,
-  Select,
-  Option,
+  Tabs,
+  TabsBody,
+  TabsHeader,
+  Typography,
 } from '@material-tailwind/react'
-import { HeartIcon, PlayIcon } from '@heroicons/react/16/solid'
 
 import { EpisodeDto } from '~/bindings/EpisodeDto'
-import { usePost } from '~/hooks/usePost'
-import { useEventBus } from '~/hooks/useEventBus'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
-import { useFetch } from '~/hooks/useFetch'
 import { Divider } from '~/components/Divider/Divider'
+import { useEventBus } from '~/hooks/useEventBus'
+import { useFetch } from '~/hooks/useFetch'
+import { usePost } from '~/hooks/usePost'
 
 const transformEpisodesToSeasons = (episodes: EpisodeDto[] | undefined) => {
   if (!episodes) return []

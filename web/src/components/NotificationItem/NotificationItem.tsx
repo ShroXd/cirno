@@ -1,6 +1,8 @@
-import { XMarkIcon, CheckBadgeIcon } from '@heroicons/react/24/outline'
-import { IconButton, Typography } from '@material-tailwind/react'
 import { useEffect, useRef, useState } from 'react'
+
+import { CheckBadgeIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { IconButton, Typography } from '@material-tailwind/react'
+
 import { NotificationModel } from '~/contexts/NotificationContext'
 
 export interface NotificationItemProps extends NotificationModel {

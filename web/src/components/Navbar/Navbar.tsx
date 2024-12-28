@@ -1,22 +1,23 @@
-import {
-  Navbar,
-  Typography,
-  IconButton,
-  Input,
-  Button,
-} from '@material-tailwind/react'
 import { useState } from 'react'
-import {
-  MagnifyingGlassIcon,
-  XMarkIcon,
-  Bars3Icon,
-  InboxStackIcon,
-} from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { Sidebar } from '~/components/Sidebar/Sidebar'
+import {
+  Bars3Icon,
+  InboxStackIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline'
+import {
+  Button,
+  IconButton,
+  Input,
+  Navbar,
+  Typography,
+} from '@material-tailwind/react'
+
 import { LibraryManageDialog } from '~/components/LibraryManageDialog/LibraryManageDialog'
+import { Sidebar } from '~/components/Sidebar/Sidebar'
 
 export const StickyNavbar = () => {
   const [open, setOpen] = useState(false)

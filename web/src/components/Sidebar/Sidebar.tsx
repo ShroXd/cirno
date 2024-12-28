@@ -1,24 +1,25 @@
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+
+import { ChevronDownIcon } from '@heroicons/react/24/outline'
 import {
-  Typography,
-  List,
-  ListItem,
-  ListItemPrefix,
   Accordion,
   AccordionBody,
   AccordionHeader,
-  Drawer,
   Card,
+  Drawer,
+  List,
+  ListItem,
+  ListItemPrefix,
+  Typography,
 } from '@material-tailwind/react'
-import { ChevronDownIcon } from '@heroicons/react/24/outline'
-import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { useState } from 'react'
 import { mutate } from 'swr'
 
-import { useFetch } from '~/hooks/useFetch'
-import { DeleteConfirmationDialog } from '~/components/DeleteConfirmationDialog/DeleteConfirmationDialog'
-import { LibraryDto } from '~/bindings/LibraryDto'
 import { getIconAccordingToCategory } from './utils'
+import { LibraryDto } from '~/bindings/LibraryDto'
+import { DeleteConfirmationDialog } from '~/components/DeleteConfirmationDialog/DeleteConfirmationDialog'
+import { useFetch } from '~/hooks/useFetch'
 
 interface SidebarProps {
   open: boolean

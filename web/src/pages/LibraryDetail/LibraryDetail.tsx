@@ -1,13 +1,14 @@
 import { useCallback } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
+
 import { Typography } from '@material-tailwind/react'
 
-import { MediaItemDto } from '~/bindings/MediaItemDto'
-import { useFetch } from '~/hooks/useFetch'
-import { wrapInGrid } from '~/pages/utils'
 import { LibraryDto } from '~/bindings/LibraryDto'
+import { MediaItemDto } from '~/bindings/MediaItemDto'
 import { Container } from '~/components/Container/Container'
 import { ContentCard } from '~/components/ContentCard/ContentCard'
+import { useFetch } from '~/hooks/useFetch'
+import { wrapInGrid } from '~/pages/utils'
 
 export const LibraryDetail = () => {
   const { libraryId } = useParams()

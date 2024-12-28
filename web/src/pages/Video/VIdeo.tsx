@@ -1,6 +1,6 @@
 import Breadcrumb from '~/components/Breadcrumb/Breadcrumb'
-import VideoPlayer from '~/components/VideoPlayer/VideoPlayer'
 import { Container } from '~/components/Container/Container'
+import VideoPlayer from '~/components/VideoPlayer/VideoPlayer'
 import { usePost } from '~/hooks/usePost'
 
 export const Video = () => {

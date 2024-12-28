@@ -1,4 +1,5 @@
-import { createContext, FC, ReactNode, useEffect, useState } from 'react'
+import { FC, ReactNode, createContext, useEffect, useState } from 'react'
+
 import axios, { AxiosInstance } from 'axios'
 
 import { useEventBus } from '~/hooks/useEventBus'

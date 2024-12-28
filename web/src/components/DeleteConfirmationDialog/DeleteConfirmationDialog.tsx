@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import {
   Button,
   Dialog,
@@ -5,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
 } from '@material-tailwind/react'
-import { useTranslation } from 'react-i18next'
 
 import { useDelete } from '~/hooks/useDelete'
 
