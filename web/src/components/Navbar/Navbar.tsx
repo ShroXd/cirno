@@ -37,7 +37,10 @@ export const StickyNavbar = () => {
         open={mediaManageDialogOpen}
         handleOpen={toggleMediaManageDialog}
       />
-      <Navbar className='fixed top-0 left-0 right-0 z-10 max-w-full bg-white bg-opacity-70 backdrop-blur-sm border-b border-gray-200 px-4 py-2'>
+      <Navbar
+        className='fixed top-0 left-0 right-0 z-10 max-w-full bg-opacity-85 rounded-none bg-gray-50 backdrop-blur-sm border-b border-gray-200 px-4 py-2 shadow-none'
+        variant='gradient'
+      >
         <div className='flex items-center justify-start  text-blue-gray-900'>
           <IconButton variant='text' size='lg' onClick={openSidebar}>
             {open ? (

@@ -7,6 +7,7 @@ import { useFetch } from '~/hooks/useFetch'
 import { wrapInGrid } from '~/pages/utils'
 import { LibraryDto } from '~/bindings/LibraryDto'
 import { Container } from '~/components/Container/Container'
+import { ContentCard } from '~/components/ContentCard/ContentCard'
 
 export const LibraryDetail = () => {
   const { libraryId } = useParams()
@@ -33,21 +34,15 @@ export const LibraryDetail = () => {
         </Typography>
         {container(
           data?.map(item => (
-            <div
-              className='max-w-sm rounded-xl cursor-pointer overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300'
-              key={item.title}
+            <NavLink
+              to={`/library/${libraryId}/media/${item.id}`}
+              key={item.id.toString()}
             >
-              <NavLink to={`/library/${libraryId}/media/${item.id}`}>
-                <img
-                  className='w-full h-64 object-cover'
-                  src={item.poster_path ?? ''}
-                  alt={item.title}
-                />
-                <div className='px-4 py-3 bg-white'>
-                  <Typography variant='paragraph'>{item.title}</Typography>
-                </div>
-              </NavLink>
-            </div>
+              <ContentCard
+                imageUrl={item.poster_path ?? ''}
+                title={item.title}
+              />
+            </NavLink>
           ))
         )}
       </Container>
