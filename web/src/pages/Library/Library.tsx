@@ -1,15 +1,16 @@
 import { useCallback, useEffect } from 'react'
-import { Typography } from '@material-tailwind/react'
+import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
+
+import { Typography } from '@material-tailwind/react'
 import { mutate } from 'swr'
 
-import { useFetch } from '~/hooks/useFetch'
-import { useEventBus } from '~/hooks/useEventBus'
-import { wrapInGrid } from '~/pages/utils'
 import { LibraryDto } from '~/bindings/LibraryDto'
 import { Container } from '~/components/Container/Container'
-import { useTranslation } from 'react-i18next'
 import { ContentCard } from '~/components/ContentCard/ContentCard'
+import { useEventBus } from '~/hooks/useEventBus'
+import { useFetch } from '~/hooks/useFetch'
+import { wrapInGrid } from '~/pages/utils'
 
 export const Library = () => {
   // TODO: fetch media libraries instead of media items

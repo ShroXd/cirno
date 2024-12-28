@@ -6,5 +6,9 @@
   "tabWidth": 2,
   "useTabs": false,
   "jsxSingleQuote": true,
-  "arrowParens": "avoid"
+  "arrowParens": "avoid",
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrder": ["^react", "^[^~]", "^~"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
 }
