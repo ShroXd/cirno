@@ -43,7 +43,7 @@ export const Library = () => {
           data?.map((library: LibraryDto) => (
             <NavLink to={`/library/${library.id}`} key={library.id.toString()}>
               <ContentCard
-                imageUrl={library.posters[0].poster_path ?? ''}
+                imageUrl={library.posters?.[0]?.poster_path ?? ''}
                 title={library.name}
               />
             </NavLink>
