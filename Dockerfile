@@ -51,7 +51,7 @@ ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
 # 👤 Set up User and Permissions
 RUN useradd -m cirno
 WORKDIR /app
-RUN mkdir -p /app/backend /app/logs && \
+RUN mkdir -p /app/backend /app/logs /app/data /app/config && \
     chown -R cirno:cirno /app && \
     chmod -R 755 /app
 
