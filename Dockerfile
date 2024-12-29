@@ -53,7 +53,8 @@ RUN useradd -m cirno
 WORKDIR /app
 RUN mkdir -p /app/backend /app/logs /app/data /app/config && \
     chown -R cirno:cirno /app && \
-    chmod -R 755 /app
+    chmod -R 755 /app && \
+    chmod 777 /app/data
 
 # 📤 Copy Build Artifacts
 COPY --from=frontend-builder /app/web/dist /app/web/dist
