@@ -62,7 +62,7 @@ COPY --from=frontend-builder /app/web/dist /app/web/dist
 COPY --from=backend-builder /app/backend/target/release/cirno-backend /app/cirno-backend
 COPY backend/scripts/create_db.sh /app/backend/scripts/create_db.sh
 COPY backend/sql /app/backend/sql
-RUN chown -R cirno:cirno /app
+RUN chown -R cirno:users /app
 
 # 🌍 Expose Port and Set Environment Variables
 ENV ROCKET_ADDRESS=0.0.0.0
