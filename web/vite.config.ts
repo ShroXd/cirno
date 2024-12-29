@@ -3,6 +3,11 @@ import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig } from 'vite'
 
+const devProxy = {
+  target: process.env.DEV_API_URL || '/',
+  changeOrigin: true,
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   resolve: {
@@ -24,17 +29,12 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/hls': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
+        ...devProxy,
         proxyTimeout: 30000,
       },
-      '/library': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
+      '/library': devProxy,
       '/ws': {
-        target: 'ws://localhost:8080',
-        changeOrigin: true,
+        ...devProxy,
         ws: true,
       },
     },
