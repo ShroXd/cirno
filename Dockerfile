@@ -49,12 +49,15 @@ RUN apt-get update && apt-get install -y \
 ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
 
 # 👤 Set up User and Permissions
-RUN useradd -m cirno
+RUN groupadd -g 100 users && \
+    useradd -m -u 1026 -g users cirno && \
+    usermod -a -G users cirno
+
 WORKDIR /app
 RUN mkdir -p /app/backend /app/logs /app/data /app/config && \
-    chown -R cirno:cirno /app && \
+    chown -R cirno:users /app && \
     chmod -R 755 /app && \
-    chmod 777 /app/data
+    chmod 770 /app/data
 
 # 📤 Copy Build Artifacts
 COPY --from=frontend-builder /app/web/dist /app/web/dist
