@@ -23,9 +23,7 @@ export const AxiosProvider: FC<{ children: ReactNode }> = ({ children }) => {
   })
 
   // TODO: config url via env variable
-  const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8000',
-  })
+  const axiosInstance = axios.create({})
 
   useEffect(() => {
     if (wsClientKey) {
