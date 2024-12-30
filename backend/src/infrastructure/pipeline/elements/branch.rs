@@ -21,7 +21,11 @@ impl StreamBranch for VideoBranch {
     fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self> {
         let queue = factory.make("queue")?;
         let converter = factory.make("videoconvert")?;
-        let encoder = generate_encoder()?;
+        // let encoder = generate_encoder()?;
+        let encoder = ElementFactory::make("x264enc")
+            .property_from_str("speed-preset", "superfast")
+            .build()
+            .map_err(|e| anyhow::anyhow!("Failed to create x264enc element: {}", e))?;
 
         let parser = factory.make("h264parse")?;
         // let payloader = factory.make("rtph264pay")?;

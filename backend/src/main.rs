@@ -18,13 +18,13 @@ mod shared;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    unsafe {
-        env::set_var("GST_DEBUG", "3");
-        env::set_var(
-            "RUST_LOG",
-            "actix_web=info,actix_server=info,actix_rt=info,gstreamer=info",
-        );
-    }
+    // unsafe {
+    //     env::set_var("GST_DEBUG", "3");
+    //     env::set_var(
+    //         "RUST_LOG",
+    //         "actix_web=info,actix_server=info,actix_rt=info,gstreamer=info",
+    //     );
+    // }
 
     let _guard = SystemInitializer::init_logger();
 

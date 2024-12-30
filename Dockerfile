@@ -52,7 +52,7 @@ ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
 RUN useradd -m -u 1026 -g users cirno
 
 WORKDIR /app
-RUN mkdir -p /app/backend /app/logs /app/data /app/config && \
+RUN mkdir -p /app/backend /app/logs /app/data /app/config /app/tmp && \
     chown -R cirno:users /app && \
     chmod -R 755 /app && \
     chmod 770 /app/data

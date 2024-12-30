@@ -24,6 +24,7 @@ use crate::{
     interfaces::ws::utils::WsConnections,
     listen_event,
 };
+use crate::domain::task::task::TaskIdentifiable;
 
 #[derive(Clone)]
 pub struct PipelineService {
@@ -72,11 +73,12 @@ impl PipelineService {
         ws_connections: WsConnections,
     ) -> Result<TaskId> {
         let event_bus = self.event_bus.clone();
-        let task = PipelinePreparationTask::new(
+        let mut task = PipelinePreparationTask::new(
             file_service.clone(),
             event_bus.clone(),
             self.hls_state_actor_addr.clone(),
         );
+        task.set_ws_client_id(ws_client_key.clone());
         let task_id = task_pool
             .register_task(
                 TaskType::PipelinePreparation,

@@ -27,7 +27,7 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({
   const [notifications, setNotifications] = useState<NotificationModel[]>([])
 
   const addNotification = (notification: Omit<NotificationModel, 'id'>) => {
-    const id = crypto.randomUUID()
+    const id = Math.random().toString(36).substring(2, 15)
     setNotifications([...notifications, { id, ...notification }])
     return id
   }
