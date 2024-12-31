@@ -10,12 +10,12 @@ pub async fn save_tv_show(conn_pool: &SqlitePool, tv_show: TvShow, library_id: i
     let mut tx = conn.begin().await?;
 
     let id: i64 = sqlx::query_scalar!(
-        "
+        r#"
         INSERT INTO tv_series (title, nfo_path, poster_path, fanart_path, country, year, plot, tmdb_id, imdb_id, wikidata_id, tvdb_id, library_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(title) DO UPDATE SET id = id
         RETURNING id
-        ",
+        "#,
         tv_show.title,
         tv_show.nfo_path,
         tv_show.poster_path,

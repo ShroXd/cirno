@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS tv_series (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
     title TEXT NOT NULL UNIQUE,
     nfo_path TEXT,
     poster_path TEXT,
@@ -12,22 +12,28 @@ CREATE TABLE IF NOT EXISTS tv_series (
     wikidata_id TEXT,
     tvdb_id TEXT,
     library_id INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME,
     FOREIGN KEY (library_id) REFERENCES library (id)
 );
 
 CREATE TABLE IF NOT EXISTS seasons (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
     series_id INTEGER NOT NULL,
     season_number INTEGER NOT NULL,
     title TEXT,
     plot TEXT,
     nfo_path TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME,
     FOREIGN KEY (series_id) REFERENCES tv_series (id),
     UNIQUE (series_id, season_number)
 );
 
 CREATE TABLE IF NOT EXISTS episodes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
     season_id INTEGER NOT NULL,
     series_id INTEGER NOT NULL,
     title TEXT NOT NULL,
@@ -41,59 +47,85 @@ CREATE TABLE IF NOT EXISTS episodes (
     season_number INTEGER,
     episodes_number INTEGER,
     runtime INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME,
     FOREIGN KEY (season_id) REFERENCES seasons (id),
     FOREIGN KEY (series_id) REFERENCES tv_series (id)
 );
 
 CREATE TABLE IF NOT EXISTS genres (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME
 );
 
 CREATE TABLE IF NOT EXISTS tv_series_genres (
     series_id INTEGER NOT NULL,
     genre_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME,
     PRIMARY KEY (series_id, genre_id),
     FOREIGN KEY (series_id) REFERENCES tv_series (id),
     FOREIGN KEY (genre_id) REFERENCES genres (id)
 );
 
 CREATE TABLE IF NOT EXISTS actors (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     role TEXT,
     thumb TEXT,
     profile TEXT,
-    tmdb_id TEXT
+    tmdb_id TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME
 );
 
 CREATE TABLE IF NOT EXISTS tv_series_actors (
     series_id INTEGER NOT NULL,
     actor_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME,
     PRIMARY KEY (series_id, actor_id),
     FOREIGN KEY (series_id) REFERENCES tv_series (id),
     FOREIGN KEY (actor_id) REFERENCES actors (id)
 );
 
-CREATE TABLE category_mapping (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);
+CREATE TABLE category_mapping (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME
+);
 
 INSERT INTO
-    category_mapping (id, name)
+    category_mapping (id, name, created_at, updated_at)
 VALUES
-    (1, 'Movie');
+    (1, 'Movie', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO
-    category_mapping (id, name)
+    category_mapping (id, name, created_at, updated_at)
 VALUES
-    (2, 'TVShow');
+    (2, 'TVShow', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO
-    category_mapping (id, name)
+    category_mapping (id, name, created_at, updated_at)
 VALUES
-    (3, 'Animation');
+    (
+        3,
+        'Animation',
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP
+    );
 
 CREATE TABLE IF NOT EXISTS library (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     directory TEXT NOT NULL,
     category_id INTEGER NOT NULL,
