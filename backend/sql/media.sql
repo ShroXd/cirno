@@ -9,7 +9,7 @@ select
     ts.plot,
     group_concat (g.name, ', ') AS genres
 from
-    tv_series ts
+    tv_shows ts
     join tv_series_genres tsg on ts.id = tsg.series_id
     join genres g on tsg.genre_id = g.id
 where
@@ -30,7 +30,7 @@ select
     ts.plot,
     group_concat (g.name, ', ') AS genres
 from
-    tv_series ts
+    tv_shows ts
     join tv_series_genres tsg on ts.id = tsg.series_id
     join genres g on tsg.genre_id = g.id
 where

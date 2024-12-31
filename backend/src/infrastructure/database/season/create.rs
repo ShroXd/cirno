@@ -15,13 +15,13 @@ pub async fn save_season(
     let mut tx = conn.begin().await?;
 
     let season_id: i64 = sqlx::query_scalar!(
-        "
-        INSERT INTO seasons (series_id, season_number, title, plot, nfo_path)
+        r#"
+        INSERT INTO seasons (tv_show_id, season_number, title, plot, nfo_path)
         VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT (series_id, season_number) DO UPDATE
+        ON CONFLICT (tv_show_id, season_number) DO UPDATE
         SET id = id
         RETURNING id;
-        ",
+        "#,
         tv_show_id,
         season_number,
         season.title,

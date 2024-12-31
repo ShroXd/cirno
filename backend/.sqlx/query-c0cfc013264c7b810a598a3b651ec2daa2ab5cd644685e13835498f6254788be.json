@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        INSERT INTO seasons (tv_show_id, season_number, title, plot, nfo_path)\n        VALUES (?, ?, ?, ?, ?)\n        ON CONFLICT (tv_show_id, season_number) DO UPDATE\n        SET id = id\n        RETURNING id;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c0cfc013264c7b810a598a3b651ec2daa2ab5cd644685e13835498f6254788be"
+}

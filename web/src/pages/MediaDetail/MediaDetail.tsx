@@ -41,7 +41,7 @@ const transformEpisodesToSeasons = (episodes: EpisodeDto[] | undefined) => {
   return Object.entries(groupedEpisodes).map(([season, episodes]) => ({
     season: parseInt(season),
     episodes: episodes.sort(
-      (a, b) => Number(a.episodes_number) - Number(b.episodes_number)
+      (a, b) => Number(a.episode_number) - Number(b.episode_number)
     ),
   }))
 }
@@ -201,7 +201,7 @@ export const MediaDetail = () => {
                       </div>
                       <div className='mb-1 truncate text-xs font-medium text-gray-500'>
                         {t('page.detail.episode_number')}{' '}
-                        {episode.episodes_number?.toString() ?? 'N/A'}
+                        {episode.episode_number?.toString() ?? 'N/A'}
                       </div>
                     </div>
                   ))}

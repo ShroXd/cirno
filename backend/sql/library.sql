@@ -23,7 +23,7 @@ select
     ts.id,
     ts.poster_path
 from
-    tv_series ts
+    tv_shows ts
 where
     ts.library_id = ?
 limit

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS tv_series (
+CREATE TABLE IF NOT EXISTS tv_shows (
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL UNIQUE,
     nfo_path TEXT,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS tv_series (
 
 CREATE TABLE IF NOT EXISTS seasons (
     id INTEGER PRIMARY KEY,
-    series_id INTEGER NOT NULL,
+    tv_show_id INTEGER NOT NULL,
     season_number INTEGER NOT NULL,
     title TEXT,
     plot TEXT,
@@ -28,14 +28,14 @@ CREATE TABLE IF NOT EXISTS seasons (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
-    FOREIGN KEY (series_id) REFERENCES tv_series (id),
-    UNIQUE (series_id, season_number)
+    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id),
+    UNIQUE (tv_show_id, season_number)
 );
 
 CREATE TABLE IF NOT EXISTS episodes (
     id INTEGER PRIMARY KEY,
     season_id INTEGER NOT NULL,
-    series_id INTEGER NOT NULL,
+    tv_show_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     original_title TEXT,
     plot TEXT,
@@ -44,14 +44,14 @@ CREATE TABLE IF NOT EXISTS episodes (
     subtitle_file_path TEXT,
     thumb_image_url TEXT,
     thumb_image TEXT,
-    season_number INTEGER,
-    episodes_number INTEGER,
+    episode_number INTEGER,
     runtime INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
     FOREIGN KEY (season_id) REFERENCES seasons (id),
-    FOREIGN KEY (series_id) REFERENCES tv_series (id)
+    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id),
+    UNIQUE (season_id, episode_number)
 );
 
 CREATE TABLE IF NOT EXISTS genres (
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS tv_series_genres (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
     PRIMARY KEY (series_id, genre_id),
-    FOREIGN KEY (series_id) REFERENCES tv_series (id),
+    FOREIGN KEY (series_id) REFERENCES tv_shows (id),
     FOREIGN KEY (genre_id) REFERENCES genres (id)
 );
 
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS tv_series_actors (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
     PRIMARY KEY (series_id, actor_id),
-    FOREIGN KEY (series_id) REFERENCES tv_series (id),
+    FOREIGN KEY (series_id) REFERENCES tv_shows (id),
     FOREIGN KEY (actor_id) REFERENCES actors (id)
 );
 

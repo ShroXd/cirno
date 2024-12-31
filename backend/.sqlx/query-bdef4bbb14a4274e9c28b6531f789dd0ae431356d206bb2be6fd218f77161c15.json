@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        INSERT INTO tv_shows (title, nfo_path, poster_path, fanart_path, country, year, plot, tmdb_id, imdb_id, wikidata_id, tvdb_id, library_id)\n        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n        ON CONFLICT(title) DO UPDATE SET id = id\n        RETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 12
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "bdef4bbb14a4274e9c28b6531f789dd0ae431356d206bb2be6fd218f77161c15"
+}

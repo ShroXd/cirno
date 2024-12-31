@@ -14,7 +14,7 @@ impl SqliteRowMapper<EpisodeDto> for EpisodeDto {
             subtitle_file_path: row.get::<Option<String>, _>("subtitle_file_path"),
             thumb_image_url: row.get::<Option<String>, _>("thumb_image_url"),
             thumb_image: row.get::<Option<String>, _>("thumb_image"),
-            episodes_number: row.get::<Option<i64>, _>("episodes_number"),
+            episode_number: row.get::<Option<i64>, _>("episode_number"),
             runtime: row.get::<Option<i64>, _>("runtime"),
             season_number: row.get::<Option<i64>, _>("season_number"),
             season_title: row.get::<Option<String>, _>("season_title"),

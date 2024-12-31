@@ -63,7 +63,7 @@ pub struct EpisodeDto {
     pub subtitle_file_path: Option<String>,
     pub thumb_image_url: Option<String>,
     pub thumb_image: Option<String>,
-    pub episodes_number: Option<i64>,
+    pub episode_number: Option<i64>,
     pub runtime: Option<i64>,
     pub season_number: Option<i64>,
     pub season_title: Option<String>,
