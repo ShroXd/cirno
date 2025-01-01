@@ -13,7 +13,6 @@ pub struct VideoBranch {
     converter: Element,
     encoder: Element,
     parser: Element,
-    // payloader: Element,
 }
 unsafe impl Send for VideoBranch {}
 impl StreamBranch for VideoBranch {
@@ -21,14 +20,9 @@ impl StreamBranch for VideoBranch {
     fn new(factory: &(impl ElementFactoryTrait + Debug)) -> Result<Self> {
         let queue = factory.make("queue")?;
         let converter = factory.make("videoconvert")?;
-        // let encoder = generate_encoder()?;
-        let encoder = ElementFactory::make("x264enc")
-            .property_from_str("speed-preset", "superfast")
-            .build()
-            .map_err(|e| anyhow::anyhow!("Failed to create x264enc element: {}", e))?;
+        let encoder = generate_encoder()?;
 
         let parser = factory.make("h264parse")?;
-        // let payloader = factory.make("rtph264pay")?;
 
         debug!("VideoBranch created with elements: videoconvert, x264enc, h264parse");
 
@@ -37,7 +31,6 @@ impl StreamBranch for VideoBranch {
             converter,
             encoder,
             parser,
-            // payloader,
         })
     }
 
@@ -46,13 +39,7 @@ impl StreamBranch for VideoBranch {
     }
 
     fn get_elements(&self) -> Vec<&Element> {
-        vec![
-            &self.queue,
-            &self.converter,
-            &self.encoder,
-            &self.parser,
-            // &self.payloader,
-        ]
+        vec![&self.queue, &self.converter, &self.encoder, &self.parser]
     }
 }
 
@@ -60,7 +47,7 @@ impl StreamBranch for VideoBranch {
 // TODO: use hardware encoder for linux
 fn generate_encoder() -> Result<Element> {
     ElementFactory::make("x264enc")
-        // .property_from_str("speed-preset", "superfast")
+        .property_from_str("speed-preset", "superfast")
         .build()
         .map_err(|e| anyhow::anyhow!("Failed to create x264enc element: {}", e))
 }
