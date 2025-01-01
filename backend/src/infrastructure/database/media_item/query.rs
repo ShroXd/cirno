@@ -34,8 +34,8 @@ pub async fn query_all_media_items(
 #[instrument(skip(conn_pool, mapper))]
 pub async fn query_series_by_library_id(
     conn_pool: &SqlitePool,
-    library_id: i64,
     mapper: impl Fn(Vec<SqliteRow>) -> Vec<MediaItemDto>,
+    library_id: i64,
 ) -> Result<Vec<MediaItemDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;

@@ -8,8 +8,8 @@ use crate::interfaces::dtos::SeasonDto;
 #[instrument(skip(conn_pool, mapper))]
 pub async fn query_seasons(
     conn_pool: &SqlitePool,
-    series_id: i64,
     mapper: impl Fn(Vec<SqliteRow>) -> Vec<SeasonDto>,
+    series_id: i64,
 ) -> Result<Vec<SeasonDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;

@@ -175,7 +175,7 @@ impl Display for QueryMediaItemsByMediaLibraryId {
 define_actor_message_handler!(
     message_type = QueryMediaItemsByMediaLibraryId,
     return_type = Vec<MediaItemDto>,
-    db_call = |pool, _, msg: QueryMediaItemsByMediaLibraryId| query_series_by_library_id(pool, msg.0, |rows| map_rows(rows)),
+    db_call = |pool, _, msg: QueryMediaItemsByMediaLibraryId| query_series_by_library_id(pool, |rows| map_rows(rows), msg.0),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
 );
@@ -295,7 +295,7 @@ impl Display for QuerySeasons {
 define_actor_message_handler!(
     message_type = QuerySeasons,
     return_type = Vec<SeasonDto>,
-    db_call = |pool, _, msg: QuerySeasons| query_seasons(pool, msg.0, |rows| map_rows(rows)),
+    db_call = |pool, _, msg: QuerySeasons| query_seasons(pool, |rows| map_rows(rows), msg.0),
     success_return = |res| res,
     error_return = Vec::<SeasonDto>::new()
 );
