@@ -64,7 +64,10 @@ pub async fn insert_media_item(
         for episode in episodes {
             debug!("Inserting episode: {:?}", episode.title);
             database_addr
-                .send(SaveEpisode(tv_show_id, season_id, episode.to_owned()))
+                .send(SaveEpisode {
+                    season_id,
+                    episode: episode.to_owned(),
+                })
                 .await
                 .map_err(|e| anyhow::anyhow!("Error inserting episode: {:?}", e))?;
         }

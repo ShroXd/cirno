@@ -126,14 +126,17 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
-pub struct SaveEpisode(pub i64, pub i64, pub Episode);
+pub struct SaveEpisode {
+    pub season_id: i64,
+    pub episode: Episode,
+}
 
 impl Display for SaveEpisode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "SaveEpisode(tv_show_id: {}, season_id: {}, title: {:?})",
-            self.0, self.1, self.2.title
+            "SaveEpisode(season_id: {}, title: {:?})",
+            self.season_id, self.episode.title
         )
     }
 }
@@ -141,7 +144,12 @@ impl Display for SaveEpisode {
 define_actor_message_handler!(
     message_type = SaveEpisode,
     return_type = (),
-    db_call = |pool, _, msg: SaveEpisode| save_episode(pool, msg.0, msg.1, msg.2),
+    db_call = |pool, query_manager, msg: SaveEpisode| save_episode(
+        pool,
+        msg.season_id,
+        msg.episode,
+        query_manager
+    ),
     success_return = |_| (),
     error_return = ()
 );
