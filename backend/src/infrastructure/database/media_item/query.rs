@@ -20,7 +20,7 @@ pub async fn query_all_media_items(
         SELECT ts.id, ts.title, ts.poster_path, ts.fanart_path, ts.country, ts.year, ts.plot,
                group_concat(g.name, ', ') AS genres
         FROM tv_shows ts
-        JOIN tv_series_genres tsg ON ts.id = tsg.series_id
+        JOIN tv_show_genres tsg ON ts.id = tsg.tv_show_id
         JOIN genres g ON tsg.genre_id = g.id
         GROUP BY ts.id, ts.title
         ",
@@ -44,7 +44,7 @@ pub async fn query_series_by_library_id(
         "SELECT ts.id, ts.title, ts.poster_path, ts.fanart_path, ts.country, ts.year, ts.plot,
                group_concat(g.name, ', ') AS genres
         FROM tv_series ts
-        JOIN tv_series_genres tsg ON ts.id = tsg.series_id
+        JOIN tv_show_genres tsg ON ts.id = tsg.tv_show_id
         JOIN genres g ON tsg.genre_id = g.id
         WHERE ts.library_id = ?
         GROUP BY ts.id, ts.title",
@@ -58,11 +58,11 @@ pub async fn query_series_by_library_id(
 
 #[instrument(skip(conn_pool, query_manager, mapper))]
 pub async fn query_media_by_id(
-    library_id: i64,
-    media_id: i64,
     conn_pool: &SqlitePool,
     query_manager: Arc<dyn QueryManager>,
     mapper: impl Fn(Vec<SqliteRow>) -> Vec<MediaItemDto>,
+    library_id: i64,
+    media_id: i64,
 ) -> Result<Vec<MediaItemDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
@@ -79,10 +79,10 @@ pub async fn query_media_by_id(
 
 #[instrument(skip(conn_pool, query_manager, mapper))]
 pub async fn query_all_media(
-    library_id: i64,
     conn_pool: &SqlitePool,
     query_manager: Arc<dyn QueryManager>,
     mapper: impl Fn(Vec<SqliteRow>) -> Vec<MediaItemDto>,
+    library_id: i64,
 ) -> Result<Vec<MediaItemDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;

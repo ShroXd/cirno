@@ -33,7 +33,7 @@ pub async fn insert_media_item(
     for genre in genres {
         debug!("Inserting genre: {}", genre);
         database_addr
-            .send(SaveGenre(tv_show_id, genre))
+            .send(SaveGenre { tv_show_id, genre })
             .await
             .map_err(|e| anyhow::anyhow!("Error inserting genre: {:?}", e))?;
     }

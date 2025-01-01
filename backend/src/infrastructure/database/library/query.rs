@@ -13,8 +13,8 @@ use crate::{
 pub async fn query_library(
     conn_pool: &SqlitePool,
     query_manager: Arc<dyn QueryManager>,
-    id: Option<i64>,
     mapper: impl Fn(Vec<SqliteRow>) -> Vec<LibraryBrief>,
+    id: Option<i64>,
 ) -> Result<Vec<LibraryBrief>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
@@ -39,10 +39,10 @@ pub async fn query_library(
 
 #[instrument(skip(conn_pool, query_manager, mapper))]
 pub async fn query_library_posters(
-    library_id: i64,
     conn_pool: &SqlitePool,
     query_manager: Arc<dyn QueryManager>,
     mapper: impl Fn(Vec<SqliteRow>) -> Vec<LibraryPoster>,
+    library_id: i64,
 ) -> Result<Vec<LibraryPoster>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;

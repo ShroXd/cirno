@@ -8,12 +8,12 @@ use crate::{
     domain::episode::model::Episode, infrastructure::database::query_manager::QueryManager,
 };
 
-#[instrument(skip(conn_pool, episode, query_manager))]
+#[instrument(skip(conn_pool, query_manager, episode))]
 pub async fn save_episode(
     conn_pool: &SqlitePool,
+    query_manager: Arc<dyn QueryManager>,
     season_id: i64,
     episode: Episode,
-    query_manager: Arc<dyn QueryManager>,
 ) -> Result<()> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;

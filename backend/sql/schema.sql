@@ -71,14 +71,14 @@ CREATE TABLE IF NOT EXISTS genres (
     deleted_at DATETIME
 );
 
-CREATE TABLE IF NOT EXISTS tv_series_genres (
-    series_id INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS tv_show_genres (
+    tv_show_id INTEGER NOT NULL,
     genre_id INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
-    PRIMARY KEY (series_id, genre_id),
-    FOREIGN KEY (series_id) REFERENCES tv_shows (id),
+    PRIMARY KEY (tv_show_id, genre_id),
+    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id),
     FOREIGN KEY (genre_id) REFERENCES genres (id)
 );
 

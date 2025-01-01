@@ -68,18 +68,26 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
-pub struct SaveGenre(pub i64, pub String);
+pub struct SaveGenre {
+    pub tv_show_id: i64,
+    pub genre: String,
+}
 
 impl Display for SaveGenre {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "SaveGenre({})", self.0)
+        write!(f, "SaveGenre({})", self.genre)
     }
 }
 
 define_actor_message_handler!(
     message_type = SaveGenre,
     return_type = (),
-    db_call = |pool, _, msg: SaveGenre| save_genre(pool, msg.0, msg.1),
+    db_call = |pool, query_manager, msg: SaveGenre| save_genre(
+        pool,
+        query_manager,
+        msg.tv_show_id,
+        msg.genre
+    ),
     success_return = |_| (),
     error_return = ()
 );
@@ -146,9 +154,9 @@ define_actor_message_handler!(
     return_type = (),
     db_call = |pool, query_manager, msg: SaveEpisode| save_episode(
         pool,
+        query_manager,
         msg.season_id,
-        msg.episode,
-        query_manager
+        msg.episode
     ),
     success_return = |_| (),
     error_return = ()
@@ -213,11 +221,11 @@ define_actor_message_handler!(
     message_type = QueryMediaById,
     return_type = Vec<MediaItemDto>,
     db_call = |pool, query_manager, msg: QueryMediaById| query_media_by_id(
-        msg.library_id,
-        msg.media_id,
         pool,
         query_manager,
-        |rows| map_rows(rows)
+        |rows| map_rows(rows),
+        msg.library_id,
+        msg.media_id
     ),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
@@ -238,7 +246,7 @@ impl Display for QueryAllMedia {
 define_actor_message_handler!(
     message_type = QueryAllMedia,
     return_type = Vec<MediaItemDto>,
-    db_call = |pool, query_manager, msg: QueryAllMedia| query_all_media(msg.library_id, pool, query_manager, |rows| map_rows(rows)),
+    db_call = |pool, query_manager, msg: QueryAllMedia| query_all_media(pool, query_manager, |rows| map_rows(rows), msg.library_id),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
 );
@@ -264,11 +272,11 @@ define_actor_message_handler!(
     message_type = QueryEpisodes,
     return_type = Vec<EpisodeDto>,
     db_call = |pool, query_manager, msg: QueryEpisodes| query_episodes(
-        msg.library_id,
-        msg.media_id,
         pool,
         query_manager,
-        |rows| map_rows(rows)
+        |rows| map_rows(rows),
+        msg.library_id,
+        msg.media_id,
     ),
     success_return = |res| res,
     error_return = Vec::<EpisodeDto>::new()
@@ -328,7 +336,7 @@ impl Display for QueryLibrary {
 define_actor_message_handler!(
     message_type = QueryLibrary,
     return_type = Vec<LibraryBrief>,
-    db_call = |pool, query_manager, msg: QueryLibrary| query_library(pool, query_manager, msg.id, |rows| map_rows(rows)),
+    db_call = |pool, query_manager, msg: QueryLibrary| query_library(pool, query_manager, |rows| map_rows(rows), msg.id),
     success_return = |res| res,
     error_return = Vec::<LibraryBrief>::new()
 );
@@ -348,7 +356,7 @@ impl Display for QueryLibraryPosters {
 define_actor_message_handler!(
     message_type = QueryLibraryPosters,
     return_type = Vec<LibraryPoster>,
-    db_call = |pool, query_manager, msg: QueryLibraryPosters| query_library_posters(msg.library_id, pool, query_manager, |rows| map_rows(rows)),
+    db_call = |pool, query_manager, msg: QueryLibraryPosters| query_library_posters(pool, query_manager, |rows| map_rows(rows), msg.library_id),
     success_return = |res| res,
     error_return = Vec::<LibraryPoster>::new()
 );

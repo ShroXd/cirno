@@ -7,11 +7,11 @@ use crate::{infrastructure::database::query_manager::QueryManager, interfaces::d
 
 #[instrument(skip(conn_pool, query_manager, mapper))]
 pub async fn query_episodes(
-    library_id: i64,
-    media_id: i64,
     conn_pool: &SqlitePool,
     query_manager: Arc<dyn QueryManager>,
     mapper: impl Fn(Vec<SqliteRow>) -> Vec<EpisodeDto>,
+    library_id: i64,
+    media_id: i64,
 ) -> Result<Vec<EpisodeDto>> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;

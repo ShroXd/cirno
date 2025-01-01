@@ -10,7 +10,7 @@ select
     group_concat (g.name, ', ') AS genres
 from
     tv_shows ts
-    join tv_series_genres tsg on ts.id = tsg.series_id
+    join tv_show_genres tsg on ts.id = tsg.tv_show_id
     join genres g on tsg.genre_id = g.id
 where
     ts.library_id = ?
@@ -31,7 +31,7 @@ select
     group_concat (g.name, ', ') AS genres
 from
     tv_shows ts
-    join tv_series_genres tsg on ts.id = tsg.series_id
+    join tv_show_genres tsg on ts.id = tsg.tv_show_id
     join genres g on tsg.genre_id = g.id
 where
     ts.library_id = ?
