@@ -112,14 +112,18 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "i64")]
-pub struct SaveSeason(pub i64, pub u8, pub Season);
+pub struct SaveSeason {
+    pub tv_show_id: i64,
+    pub season_number: u8,
+    pub season: Season,
+}
 
 impl Display for SaveSeason {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "SaveSeason(tv_show_id: {}, season_number: {}, title: {:?})",
-            self.0, self.1, self.2.title
+            self.tv_show_id, self.season_number, self.season.title
         )
     }
 }
@@ -127,7 +131,13 @@ impl Display for SaveSeason {
 define_actor_message_handler!(
     message_type = SaveSeason,
     return_type = i64,
-    db_call = |pool, _, msg: SaveSeason| save_season(pool, msg.0, msg.1, msg.2),
+    db_call = |pool, query_manager, msg: SaveSeason| save_season(
+        pool,
+        query_manager,
+        msg.tv_show_id,
+        msg.season_number,
+        msg.season
+    ),
     success_return = |res| res,
     error_return = -1
 );
@@ -295,7 +305,7 @@ impl Display for QuerySeasons {
 define_actor_message_handler!(
     message_type = QuerySeasons,
     return_type = Vec<SeasonDto>,
-    db_call = |pool, _, msg: QuerySeasons| query_seasons(pool, |rows| map_rows(rows), msg.0),
+    db_call = |pool, query_manager, msg: QuerySeasons| query_seasons(pool, query_manager, |rows| map_rows(rows), msg.0),
     success_return = |res| res,
     error_return = Vec::<SeasonDto>::new()
 );

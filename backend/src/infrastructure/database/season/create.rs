@@ -1,12 +1,14 @@
 use anyhow::*;
 use sqlx::{Acquire, SqlitePool};
+use std::sync::Arc;
 use tracing::*;
 
-use crate::domain::season::model::Season;
+use crate::{domain::season::model::Season, infrastructure::database::query_manager::QueryManager};
 
-#[instrument(skip(conn_pool, season))]
+#[instrument(skip(conn_pool, query_manager, season))]
 pub async fn save_season(
     conn_pool: &SqlitePool,
+    query_manager: Arc<dyn QueryManager>,
     tv_show_id: i64,
     season_number: u8,
     season: Season,
@@ -14,22 +16,16 @@ pub async fn save_season(
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    let season_id: i64 = sqlx::query_scalar!(
-        r#"
-        INSERT INTO seasons (tv_show_id, season_number, title, plot, nfo_path)
-        VALUES (?, ?, ?, ?, ?)
-        ON CONFLICT (tv_show_id, season_number) DO UPDATE
-        SET id = id
-        RETURNING id;
-        "#,
-        tv_show_id,
-        season_number,
-        season.title,
-        season.plot,
-        season.nfo_path,
-    )
-    .fetch_one(&mut *tx)
-    .await?;
+    let query = query_manager.get_query("season", "save_season").await?;
+
+    let season_id: i64 = sqlx::query_scalar(&query)
+        .bind(tv_show_id)
+        .bind(season_number)
+        .bind(season.title)
+        .bind(season.plot)
+        .bind(season.nfo_path)
+        .fetch_one(&mut *tx)
+        .await?;
 
     tx.commit().await?;
 

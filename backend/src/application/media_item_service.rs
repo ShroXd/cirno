@@ -57,7 +57,11 @@ pub async fn insert_media_item(
         };
 
         let season_id = database_addr
-            .send(SaveSeason(tv_show_id, season_number, season.to_owned()))
+            .send(SaveSeason {
+                tv_show_id,
+                season_number,
+                season: season.to_owned(),
+            })
             .await
             .map_err(|e| anyhow::anyhow!("Error inserting season: {:?}", e))?;
 
