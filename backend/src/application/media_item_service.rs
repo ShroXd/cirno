@@ -26,7 +26,10 @@ pub async fn insert_media_item(
 
     debug!("Inserting tv show: {:?}", media_item.title);
     let tv_show_id = database_addr
-        .send(SaveTvShow(media_item, library_id))
+        .send(SaveTvShow {
+            tv_show: media_item,
+            library_id,
+        })
         .await
         .map_err(|e| anyhow::anyhow!("Error inserting media item: {:?}", e))?;
 

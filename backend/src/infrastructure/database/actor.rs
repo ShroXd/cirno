@@ -46,14 +46,17 @@ impl Actor for Database {
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "i64")]
-pub struct SaveTvShow(pub TvShow, pub i64);
+pub struct SaveTvShow {
+    pub tv_show: TvShow,
+    pub library_id: i64,
+}
 
 impl Display for SaveTvShow {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "WriteTvShowes({:?}, library_id: {})",
-            self.0.title, self.1
+            self.tv_show.title, self.library_id
         )
     }
 }
@@ -61,7 +64,12 @@ impl Display for SaveTvShow {
 define_actor_message_handler!(
     message_type = SaveTvShow,
     return_type = i64,
-    db_call = |pool, _, msg: SaveTvShow| save_tv_show(pool, msg.0, msg.1),
+    db_call = |pool, query_manager, msg: SaveTvShow| save_tv_show(
+        pool,
+        query_manager,
+        msg.tv_show,
+        msg.library_id
+    ),
     success_return = |res| res,
     error_return = -1
 );
@@ -185,7 +193,7 @@ impl Display for QueryMediaItemsByMediaLibraryId {
 define_actor_message_handler!(
     message_type = QueryMediaItemsByMediaLibraryId,
     return_type = Vec<MediaItemDto>,
-    db_call = |pool, _, msg: QueryMediaItemsByMediaLibraryId| query_series_by_library_id(pool, |rows| map_rows(rows), msg.0),
+    db_call = |pool, query_manager, msg: QueryMediaItemsByMediaLibraryId| query_series_by_library_id(pool, query_manager, |rows| map_rows(rows), msg.0),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
 );
@@ -205,7 +213,7 @@ impl Display for QueryAllMediaItems {
 define_actor_message_handler!(
     message_type = QueryAllMediaItems,
     return_type = Vec<MediaItemDto>,
-    db_call = |pool, _, _: QueryAllMediaItems| query_all_media_items(pool, |rows| map_rows(rows)),
+    db_call = |pool, query_manager, _: QueryAllMediaItems| query_all_media_items(pool, query_manager, |rows| map_rows(rows)),
     success_return = |res| res,
     error_return = Vec::<MediaItemDto>::new()
 );
