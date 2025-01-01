@@ -1,3 +1,14 @@
+CREATE TABLE IF NOT EXISTS library (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    directory TEXT NOT NULL,
+    category_id INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME,
+    FOREIGN KEY (category_id) REFERENCES category_mapping (id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS tv_shows (
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL UNIQUE,
@@ -11,11 +22,11 @@ CREATE TABLE IF NOT EXISTS tv_shows (
     imdb_id TEXT,
     wikidata_id TEXT,
     tvdb_id TEXT,
-    library_id INTEGER,
+    library_id INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
-    FOREIGN KEY (library_id) REFERENCES library (id)
+    FOREIGN KEY (library_id) REFERENCES library (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS seasons (
@@ -28,29 +39,27 @@ CREATE TABLE IF NOT EXISTS seasons (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
-    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id),
+    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (tv_show_id, season_number)
 );
 
 CREATE TABLE IF NOT EXISTS episodes (
     id INTEGER PRIMARY KEY,
     season_id INTEGER NOT NULL,
-    tv_show_id INTEGER NOT NULL,
     title TEXT NOT NULL,
     original_title TEXT,
     plot TEXT,
     nfo_path TEXT,
-    video_file_path TEXT NOT NULL,
+    video_file_path TEXT NOT NULL UNIQUE,
     subtitle_file_path TEXT,
     thumb_image_url TEXT,
     thumb_image TEXT,
-    episode_number INTEGER,
+    episode_number INTEGER NOT NULL,
     runtime INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
-    FOREIGN KEY (season_id) REFERENCES seasons (id),
-    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id),
+    FOREIGN KEY (season_id) REFERENCES seasons (id) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (season_id, episode_number)
 );
 
@@ -123,14 +132,3 @@ VALUES
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP
     );
-
-CREATE TABLE IF NOT EXISTS library (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    directory TEXT NOT NULL,
-    category_id INTEGER NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    deleted_at DATETIME,
-    FOREIGN KEY (category_id) REFERENCES category_mapping (id) ON DELETE SET NULL ON UPDATE CASCADE
-)

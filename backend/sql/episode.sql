@@ -16,7 +16,10 @@ select
 from
     episodes e
     join seasons s on e.season_id = s.id
+    join tv_shows t on s.tv_show_id = t.id
 where
-    e.tv_show_id = ?
+    t.id = ?
+    and t.library_id = ?
 order by
+    s.season_number,
     e.episode_number;

@@ -23,6 +23,7 @@ pub async fn query_episodes(
     // TODO: we many need to add a intermediate table to store the library_id
     let episodes = sqlx::query(&query)
         .bind(media_id)
+        .bind(library_id)
         .fetch_all(&mut *tx)
         .await?;
 
