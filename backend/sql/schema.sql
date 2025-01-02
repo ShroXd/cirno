@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS tv_show_genres (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
     PRIMARY KEY (tv_show_id, genre_id),
-    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id),
-    FOREIGN KEY (genre_id) REFERENCES genres (id)
+    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (genre_id) REFERENCES genres (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS actors (
@@ -101,8 +101,8 @@ CREATE TABLE IF NOT EXISTS tv_series_actors (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
     PRIMARY KEY (series_id, actor_id),
-    FOREIGN KEY (series_id) REFERENCES tv_shows (id),
-    FOREIGN KEY (actor_id) REFERENCES actors (id)
+    FOREIGN KEY (series_id) REFERENCES tv_shows (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (actor_id) REFERENCES actors (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE category_mapping (

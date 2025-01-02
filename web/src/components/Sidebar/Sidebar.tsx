@@ -14,11 +14,9 @@ import {
   ListItemPrefix,
   Typography,
 } from '@material-tailwind/react'
-import { mutate } from 'swr'
 
 import { getIconAccordingToCategory } from './utils'
 import { LibraryDto } from '~/bindings/LibraryDto'
-import { DeleteConfirmationDialog } from '~/components/DeleteConfirmationDialog/DeleteConfirmationDialog'
 import { useFetch } from '~/hooks/useFetch'
 
 interface SidebarProps {
@@ -28,10 +26,6 @@ interface SidebarProps {
 
 export const Sidebar = ({ open, onClose }: SidebarProps) => {
   const [expanded, setExpanded] = useState(true)
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
-  const [mediaLibraryToDelete, setMediaLibraryToDelete] = useState<
-    number | null
-  >(null)
 
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -42,11 +36,11 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
     setExpanded(!expanded)
   }
 
-  const handleDeleteMediaLibraryConfirmation = () => {
-    mutate(`/library/`)
-    setShowDeleteConfirmation(false)
-    setMediaLibraryToDelete(null)
-  }
+  // const handleDeleteMediaLibraryConfirmation = () => {
+  //   mutate(`/library/`)
+  //   setShowDeleteConfirmation(false)
+  //   setMediaLibraryToDelete(null)
+  // }
 
   // const { listenForMessages } = useEventBus()
   // listenForMessages('media_library_scanned', (payload: unknown) => {
@@ -57,13 +51,6 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
 
   return (
     <>
-      <DeleteConfirmationDialog
-        mediaLibraryId={mediaLibraryToDelete ?? 0}
-        open={showDeleteConfirmation}
-        handleOpen={handleDeleteMediaLibraryConfirmation}
-        title={t('component.deleteConfirmationDialog.title')}
-        description={t('component.deleteConfirmationDialog.description')}
-      />
       <Drawer open={open} onClose={onClose}>
         <Card color='transparent' shadow={false}>
           <div className='w-full max-w-[20rem] p-4 border-r border-blue-gray-50 overflow-y-auto h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] select-none'>

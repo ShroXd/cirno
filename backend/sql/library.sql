@@ -34,3 +34,8 @@ INSERT
 OR IGNORE INTO library (name, directory, category_id)
 VALUES
     (?, ?, ?) RETURNING id;
+
+-- name: delete_library
+DELETE FROM library
+WHERE
+    id = ?;

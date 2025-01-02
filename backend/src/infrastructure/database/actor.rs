@@ -394,7 +394,7 @@ impl Display for DeleteLibrary {
 define_actor_message_handler!(
     message_type = DeleteLibrary,
     return_type = (),
-    db_call = |pool, _, msg: DeleteLibrary| delete_library(pool, msg.id),
+    db_call = |pool, query_manager, msg: DeleteLibrary| delete_library(pool, query_manager, msg.id),
     success_return = |_| (),
     error_return = ()
 );
