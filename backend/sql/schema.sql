@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS episodes (
 CREATE TABLE IF NOT EXISTS genres (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
+    reference_count INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME
@@ -89,6 +90,7 @@ CREATE TABLE IF NOT EXISTS actors (
     thumb TEXT,
     profile TEXT,
     tmdb_id TEXT,
+    reference_count INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME
@@ -112,6 +114,52 @@ CREATE TABLE category_mapping (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME
 );
+
+CREATE TRIGGER increment_genre_reference_count AFTER INSERT ON tv_show_genres BEGIN
+UPDATE genres
+SET
+    reference_count = reference_count + 1
+WHERE
+    id = NEW.genre_id;
+
+END;
+
+CREATE TRIGGER decrement_genre_reference_count AFTER DELETE ON tv_show_genres BEGIN
+UPDATE genres
+SET
+    reference_count = reference_count - 1
+WHERE
+    id = OLD.genre_id;
+
+DELETE FROM genres
+WHERE
+    id = OLD.genre_id
+    AND reference_count = 0;
+
+END;
+
+CREATE TRIGGER increment_actor_reference_count AFTER INSERT ON tv_series_actors BEGIN
+UPDATE actors
+SET
+    reference_count = reference_count + 1
+WHERE
+    id = NEW.actor_id;
+
+END;
+
+CREATE TRIGGER decrement_actor_reference_count AFTER DELETE ON tv_series_actors BEGIN
+UPDATE actors
+SET
+    reference_count = reference_count - 1
+WHERE
+    id = OLD.actor_id;
+
+DELETE FROM actors
+WHERE
+    id = OLD.actor_id
+    AND reference_count = 0;
+
+END;
 
 INSERT INTO
     category_mapping (id, name, created_at, updated_at)
