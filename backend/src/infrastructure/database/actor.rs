@@ -102,18 +102,26 @@ define_actor_message_handler!(
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
 #[rtype(result = "()")]
-pub struct SaveActor(pub i64, pub MediaActor);
+pub struct SaveActor {
+    pub tv_show_id: i64,
+    pub actor: MediaActor,
+}
 
 impl Display for SaveActor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "SaveActor({})", self.0)
+        write!(f, "SaveActor({:?}, {:?})", self.tv_show_id, self.actor.name)
     }
 }
 
 define_actor_message_handler!(
     message_type = SaveActor,
     return_type = (),
-    db_call = |pool, _, msg: SaveActor| save_actor(pool, msg.0, msg.1),
+    db_call = |pool, query_manager, msg: SaveActor| save_actor(
+        pool,
+        query_manager,
+        msg.tv_show_id,
+        msg.actor
+    ),
     success_return = |_| (),
     error_return = ()
 );

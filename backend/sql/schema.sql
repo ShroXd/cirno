@@ -96,14 +96,14 @@ CREATE TABLE IF NOT EXISTS actors (
     deleted_at DATETIME
 );
 
-CREATE TABLE IF NOT EXISTS tv_series_actors (
-    series_id INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS tv_show_actors (
+    tv_show_id INTEGER NOT NULL,
     actor_id INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
-    PRIMARY KEY (series_id, actor_id),
-    FOREIGN KEY (series_id) REFERENCES tv_shows (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (tv_show_id, actor_id),
+    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (actor_id) REFERENCES actors (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -138,7 +138,7 @@ WHERE
 
 END;
 
-CREATE TRIGGER increment_actor_reference_count AFTER INSERT ON tv_series_actors BEGIN
+CREATE TRIGGER increment_actor_reference_count AFTER INSERT ON tv_show_actors BEGIN
 UPDATE actors
 SET
     reference_count = reference_count + 1
@@ -147,7 +147,7 @@ WHERE
 
 END;
 
-CREATE TRIGGER decrement_actor_reference_count AFTER DELETE ON tv_series_actors BEGIN
+CREATE TRIGGER decrement_actor_reference_count AFTER DELETE ON tv_show_actors BEGIN
 UPDATE actors
 SET
     reference_count = reference_count - 1

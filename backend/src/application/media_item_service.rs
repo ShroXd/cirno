@@ -44,7 +44,7 @@ pub async fn insert_media_item(
     for actor in actors {
         debug!("Inserting actor: {:?}", &actor.name);
         database_addr
-            .send(SaveActor(tv_show_id, actor))
+            .send(SaveActor { tv_show_id, actor })
             .await
             .map_err(|e| anyhow::anyhow!("Error inserting actor: {:?}", e))?;
     }
