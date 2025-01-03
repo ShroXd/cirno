@@ -24,8 +24,9 @@ select
     ts.poster_path
 from
     tv_shows ts
+    join library_tv_shows lts on lts.tv_show_id = ts.id
 where
-    ts.library_id = ?
+    lts.library_id = ?
 limit
     1;
 

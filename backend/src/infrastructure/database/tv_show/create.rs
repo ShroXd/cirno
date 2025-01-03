@@ -17,9 +17,9 @@ pub async fn save_tv_show(
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    let query = query_manager.get_query("tv_show", "save_tv_show").await?;
+    let save_tv_show_query = query_manager.get_query("tv_show", "save_tv_show").await?;
 
-    let id: i64 = sqlx::query_scalar(&query)
+    let tv_show_id: i64 = sqlx::query_scalar(&save_tv_show_query)
         .bind(tv_show.title)
         .bind(tv_show.nfo_path)
         .bind(tv_show.poster_path)
@@ -31,11 +31,20 @@ pub async fn save_tv_show(
         .bind(tv_show.imdb_id)
         .bind(tv_show.wikidata_id)
         .bind(tv_show.tvdb_id)
-        .bind(library_id)
         .fetch_one(&mut *tx)
+        .await?;
+
+    let save_library_tv_show_query = query_manager
+        .get_query("tv_show", "save_library_tv_show")
+        .await?;
+
+    sqlx::query(&save_library_tv_show_query)
+        .bind(library_id)
+        .bind(tv_show_id)
+        .execute(&mut *tx)
         .await?;
 
     tx.commit().await?;
 
-    Ok(id)
+    Ok(tv_show_id)
 }

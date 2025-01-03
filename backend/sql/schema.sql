@@ -22,11 +22,21 @@ CREATE TABLE IF NOT EXISTS tv_shows (
     imdb_id TEXT,
     wikidata_id TEXT,
     tvdb_id TEXT,
+    reference_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS library_tv_shows (
     library_id INTEGER NOT NULL,
+    tv_show_id INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
-    FOREIGN KEY (library_id) REFERENCES library (id) ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY (library_id, tv_show_id),
+    FOREIGN KEY (library_id) REFERENCES library (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS seasons (
@@ -114,6 +124,29 @@ CREATE TABLE category_mapping (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME
 );
+
+CREATE TRIGGER increment_library_tv_show_reference_count AFTER INSERT ON library_tv_shows BEGIN
+UPDATE tv_shows
+SET
+    reference_count = reference_count + 1
+WHERE
+    id = NEW.tv_show_id;
+
+END;
+
+CREATE TRIGGER decrement_library_tv_show_reference_count AFTER DELETE ON library_tv_shows BEGIN
+UPDATE tv_shows
+SET
+    reference_count = reference_count - 1
+WHERE
+    id = OLD.tv_show_id;
+
+DELETE FROM tv_shows
+WHERE
+    id = OLD.tv_show_id
+    AND reference_count = 0;
+
+END;
 
 CREATE TRIGGER increment_genre_reference_count AFTER INSERT ON tv_show_genres BEGIN
 UPDATE genres

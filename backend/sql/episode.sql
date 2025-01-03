@@ -17,9 +17,10 @@ from
     episodes e
     join seasons s on e.season_id = s.id
     join tv_shows t on s.tv_show_id = t.id
+    join library_tv_shows lts on lts.tv_show_id = t.id
 where
     t.id = ?
-    and t.library_id = ?
+    and lts.library_id = ?
     and e.deleted_at is null
 order by
     s.season_number,

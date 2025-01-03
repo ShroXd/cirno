@@ -27,7 +27,7 @@ SELECT
     ts.plot,
     group_concat (g.name, ', ') AS genres
 FROM
-    tv_series ts
+    tv_shows ts
     JOIN tv_show_genres tsg ON ts.id = tsg.tv_show_id
     JOIN genres g ON tsg.genre_id = g.id
 WHERE
