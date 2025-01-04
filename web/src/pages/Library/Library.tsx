@@ -1,8 +1,8 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 
-import { Typography } from '@material-tailwind/react'
+import { Button, Typography } from '@material-tailwind/react'
 import { mutate } from 'swr'
 
 import { LibraryDto } from '~/bindings/LibraryDto'
@@ -14,6 +14,7 @@ import { wrapInGrid } from '~/pages/utils'
 
 export const Library = () => {
   // TODO: fetch media libraries instead of media items
+  const [hasError, setHasError] = useState(false)
   const { data, error, isLoading } = useFetch<LibraryDto[]>('/library/')
   const { onEvent } = useEventBus()
   const container = useCallback(wrapInGrid, [])
@@ -33,9 +34,15 @@ export const Library = () => {
   }
   if (error) return container(<div>Error: {error.message}</div>)
 
+  // TODO: add feature toggle
+  if (hasError) {
+    throw new Error('test')
+  }
+
   return (
     <>
       <Container>
+        <Button onClick={() => setHasError(true)}>Test</Button>
         <Typography className='mb-4 mt-2' variant='h4' color='blue-gray'>
           {t('page.library.recent_added')}
         </Typography>
