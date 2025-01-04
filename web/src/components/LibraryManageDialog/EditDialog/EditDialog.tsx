@@ -6,6 +6,7 @@ import { mutate } from 'swr'
 import { BaseDialog } from '../BaseDialog/BaseDialog'
 import { LibraryDto } from '~/bindings/LibraryDto'
 import { UpdateLibraryPayload } from '~/bindings/UpdateLibraryPayload'
+import { useEventBus } from '~/hooks/useEventBus'
 import { useFetch } from '~/hooks/useFetch'
 import { usePut } from '~/hooks/usePut'
 
@@ -23,6 +24,7 @@ export const EditDialog: FC<EditDialogProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation()
+  const { emitEvent } = useEventBus()
   // TODO: create a global error handler and notification
   const { data } = useFetch<LibraryDto>(open ? `/library/${libraryId}` : null)
   const put = usePut()
@@ -35,10 +37,21 @@ export const EditDialog: FC<EditDialogProps> = ({
       category: data.category,
     }
 
-    await put(`/library/${libraryId}`, updatePayload)
-    mutate(`/library/${libraryId}`)
+    try {
+      await put(`/library/${libraryId}`, updatePayload)
+      mutate(`/library/${libraryId}`)
+      dialogHandler()
+    } catch (error) {
+      console.error('Failed to update media library', error)
 
-    dialogHandler()
+      emitEvent({
+        event: 'Error',
+        payload: {
+          title: t('component.libraryManageDialog.edit.error.title'),
+          message: t('component.libraryManageDialog.edit.error.message'),
+        },
+      })
+    }
   }
 
   return (

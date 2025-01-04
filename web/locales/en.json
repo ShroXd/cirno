@@ -27,12 +27,20 @@
       "create": {
         "title": "Add Media Library",
         "description": "Enter the details below to configure your media library. This will help organize and manage your media content effectively.",
-        "submitButtonText": "Add Media Library and Scan"
+        "submitButtonText": "Add Media Library and Scan",
+        "error": {
+          "title": "Error",
+          "message": "Failed to add media library"
+        }
       },
       "edit": {
         "title": "Edit Media Library",
         "description": "Enter the details below to configure your media library. This will help organize and manage your media content effectively.",
-        "submitButtonText": "Save"
+        "submitButtonText": "Save",
+        "error": {
+          "title": "Error",
+          "message": "Failed to save media library"
+        }
       },
       "name": "Name",
       "namePlaceholder": "eg. My Media Library",

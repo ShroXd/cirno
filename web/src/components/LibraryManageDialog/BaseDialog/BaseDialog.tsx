@@ -57,7 +57,15 @@ export const BaseDialog: FC<BaseDialogProps> = ({
   useEffect(() => onClose?.(), [onClose])
 
   return (
-    <Dialog size='sm' open={open} handler={handleDialogClose} className='p-4'>
+    <Dialog
+      size='sm'
+      open={open}
+      handler={handleDialogClose}
+      dismiss={{
+        outsidePress: false,
+      }}
+      className='p-4'
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogHeader className='relative m-0 block'>
           <Typography variant='h4' color='blue-gray'>

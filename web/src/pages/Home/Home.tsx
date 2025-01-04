@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Route, Routes } from 'react-router-dom'
 
 import { StickyNavbar } from '~/components/Navbar/Navbar'
+import { Variation } from '~/components/NotificationItem/constants'
 import { VideoPlayerEventType } from '~/contexts/EventBusContext/types'
 import { useEventBus } from '~/hooks/useEventBus'
 import { useNotification } from '~/hooks/useNotification'
@@ -23,13 +24,18 @@ export const Home = () => {
 
   useEffect(() => {
     onEvent('LibrarySaved', payload =>
-      addNotification({
-        title: t('notification.librarySaved.title'),
-        message: t('notification.librarySaved.message', {
-          libraryName: payload.libraryName,
-        }),
-      })
+      addNotification(
+        {
+          title: t('notification.librarySaved.title'),
+          message: t('notification.librarySaved.message', {
+            libraryName: payload.libraryName,
+          }),
+        },
+        Variation.Success
+      )
     )
+
+    onEvent('Error', payload => addNotification(payload, Variation.Error))
 
     onEvent(VideoPlayerEventType.Stop, () => {
       post('/video-player/stop')

@@ -1,6 +1,7 @@
 import { FC, ReactNode, createContext, useCallback, useState } from 'react'
 
 import { NotificationItem } from '~/components/NotificationItem/NotificationItem'
+import { Variation } from '~/components/NotificationItem/constants'
 
 export type NotificationModel = {
   id: string
@@ -9,10 +10,14 @@ export type NotificationModel = {
   type?: 'success' | 'error' | 'info' | 'warning' | (string & {})
   duration?: number
   onRemove?: (id: string) => void
+  variation?: Variation
 }
 
 interface NotificationContextProps {
-  addNotification: (notification: Omit<NotificationModel, 'id'>) => string // id of the notification
+  addNotification: (
+    notification: Omit<NotificationModel, 'id'>,
+    variation?: Variation
+  ) => string // id of the notification
   removeNotification: (id: string) => void
 }
 
@@ -26,9 +31,12 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const [notifications, setNotifications] = useState<NotificationModel[]>([])
 
-  const addNotification = (notification: Omit<NotificationModel, 'id'>) => {
+  const addNotification = (
+    notification: Omit<NotificationModel, 'id'>,
+    variation?: Variation
+  ) => {
     const id = Math.random().toString(36).substring(2, 15)
-    setNotifications([...notifications, { id, ...notification }])
+    setNotifications([...notifications, { id, ...notification, variation }])
     return id
   }
 
@@ -44,9 +52,14 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({
       value={{ addNotification, removeNotification }}
     >
       {children}
-      <div className='fixed top-0 right-0 w-full max-w-md p-4 z-50'>
+      <div className='fixed top-0 right-0 w-full max-w-md p-4 z-[999999]'>
         {notifications.map(n => (
-          <NotificationItem {...n} key={n.id} onRemove={removeNotification} />
+          <NotificationItem
+            {...n}
+            key={n.id}
+            onRemove={removeNotification}
+            variation={n.variation}
+          />
         ))}
       </div>
     </NotificationContext.Provider>

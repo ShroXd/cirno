@@ -27,12 +27,20 @@
       "create": {
         "title": "添加媒体库",
         "description": "输入以下详细信息以配置媒体库。这将帮助您有效地组织和管理媒体内容。",
-        "submitButtonText": "添加媒体库并扫描"
+        "submitButtonText": "添加媒体库并扫描",
+        "error": {
+          "title": "错误",
+          "message": "添加媒体库失败"
+        }
       },
       "edit": {
         "title": "编辑媒体库",
         "description": "输入以下详细信息以配置媒体库。这将帮助您有效地组织和管理媒体内容。",
-        "submitButtonText": "保存"
+        "submitButtonText": "保存",
+        "error": {
+          "title": "错误",
+          "message": "保存媒体库失败"
+        }
       },
       "name": "名称",
       "namePlaceholder": "例如：我的媒体库",

@@ -4,7 +4,10 @@ import { createEventBus } from './eventBus'
 import { EventHandler, EventType, PayloadMap } from './types'
 
 interface EventBusContextProps {
-  emitEvent: (message: { event: EventType; payload: unknown }) => void
+  emitEvent: <E extends EventType>(message: {
+    event: E
+    payload: PayloadMap[E]
+  }) => void
   onEvent: <E extends EventType>(event: E, handler: EventHandler<E>) => void
 }
 

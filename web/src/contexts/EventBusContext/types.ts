@@ -8,6 +8,11 @@ interface NotificationPayloadMap
   RegisterClient: {
     clientKey: string
   }
+  Error: {
+    title: string
+    message: string
+    tryAgain?: () => void
+  }
 }
 
 export enum VideoPlayerEventType {
