@@ -24,8 +24,11 @@
       "settings": "Settings"
     },
     "libraryManageDialog": {
-      "title": "Manage Media Library",
-      "description": "Enter the details below to configure your media library. This will help organize and manage your media content effectively.",
+      "create": {
+        "title": "Add Media Library",
+        "description": "Enter the details below to configure your media library. This will help organize and manage your media content effectively.",
+        "submitButtonText": "Add Media Library and Scan"
+      },
       "name": "Name",
       "namePlaceholder": "eg. My Media Library",
       "category": "Category",

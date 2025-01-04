@@ -16,27 +16,27 @@ import {
   Typography,
 } from '@material-tailwind/react'
 
-import { LibraryManageDialog } from '~/components/LibraryManageDialog/LibraryManageDialog'
+import { CreateDialog } from '../LibraryManageDialog/CreateDialog/CreateDialog'
 import { Sidebar } from '~/components/Sidebar/Sidebar'
 
 export const StickyNavbar = () => {
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [mediaManageDialogOpen, setMediaManageDialogOpen] = useState(false)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
 
   const openSidebar = () => setOpen(true)
   const closeSidebar = () => setOpen(false)
 
-  const toggleMediaManageDialog = () => {
-    setMediaManageDialogOpen(!mediaManageDialogOpen)
+  const createDialogHandler = () => {
+    setCreateDialogOpen(!createDialogOpen)
   }
 
   return (
     <>
-      <LibraryManageDialog
-        open={mediaManageDialogOpen}
-        handleOpen={toggleMediaManageDialog}
+      <CreateDialog
+        open={createDialogOpen}
+        dialogHandler={createDialogHandler}
       />
       <Navbar
         className='fixed top-0 left-0 right-0 z-10 max-w-full bg-opacity-85 rounded-none bg-gray-50 backdrop-blur-sm border-b border-gray-200 px-4 py-2 shadow-none'
@@ -91,7 +91,7 @@ export const StickyNavbar = () => {
                 <Button
                   variant='gradient'
                   className='flex items-center gap-4'
-                  onClick={toggleMediaManageDialog}
+                  onClick={createDialogHandler}
                 >
                   <InboxStackIcon className='h-4 w-4' />
                   {t('component.navbar.addLibrary')}
