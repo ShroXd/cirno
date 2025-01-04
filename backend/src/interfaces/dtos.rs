@@ -40,6 +40,7 @@ pub struct LibraryDto {
     pub id: i64,
     pub name: String,
     pub category: LibraryCategory,
+    pub directory: String,
     pub posters: Vec<LibraryPoster>,
 }
 

@@ -17,6 +17,7 @@ pub struct LibraryBrief {
     pub id: i64,
     pub name: String,
     pub category: LibraryCategory,
+    pub directory: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS)]

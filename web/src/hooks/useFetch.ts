@@ -10,7 +10,7 @@ const fetcher =
     return response.data
   }
 
-export const useFetch = <T>(url: string, config?: SWRConfiguration) => {
+export const useFetch = <T>(url: string | null, config?: SWRConfiguration) => {
   const { axiosInstance } = useAxios()
 
   return useSWR<T>(url, fetcher(axiosInstance), config)

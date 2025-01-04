@@ -2,4 +2,4 @@
 import type { LibraryCategory } from "./LibraryCategory";
 import type { LibraryPoster } from "./LibraryPoster";
 
-export type LibraryDto = { id: bigint, name: string, category: LibraryCategory, posters: Array<LibraryPoster>, };
+export type LibraryDto = { id: bigint, name: string, category: LibraryCategory, directory: string, posters: Array<LibraryPoster>, };

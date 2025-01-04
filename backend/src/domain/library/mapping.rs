@@ -16,6 +16,7 @@ impl SqliteRowMapper<LibraryBrief> for LibraryBrief {
             id: row.get::<i64, _>("id"),
             name: row.get::<String, _>("name"),
             category: LibraryCategory::try_from(row.get::<i64, _>("category_id")).unwrap(),
+            directory: row.get::<String, _>("directory"),
         }
     }
 }

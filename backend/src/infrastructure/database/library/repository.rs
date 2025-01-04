@@ -70,6 +70,7 @@ impl LibraryRepository {
                     id: media_library_brief.id,
                     name: media_library_brief.name,
                     category: media_library_brief.category,
+                    directory: media_library_brief.directory,
                     posters: media_library_posters,
                 }
             })

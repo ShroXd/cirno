@@ -16,20 +16,16 @@ import {
   Typography,
 } from '@material-tailwind/react'
 
-export interface LibraryData {
-  name: string
-  category: string
-  directory: string
-}
+import { LibraryDto } from '~/bindings/LibraryDto'
 
 interface BaseDialogProps {
   title: string
   description: string
   submitButtonText: string
   open: boolean
-  defaultValues?: LibraryData
+  defaultValues?: LibraryDto
 
-  onSubmit: (data: LibraryData) => void
+  onSubmit: (data: LibraryDto) => void
   dialogHandler: () => void
   onClose?: () => void
 }
@@ -50,7 +46,7 @@ export const BaseDialog: FC<BaseDialogProps> = ({
     control,
     formState: { errors },
     reset,
-  } = useForm<LibraryData>({ defaultValues })
+  } = useForm<LibraryDto>({ values: defaultValues, defaultValues })
   const { t } = useTranslation()
 
   const handleDialogClose = useCallback(() => {
@@ -94,12 +90,12 @@ export const BaseDialog: FC<BaseDialogProps> = ({
               size='lg'
               placeholder={t('component.libraryManageDialog.namePlaceholder')}
               {...register('name', { required: true })}
-              className='placeholder:opacity-100 focus:!border-t-gray-900'
+              className=' !border-t-blue-gray-200 focus:!border-t-gray-900 placeholder:opacity-100'
               containerProps={{
                 className: '!min-w-full',
               }}
               labelProps={{
-                className: 'hidden',
+                className: 'before:content-none after:content-none',
               }}
             />
             {errors.name && (
@@ -122,14 +118,7 @@ export const BaseDialog: FC<BaseDialogProps> = ({
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <Select
-                  className='!w-full !border-[1.5px] !border-blue-gray-200/90 !border-t-blue-gray-200/90 bg-white text-gray-800 ring-4 ring-transparent placeholder:text-gray-600 focus:!border-primary focus:!border-blue-gray-900 group-hover:!border-primary'
-                  placeholder='1'
-                  labelProps={{
-                    className: 'hidden',
-                  }}
-                  {...field}
-                >
+                <Select placeholder='1' {...field}>
                   {/* TODO: get the options & its values from the rs_ts generated enum */}
                   <Option value='Movie'>
                     {t('component.libraryManageDialog.categoryOptions.movie')}
@@ -167,12 +156,12 @@ export const BaseDialog: FC<BaseDialogProps> = ({
                   'component.libraryManageDialog.directoryPlaceholder'
                 )}
                 {...register('directory', { required: true })}
-                className='placeholder:opacity-100 focus:!border-t-gray-900'
+                className=' !border-t-blue-gray-200 focus:!border-t-gray-900 placeholder:opacity-100'
                 containerProps={{
                   className: '!min-w-full',
                 }}
                 labelProps={{
-                  className: 'hidden',
+                  className: 'before:content-none after:content-none',
                 }}
               />
               <div className='absolute right-1.5 top-1.5'>

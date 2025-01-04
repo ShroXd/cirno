@@ -36,6 +36,9 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({
     setNotifications(prev => prev.filter(n => n.id !== id))
   }, [])
 
+  // TODO: add error notification and animation
+  // TODO: we should let addnotification accept a function to handle the error, like refresh the page
+
   return (
     <NotificationContext.Provider
       value={{ addNotification, removeNotification }}

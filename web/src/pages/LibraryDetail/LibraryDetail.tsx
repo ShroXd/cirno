@@ -10,12 +10,14 @@ import { MediaItemDto } from '~/bindings/MediaItemDto'
 import { Container } from '~/components/Container/Container'
 import { ContentCard } from '~/components/ContentCard/ContentCard'
 import { DeleteConfirmationDialog } from '~/components/DeleteConfirmationDialog/DeleteConfirmationDialog'
+import { EditDialog } from '~/components/LibraryManageDialog/EditDialog/EditDialog'
 import { useDelete } from '~/hooks/useDelete'
 import { useFetch } from '~/hooks/useFetch'
 import { wrapInGrid } from '~/pages/utils'
 
 export const LibraryDetail = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
 
   const { libraryId } = useParams()
 
@@ -47,6 +49,10 @@ export const LibraryDetail = () => {
     setShowDeleteConfirmation(false)
   }
 
+  const editDialogHandler = () => {
+    setShowEditDialog(!showEditDialog)
+  }
+
   return (
     <>
       <DeleteConfirmationDialog
@@ -56,12 +62,22 @@ export const LibraryDetail = () => {
         handleConfirm={handleDeleteConfirmation}
         handleCancel={handleDeleteCancel}
       />
+      <EditDialog
+        libraryId={Number(libraryId)}
+        open={showEditDialog}
+        dialogHandler={editDialogHandler}
+      />
       <Container>
         <div className='flex flex-row items-center gap-2 mb-4 mt-2'>
           <Typography className='mr-2' variant='h4' color='blue-gray'>
             {detail?.name}
           </Typography>
-          <Button variant='text' size='sm' ripple={false}>
+          <Button
+            variant='text'
+            size='sm'
+            ripple={false}
+            onClick={() => setShowEditDialog(true)}
+          >
             <Cog6ToothIcon className='h-4 w-4' />
           </Button>
           <Button

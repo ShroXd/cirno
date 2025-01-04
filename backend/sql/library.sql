@@ -2,7 +2,8 @@
 SELECT
     id,
     name,
-    category_id
+    category_id,
+    directory
 FROM
     library
 ORDER BY
@@ -12,7 +13,8 @@ ORDER BY
 SELECT
     id,
     name,
-    category_id
+    category_id,
+    directory
 FROM
     library
 WHERE
