@@ -19,8 +19,8 @@ export const CreateDialog: FC<CreateDialogProps> = ({
   const { t } = useTranslation()
   const post = usePost()
 
-  const onSubmit = (data: LibraryDto) => {
-    post('/library/', data)
+  const onSubmit = async (data: LibraryDto) => {
+    await post('/library/', data)
     dialogHandler()
   }
 

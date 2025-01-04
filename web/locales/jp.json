@@ -32,7 +32,7 @@
       "edit": {
         "title": "メディアライブラリの編集",
         "description": "以下の詳細を入力して、メディアライブラリを設定します。これにより、メディアコンテンツを効果的に整理および管理できます。",
-        "submitButtonText": "メディアライブラリを編集してスキャン"
+        "submitButtonText": "保存"
       },
       "name": "名前",
       "namePlaceholder": "例：私のメディアライブラリ",

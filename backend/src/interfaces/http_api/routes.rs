@@ -1,6 +1,6 @@
 use actix::Addr;
 use actix_web::{
-    delete, get, post,
+    delete, get, post, put,
     web::{scope, Data, Json, Path, ServiceConfig},
     HttpRequest, Responder,
 };
@@ -19,7 +19,7 @@ use crate::{
             api_models::SaveLibraryPayload,
             library::{
                 create_library_controller, delete_library_controller, get_libraries_controller,
-                get_library_by_id_controller,
+                get_library_by_id_controller, update_library_controller,
             },
             media_item::{
                 get_all_media_controller, get_media_controller, get_media_episodes_controller,
@@ -30,7 +30,7 @@ use crate::{
     },
 };
 
-use super::controllers::api_models::PlayVideoWithPathPayload;
+use super::controllers::api_models::{PlayVideoWithPathPayload, UpdateLibraryPayload};
 
 // TODO: 1. move data models to database/models.rs
 // TODO: 2. return error messages in the response
@@ -88,6 +88,15 @@ async fn create_library_route(
     .await
 }
 
+#[put("/{library_id}")]
+async fn update_library_route(
+    library_id: Path<i64>,
+    payload: Json<UpdateLibraryPayload>,
+    repositories: Data<Repositories>,
+) -> impl Responder {
+    update_library_controller(library_id, payload, repositories).await
+}
+
 #[get("/")]
 async fn get_libraries_route(repositories: Data<Repositories>) -> impl Responder {
     get_libraries_controller(repositories).await
@@ -110,6 +119,7 @@ pub fn init_library_routes(cfg: &mut ServiceConfig) {
             .service(get_media_route)
             .service(get_media_episodes_route)
             .service(create_library_route)
+            .service(update_library_route)
             .service(get_libraries_route)
             .service(get_library_route)
             .service(delete_library_route),

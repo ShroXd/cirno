@@ -1,10 +1,13 @@
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { mutate } from 'swr'
+
 import { BaseDialog } from '../BaseDialog/BaseDialog'
 import { LibraryDto } from '~/bindings/LibraryDto'
+import { UpdateLibraryPayload } from '~/bindings/UpdateLibraryPayload'
 import { useFetch } from '~/hooks/useFetch'
-import { usePost } from '~/hooks/usePost'
+import { usePut } from '~/hooks/usePut'
 
 interface EditDialogProps {
   libraryId: number
@@ -21,13 +24,20 @@ export const EditDialog: FC<EditDialogProps> = ({
 }) => {
   const { t } = useTranslation()
   // TODO: create a global error handler and notification
-  const { data, isLoading, error } = useFetch<LibraryDto>(
-    open ? `/library/${libraryId}` : null
-  )
-  const post = usePost()
+  const { data } = useFetch<LibraryDto>(open ? `/library/${libraryId}` : null)
+  const put = usePut()
 
-  const onSubmit = (data: LibraryDto) => {
-    post('/library/', data)
+  const onSubmit = async (data: LibraryDto) => {
+    const updatePayload: UpdateLibraryPayload = {
+      id: libraryId,
+      name: data.name,
+      directory: data.directory,
+      category: data.category,
+    }
+
+    await put(`/library/${libraryId}`, updatePayload)
+    mutate(`/library/${libraryId}`)
+
     dialogHandler()
   }
 

@@ -32,7 +32,7 @@
       "edit": {
         "title": "编辑媒体库",
         "description": "输入以下详细信息以配置媒体库。这将帮助您有效地组织和管理媒体内容。",
-        "submitButtonText": "编辑媒体库并扫描"
+        "submitButtonText": "保存"
       },
       "name": "名称",
       "namePlaceholder": "例如：我的媒体库",

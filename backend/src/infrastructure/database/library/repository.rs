@@ -6,10 +6,16 @@ use tracing::*;
 
 use crate::{
     infrastructure::database::{
-        actor::{DeleteLibrary, QueryLibrary, QueryLibraryPosters, SaveLibrary, ValidateCategory},
+        actor::{
+            DeleteLibrary, QueryLibrary, QueryLibraryPosters, SaveLibrary, UpdateLibrary,
+            ValidateCategory,
+        },
         database::Database,
     },
-    interfaces::{dtos::LibraryDto, http_api::controllers::api_models::SaveLibraryPayload},
+    interfaces::{
+        dtos::LibraryDto,
+        http_api::controllers::api_models::{SaveLibraryPayload, UpdateLibraryPayload},
+    },
 };
 
 #[derive(Clone)]
@@ -20,6 +26,19 @@ pub struct LibraryRepository {
 impl LibraryRepository {
     pub fn new(database_addr: Addr<Database>) -> Arc<Self> {
         Arc::new(Self { database_addr })
+    }
+
+    #[instrument(skip(self))]
+    pub async fn update_library(&self, id: i64, payload: UpdateLibraryPayload) -> Result<()> {
+        self.database_addr
+            .send(UpdateLibrary {
+                id,
+                name: payload.name,
+                directory: payload.directory,
+                category: payload.category,
+            })
+            .await
+            .map_err(|e| anyhow::anyhow!("Error updating library: {:?}", e))
     }
 
     #[instrument(skip(self))]

@@ -32,7 +32,7 @@
       "edit": {
         "title": "Edit Media Library",
         "description": "Enter the details below to configure your media library. This will help organize and manage your media content effectively.",
-        "submitButtonText": "Edit Media Library and Scan"
+        "submitButtonText": "Save"
       },
       "name": "Name",
       "namePlaceholder": "eg. My Media Library",

@@ -42,3 +42,12 @@ VALUES
 DELETE FROM library
 WHERE
     id = ?;
+
+-- name: update_library_by_id
+UPDATE library
+SET
+    name = ?,
+    directory = ?,
+    category_id = ?
+WHERE
+    id = ?;

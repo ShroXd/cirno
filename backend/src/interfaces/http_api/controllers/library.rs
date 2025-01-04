@@ -6,7 +6,7 @@ use actix_web::{
 use std::{result::Result::Ok, sync::Arc};
 use tracing::*;
 
-use super::api_models::SaveLibraryPayload;
+use super::api_models::{SaveLibraryPayload, UpdateLibraryPayload};
 use crate::{
     application::library_service::create_library_service,
     domain::library::library::{delete_library, get_libraries, get_library_by_id},
@@ -53,6 +53,23 @@ pub async fn create_library_controller(
             repositories.library.clone()
         )
         .await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
+}
+
+#[instrument(skip(repositories))]
+pub async fn update_library_controller(
+    library_id: Path<i64>,
+    payload: Json<UpdateLibraryPayload>,
+    repositories: Data<Repositories>,
+) -> impl Responder {
+    debug!("Updating library for id: {}", library_id);
+    handle_controller_result!(
+        repositories
+            .library
+            .update_library(library_id.into_inner(), payload.into_inner())
+            .await,
         HttpResponse::Ok(),
         HttpResponse::InternalServerError()
     )

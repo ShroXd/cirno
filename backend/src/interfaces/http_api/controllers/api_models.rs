@@ -15,6 +15,16 @@ pub struct SaveLibraryPayload {
 
 #[derive(Debug, Deserialize, Serialize, TS, Clone)]
 #[ts(export)]
+pub struct UpdateLibraryPayload {
+    #[ts(type = "number")]
+    pub id: i64,
+    pub name: String,
+    pub directory: String,
+    pub category: LibraryCategory,
+}
+
+#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[ts(export)]
 pub enum LibraryCategory {
     Movie,
     TvShow,

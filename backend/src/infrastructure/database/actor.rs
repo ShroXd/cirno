@@ -25,6 +25,7 @@ use crate::{
             create::save_library,
             delete::delete_library,
             query::{query_library, query_library_posters},
+            update::update_library,
         },
         media_actor::create::save_actor,
         media_item::query::{
@@ -35,7 +36,7 @@ use crate::{
     },
     interfaces::{
         dtos::{EpisodeDto, MediaItemDto, SeasonDto},
-        http_api::controllers::api_models::SaveLibraryPayload,
+        http_api::controllers::api_models::{LibraryCategory, SaveLibraryPayload},
     },
     shared::util_traits::map_rows,
 };
@@ -345,6 +346,36 @@ define_actor_message_handler!(
         |pool, query_manager, msg: SaveLibrary| save_library(pool, query_manager, msg.payload),
     success_return = |res| res,
     error_return = SENTINEL_LIBRARY_ID
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub struct UpdateLibrary {
+    pub id: i64,
+    pub name: String,
+    pub directory: String,
+    pub category: LibraryCategory,
+}
+
+impl Display for UpdateLibrary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "UpdateLibrary({:?})", self.id)
+    }
+}
+
+define_actor_message_handler!(
+    message_type = UpdateLibrary,
+    return_type = (),
+    db_call = |pool, query_manager, msg: UpdateLibrary| update_library(
+        pool,
+        query_manager,
+        msg.id,
+        msg.name,
+        msg.directory,
+        msg.category
+    ),
+    success_return = |_| (),
+    error_return = ()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]
