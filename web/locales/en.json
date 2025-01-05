@@ -11,9 +11,9 @@
     "loading": "Loading..."
   },
   "feature": {
-    "errorAlert": {
-      "name": "Error Alert",
-      "description": "Show error alert triggered by global error boundary component"
+    "errorButton": {
+      "name": "Error Button",
+      "description": "Trigger error alert by clicking the button, test global error boundary component"
     }
   },
   "component": {

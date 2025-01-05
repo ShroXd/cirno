@@ -2,9 +2,9 @@ import { Feature } from '~/contexts/FeatureContext/FeatureContext'
 
 export const defaultFeatures: Feature[] = [
   {
-    id: 'errorAlert',
+    id: 'errorButton',
     enabled: false,
-    name: 'feature.errorAlert.name',
-    description: 'feature.errorAlert.description',
+    name: 'feature.errorButton.name',
+    description: 'feature.errorButton.description',
   },
 ]

@@ -43,8 +43,8 @@ export const Library = () => {
   return (
     <>
       <Container>
-        <FeatureToggle featureId='errorAlert'>
-          <Button onClick={() => setHasError(true)}>Test</Button>
+        <FeatureToggle featureId='errorButton'>
+          <Button onClick={() => setHasError(true)}>Trigger Error</Button>
         </FeatureToggle>
         <Typography className='mb-4 mt-2' variant='h4' color='blue-gray'>
           {t('page.library.recent_added')}

@@ -11,9 +11,9 @@
     "loading": "加载中..."
   },
   "feature": {
-    "errorAlert": {
-      "name": "错误提示",
-      "description": "显示由全局错误边界组件触发错误提示"
+    "errorButton": {
+      "name": "触发错误按钮",
+      "description": "手动触发错误提示，测试全局错误边界组件"
     }
   },
   "component": {
