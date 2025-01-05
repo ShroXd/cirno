@@ -1,13 +1,23 @@
 import { useTranslation } from 'react-i18next'
 
-import { Option, Select, Typography } from '@material-tailwind/react'
+import { ArrowPathIcon } from '@heroicons/react/24/outline'
+import { Button, Option, Select, Typography } from '@material-tailwind/react'
 
 import { Container } from '~/components/Container/Container'
 import { FeatureManager } from '~/components/FeatureManager/FeatureManager'
 import { SettingContainer } from '~/components/SettingContainer/SettingContainer'
+import { useFeatures } from '~/hooks/feature/useFeatures'
 
 export const Settings = () => {
   const { t, i18n } = useTranslation()
+  const { resetFeature } = useFeatures()
+
+  const handleReset = () => {
+    // TODO: consider if we want to clean up the database
+    i18n.changeLanguage('en-US')
+    resetFeature()
+    window.location.reload()
+  }
 
   return (
     <Container>
@@ -32,6 +42,20 @@ export const Settings = () => {
         description={t('page.settings.features.description')}
       >
         <FeatureManager />
+      </SettingContainer>
+
+      <SettingContainer
+        title={t('page.settings.reset.title')}
+        description={t('page.settings.reset.description')}
+      >
+        <Button
+          variant='outlined'
+          className='flex items-center gap-3'
+          onClick={handleReset}
+        >
+          {t('page.settings.reset.resetButton')}
+          <ArrowPathIcon className='h-5 w-5' />
+        </Button>
       </SettingContainer>
     </Container>
   )

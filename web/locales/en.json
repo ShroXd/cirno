@@ -101,6 +101,11 @@
       "features": {
         "title": "Features",
         "description": "Manage features for the application"
+      },
+      "reset": {
+        "title": "Reset",
+        "description": "Reset the application settings to default state, note that this action is irreversible",
+        "resetButton": "Reset"
       }
     }
   },

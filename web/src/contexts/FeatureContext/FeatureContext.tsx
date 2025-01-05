@@ -13,14 +13,14 @@ export interface FeatureContextType {
   features: Feature[]
   isFeatureEnabled: (featureId: string) => boolean
   toggleFeature: (featureId: string) => void
-  updateFeature: (features: Feature[]) => void
+  resetFeature: () => void
 }
 
 export const FeatureContext = createContext<FeatureContextType>({
   features: [],
   isFeatureEnabled: () => false,
   toggleFeature: () => {},
-  updateFeature: () => {},
+  resetFeature: () => {},
 })
 
 export const FeatureProvider = ({ children }: { children: ReactNode }) => {
@@ -46,13 +46,18 @@ export const FeatureProvider = ({ children }: { children: ReactNode }) => {
     )
   }
 
-  const updateFeature = (features: Feature[]) => {
-    setFeatures(features)
+  const resetFeature = () => {
+    setFeatures(defaultFeatures)
   }
 
   return (
     <FeatureContext.Provider
-      value={{ features, isFeatureEnabled, toggleFeature, updateFeature }}
+      value={{
+        features,
+        isFeatureEnabled,
+        toggleFeature,
+        resetFeature,
+      }}
     >
       {children}
     </FeatureContext.Provider>
