@@ -8,6 +8,7 @@ import { mutate } from 'swr'
 import { LibraryDto } from '~/bindings/LibraryDto'
 import { Container } from '~/components/Container/Container'
 import { ContentCard } from '~/components/ContentCard/ContentCard'
+import { FeatureToggle } from '~/components/FeatureToggle/FeatureToggle'
 import { useEventBus } from '~/hooks/useEventBus'
 import { useFetch } from '~/hooks/useFetch'
 import { wrapInGrid } from '~/pages/utils'
@@ -42,7 +43,9 @@ export const Library = () => {
   return (
     <>
       <Container>
-        <Button onClick={() => setHasError(true)}>Test</Button>
+        <FeatureToggle featureId='error-alert'>
+          <Button onClick={() => setHasError(true)}>Test</Button>
+        </FeatureToggle>
         <Typography className='mb-4 mt-2' variant='h4' color='blue-gray'>
           {t('page.library.recent_added')}
         </Typography>

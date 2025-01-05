@@ -23,6 +23,12 @@
       "test": "Test",
       "settings": "Settings"
     },
+    "featureManager": {
+      "title": "Feature Manager",
+      "description": "Manage features for the application",
+      "enable": "Enable",
+      "disable": "Disable"
+    },
     "libraryManageDialog": {
       "create": {
         "title": "Add Media Library",

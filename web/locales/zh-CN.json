@@ -23,6 +23,12 @@
       "test": "测试",
       "settings": "设置"
     },
+    "featureManager": {
+      "title": "功能管理",
+      "description": "管理应用程序的功能",
+      "enable": "启用",
+      "disable": "禁用"
+    },
     "libraryManageDialog": {
       "create": {
         "title": "添加媒体库",

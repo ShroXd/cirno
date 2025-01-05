@@ -23,6 +23,12 @@
       "test": "テスト",
       "settings": "設定"
     },
+    "featureManager": {
+      "title": "機能管理",
+      "description": "アプリケーションの機能を管理します",
+      "enable": "有効",
+      "disable": "無効"
+    },
     "libraryManageDialog": {
       "create": {
         "title": "メディアライブラリの追加",
