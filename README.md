@@ -10,7 +10,7 @@
 
 _Your Personal Media Management Platform_
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Development](#%EF%B8%8F-development) • [Contributing](#-contributing) • [License](#-license) • [Support](#-support)
+[Features](#-features) • [Documentation](#-documentation) • [Contributing](#-contributing) • [License](#-license) • [Support](#-support) • [Acknowledgments](#-acknowledgments)
 
 </div>
 
@@ -20,95 +20,20 @@ Cirno is a modern, self-hosted media management platform that helps you organize
 
 ## ✨ Features
 
-- **Smart Library Management**
-
-  - Automatic metadata fetching and organization
-  - Custom collections and playlists
-  - Advanced search and filtering capabilities
-
-- **Powerful Streaming**
-
-  - Direct play and transcoding support
-  - Adaptive streaming quality
-  - Resume playback across devices
-
-- **Customization**
-
-  - Personalizable user interface
-  - Custom metadata fields
-  - Flexible organization systems
-  - Multi-language support
-
-## 🚀 Quick Start
-
-<!-- ### Using Docker (Recommended)
-
-```bash
-docker run -d \
-  --name cirno \
-  -p 8096:8096 \
-  -v /path/to/media:/media \
-  -v /path/to/config:/config \
-  yourusername/cirno:latest
-``` -->
-
-### Manual Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/ShroXd/cirno.git
-   cd cirno
-   ```
-
-2. **Install taskfile**
-
-   ```bash
-   curl -fsSL https://taskfile.dev/install.sh | sh
-   ```
-
-3. **Install dependencies**
-
-   ```bash
-   task install
-   ```
-
-4. **Start the server**
-
-   ```bash
-   task start
-   ```
-
-Visit `http://localhost:5173/` to access your Cirno instance.
+- Direct play and transcoding support
+- Automatic file scanning and metadata organization
+- Custom collections and playlists
+- Multi-language support
 
 ## 📖 Documentation
 
-For detailed information about setup, configuration, and usage, visit our [Documentation](https://docs.cirno.dev).
+For detailed information about setup, configuration, and usage, visit our [Documentation](https://cirno.atriiy.dev/).
 
 ### System Requirements
 
-- Docker
 - Modern web browser
 - Sufficient storage space for your media
 - 2GB RAM minimum (4GB recommended)
-
-## 🛠️ Development
-
-For development tasks, you can find all available commands in the `Taskfile.yml`. Here are some common commands:
-
-```bash
-# Install development dependencies
-task install
-
-# Run in development mode
-task dev
-
-# Run tests
-task test
-
-# Build for production
-task build
-```
 
 ## 🤝 Contributing
 
