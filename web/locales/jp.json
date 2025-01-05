@@ -1,7 +1,7 @@
 {
   "common": {
-    "languageSelector": "言語",
     "language": {
+      "languageSelector": "言語",
       "en": "英語",
       "zh-CN": "中国語",
       "jp": "日本語"
@@ -9,6 +9,12 @@
     "confirm": "確認",
     "cancel": "キャンセル",
     "loading": "読み込み中..."
+  },
+  "feature": {
+    "errorAlert": {
+      "name": "エラーアラート",
+      "description": "グローバルエラーバウンダリコンポーネントによってトリガーされたエラーアラートを表示します"
+    }
   },
   "component": {
     "navbar": {
@@ -25,9 +31,7 @@
     },
     "featureManager": {
       "title": "機能管理",
-      "description": "アプリケーションの機能を管理します",
-      "enable": "有効",
-      "disable": "無効"
+      "description": "アプリケーションの機能を管理します"
     },
     "libraryManageDialog": {
       "create": {
@@ -87,6 +91,17 @@
       "date_added": "追加日",
       "rating": "評価",
       "episode_number": "エピソード番号"
+    },
+    "settings": {
+      "title": "設定",
+      "general": {
+        "title": "一般",
+        "description": "アプリケーションの一般設定を管理します"
+      },
+      "features": {
+        "title": "機能",
+        "description": "アプリケーションの機能を管理します"
+      }
     }
   },
   "notification": {

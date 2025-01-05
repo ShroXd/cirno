@@ -1,7 +1,7 @@
 {
   "common": {
-    "languageSelector": "Language",
     "language": {
+      "languageSelector": "Language",
       "en": "English",
       "zh-CN": "Chinese",
       "jp": "Japanese"
@@ -9,6 +9,12 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "loading": "Loading..."
+  },
+  "feature": {
+    "errorAlert": {
+      "name": "Error Alert",
+      "description": "Show error alert triggered by global error boundary component"
+    }
   },
   "component": {
     "navbar": {
@@ -25,9 +31,7 @@
     },
     "featureManager": {
       "title": "Feature Manager",
-      "description": "Manage features for the application",
-      "enable": "Enable",
-      "disable": "Disable"
+      "description": "Manage features for the application"
     },
     "libraryManageDialog": {
       "create": {
@@ -87,6 +91,17 @@
       "date_added": "Date Added",
       "rating": "Rating",
       "episode_number": "Episode Number"
+    },
+    "settings": {
+      "title": "Settings",
+      "general": {
+        "title": "General",
+        "description": "Manage general settings for the application"
+      },
+      "features": {
+        "title": "Features",
+        "description": "Manage features for the application"
+      }
     }
   },
   "notification": {

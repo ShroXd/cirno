@@ -1,7 +1,7 @@
 {
   "common": {
-    "languageSelector": "语言",
     "language": {
+      "languageSelector": "语言",
       "en": "英语",
       "zh-CN": "中文",
       "jp": "日语"
@@ -9,6 +9,12 @@
     "confirm": "确认",
     "cancel": "取消",
     "loading": "加载中..."
+  },
+  "feature": {
+    "errorAlert": {
+      "name": "错误提示",
+      "description": "显示由全局错误边界组件触发错误提示"
+    }
   },
   "component": {
     "navbar": {
@@ -25,9 +31,7 @@
     },
     "featureManager": {
       "title": "功能管理",
-      "description": "管理应用程序的功能",
-      "enable": "启用",
-      "disable": "禁用"
+      "description": "管理应用程序的功能"
     },
     "libraryManageDialog": {
       "create": {
@@ -87,6 +91,17 @@
       "date_added": "添加日期",
       "rating": "评分",
       "episode_number": "集数"
+    },
+    "settings": {
+      "title": "设置",
+      "general": {
+        "title": "常规",
+        "description": "管理应用程序的常规设置"
+      },
+      "features": {
+        "title": "功能",
+        "description": "管理应用程序的功能"
+      }
     }
   },
   "notification": {

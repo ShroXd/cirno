@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
-import { Typography } from '@material-tailwind/react'
+import { Switch, Typography } from '@material-tailwind/react'
 
 import { useFeatures } from '~/hooks/feature/useFeatures'
 
@@ -10,21 +10,27 @@ export const FeatureManager = () => {
 
   return (
     <>
-      <Typography variant='h4'>
-        {t('component.featureManager.title')}
-      </Typography>
-      <Typography variant='paragraph'>
-        {t('component.featureManager.description')}
-      </Typography>
       {features.map(feature => (
-        <div key={feature.id}>
-          <p>{feature.name}</p>
-          <p>{feature.description}</p>
-          <button onClick={() => toggleFeature(feature.id)}>
-            {feature.enabled
-              ? t('component.featureManager.disable')
-              : t('component.featureManager.enable')}
-          </button>
+        <div className='flex items-center justify-between' key={feature.id}>
+          <Switch
+            ripple={false}
+            label={
+              <div>
+                <Typography color='blue-gray' className='font-medium'>
+                  {t(feature.name)}
+                </Typography>
+                <Typography
+                  variant='small'
+                  color='gray'
+                  className='font-normal'
+                >
+                  {t(feature.description)}
+                </Typography>
+              </div>
+            }
+            onChange={() => toggleFeature(feature.id)}
+            checked={feature.enabled}
+          />
         </div>
       ))}
     </>

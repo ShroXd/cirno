@@ -43,7 +43,7 @@ export const Library = () => {
   return (
     <>
       <Container>
-        <FeatureToggle featureId='error-alert'>
+        <FeatureToggle featureId='errorAlert'>
           <Button onClick={() => setHasError(true)}>Test</Button>
         </FeatureToggle>
         <Typography className='mb-4 mt-2' variant='h4' color='blue-gray'>
