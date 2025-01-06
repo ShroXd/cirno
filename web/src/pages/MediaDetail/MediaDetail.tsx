@@ -180,7 +180,7 @@ export const MediaDetail = () => {
           >
             {seasons?.map((season, index) => (
               <TabPanel key={index} value={`${index}`} className='px-0'>
-                <div className='grid grid-cols-4 gap-4 gap-y-10'>
+                <div className='grid gap-4 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'>
                   {season.episodes.map(episode => (
                     <div className='flex flex-col' key={episode.title}>
                       <div className='w-min-42 relative flex h-40'>
