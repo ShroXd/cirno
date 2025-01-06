@@ -68,7 +68,7 @@ export const LibraryDetail = () => {
         dialogHandler={editDialogHandler}
       />
       <Container>
-        <div className='flex flex-row items-center gap-2 mb-4 mt-2'>
+        <div className='mb-4 mt-2 flex flex-row items-center gap-2'>
           <Typography className='mr-2' variant='h4' color='blue-gray'>
             {detail?.name}
           </Typography>

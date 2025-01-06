@@ -24,7 +24,7 @@ export const Video = () => {
   }
 
   return (
-    <div className='w-full h-full'>
+    <div className='h-full w-full'>
       <Container className='mb-6'>
         <Breadcrumb onBack={onBack} />
       </Container>

@@ -101,7 +101,7 @@ export const MediaDetail = () => {
   return (
     <>
       <div className='h-full w-full pb-12'>
-        <div className='bg-base-300 rounded-2xl py-4 px-6'>
+        <div className='bg-base-300 rounded-2xl px-6 py-4'>
           <div className='flex w-full flex-row items-start gap-10'>
             <img
               className='h-80 w-52 rounded-xl object-cover shadow-xl shadow-blue-gray-900/50'
@@ -142,7 +142,7 @@ export const MediaDetail = () => {
             </div>
           </div>
         </div>
-        <Divider className='my-6 mx-6' />
+        <Divider className='mx-6 my-6' />
         <Tabs id='seasons' value='0' className='px-6'>
           <div className='flex flex-row items-center justify-start py-2'>
             {seasons.length > 1 && (

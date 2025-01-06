@@ -53,7 +53,7 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
     <>
       <Drawer open={open} onClose={onClose}>
         <Card color='transparent' shadow={false}>
-          <div className='w-full max-w-[20rem] p-4 border-r border-blue-gray-50 overflow-y-auto h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] select-none'>
+          <div className='h-screen w-full max-w-[20rem] select-none overflow-y-auto border-r border-blue-gray-50 p-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
             <List>
               <Accordion
                 open={expanded}

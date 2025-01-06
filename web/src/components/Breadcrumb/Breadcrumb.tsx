@@ -44,7 +44,7 @@ export const Breadcrumb = ({ onBack }: BreadcrumbProps) => {
     <div className='flex flex-row items-center justify-start gap-2'>
       <Button
         onClick={handleGoBack}
-        className='flex items-center text-sm bg-gray-200'
+        className='flex items-center bg-gray-200 text-sm'
         variant='text'
         ripple={false}
         size='sm'

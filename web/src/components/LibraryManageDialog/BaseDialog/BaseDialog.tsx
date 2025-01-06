@@ -98,7 +98,7 @@ export const BaseDialog: FC<BaseDialogProps> = ({
               size='lg'
               placeholder={t('component.libraryManageDialog.namePlaceholder')}
               {...register('name', { required: true })}
-              className=' !border-t-blue-gray-200 focus:!border-t-gray-900 placeholder:opacity-100'
+              className='!border-t-blue-gray-200 placeholder:opacity-100 focus:!border-t-gray-900'
               containerProps={{
                 className: '!min-w-full',
               }}
@@ -164,7 +164,7 @@ export const BaseDialog: FC<BaseDialogProps> = ({
                   'component.libraryManageDialog.directoryPlaceholder'
                 )}
                 {...register('directory', { required: true })}
-                className=' !border-t-blue-gray-200 focus:!border-t-gray-900 placeholder:opacity-100'
+                className='!border-t-blue-gray-200 placeholder:opacity-100 focus:!border-t-gray-900'
                 containerProps={{
                   className: '!min-w-full',
                 }}

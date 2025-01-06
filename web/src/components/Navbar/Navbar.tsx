@@ -39,10 +39,10 @@ export const StickyNavbar = () => {
         dialogHandler={createDialogHandler}
       />
       <Navbar
-        className='fixed top-0 left-0 right-0 z-10 max-w-full bg-opacity-85 rounded-none bg-gray-50 backdrop-blur-sm border-b border-gray-200 px-4 py-2 shadow-none'
+        className='fixed left-0 right-0 top-0 z-10 max-w-full rounded-none border-b border-gray-200 bg-gray-50 bg-opacity-85 px-4 py-2 shadow-none backdrop-blur-sm'
         variant='gradient'
       >
-        <div className='flex items-center justify-start  text-blue-gray-900'>
+        <div className='flex items-center justify-start text-blue-gray-900'>
           <IconButton variant='text' size='lg' onClick={openSidebar}>
             {open ? (
               <XMarkIcon className='h-6 w-6 stroke-2' />
@@ -58,9 +58,9 @@ export const StickyNavbar = () => {
           >
             Cirno
           </Typography>
-          <div className='flex items-center ml-auto gap-4'>
+          <div className='ml-auto flex items-center gap-4'>
             <div className='mr-4 hidden lg:block'>
-              <ul className='mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6'>
+              <ul className='mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6'>
                 <Typography
                   as='li'
                   variant='small'
@@ -81,7 +81,7 @@ export const StickyNavbar = () => {
                     {t('component.sidebar.settings')}
                   </a>
                 </Typography>
-                <div className='p-2 w-[16rem]'>
+                <div className='w-[16rem] p-2'>
                   <Input
                     icon={<MagnifyingGlassIcon className='h-5 w-5' />}
                     size='md'

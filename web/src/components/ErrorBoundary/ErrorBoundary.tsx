@@ -54,7 +54,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     return (
       <>
         <Alert
-          className='fixed top-6 left-1/2 -translate-x-1/2 w-5/6 max-w-2xl z-[9999999]'
+          className='fixed left-1/2 top-6 z-[9999999] w-5/6 max-w-2xl -translate-x-1/2'
           variant='gradient'
           color='red'
           icon={<ExclamationTriangleIcon className='h-6 w-6' />}
@@ -64,7 +64,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               variant='text'
               color='white'
               size='sm'
-              className='!absolute top-3 right-3'
+              className='!absolute right-3 top-3'
               onClick={this.handleClose}
             >
               <XMarkIcon className='h-4 w-4' />
@@ -83,7 +83,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
                 <span className='font-medium'>Error:</span>{' '}
                 <span className='font-mono'>{this.state.error?.message}</span>
               </div>
-              <div className='font-mono text-xs whitespace-pre-wrap break-words overflow-auto max-h-[50vh]'>
+              <div className='font-mono max-h-[50vh] overflow-auto whitespace-pre-wrap break-words text-xs'>
                 {this.state.errorInfo?.componentStack}
               </div>
             </div>

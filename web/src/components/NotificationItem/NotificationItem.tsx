@@ -70,30 +70,23 @@ export const NotificationItem = ({
   const getIcon = () => {
     switch (variation) {
       case Variation.Success:
-        return <CheckBadgeIcon className='h-6 w-6 text-green-500 mr-2' />
+        return <CheckBadgeIcon className='mr-2 h-6 w-6 text-green-500' />
       case Variation.Error:
-        return <FaceFrownIcon className='h-6 w-6 text-red-500 mr-2' />
+        return <FaceFrownIcon className='mr-2 h-6 w-6 text-red-500' />
       default:
-        return <CheckBadgeIcon className='h-6 w-6 text-green-500 mr-2' />
+        return <CheckBadgeIcon className='mr-2 h-6 w-6 text-green-500' />
     }
   }
 
   return (
     <div
       ref={elementRef}
-      className={`
-        mb-2 p-4 rounded-lg shadow-lg
-        flex flex-col items-start justify-between
-        bg-white dark:bg-gray-800
-        ${getAnimationClass()}
-        ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
-        ${isLeaving ? 'pointer-events-none' : ''}
-      `}
+      className={`mb-2 flex flex-col items-start justify-between rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800 ${getAnimationClass()} ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'} ${isLeaving ? 'pointer-events-none' : ''} `}
       style={{
         marginBottom: isLeaving ? `-${height}px` : '1rem',
       }}
     >
-      <div className='flex w-full items-center justify-between mb-2'>
+      <div className='mb-2 flex w-full items-center justify-between'>
         {getIcon()}
         <Typography
           className='flex-grow text-lg font-medium'

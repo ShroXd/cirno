@@ -111,7 +111,7 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
               rules={{ required: true }}
               render={({ field }) => (
                 <Select
-                  className='!w-full !border-[1.5px] !border-blue-gray-200/90 !border-t-blue-gray-200/90 bg-white text-gray-800 ring-4 ring-transparent placeholder:text-gray-600 focus:!border-primary focus:!border-blue-gray-900 group-hover:!border-primary'
+                  className='focus:!border-primary group-hover:!border-primary !w-full !border-[1.5px] !border-blue-gray-200/90 !border-t-blue-gray-200/90 bg-white text-gray-800 ring-4 ring-transparent placeholder:text-gray-600 focus:!border-blue-gray-900'
                   placeholder='1'
                   labelProps={{
                     className: 'hidden',

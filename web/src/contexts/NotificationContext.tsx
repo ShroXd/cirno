@@ -52,7 +52,7 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({
       value={{ addNotification, removeNotification }}
     >
       {children}
-      <div className='fixed top-0 right-0 w-full max-w-md p-4 z-[999999]'>
+      <div className='fixed right-0 top-0 z-[999999] w-full max-w-md p-4'>
         {notifications.map(n => (
           <NotificationItem
             {...n}
