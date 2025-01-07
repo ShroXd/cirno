@@ -2,8 +2,8 @@ import { useAxios } from '~/hooks/useAxios'
 
 export const usePost = () => {
   const { axiosInstance } = useAxios()
-  const post = async <T>(url: string, data?: T) => {
-    const response = await axiosInstance.post<T>(url, data)
+  const post = async <D, R>(url: string, data?: D) => {
+    const response = await axiosInstance.post<R>(url, data)
     return response.data
   }
 

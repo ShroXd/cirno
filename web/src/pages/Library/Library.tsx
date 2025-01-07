@@ -17,16 +17,40 @@ import { wrapInGrid } from '~/pages/utils'
 
 export const Library = () => {
   const [hasError, setHasError] = useState(false)
+  const [scanningLibraryIds, setScanningLibraryIds] = useState<Set<number>>(
+    new Set()
+  )
   const { data, error, isLoading } = useFetch<LibraryDto[]>('/library/')
-  const { onEvent } = useEventBus()
+  const { onEvent, offEvent } = useEventBus()
   const container = useCallback(wrapInGrid, [])
   const { t } = useTranslation()
 
   useEffect(() => {
-    onEvent('LibrarySaved', () => {
-      mutate('/library/')
-    })
-  }, [onEvent])
+    const handleScanning = (payload: { libraryId: number }) => {
+      setScanningLibraryIds(prev => new Set([...prev, payload.libraryId]))
+    }
+
+    const handleSaved = (payload: { libraryId: number }) => {
+      console.log('Handling save event for library:', payload.libraryId)
+      setScanningLibraryIds(prev => {
+        const newIds = [...prev].filter(id => id !== payload.libraryId)
+        console.log('Updated scanning ids:', newIds)
+        const newSet = new Set(newIds)
+        console.log('Updated scanning ids:', [...newSet])
+        return newSet
+      })
+
+      mutate('/library/', undefined, { revalidate: true })
+    }
+
+    onEvent('LibraryScanning', handleScanning)
+    onEvent('LibrarySaved', handleSaved)
+
+    return () => {
+      offEvent('LibraryScanning', handleScanning)
+      offEvent('LibrarySaved', handleSaved)
+    }
+  }, [offEvent, onEvent])
 
   if (hasError) {
     throw new Error('test')
@@ -53,17 +77,22 @@ export const Library = () => {
           )}
         >
           {container(
-            data?.map((library: LibraryDto) => (
-              <NavLink
-                to={`/library/${library.id}`}
-                key={library.id.toString()}
-              >
-                <ContentCard
-                  imageUrl={library.posters?.[0]?.poster_path ?? ''}
-                  title={library.name}
-                />
-              </NavLink>
-            ))
+            <>
+              {data?.map((library: LibraryDto) => (
+                <NavLink
+                  to={`/library/${library.id}`}
+                  key={library.id.toString()}
+                >
+                  <ContentCard
+                    imageUrl={library.posters?.[0]?.poster_path ?? ''}
+                    title={library.name}
+                  />
+                </NavLink>
+              ))}
+              {Array.from(scanningLibraryIds).map(id => (
+                <ContentCardSkeleton key={id} />
+              ))}
+            </>
           )}
         </AsyncSwitcher>
       </Container>

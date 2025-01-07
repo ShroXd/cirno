@@ -2,6 +2,7 @@ import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BaseDialog } from '../BaseDialog/BaseDialog'
+import { AsyncTaskResponse } from '~/bindings/AsyncTaskResponse'
 import { LibraryDto } from '~/bindings/LibraryDto'
 import { useEventBus } from '~/hooks/useEventBus'
 import { usePost } from '~/hooks/usePost'
@@ -17,13 +18,25 @@ export const CreateDialog: FC<CreateDialogProps> = ({
   dialogHandler,
   onClose,
 }) => {
+  const post = usePost()
   const { t } = useTranslation()
   const { emitEvent } = useEventBus()
-  const post = usePost()
 
   const onSubmit = async (data: LibraryDto) => {
     try {
-      await post('/library/', data)
+      const response = await post<LibraryDto, AsyncTaskResponse<bigint>>(
+        '/library/',
+        data
+      )
+
+      console.log('create dialog response', response.payload)
+      emitEvent({
+        event: 'LibraryScanning',
+        payload: {
+          libraryId: Number(response.payload),
+        },
+      })
+
       dialogHandler()
     } catch (error) {
       console.error('Failed to create media library', error)

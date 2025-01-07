@@ -11,7 +11,8 @@ use crate::{
     infrastructure::event_bus::event_bus::EventBus, interfaces::ws::notification::ToJsonPayload,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[ts(export)]
 pub enum TaskType {
     MediaLibraryScan,
     PipelinePreparation,
@@ -33,7 +34,8 @@ pub enum TaskStatus {
 #[ts(type = "string")]
 pub struct TaskId(pub Uuid);
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, TS)]
+#[ts(export)]
 pub struct AsyncTaskResponse<T = ()> {
     pub task_id: TaskId,
     pub task_type: TaskType,

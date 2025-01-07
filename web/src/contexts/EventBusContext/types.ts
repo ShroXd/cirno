@@ -1,9 +1,10 @@
 import { NotificationType } from '~/bindings/NotificationType'
+import { LibraryManageDialogPayloadMap } from '~/components/LibraryManageDialog/event'
 
 interface NotificationPayloadMap
   extends Partial<Record<NotificationType, unknown>> {
   LibrarySaved: {
-    libraryName: string
+    libraryId: number
   }
   RegisterClient: {
     clientKey: string
@@ -26,7 +27,9 @@ interface VideoPlayerPayloadMap extends Record<VideoPlayerEventType, unknown> {
   }
 }
 
-export type PayloadMap = NotificationPayloadMap & VideoPlayerPayloadMap
+export type PayloadMap = NotificationPayloadMap &
+  VideoPlayerPayloadMap &
+  LibraryManageDialogPayloadMap
 
 export type EventHandler<E extends EventType> = (payload: PayloadMap[E]) => void
 

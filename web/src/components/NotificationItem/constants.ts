@@ -4,4 +4,4 @@ export enum Variation {
   Error = 'error',
 }
 
-export const DefaultNotificationTimeout = 50 * 1000 // 5 seconds
+export const DefaultNotificationTimeout = 5 * 1000 // 5 seconds

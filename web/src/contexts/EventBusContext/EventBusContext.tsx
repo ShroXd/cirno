@@ -9,6 +9,7 @@ interface EventBusContextProps {
     payload: PayloadMap[E]
   }) => void
   onEvent: <E extends EventType>(event: E, handler: EventHandler<E>) => void
+  offEvent: <E extends EventType>(event: E, handler: EventHandler<E>) => void
 }
 
 export const EventBusContext = createContext<EventBusContextProps | undefined>(
@@ -29,8 +30,15 @@ export const EventBusProvider: FC<{ children: ReactNode }> = ({ children }) => {
     eventBus.on(event, handler)
   }
 
+  const offEvent = <E extends EventType>(
+    event: E,
+    handler: EventHandler<E>
+  ) => {
+    eventBus.off(event, handler)
+  }
+
   return (
-    <EventBusContext.Provider value={{ emitEvent, onEvent }}>
+    <EventBusContext.Provider value={{ emitEvent, onEvent, offEvent }}>
       {children}
     </EventBusContext.Provider>
   )
