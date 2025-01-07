@@ -1,7 +1,7 @@
 use actix::Addr;
 use actix_web::web::Data;
 use anyhow::{Ok, *};
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 use tracing::*;
 
 use crate::{
@@ -94,17 +94,10 @@ pub async fn create_library_service(
             handler: move |event, _| {
                 let ws_connection_clone = ws_connection.clone();
                 async move {
-                    event.send_notification::<serde_json::Value>(ws_connection_clone);
-                    Ok(())
+                    event.send_notification::<serde_json::Value>(ws_connection_clone)
                 }
             },
-            config: EventHandlerConfig::with_exponential_retry(
-                Duration::from_secs(1),
-                Duration::from_secs(10),
-                3,
-                2.0,
-                0.5,
-            )
+            config: EventHandlerConfig::one_time()
         }
     );
 

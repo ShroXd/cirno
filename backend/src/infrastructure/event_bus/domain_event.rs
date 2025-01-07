@@ -1,5 +1,7 @@
 use actix::Addr;
+use anyhow::*;
 use serde::Serialize;
+use std::result::Result::Ok;
 use tracing::*;
 
 use super::model::GeneralEvent;
@@ -10,7 +12,7 @@ use crate::{
     },
     interfaces::ws::{
         actor::{SendNotification, WebSocketActor},
-        notification::{IntoNotification, Notification, NotificationType, ToJsonPayload},
+        notification::{IntoNotification, Notification, NotificationType},
     },
 };
 
@@ -55,7 +57,7 @@ impl IntoNotification for DomainEvent {
 
 impl DomainEvent {
     #[instrument(skip(self, addr))]
-    pub fn send_notification<T>(self, addr: Addr<WebSocketActor>)
+    pub fn send_notification<T>(self, addr: Addr<WebSocketActor>) -> Result<()>
     where
         T: Serialize,
     {
@@ -63,8 +65,8 @@ impl DomainEvent {
 
         debug!("Sending notification: {:?}", notification);
         match addr.try_send(SendNotification(notification)) {
-            Ok(_) => (),
-            Err(e) => error!("Failed to send notification: {:?}", e),
+            Ok(_) => Ok(()),
+            Err(e) => Err(anyhow::anyhow!("Failed to send notification: {:?}", e)),
         }
     }
 }

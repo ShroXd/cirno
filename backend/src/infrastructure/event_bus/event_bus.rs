@@ -110,6 +110,7 @@ impl EventBus {
                                 None => future.await,
                             };
 
+                            // TODO: investigate why send notification fails
                             if result.is_ok() {
                                 break;
                             }
