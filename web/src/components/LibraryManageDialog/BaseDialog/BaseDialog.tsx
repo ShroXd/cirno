@@ -25,7 +25,7 @@ interface BaseDialogProps {
   open: boolean
   defaultValues?: LibraryDto
 
-  onSubmit: (data: LibraryDto) => void
+  onSubmit: (data: LibraryDto) => Promise<void>
   dialogHandler: () => void
   onClose?: () => void
 }
@@ -50,11 +50,15 @@ export const BaseDialog: FC<BaseDialogProps> = ({
   const { t } = useTranslation()
 
   const handleDialogClose = useCallback(() => {
-    reset()
     dialogHandler()
-  }, [reset, dialogHandler])
+    onClose?.()
+  }, [dialogHandler, onClose])
 
-  useEffect(() => onClose?.(), [onClose])
+  useEffect(() => {
+    if (open) {
+      reset(defaultValues)
+    }
+  }, [open, reset, defaultValues])
 
   return (
     <Dialog
