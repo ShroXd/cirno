@@ -28,6 +28,7 @@ export const createEventBus = (): EventBusType => {
 
   const emit = <E extends EventType>(event: E, payload: PayloadMap[E]) => {
     const eventHandlers = registry.get(event) || []
+    console.log('handlers', eventHandlers)
     eventHandlers.forEach(handler => (handler as EventHandler<E>)(payload))
   }
 

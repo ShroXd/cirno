@@ -25,24 +25,27 @@ export const Library = () => {
   const container = useCallback(wrapInGrid, [])
   const { t } = useTranslation()
 
+  const handleScanning = useCallback((payload: { libraryId: number }) => {
+    console.log('Handling scanning event for library:', payload.libraryId)
+    setScanningLibraryIds(prev => new Set([...prev, payload.libraryId]))
+  }, [])
+
+  const handleSaved = useCallback((payload: { libraryId: number }) => {
+    console.log('Handling saved event for library:', payload.libraryId)
+    setScanningLibraryIds(prev => {
+      const newIds = [...prev].filter(id => id !== payload.libraryId)
+      const newSet = new Set(newIds)
+      return newSet
+    })
+
+    mutate('/library/')
+  }, [])
+
   useEffect(() => {
-    const handleScanning = (payload: { libraryId: number }) => {
-      setScanningLibraryIds(prev => new Set([...prev, payload.libraryId]))
-    }
+    mutate('/library/')
+  }, [])
 
-    const handleSaved = (payload: { libraryId: number }) => {
-      console.log('Handling save event for library:', payload.libraryId)
-      setScanningLibraryIds(prev => {
-        const newIds = [...prev].filter(id => id !== payload.libraryId)
-        console.log('Updated scanning ids:', newIds)
-        const newSet = new Set(newIds)
-        console.log('Updated scanning ids:', [...newSet])
-        return newSet
-      })
-
-      mutate('/library/', undefined, { revalidate: true })
-    }
-
+  useEffect(() => {
     onEvent('LibraryScanning', handleScanning)
     onEvent('LibrarySaved', handleSaved)
 
@@ -50,11 +53,27 @@ export const Library = () => {
       offEvent('LibraryScanning', handleScanning)
       offEvent('LibrarySaved', handleSaved)
     }
-  }, [offEvent, onEvent])
+  }, [offEvent, onEvent, handleScanning, handleSaved])
 
   if (hasError) {
     throw new Error('test')
   }
+
+  const renderContent = () => (
+    <>
+      {data?.map((library: LibraryDto) => (
+        <NavLink to={`/library/${library.id}`} key={library.id.toString()}>
+          <ContentCard
+            imageUrl={library.posters?.[0]?.poster_path ?? ''}
+            title={library.name}
+          />
+        </NavLink>
+      ))}
+      {Array.from(scanningLibraryIds).map(id => (
+        <ContentCardSkeleton key={id} />
+      ))}
+    </>
+  )
 
   return (
     <>
@@ -76,24 +95,7 @@ export const Library = () => {
             </>
           )}
         >
-          {container(
-            <>
-              {data?.map((library: LibraryDto) => (
-                <NavLink
-                  to={`/library/${library.id}`}
-                  key={library.id.toString()}
-                >
-                  <ContentCard
-                    imageUrl={library.posters?.[0]?.poster_path ?? ''}
-                    title={library.name}
-                  />
-                </NavLink>
-              ))}
-              {Array.from(scanningLibraryIds).map(id => (
-                <ContentCardSkeleton key={id} />
-              ))}
-            </>
-          )}
+          {container(renderContent())}
         </AsyncSwitcher>
       </Container>
     </>

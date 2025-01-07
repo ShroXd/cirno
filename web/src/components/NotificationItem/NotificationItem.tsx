@@ -54,8 +54,6 @@ export const NotificationItem = ({
     }, 400)
   }
 
-  console.log('variation', variation)
-
   const getAnimationClass = () => {
     switch (variation) {
       case Variation.Success:

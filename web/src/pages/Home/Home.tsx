@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Route, Routes } from 'react-router-dom'
 
@@ -18,12 +18,12 @@ import { Video } from '~/pages/Video/VIdeo'
 
 export const Home = () => {
   const { addNotification } = useNotification()
-  const { onEvent } = useEventBus()
+  const { onEvent, offEvent } = useEventBus()
   const { t } = useTranslation()
   const post = usePost()
 
-  useEffect(() => {
-    onEvent('LibrarySaved', payload =>
+  const handleLibrarySaved = useCallback(
+    (payload: { libraryName: string }) => {
       addNotification(
         {
           title: t('notification.librarySaved.title'),
@@ -33,14 +33,32 @@ export const Home = () => {
         },
         Variation.Success
       )
-    )
+    },
+    [t, addNotification]
+  )
 
-    onEvent('Error', payload => addNotification(payload, Variation.Error))
+  const handleError = useCallback(
+    (payload: { title: string; message: string }) => {
+      addNotification(payload, Variation.Error)
+    },
+    [addNotification]
+  )
 
-    onEvent(VideoPlayerEventType.Stop, () => {
-      post('/video-player/stop')
-    })
-  }, [onEvent, addNotification, t, post])
+  const handleStop = useCallback(() => {
+    post('/video-player/stop')
+  }, [post])
+
+  useEffect(() => {
+    onEvent('LibrarySaved', handleLibrarySaved)
+    onEvent('Error', handleError)
+    onEvent(VideoPlayerEventType.Stop, handleStop)
+
+    return () => {
+      offEvent('LibrarySaved', handleLibrarySaved)
+      offEvent('Error', handleError)
+      offEvent(VideoPlayerEventType.Stop, handleStop)
+    }
+  }, [onEvent, offEvent, handleLibrarySaved, handleError, handleStop])
 
   return (
     <>

@@ -4,6 +4,7 @@ import { LibraryManageDialogPayloadMap } from '~/components/LibraryManageDialog/
 interface NotificationPayloadMap
   extends Partial<Record<NotificationType, unknown>> {
   LibrarySaved: {
+    libraryName: string
     libraryId: number
   }
   RegisterClient: {
