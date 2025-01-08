@@ -11,9 +11,9 @@
     "loading": "読み込み中..."
   },
   "feature": {
-    "errorButton": {
-      "name": "エラーボタン",
-      "description": "ボタンをクリックしてエラーアラートをトリガーします。グローバルエラーバウンダリコンポーネントをテストします"
+    "edgeCaseTrigger": {
+      "name": "エッジケーストリガー",
+      "description": "システムのエッジケースをテストします"
     }
   },
   "component": {

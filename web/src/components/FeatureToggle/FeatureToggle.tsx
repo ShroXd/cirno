@@ -1,8 +1,8 @@
-import { ReactNode } from 'react'
+import { ComponentProps, ReactNode } from 'react'
 
 import { useFeatureFlag } from '~/hooks/feature/useFeatureFlag'
 
-interface FeatureToggleProps {
+type FeatureToggleProps = ComponentProps<'div'> & {
   featureId: string
   children?: ReactNode
   fallback?: ReactNode
@@ -12,8 +12,8 @@ export const FeatureToggle = ({
   featureId,
   children,
   fallback,
+  ...props
 }: FeatureToggleProps) => {
   const isEnabled = useFeatureFlag(featureId)
-
-  return isEnabled ? <>{children}</> : <>{fallback}</>
+  return <div {...props}>{isEnabled ? children : fallback}</div>
 }

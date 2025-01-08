@@ -11,9 +11,9 @@
     "loading": "加载中..."
   },
   "feature": {
-    "errorButton": {
-      "name": "触发错误按钮",
-      "description": "手动触发错误提示，测试全局错误边界组件"
+    "edgeCaseTrigger": {
+      "name": "启用边缘用例触发器",
+      "description": "启用用于测试系统边缘用例的触发器"
     }
   },
   "component": {

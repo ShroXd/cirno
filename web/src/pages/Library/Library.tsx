@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 
-import { Button, Typography } from '@material-tailwind/react'
+import { Typography } from '@material-tailwind/react'
 import { mutate } from 'swr'
 
 import { LibraryDto } from '~/bindings/LibraryDto'
@@ -10,13 +10,13 @@ import { AsyncSwitcher } from '~/components/AsyncSwitcher/AsyncSwitcher'
 import { Container } from '~/components/Container/Container'
 import { ContentCard } from '~/components/ContentCard/ContentCard'
 import { ContentCardSkeleton } from '~/components/ContentCard/ContentCardSkeleton'
+import { LibraryPageTrigger } from '~/components/EdgeCaseTrigger/LibraryPageTrigger'
 import { FeatureToggle } from '~/components/FeatureToggle/FeatureToggle'
 import { useEventBus } from '~/hooks/useEventBus'
 import { useFetch } from '~/hooks/useFetch'
 import { wrapInGrid } from '~/pages/utils'
 
 export const Library = () => {
-  const [hasError, setHasError] = useState(false)
   const [scanningLibraryIds, setScanningLibraryIds] = useState<Set<number>>(
     new Set()
   )
@@ -55,10 +55,6 @@ export const Library = () => {
     }
   }, [offEvent, onEvent, handleScanning, handleSaved])
 
-  if (hasError) {
-    throw new Error('test')
-  }
-
   const renderContent = () => (
     <>
       {data?.map((library: LibraryDto) => (
@@ -78,8 +74,15 @@ export const Library = () => {
   return (
     <>
       <Container>
-        <FeatureToggle featureId='errorButton'>
-          <Button onClick={() => setHasError(true)}>Trigger Error</Button>
+        <FeatureToggle
+          featureId='edgeCaseTrigger'
+          className='mb-6 flex flex-row gap-4'
+        >
+          <LibraryPageTrigger
+            scanningLibraryIds={scanningLibraryIds}
+            handleScanning={handleScanning}
+            handleSaved={handleSaved}
+          />
         </FeatureToggle>
         <Typography className='mb-4 mt-2' variant='h4' color='blue-gray'>
           {t('page.library.recent_added')}

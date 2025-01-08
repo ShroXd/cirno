@@ -11,9 +11,9 @@
     "loading": "Loading..."
   },
   "feature": {
-    "errorButton": {
-      "name": "Error Button",
-      "description": "Trigger error alert by clicking the button, test global error boundary component"
+    "edgeCaseTrigger": {
+      "name": "enable edge case trigger",
+      "description": "Enable triggers for testing edge case of system"
     }
   },
   "component": {

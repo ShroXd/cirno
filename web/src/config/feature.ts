@@ -2,9 +2,9 @@ import { Feature } from '~/contexts/FeatureContext/FeatureContext'
 
 export const defaultFeatures: Feature[] = [
   {
-    id: 'errorButton',
+    id: 'edgeCaseTrigger',
     enabled: false,
-    name: 'feature.errorButton.name',
-    description: 'feature.errorButton.description',
+    name: 'feature.edgeCaseTrigger.name',
+    description: 'feature.edgeCaseTrigger.description',
   },
 ]
