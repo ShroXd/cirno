@@ -2,13 +2,15 @@ import { FC } from 'react'
 
 import { Typography } from '@material-tailwind/react'
 
+import { ContentCardContainer } from './Container'
+
 interface CardProps {
   imageUrl: string
   title: string
 }
 
 export const ContentCard: FC<CardProps> = ({ imageUrl, title }) => (
-  <div className='flex select-none flex-col overflow-hidden rounded-xl bg-white shadow-lg'>
+  <ContentCardContainer>
     <div className='overflow-hidden'>
       <img
         src={imageUrl}
@@ -24,5 +26,5 @@ export const ContentCard: FC<CardProps> = ({ imageUrl, title }) => (
         {title}
       </Typography>
     </div>
-  </div>
+  </ContentCardContainer>
 )
