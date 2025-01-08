@@ -30,6 +30,15 @@ export const LibraryPageTrigger = ({
     handleSaved({ libraryId: firstId })
   }
 
+  const handleAddNotification = () =>
+    addNotification(
+      {
+        title: 'Test title',
+        message: 'Test',
+      },
+      Variation.Success
+    )
+
   if (hasError) {
     throw new Error('Test error')
   }
@@ -37,14 +46,7 @@ export const LibraryPageTrigger = ({
   return (
     <>
       <Button onClick={() => setHasErrorState(true)}>Throw error</Button>
-      <Button
-        onClick={() => {
-          addNotification({
-            message: 'Test',
-            variation: Variation.Success,
-          })
-        }}
-      >
+      <Button onClick={() => handleAddNotification()}>
         Show test notification
       </Button>
       <Button onClick={() => handleAddScanning()}>Add scanning</Button>
