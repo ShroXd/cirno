@@ -1,12 +1,14 @@
 # 🚧 Build Frontend
 FROM node:20-alpine AS frontend-builder
 
+WORKDIR /app
+COPY .env.production ./web/.env.production
+
 WORKDIR /app/web
 COPY web/package.json web/pnpm-lock.yaml ./
 RUN npm install -g pnpm
 RUN pnpm install
 COPY web/ ./
-COPY .env.production ./env.production
 RUN pnpm run build
 
 # 🦀 Build Backend (Rust)
@@ -29,7 +31,6 @@ ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
 
 WORKDIR /app/backend
 COPY backend/ ./
-COPY .env.production ./.env
 RUN cargo build --release
 
 # 🚀 Final Stage: Application Runner
@@ -64,12 +65,7 @@ COPY --from=frontend-builder /app/web/dist /app/web/dist
 COPY --from=backend-builder /app/backend/target/release/cirno-backend /app/cirno-backend
 COPY backend/scripts/create_db.sh /app/backend/scripts/create_db.sh
 COPY backend/sql /app/backend/sql
-COPY env.production /app/.env
 RUN chown -R cirno:users /app
-
-# 🌍 Load Environment Variables from .env file
-SHELL ["/bin/bash", "-c"]
-RUN set -a && source /app/.env && set +a
 
 # 🌍 Expose Port and Set Environment Variables
 ENV ROCKET_ADDRESS=0.0.0.0

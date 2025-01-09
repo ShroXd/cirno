@@ -143,7 +143,13 @@ tasks:
     desc: "🚀 Run Docker container 'cirno' in detached mode"
     cmds:
       - echo "🚀 Starting Docker container 'cirno' on port 8000..."
-      - docker run -d --network bridge -p 8000:8000 --name cirno_container cirno
+      - |
+        docker run -d \
+          --network bridge \
+          -p 8000:8000 \
+          --name cirno_container \
+          --env-file .env.production \
+          cirno
 
   docker:stop:
     desc: "🛑 Stop and remove Docker container 'cirno_container'"
