@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { Button } from '@material-tailwind/react'
+import { directoryOpen } from 'browser-fs-access'
 
 import { Variation } from '../NotificationItem/constants'
 import { useNotification } from '~/hooks/useNotification'
@@ -17,6 +18,7 @@ export const LibraryPageTrigger = ({
   handleSaved,
 }: TriggerOnLibraryProps) => {
   const [hasError, setHasErrorState] = useState(false)
+
   const { addNotification } = useNotification()
 
   const handleAddScanning = () => {
@@ -39,6 +41,18 @@ export const LibraryPageTrigger = ({
       Variation.Success
     )
 
+  const handleSelectPath = async () => {
+    try {
+      const files = await directoryOpen({
+        recursive: true,
+      })
+
+      console.log(files)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   if (hasError) {
     throw new Error('Test error')
   }
@@ -51,6 +65,7 @@ export const LibraryPageTrigger = ({
       </Button>
       <Button onClick={() => handleAddScanning()}>Add scanning</Button>
       <Button onClick={() => handleDeleteScanning()}>Delete scanning</Button>
+      <Button onClick={() => handleSelectPath()}>Select path</Button>
     </>
   )
 }
