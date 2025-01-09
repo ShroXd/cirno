@@ -69,8 +69,6 @@ RUN chown -R cirno:users /app
 
 # 🌍 Expose Port and Set Environment Variables
 ENV ROCKET_ADDRESS=0.0.0.0
-# ENV ROCKET_PORT=8000
-# ENV DATABASE_URL="sqlite:///app/backend/database.db"
 EXPOSE 8000
 
 # 🏁 Switch to Non-Root User and Start Application
