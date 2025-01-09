@@ -43,11 +43,12 @@ export const LibraryPageTrigger = ({
 
   const handleSelectPath = async () => {
     try {
-      const files = await directoryOpen({
-        recursive: true,
+      const dirHandle = await directoryOpen({
+        mode: 'read',
+        recursive: false,
       })
 
-      console.log(files)
+      console.log(dirHandle)
     } catch (error) {
       console.error(error)
     }
