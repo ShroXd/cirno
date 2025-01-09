@@ -1,8 +1,7 @@
 version: "3"
 silent: true
 
-env:
-  DATABASE_URL: sqlite:///{{.TASK_DIR}}/database.db
+dotenv: [".env.development"]
 
 tasks:
   # TODO: add command to setup the project.
@@ -62,16 +61,12 @@ tasks:
   dev:frontend:
     desc: "🚀 Start front-end development server"
     dir: web
-    env:
-      DEV_API_URL: http://localhost:8000
     cmds:
       - pnpm run dev
 
   dev:backend:
     desc: "🚀 Start back-end development server"
     dir: backend
-    env:
-      DATABASE_URL:
     cmds:
       - cargo run
 

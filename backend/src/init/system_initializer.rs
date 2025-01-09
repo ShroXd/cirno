@@ -240,7 +240,7 @@ impl SystemInitializer {
         let query_manager = Arc::new(FileQueryManager::new(sql_dir).await?);
         query_manager.reload().await?;
 
-        let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "database.db".to_string());
+        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set");
 
         debug!("Dabase url: {:?}", database_url);
 

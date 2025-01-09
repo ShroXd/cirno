@@ -54,12 +54,16 @@ export const LibraryPageTrigger = ({
     }
   }
 
+  const handleGetEnv = () => {
+    alert(`Backend service url: ${import.meta.env.VITE_API_URL}`)
+  }
+
   if (hasError) {
     throw new Error('Test error')
   }
 
   return (
-    <>
+    <div className='flex flex-wrap gap-4'>
       <Button onClick={() => setHasErrorState(true)}>Throw error</Button>
       <Button onClick={() => handleAddNotification()}>
         Show test notification
@@ -67,6 +71,7 @@ export const LibraryPageTrigger = ({
       <Button onClick={() => handleAddScanning()}>Add scanning</Button>
       <Button onClick={() => handleDeleteScanning()}>Delete scanning</Button>
       <Button onClick={() => handleSelectPath()}>Select path</Button>
-    </>
+      <Button onClick={() => handleGetEnv()}>Get env</Button>
+    </div>
   )
 }
