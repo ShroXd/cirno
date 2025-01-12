@@ -117,7 +117,7 @@ impl PipelinePort for Pipeline {
         gst_pipeline.add_many(&elements)?;
         debug!("Elements added to pipeline");
 
-        GstElement::link_many(&[source, decoder])?;
+        GstElement::link_many([source, decoder])?;
 
         // TODO: fuck we should make sure the order of video and audio sink, otherwise using enum to store that shit
         let video_sink = &self.video_branch.get_entry();

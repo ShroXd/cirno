@@ -73,6 +73,7 @@ impl Write for PlaylistStream {
 
         let mut file = std::fs::OpenOptions::new()
             .create(true)
+            .truncate(false)
             .write(true)
             .open(self.path_str.clone())
             .unwrap();
@@ -94,16 +95,16 @@ async fn create_placeholder_m3u8(header: HashMap<M3u8Tag, String>, path_str: Str
     let addr = get_pipeline_addr();
 
     let ext_x_version = header
-        .get(&M3u8Tag::ExtXVersion)
+        .get(&M3u8Tag::Version)
         .expect("Missing EXT-X-VERSION tag in header");
     let ext_x_media_sequence = header
-        .get(&M3u8Tag::ExtXMediaSequence)
+        .get(&M3u8Tag::MediaSequence)
         .expect("Missing EXT-X-MEDIA-SEQUENCE tag in header");
     let ext_x_target_duration = header
-        .get(&M3u8Tag::ExtXTargetDuration)
+        .get(&M3u8Tag::TargetDuration)
         .expect("Missing EXT-X-TARGETDURATION tag in header");
     let segment_duration = header
-        .get(&M3u8Tag::ExtInf)
+        .get(&M3u8Tag::Inf)
         .expect("Missing EXTINF tag in header");
 
     info!("segment_duration: {:?}", segment_duration);

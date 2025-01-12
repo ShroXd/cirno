@@ -103,7 +103,7 @@ impl HlsStream {
     fn parse_segment_duration(&self) -> Result<u64> {
         let segment_duration = self
             .header
-            .get(&M3u8Tag::ExtInf)
+            .get(&M3u8Tag::Inf)
             .ok_or_else(|| anyhow!("Missing EXTINF tag in header"))?;
 
         let duration_str = segment_duration.trim_end_matches(",");
@@ -141,16 +141,16 @@ impl HlsStream {
         segment_duration: u64,
     ) -> Result<String> {
         let ext_x_version = header
-            .get(&M3u8Tag::ExtXVersion)
+            .get(&M3u8Tag::Version)
             .ok_or_else(|| anyhow!("Missing EXT-X-VERSION tag in header"))?;
         let ext_x_media_sequence = header
-            .get(&M3u8Tag::ExtXMediaSequence)
+            .get(&M3u8Tag::MediaSequence)
             .ok_or_else(|| anyhow!("Missing EXT-X-MEDIA-SEQUENCE tag in header"))?;
         let ext_x_target_duration = header
-            .get(&M3u8Tag::ExtXTargetDuration)
+            .get(&M3u8Tag::TargetDuration)
             .ok_or_else(|| anyhow!("Missing EXT-X-TARGETDURATION tag in header"))?;
         let segment_duration_str = header
-            .get(&M3u8Tag::ExtInf)
+            .get(&M3u8Tag::Inf)
             .ok_or_else(|| anyhow!("Missing EXTINF tag in header"))?;
 
         let file_num_segments = file_duration / segment_duration;
