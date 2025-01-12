@@ -1,4 +1,4 @@
-pub mod database;
+pub mod media_db;
 pub mod event_bus;
 pub mod file;
 pub mod hls;

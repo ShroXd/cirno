@@ -5,14 +5,14 @@ use tokio::{spawn, sync::RwLock};
 use tracing::*;
 
 use super::file_service::FileService;
-use crate::domain::task::task::TaskIdentifiable;
+use crate::domain::task::async_task::TaskIdentifiable;
 use crate::{
     domain::{
         pipeline::{
             builder::build_pipeline, event::PipelineEvent, model::Position,
             task::PipelinePreparationTask,
         },
-        task::task::{TaskId, TaskType},
+        task::async_task::{TaskId, TaskType},
         websocket::event::WebSocketEventType,
     },
     infrastructure::{

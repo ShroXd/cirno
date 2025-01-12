@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    domain::media_actor::model::MediaActor, infrastructure::database::query_manager::QueryManager,
+    domain::media_actor::model::MediaActor, infrastructure::media_db::query_manager::QueryManager,
 };
 
 #[instrument(skip(conn_pool, query_manager, actor))]

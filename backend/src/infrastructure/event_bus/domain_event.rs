@@ -7,8 +7,8 @@ use tracing::*;
 use super::model::GeneralEvent;
 use crate::{
     domain::{
-        library::event::LibraryEventType, pipeline::event::PipelineEvent,
-        task::task::AsyncTaskEvent, websocket::event::WebSocketEventType,
+        media_library::event::LibraryEventType, pipeline::event::PipelineEvent,
+        task::async_task::AsyncTaskEvent, websocket::event::WebSocketEventType,
     },
     interfaces::ws::{
         actor::{SendNotification, WebSocketActor},

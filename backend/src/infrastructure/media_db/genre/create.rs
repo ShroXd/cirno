@@ -4,7 +4,7 @@ use anyhow::*;
 use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 
-use crate::infrastructure::database::query_manager::QueryManager;
+use crate::infrastructure::media_db::query_manager::QueryManager;
 
 #[instrument(skip(conn_pool, query_manager))]
 pub async fn save_genre(

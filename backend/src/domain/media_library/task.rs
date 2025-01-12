@@ -6,7 +6,7 @@ use std::{result::Result::Ok, sync::Arc};
 
 use super::event::LibraryEventType;
 use crate::{
-    domain::task::task::{
+    domain::task::async_task::{
         ambassador_impl_TaskIdentifiable, AsyncTask, TaskId, TaskIdentifiable, TaskIdentifier,
     },
     infrastructure::{

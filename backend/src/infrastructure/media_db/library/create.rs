@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    infrastructure::database::query_manager::QueryManager,
+    infrastructure::media_db::query_manager::QueryManager,
     interfaces::http_api::controllers::api_models::SaveLibraryPayload,
 };
 

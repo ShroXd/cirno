@@ -3,7 +3,7 @@ use sqlx::{Acquire, SqlitePool};
 use std::sync::Arc;
 
 use crate::{
-    infrastructure::database::query_manager::QueryManager,
+    infrastructure::media_db::query_manager::QueryManager,
     interfaces::http_api::controllers::api_models::LibraryCategory,
 };
 

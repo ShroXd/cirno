@@ -5,7 +5,7 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    infrastructure::database::{
+    infrastructure::media_db::{
         actor::{
             DeleteLibrary, QueryLibrary, QueryLibraryPosters, SaveLibrary, UpdateLibrary,
             ValidateCategory,

@@ -3,7 +3,7 @@ use sqlx::{Acquire, SqlitePool};
 use std::sync::Arc;
 use tracing::*;
 
-use crate::infrastructure::database::query_manager::QueryManager;
+use crate::infrastructure::media_db::query_manager::QueryManager;
 
 #[instrument(skip(conn_pool, query_manager))]
 pub async fn check_category_exists(

@@ -8,7 +8,7 @@ use crate::{
     define_actor_message_handler,
     domain::{
         episode::model::Episode,
-        library::{
+        media_library::{
             constant::SENTINEL_LIBRARY_ID,
             model::{LibraryBrief, LibraryPoster},
         },
@@ -16,7 +16,7 @@ use crate::{
         season::model::Season,
         tv_show::model::TvShow,
     },
-    infrastructure::database::{
+    infrastructure::media_db::{
         category::query::check_category_exists,
         database::Database,
         episode::{create::save_episode, query::query_episodes},

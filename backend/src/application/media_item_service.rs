@@ -5,7 +5,7 @@ use tracing::*;
 
 use crate::{
     domain::{episode::model::Episode, season::model::Season, tv_show::model::TvShow},
-    infrastructure::database::{
+    infrastructure::media_db::{
         actor::{SaveActor, SaveEpisode, SaveGenre, SaveSeason, SaveTvShow},
         database::Database,
     },

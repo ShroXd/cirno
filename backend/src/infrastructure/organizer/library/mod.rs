@@ -1,4 +1,4 @@
-pub mod parser;
+pub mod library_parser;
 pub mod processor;
-pub mod scanner;
+pub mod library_scanner;
 pub mod utils;

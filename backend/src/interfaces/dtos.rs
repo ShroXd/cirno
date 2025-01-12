@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::domain::library::model::LibraryPoster;
+use crate::domain::media_library::model::LibraryPoster;
 
 use super::http_api::controllers::api_models::LibraryCategory;
 

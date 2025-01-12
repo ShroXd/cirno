@@ -5,7 +5,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 
 use crate::application::file_service::FileService;
-use crate::infrastructure::database::database::Database;
+use crate::infrastructure::media_db::database::Database;
 use crate::infrastructure::event_bus::event_bus::EventBus;
 use crate::infrastructure::hls::hls_state_actor::HlsStateActor;
 use crate::infrastructure::organizer::organizer::ParserActor;

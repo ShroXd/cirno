@@ -7,11 +7,11 @@ use crate::{
     application::media_item_service::insert_media_item,
     chain_events,
     domain::{
-        library::{
+        media_library::{
             constant::SENTINEL_LIBRARY_ID, event::LibraryEventType, library::create_library,
             task::LibraryScanTask,
         },
-        task::task::{AsyncTaskResponse, TaskIdentifiable, TaskType},
+        task::async_task::{AsyncTaskResponse, TaskIdentifiable, TaskType},
     },
     infrastructure::event_bus::{domain_event::DomainEvent, handler::EventHandlerConfig},
     init::app_state::AppState,

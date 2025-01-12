@@ -4,8 +4,8 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    domain::library::model::{LibraryBrief, LibraryPoster},
-    infrastructure::database::query_manager::QueryManager,
+    domain::media_library::model::{LibraryBrief, LibraryPoster},
+    infrastructure::media_db::query_manager::QueryManager,
 };
 
 // TODO: after finishing the user system, query the media libraries for the current user

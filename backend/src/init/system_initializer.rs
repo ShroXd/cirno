@@ -9,7 +9,7 @@ use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 use crate::{
     domain::pipeline::ports::{Decoder, HlsSink, Source, StreamBranch},
     infrastructure::{
-        database::{
+        media_db::{
             database::Database,
             query_manager::{FileQueryManager, QueryManager},
         },

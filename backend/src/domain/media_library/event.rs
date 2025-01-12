@@ -3,7 +3,7 @@ use ts_rs::TS;
 
 use super::model::Library;
 use crate::{
-    define_payload, domain::task::task::TaskIdentifier, interfaces::ws::notification::ToJsonPayload,
+    define_payload, domain::task::async_task::TaskIdentifier, interfaces::ws::notification::ToJsonPayload,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

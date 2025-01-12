@@ -8,7 +8,7 @@ use tracing::*;
 use super::api_models::{SaveLibraryPayload, UpdateLibraryPayload};
 use crate::{
     application::library_service::create_library_service,
-    domain::library::library::{delete_library, get_libraries, get_library_by_id},
+    domain::media_library::library::{delete_library, get_libraries, get_library_by_id},
     handle_controller_result,
     init::{app_state::AppState, repository_manager::Repositories},
     interfaces::http_api::controllers::consts::WS_CLIENT_KEY_HEADER,

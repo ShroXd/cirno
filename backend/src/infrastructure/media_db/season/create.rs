@@ -3,7 +3,7 @@ use sqlx::{Acquire, SqlitePool};
 use std::sync::Arc;
 use tracing::*;
 
-use crate::{domain::season::model::Season, infrastructure::database::query_manager::QueryManager};
+use crate::{domain::season::model::Season, infrastructure::media_db::query_manager::QueryManager};
 
 #[instrument(skip(conn_pool, query_manager, season))]
 pub async fn save_season(

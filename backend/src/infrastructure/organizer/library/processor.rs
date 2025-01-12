@@ -5,11 +5,11 @@ use tracing::*;
 use crate::{
     domain::{episode::model::Episode, season::model::Season, tv_show::model::TvShow},
     infrastructure::organizer::library::{
-        parser::{
+        library_parser::{
             parsers::{parse_episode, parse_season, parse_tv_serie},
             utils::{parse_meta_files, parse_seasons_nfo, parse_tv_series_nfo},
         },
-        scanner::utils::{collect_files, partition_files},
+        library_scanner::utils::{collect_files, partition_files},
         utils::encode_optional_image,
     },
 };

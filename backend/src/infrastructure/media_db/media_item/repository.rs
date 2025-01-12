@@ -4,8 +4,8 @@ use std::result::Result::Ok;
 use std::sync::Arc;
 use tracing::*;
 
-use crate::infrastructure::database::actor::{QueryAllMedia, QueryEpisodes, QueryMediaById};
-use crate::infrastructure::database::database::Database;
+use crate::infrastructure::media_db::actor::{QueryAllMedia, QueryEpisodes, QueryMediaById};
+use crate::infrastructure::media_db::database::Database;
 use crate::interfaces::dtos::{EpisodeDto, MediaItemDto};
 
 #[derive(Clone)]

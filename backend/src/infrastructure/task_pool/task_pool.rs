@@ -9,11 +9,11 @@ use tracing::*;
 use uuid::Uuid;
 
 #[allow(unused_imports)]
-use crate::domain::task::task::ambassador_impl_TaskIdentifiable;
-use crate::domain::task::task::{AsyncTask, TaskId, TaskIdentifier};
+use crate::domain::task::async_task::ambassador_impl_TaskIdentifiable;
+use crate::domain::task::async_task::{AsyncTask, TaskId, TaskIdentifier};
 use crate::{
     domain::{
-        task::task::{AsyncTaskInfo, TaskIdentifiable, TaskStatus, TaskType},
+        task::async_task::{AsyncTaskInfo, TaskIdentifiable, TaskStatus, TaskType},
         time::TimeProvider,
     },
     infrastructure::{event_bus::event_bus::EventBus, time::default::DefaultTimeProvider},
@@ -252,7 +252,7 @@ impl TaskPool {
 #[cfg(test)]
 mod tests {
     use crate::{
-        domain::task::task::TaskIdentifier,
+        domain::task::async_task::TaskIdentifier,
         infrastructure::time::testing::test::TestingTimeProvider,
     };
     use ambassador::Delegate;

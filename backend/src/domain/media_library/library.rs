@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    infrastructure::database::library::repository::LibraryRepository,
+    infrastructure::media_db::library::repository::LibraryRepository,
     interfaces::{dtos::LibraryDto, http_api::controllers::api_models::SaveLibraryPayload},
     shared::utils::is_valid_path,
 };

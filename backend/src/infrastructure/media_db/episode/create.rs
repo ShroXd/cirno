@@ -5,7 +5,7 @@ use sqlx::{Acquire, SqlitePool};
 use tracing::*;
 
 use crate::{
-    domain::episode::model::Episode, infrastructure::database::query_manager::QueryManager,
+    domain::episode::model::Episode, infrastructure::media_db::query_manager::QueryManager,
 };
 
 #[instrument(skip(conn_pool, query_manager, episode))]

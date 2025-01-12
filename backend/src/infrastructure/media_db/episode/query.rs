@@ -3,7 +3,7 @@ use sqlx::{sqlite::SqliteRow, Acquire, SqlitePool};
 use std::sync::Arc;
 use tracing::*;
 
-use crate::{infrastructure::database::query_manager::QueryManager, interfaces::dtos::EpisodeDto};
+use crate::{infrastructure::media_db::query_manager::QueryManager, interfaces::dtos::EpisodeDto};
 
 #[instrument(skip(conn_pool, query_manager, mapper))]
 pub async fn query_episodes(

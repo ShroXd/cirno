@@ -2,7 +2,7 @@ use anyhow::*;
 use std::sync::Arc;
 
 use crate::{
-    domain::file::file_repository::FileRepository,
+    domain::file_system::file_repository::FileRepository,
     infrastructure::file::finder_options::FinderOptions,
 };
 

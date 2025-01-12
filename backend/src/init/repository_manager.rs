@@ -2,7 +2,7 @@ use actix::Addr;
 use anyhow::*;
 use std::sync::Arc;
 
-use crate::infrastructure::database::{
+use crate::infrastructure::media_db::{
     database::Database, library::repository::LibraryRepository,
     media_item::repository::MediaRepository,
 };

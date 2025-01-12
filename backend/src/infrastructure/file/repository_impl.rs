@@ -7,7 +7,7 @@ use tracing::*;
 use walkdir::{DirEntry, WalkDir};
 
 use super::finder_options::FinderOptions;
-use crate::domain::file::{file::File, file_repository::FileRepository};
+use crate::domain::file_system::{file::File, file_repository::FileRepository};
 
 pub struct FileRepositoryImpl {}
 

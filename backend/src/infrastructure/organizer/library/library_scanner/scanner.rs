@@ -7,7 +7,7 @@ use tracing::*;
 use walkdir::WalkDir;
 
 use crate::{
-    domain::{library::model::Library, tv_show::model::TvShow},
+    domain::{media_library::model::Library, tv_show::model::TvShow},
     infrastructure::{
         event_bus::{domain_event::DomainEvent, event_bus::EventBus, model::GeneralEvent},
         organizer::library::processor::process_series,

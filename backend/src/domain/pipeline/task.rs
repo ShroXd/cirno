@@ -9,7 +9,7 @@ use crate::{
     application::file_service::FileService,
     domain::{
         pipeline::event::PipelineEvent,
-        task::task::{
+        task::async_task::{
             ambassador_impl_TaskIdentifiable, AsyncTask, TaskId, TaskIdentifiable, TaskIdentifier,
         },
     },

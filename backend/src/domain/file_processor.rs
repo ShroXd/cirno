@@ -5,7 +5,7 @@ use actix_web::web::Data;
 use anyhow::Result;
 use tracing::*;
 
-use super::library::model::Library;
+use super::media_library::model::Library;
 use crate::infrastructure::{
     event_bus::event_bus::EventBus,
     organizer::organizer::{ParserActor, ScanLibrary},

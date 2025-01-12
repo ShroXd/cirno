@@ -2,8 +2,8 @@ use actix::{Actor, Context, Handler, Message};
 use anyhow::Error;
 use std::{path::Path, sync::Arc};
 
-use super::library::scanner::scanner::scan_library;
-use crate::{domain::library::model::Library, infrastructure::event_bus::event_bus::EventBus};
+use super::library::library_scanner::scanner::scan_library;
+use crate::{domain::media_library::model::Library, infrastructure::event_bus::event_bus::EventBus};
 
 #[derive(Debug, Default)]
 pub struct ParserActor;
