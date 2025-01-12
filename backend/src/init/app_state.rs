@@ -1,9 +1,19 @@
 use actix::Addr;
+use getset::Getters;
 use once_cell::sync::Lazy;
 use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
+use crate::application::file_service::FileService;
+use crate::infrastructure::database::database::Database;
+use crate::infrastructure::event_bus::event_bus::EventBus;
+use crate::infrastructure::hls::hls_state_actor::HlsStateActor;
+use crate::infrastructure::organizer::organizer::ParserActor;
 use crate::infrastructure::pipeline::pipeline::Pipeline;
+use crate::infrastructure::task_pool::task_pool::TaskPool;
+use crate::interfaces::ws::utils::WsConnections;
+
+use super::repository_manager::Repositories;
 
 // TODO: all of these functionalities should be moved to the hls module
 
@@ -47,5 +57,74 @@ pub fn get_pipeline_segment_duration() -> u64 {
     match PIPELINE_SEGMENT_DURATION.lock() {
         Ok(pipeline_segment_duration) => pipeline_segment_duration.unwrap(),
         Err(e) => panic!("Failed to lock pipeline segment duration: {}", e),
+    }
+}
+
+#[derive(Clone, Getters)]
+#[getset(get = "pub")]
+pub struct MediaProcessingContext {
+    parser_addr: Addr<ParserActor>,
+    #[allow(unused)]
+    hls_state_actor_addr: Addr<HlsStateActor>,
+}
+
+#[derive(Clone, Getters)]
+#[getset(get = "pub")]
+pub struct StorageContext {
+    database_addr: Addr<Database>,
+    #[allow(unused)]
+    file_service: FileService,
+    repositories: Repositories,
+}
+
+#[derive(Clone, Getters)]
+#[getset(get = "pub")]
+pub struct CommunicationContext {
+    ws_connections: WsConnections,
+}
+
+#[derive(Clone, Getters)]
+#[getset(get = "pub")]
+pub struct InfrastructureContext {
+    task_pool: TaskPool,
+    event_bus: Arc<EventBus>,
+}
+
+#[derive(Clone, Getters)]
+#[getset(get = "pub")]
+pub struct AppState {
+    media: MediaProcessingContext,
+    storage: StorageContext,
+    communication: CommunicationContext,
+    infrastructure: InfrastructureContext,
+}
+
+impl AppState {
+    pub fn new(
+        parser_addr: Addr<ParserActor>,
+        hls_state_actor_addr: Addr<HlsStateActor>,
+        database_addr: Addr<Database>,
+        file_service: FileService,
+        repositories: Repositories,
+        ws_connections: WsConnections,
+        task_pool: TaskPool,
+        event_bus: Arc<EventBus>,
+    ) -> Self {
+        Self {
+            media: MediaProcessingContext {
+                parser_addr,
+                hls_state_actor_addr,
+            },
+            storage: StorageContext {
+                database_addr,
+                file_service,
+                repositories,
+            },
+            communication: CommunicationContext { ws_connections },
+            infrastructure: InfrastructureContext {
+                task_pool,
+                event_bus,
+            },
+        }
     }
 }

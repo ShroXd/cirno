@@ -1,4 +1,3 @@
-use actix::Addr;
 use actix_web::web::Data;
 use anyhow::{Ok, *};
 use std::sync::Arc;
@@ -14,36 +13,26 @@ use crate::{
         },
         task::task::{AsyncTaskResponse, TaskIdentifiable, TaskType},
     },
-    infrastructure::{
-        database::{database::Database, library::repository::LibraryRepository},
-        event_bus::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
-        organizer::organizer::ParserActor,
-        task_pool::task_pool::TaskPool,
-    },
-    interfaces::{http_api::controllers::api_models::SaveLibraryPayload, ws::utils::WsConnections},
+    infrastructure::event_bus::{domain_event::DomainEvent, handler::EventHandlerConfig},
+    init::app_state::AppState,
+    interfaces::http_api::controllers::api_models::SaveLibraryPayload,
 };
 
-#[instrument(skip(
-    database_addr,
-    parser_addr,
-    ws_connections,
-    task_pool,
-    event_bus,
-    library_repository
-))]
+#[instrument(skip(app_state))]
 pub async fn create_library_service(
     payload: SaveLibraryPayload,
-    database_addr: Data<Addr<Database>>,
-    parser_addr: Data<Addr<ParserActor>>,
-    ws_connections: Data<WsConnections>,
-    task_pool: Data<TaskPool>,
-    event_bus: Data<Arc<EventBus>>,
     ws_client_key: String,
-    library_repository: Arc<LibraryRepository>,
+    app_state: Data<AppState>,
 ) -> Result<AsyncTaskResponse<i64>> {
+    let database_addr = app_state.storage().database_addr().clone();
+    let parser_addr = app_state.media().parser_addr();
+    let ws_connections = app_state.communication().ws_connections();
+    let task_pool = app_state.infrastructure().task_pool();
+    let event_bus = app_state.infrastructure().event_bus();
+    let library_repository = app_state.storage().repositories().library.clone();
+
     let directory_clone = payload.directory.clone();
     let library_name = payload.name.clone();
-    let database_addr = database_addr.into_inner();
 
     let library_id = create_library(payload, library_repository.clone()).await?;
     debug!("Library created with id: {:?}", library_id);
@@ -74,7 +63,7 @@ pub async fn create_library_service(
                     if let DomainEvent::Library(LibraryEventType::LibraryScanned { library, task_identifier }) = event {
                         for media_item in library.tv_show {
                             debug!("Processing media item: {:?}", media_item.title);
-                            insert_media_item(library_id, media_item, database_addr.clone())
+                            insert_media_item(library_id, media_item, Arc::new(database_addr.clone()))
                                 .await
                                 .inspect_err(|e| error!("Failed to insert media item: {:?}", e))?;
                         }
@@ -101,7 +90,7 @@ pub async fn create_library_service(
         }
     );
 
-    let mut task = LibraryScanTask::new(directory_clone, parser_addr.into_inner());
+    let mut task = LibraryScanTask::new(directory_clone, Arc::new(parser_addr.clone()));
     task.set_ws_client_id(ws_client_key.clone());
     let task_id = task_pool
         .register_task(

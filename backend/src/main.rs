@@ -6,7 +6,7 @@ use std::sync::Arc;
 use tracing::*;
 
 use infrastructure::{file::repository_impl::FileRepositoryImpl, task_pool::task_pool::TaskPool};
-use init::system_initializer::SystemInitializer;
+use init::{app_state::AppState, system_initializer::SystemInitializer};
 use interfaces::ws::utils::WsConnections;
 
 mod application;
@@ -65,6 +65,18 @@ async fn main() -> std::io::Result<()> {
     let file_repository = FileRepositoryImpl {};
     let file_service = FileService::new(Arc::new(file_repository));
 
+    info!("Init app state");
+    let app_state = AppState::new(
+        parser_addr.clone(),
+        hls_state_actor_addr.clone(),
+        database_addr.clone(),
+        file_service.clone(),
+        repositories.clone(),
+        ws_connections.clone(),
+        task_pool.clone(),
+        event_bus.clone(),
+    );
+
     info!("Starting backend server");
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -75,7 +87,6 @@ async fn main() -> std::io::Result<()> {
         let mut app = App::new()
             .wrap(Logger::default())
             .wrap(cors)
-            // .app_data(web::Data::new(pipeline_addr.clone()))
             .app_data(web::Data::new(parser_addr.clone()))
             .app_data(web::Data::new(database_addr.clone()))
             .app_data(web::Data::new(ws_connections.clone()))
@@ -85,6 +96,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(hls_state_actor_addr.clone()))
             .app_data(web::Data::new(file_service.clone()))
             .app_data(web::Data::new(repositories.clone()))
+            .app_data(web::Data::new(app_state.clone()))
             .configure(interfaces::http_api::routes::init_library_routes)
             .configure(interfaces::http_api::routes::init_video_player_routes)
             .service(Files::new("/hls", "./tmp").show_files_listing())
