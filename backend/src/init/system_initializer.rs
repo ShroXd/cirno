@@ -13,7 +13,7 @@ use crate::{
             database::Database,
             query_manager::{FileQueryManager, QueryManager},
         },
-        dispatcher::event_bus::EventBus,
+        event_dispatcher::event_bus::EventBus,
         hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
         library_organizer::organizer::ParserActor,
         video_pipeline::{

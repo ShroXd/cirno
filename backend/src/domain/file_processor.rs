@@ -7,7 +7,7 @@ use tracing::*;
 
 use super::media_library::model::Library;
 use crate::infrastructure::{
-    dispatcher::event_bus::EventBus,
+    event_dispatcher::event_bus::EventBus,
     library_organizer::organizer::{ParserActor, ScanLibrary},
 };
 

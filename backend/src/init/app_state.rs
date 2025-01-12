@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::application::file_service::FileService;
 use crate::infrastructure::media_db::database::Database;
-use crate::infrastructure::dispatcher::event_bus::EventBus;
+use crate::infrastructure::event_dispatcher::event_bus::EventBus;
 use crate::infrastructure::hls::hls_state_actor::HlsStateActor;
 use crate::infrastructure::library_organizer::organizer::ParserActor;
 use crate::infrastructure::video_pipeline::pipeline::Pipeline;

@@ -12,8 +12,8 @@ use super::{
     model::M3u8Tag,
 };
 use crate::domain::pipeline::event::PipelineEvent;
-use crate::infrastructure::dispatcher::domain_event::DomainEvent;
-use crate::infrastructure::dispatcher::event_bus::EventBus;
+use crate::infrastructure::event_dispatcher::domain_event::DomainEvent;
+use crate::infrastructure::event_dispatcher::event_bus::EventBus;
 use crate::infrastructure::{
     hls::hls_state_actor::SetSegmentDuration, video_pipeline::actor::QueryDuration,
 };

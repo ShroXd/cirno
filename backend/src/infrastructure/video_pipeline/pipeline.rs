@@ -19,7 +19,7 @@ use crate::{
         model::{Duration as DomainDuration, PipelineState, Position},
         ports::{DecodebinSignal, Decoder, HlsSink, PipelinePort, Source, StreamBranch},
     },
-    infrastructure::dispatcher::{domain_event::DomainEvent, event_bus::EventBus},
+    infrastructure::event_dispatcher::{domain_event::DomainEvent, event_bus::EventBus},
     init::app_state::{get_pipeline_segment_duration, set_segment_index},
 };
 

@@ -6,7 +6,7 @@ use tracing::*;
 use crate::{
     domain::pipeline::ports::{Decoder, HlsSink, Source, StreamBranch},
     infrastructure::{
-        dispatcher::event_bus::EventBus,
+        event_dispatcher::event_bus::EventBus,
         hls::hls_state_actor::HlsStateActor,
         video_pipeline::{
             elements::{

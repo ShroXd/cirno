@@ -13,7 +13,7 @@ use uuid::Uuid;
 use super::{notification::Notification, utils::WsConnections};
 use crate::{
     domain::websocket::event::WebSocketEventType,
-    infrastructure::dispatcher::{domain_event::DomainEvent, event_bus::EventBus},
+    infrastructure::event_dispatcher::{domain_event::DomainEvent, event_bus::EventBus},
 };
 
 #[derive(Clone)]

@@ -1,5 +1,5 @@
 pub mod media_db;
-pub mod dispatcher;
+pub mod event_dispatcher;
 pub mod file;
 pub mod hls;
 pub mod library_organizer;

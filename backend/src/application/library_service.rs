@@ -13,7 +13,7 @@ use crate::{
         },
         task::async_task::{AsyncTaskResponse, TaskIdentifiable, TaskType},
     },
-    infrastructure::dispatcher::{domain_event::DomainEvent, handler::EventHandlerConfig},
+    infrastructure::event_dispatcher::{domain_event::DomainEvent, handler::EventHandlerConfig},
     init::app_state::AppState,
     interfaces::http_api::controllers::api_models::SaveLibraryPayload,
 };

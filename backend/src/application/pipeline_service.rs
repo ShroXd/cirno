@@ -16,7 +16,7 @@ use crate::{
         websocket::event::WebSocketEventType,
     },
     infrastructure::{
-        dispatcher::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
+        event_dispatcher::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
         file::finder_options::{all_files, FinderOptions},
         hls::hls_state_actor::{HlsStateActor, Reset, SetPipelineAddr},
         video_pipeline::actor::PipelineAction,

@@ -9,7 +9,7 @@ use walkdir::WalkDir;
 use crate::{
     domain::{media_library::model::Library, tv_show::model::TvShow},
     infrastructure::{
-        dispatcher::{domain_event::DomainEvent, event_bus::EventBus, model::GeneralEvent},
+        event_dispatcher::{domain_event::DomainEvent, event_bus::EventBus, model::GeneralEvent},
         library_organizer::library::processor::process_series,
     },
 };
