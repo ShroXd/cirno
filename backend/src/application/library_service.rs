@@ -56,7 +56,6 @@ pub async fn create_library_service(
             match_pattern: DomainEvent::Library(LibraryEventType::LibraryScanned { .. }),
             handler: move |event, event_bus| {
                 let database_addr = database_addr.clone();
-                let library_id = library_id.clone();
                 let library_name = library_name.clone();
 
                 async move {

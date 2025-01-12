@@ -39,9 +39,9 @@ where
             "fanart" => {
                 tv_serie.fanart_path = encode_fn(&Some(file.clone()));
             }
-            _ => {}
+            _ => (),
         },
-        None => return,
+        None => (),
     });
 }
 

@@ -45,12 +45,9 @@ impl PipelineService {
         spawn(async move {
             let mut subscription = event_bus_clone.subscribe();
             while let Ok(event) = subscription.recv().await {
-                match event {
-                    DomainEvent::WebSocket(WebSocketEventType::RegisterClient(key)) => {
-                        debug!("Registering client to pipeline service with key: {}", key);
-                        ws_client_key_clone.write().await.push(key);
-                    }
-                    _ => {}
+                if let DomainEvent::WebSocket(WebSocketEventType::RegisterClient(key)) = event {
+                    debug!("Registering client to pipeline service with key: {}", key);
+                    ws_client_key_clone.write().await.push(key);
                 }
             }
         });

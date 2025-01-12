@@ -41,10 +41,7 @@ pub fn scan_library(root_dir: &Path, event_bus: Arc<EventBus>) -> Library {
         error!("Failed to publish task progress updated event: {}", e);
     }
 
-    let series_data: Vec<TvShow> = series_dirs
-        .par_iter()
-        .map(|series_dir| process_series(series_dir))
-        .collect();
+    let series_data: Vec<TvShow> = series_dirs.par_iter().map(process_series).collect();
     debug!("Processed {} series", series_data.len());
 
     Library {

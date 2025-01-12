@@ -91,7 +91,7 @@ impl Handler<QueryDuration> for Pipeline {
             Ok(duration) => duration.as_nanos(),
             Err(e) => {
                 error!("Failed to query duration of the pipeline: {}", e);
-                return 0;
+                0
             }
         }
     }
