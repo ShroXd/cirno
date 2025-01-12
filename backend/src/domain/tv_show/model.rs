@@ -4,7 +4,7 @@ use ts_rs::TS;
 
 use crate::domain::{media_actor::model::MediaActor, season::model::Season};
 
-#[derive(Debug, Clone, Deserialize, Serialize, TS)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct TvShow {
     pub title: Option<String>,
@@ -26,28 +26,4 @@ pub struct TvShow {
     pub poster_path: Option<String>,
     pub fanart_path: Option<String>,
     pub seasons: HashMap<u8, Season>,
-}
-
-impl Default for TvShow {
-    fn default() -> Self {
-        TvShow {
-            title: None,
-            original_title: None,
-            show_title: None,
-            sort_title: None,
-            year: None,
-            plot: None,
-            genres: Vec::new(),
-            country: None,
-            actors: Vec::new(),
-            tmdb_id: None,
-            imdb_id: None,
-            wikidata_id: None,
-            tvdb_id: None,
-            nfo_path: None,
-            poster_path: None,
-            fanart_path: None,
-            seasons: HashMap::new(),
-        }
-    }
 }

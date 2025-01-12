@@ -13,21 +13,11 @@ use super::{
     retry::{ExponentialRetryStrategy, FixedRetryStrategy, RetryStrategy},
 };
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct EventHandlerConfig {
     pub timeout: Option<Duration>,
     pub retry_strategy: Option<Arc<dyn RetryStrategy>>,
     pub max_triggers: Option<u32>,
-}
-
-impl Default for EventHandlerConfig {
-    fn default() -> Self {
-        Self {
-            timeout: None,
-            retry_strategy: None,
-            max_triggers: None,
-        }
-    }
 }
 
 impl EventHandlerConfig {

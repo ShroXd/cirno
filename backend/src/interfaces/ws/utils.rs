@@ -4,17 +4,9 @@ use tokio::sync::RwLock;
 
 use super::actor::WebSocketActor;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct WsConnections {
     connections: Arc<RwLock<HashMap<String, Addr<WebSocketActor>>>>,
-}
-
-impl Default for WsConnections {
-    fn default() -> Self {
-        Self {
-            connections: Arc::new(RwLock::new(HashMap::new())),
-        }
-    }
 }
 
 impl WsConnections {

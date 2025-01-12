@@ -5,14 +5,8 @@ use std::{path::Path, sync::Arc};
 use super::library::scanner::scanner::scan_library;
 use crate::{domain::library::model::Library, infrastructure::event_bus::event_bus::EventBus};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ParserActor;
-
-impl Default for ParserActor {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl Actor for ParserActor {
     type Context = Context<Self>;

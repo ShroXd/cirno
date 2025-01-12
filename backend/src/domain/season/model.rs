@@ -4,7 +4,7 @@ use ts_rs::TS;
 
 use crate::domain::episode::model::Episode;
 
-#[derive(Debug, Clone, Deserialize, Serialize, TS)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct Season {
     pub title: Option<String>,
@@ -23,25 +23,4 @@ pub struct Season {
     pub description: Option<String>,
     pub nfo_path: Option<String>,
     pub episodes: HashMap<u8, Episode>,
-}
-
-impl Default for Season {
-    fn default() -> Self {
-        Season {
-            title: None,
-            show_title: None,
-            sort_title: None,
-            year: None,
-            plot: None,
-            tvdb_id: None,
-            imdb_id: None,
-            tmdb_id: None,
-            wikidata_id: None,
-            premiered: None,
-            season_number: None,
-            description: None,
-            nfo_path: None,
-            episodes: HashMap::new(),
-        }
-    }
 }

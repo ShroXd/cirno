@@ -5,7 +5,7 @@ use crate::domain::library::model::LibraryPoster;
 
 use super::http_api::controllers::api_models::LibraryCategory;
 
-#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[derive(Debug, Default, Deserialize, Serialize, TS, Clone)]
 #[ts(export)]
 pub struct MediaItemDto {
     pub id: i64,
@@ -16,21 +16,6 @@ pub struct MediaItemDto {
     pub country: Option<String>,
     pub year: Option<String>,
     pub genres: Vec<String>,
-}
-
-impl Default for MediaItemDto {
-    fn default() -> Self {
-        MediaItemDto {
-            id: 0,
-            title: String::new(),
-            plot: None,
-            poster_path: None,
-            fanart_path: None,
-            country: None,
-            year: None,
-            genres: Vec::new(),
-        }
-    }
 }
 
 #[derive(Debug, Deserialize, Serialize, TS)]

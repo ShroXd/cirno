@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 // TODO: maybe add file info fields here, we can get these info from the nfo file.
-#[derive(Debug, Clone, Deserialize, Serialize, TS)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
 pub struct Episode {
     pub title: Option<String>,
@@ -15,23 +15,6 @@ pub struct Episode {
     pub thumb_image: Option<String>,
     pub episode_number: Option<String>,
     pub runtime: Option<String>,
-}
-
-impl Default for Episode {
-    fn default() -> Self {
-        Episode {
-            title: None,
-            original_title: None,
-            plot: None,
-            nfo_path: None,
-            video_file_path: "".to_string(),
-            subtitle_file_path: None,
-            thumb_image_url: None,
-            thumb_image: None,
-            episode_number: None,
-            runtime: None,
-        }
-    }
 }
 
 impl Episode {
