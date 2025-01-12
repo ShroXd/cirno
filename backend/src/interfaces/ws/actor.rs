@@ -1,4 +1,4 @@
-use actix::{prelude::*, Actor, Addr, Message, StreamHandler};
+use actix::{prelude::*, Actor, Message, StreamHandler};
 use actix_web_actors::ws;
 use anyhow::*;
 use serde::{Deserialize, Serialize};
@@ -13,11 +13,7 @@ use uuid::Uuid;
 use super::{notification::Notification, utils::WsConnections};
 use crate::{
     domain::websocket::event::WebSocketEventType,
-    infrastructure::{
-        event_bus::{domain_event::DomainEvent, event_bus::EventBus},
-        pipeline::{actor::PipelineAction, pipeline::Pipeline},
-    },
-    process_pipeline_action,
+    infrastructure::event_bus::{domain_event::DomainEvent, event_bus::EventBus},
 };
 
 #[derive(Clone)]
@@ -70,7 +66,9 @@ impl Actor for WebSocketActor {
         }
 
         debug!("Sending register client event to client");
-        event_clone.send_notification::<serde_json::Value>(addr_clone);
+        if let Err(e) = event_clone.send_notification::<serde_json::Value>(addr_clone) {
+            error!("Failed to send register client event to client: {:?}", e);
+        }
     }
 
     #[instrument(skip(self, ctx))]
@@ -159,36 +157,6 @@ impl WebSocketActor {
             ws_connections: Some(ws_connections),
             event_bus: Some(event_bus),
         }
-    }
-
-    fn handle_pipeline_action(
-        &self,
-        action: PipelineAction,
-        _: &mut <WebSocketActor as Actor>::Context,
-    ) {
-        // match action {
-        //     PipelineAction::Play => process_pipeline_action!(self, Play),
-        //     PipelineAction::Pause => process_pipeline_action!(self, Pause),
-        //     PipelineAction::Stop => process_pipeline_action!(self, Stop),
-        //     // TODO: refactor and use the macro to avoid code duplication
-        //     PipelineAction::Seek(position) => {
-        //         debug!("WebSocket actor received seek action: {:?}", position);
-
-        //         if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
-        //             if let Err(e) = pipeline_addr.try_send(PipelineAction::Seek(position)) {
-        //                 error!("Failed to forward message to pipeline: {:?}", e);
-        //             }
-        //         }
-        //     }
-        //     PipelineAction::SetSource(path) => {
-        //         if let Some(pipeline_addr) = self.pipeline_addr.as_ref() {
-        //             if let Err(e) = pipeline_addr.try_send(PipelineAction::SetSource(path)) {
-        //                 error!("Failed to forward message to pipeline: {:?}", e);
-        //             }
-        //         }
-        //     }
-        // }
-        unimplemented!()
     }
 
     fn handle_system(&self, system: System, _: &mut <WebSocketActor as Actor>::Context) {

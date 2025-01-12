@@ -5,6 +5,7 @@ use tokio::{spawn, sync::RwLock};
 use tracing::*;
 
 use super::file_service::FileService;
+use crate::domain::task::task::TaskIdentifiable;
 use crate::{
     domain::{
         pipeline::{
@@ -24,12 +25,10 @@ use crate::{
     interfaces::ws::utils::WsConnections,
     listen_event,
 };
-use crate::domain::task::task::TaskIdentifiable;
 
 #[derive(Clone)]
 pub struct PipelineService {
     event_bus: Arc<EventBus>,
-    ws_client_key: Arc<RwLock<Vec<String>>>,
     hls_state_actor_addr: Addr<HlsStateActor>,
 }
 
@@ -58,7 +57,6 @@ impl PipelineService {
 
         Ok(Self {
             event_bus,
-            ws_client_key,
             hls_state_actor_addr,
         })
     }
@@ -119,7 +117,11 @@ impl PipelineService {
             move |event, _| {
                 let ws_connection_clone = ws_connection.clone();
                 async move {
-                    event.send_notification::<serde_json::Value>(ws_connection_clone);
+                    if let Err(e) =
+                        event.send_notification::<serde_json::Value>(ws_connection_clone)
+                    {
+                        error!("Failed to send hls stream initialized event: {:?}", e);
+                    }
                     Ok(())
                 }
             },

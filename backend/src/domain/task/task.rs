@@ -78,12 +78,12 @@ impl ToJsonPayload for AsyncTaskEvent {
 
 #[derive(Debug, Clone)]
 pub struct AsyncTaskInfo {
-    pub id: TaskId,
-    pub task_type: TaskType,
+    pub _id: TaskId,
+    pub _task_type: TaskType,
     pub status: TaskStatus,
     pub progress: f32,
     /// used to notify the client
-    pub websocket_client_key: String,
+    pub _websocket_client_key: String,
     pub cleanup_handle: Option<Arc<Mutex<Option<JoinHandle<()>>>>>,
     pub retention_period: Duration,
 }

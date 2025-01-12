@@ -2,10 +2,11 @@ use serde::Serialize;
 
 use crate::interfaces::ws::notification::ToJsonPayload;
 
-use super::model::{Duration, PipelineState, Position};
+use super::model::PipelineState;
 
 #[derive(Debug, Clone, Serialize)]
 pub enum PipelineEvent {
+    #[allow(dead_code)]
     StateChanged {
         old_state: PipelineState,
         new_state: PipelineState,

@@ -155,6 +155,7 @@ pub fn parse_season(nfo_path_str: &String) -> Result<Season> {
                 }
             }
             Event::End(e) => {
+                trace!("End element: {:?}", e);
                 element_stack.pop();
                 curr_elem = element_stack.last().cloned();
             }
@@ -208,6 +209,7 @@ pub fn parse_episode(nfo_path_str: &String) -> Result<Episode> {
                 }
             }
             Event::End(e) => {
+                trace!("End element: {:?}", e);
                 element_stack.pop();
                 curr_elem = element_stack.last().cloned();
             }

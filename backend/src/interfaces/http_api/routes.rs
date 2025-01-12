@@ -10,8 +10,7 @@ use crate::{
     application::{file_service::FileService, pipeline_service::PipelineService},
     infrastructure::{
         database::database::Database, event_bus::event_bus::EventBus,
-        hls::hls_state_actor::HlsStateActor, organizer::organizer::ParserActor,
-        task_pool::task_pool::TaskPool,
+        organizer::organizer::ParserActor, task_pool::task_pool::TaskPool,
     },
     init::repository_manager::Repositories,
     interfaces::{
@@ -136,7 +135,6 @@ async fn play_video_with_path(
     req: HttpRequest,
     pipeline_service: Data<PipelineService>,
     file_service: Data<FileService>,
-    hls_state_actor_addr: Data<Addr<HlsStateActor>>,
     task_pool: Data<TaskPool>,
     ws_connections: Data<WsConnections>,
 ) -> impl Responder {
@@ -145,7 +143,6 @@ async fn play_video_with_path(
         req,
         pipeline_service,
         file_service,
-        hls_state_actor_addr,
         task_pool,
         ws_connections,
     )

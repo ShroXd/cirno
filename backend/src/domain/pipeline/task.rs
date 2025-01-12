@@ -25,7 +25,9 @@ use crate::{
 pub struct PipelinePreparationTask {
     identifier: TaskIdentifier,
     file_service: Arc<FileService>,
+    #[allow(dead_code)]
     event_bus: Arc<EventBus>,
+    #[allow(dead_code)]
     hls_state_actor_addr: Addr<HlsStateActor>,
 }
 

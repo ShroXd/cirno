@@ -1,4 +1,3 @@
-use actix::Addr;
 use actix_web::{
     web::{Data, Json},
     HttpRequest, HttpResponse, Responder,
@@ -8,25 +7,17 @@ use tracing::*;
 use super::api_models::PlayVideoWithPathPayload;
 use crate::{
     application::{file_service::FileService, pipeline_service::PipelineService},
-    infrastructure::{hls::hls_state_actor::HlsStateActor, task_pool::task_pool::TaskPool},
+    infrastructure::task_pool::task_pool::TaskPool,
     interfaces::ws::utils::WsConnections,
     shared::utils::extract_ws_client_key,
 };
 
-#[instrument(skip(
-    req,
-    pipeline_service,
-    file_service,
-    hls_state_actor_addr,
-    task_pool,
-    ws_connections,
-))]
+#[instrument(skip(req, pipeline_service, file_service, task_pool, ws_connections,))]
 pub async fn play_video_with_path_controller(
     payload: Json<PlayVideoWithPathPayload>,
     req: HttpRequest,
     pipeline_service: Data<PipelineService>,
     file_service: Data<FileService>,
-    hls_state_actor_addr: Data<Addr<HlsStateActor>>,
     task_pool: Data<TaskPool>,
     ws_connections: Data<WsConnections>,
 ) -> impl Responder {

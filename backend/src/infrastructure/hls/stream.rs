@@ -1,7 +1,6 @@
 use actix::Addr;
 use anyhow::*;
 use gio::WriteOutputStream;
-use gstreamer::EventType;
 use std::result::Result::Ok;
 use std::sync::Arc;
 use std::{collections::HashMap, fs::OpenOptions, io::Write, path::Path};
@@ -9,7 +8,7 @@ use tokio::runtime::Runtime;
 use tracing::*;
 
 use super::{
-    hls_state_actor::{GetPipelineAddr, GetPipelineDuration, HlsStateActor},
+    hls_state_actor::{GetPipelineAddr, HlsStateActor},
     model::M3u8Tag,
 };
 use crate::domain::pipeline::event::PipelineEvent;
@@ -117,22 +116,23 @@ impl HlsStream {
         Ok(duration_nanos)
     }
 
-    async fn query_duration(&self) -> Result<u64> {
-        let addr = self.state.clone();
-        let duration = match addr.send(GetPipelineDuration).await {
-            Ok(Ok(duration)) => duration,
-            Ok(Err(e)) => {
-                error!("Failed to get duration: {}", e);
-                return Err(anyhow!("Failed to get duration: {}", e));
-            }
-            Err(e) => {
-                error!("Failed to send message to hls_state_actor: {}", e);
-                return Err(anyhow!("Failed to send message to hls_state_actor: {}", e));
-            }
-        };
+    // TODO: Check duration before seeking
+    // async fn query_duration(&self) -> Result<u64> {
+    //     let addr = self.state.clone();
+    //     let duration = match addr.send(GetPipelineDuration).await {
+    //         Ok(Ok(duration)) => duration,
+    //         Ok(Err(e)) => {
+    //             error!("Failed to get duration: {}", e);
+    //             return Err(anyhow!("Failed to get duration: {}", e));
+    //         }
+    //         Err(e) => {
+    //             error!("Failed to send message to hls_state_actor: {}", e);
+    //             return Err(anyhow!("Failed to send message to hls_state_actor: {}", e));
+    //         }
+    //     };
 
-        Ok(duration)
-    }
+    //     Ok(duration)
+    // }
 
     fn generate_m3u8_content(
         &self,
@@ -203,11 +203,14 @@ impl Write for HlsStream {
                 }
             }
             self.initialized = true;
-            self.event_bus
-                .publish(DomainEvent::Pipeline(PipelineEvent::HlsStreamInitialized {
-                    path: self.path_str.clone(),
-                }))
-                .inspect_err(|e| error!("Failed to publish hls stream initialized event: {}", e));
+            if let Err(e) =
+                self.event_bus
+                    .publish(DomainEvent::Pipeline(PipelineEvent::HlsStreamInitialized {
+                        path: self.path_str.clone(),
+                    }))
+            {
+                error!("Failed to publish hls stream initialized event: {}", e);
+            }
         }
 
         let mut file = std::fs::OpenOptions::new()

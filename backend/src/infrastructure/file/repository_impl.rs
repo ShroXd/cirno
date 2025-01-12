@@ -13,14 +13,6 @@ pub struct FileRepositoryImpl {}
 
 #[async_trait]
 impl FileRepository for FileRepositoryImpl {
-    async fn save(&self, _file: &File) -> Result<()> {
-        Ok(())
-    }
-
-    async fn find_by_path(&self, _path: &str) -> Result<Option<File>> {
-        Ok(None)
-    }
-
     #[instrument(skip(self, file))]
     async fn delete(&self, file: &File) -> Result<()> {
         debug!("Attempting to delete file: {:?}", file.path);

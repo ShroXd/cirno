@@ -27,6 +27,7 @@ pub trait Source: Send + Sync {
     fn set_properties(&mut self, properties: Vec<(&str, &dyn ToValue)>);
     fn get_element(&self) -> &Element;
 
+    #[allow(dead_code)]
     fn build(
         name: &str,
         properties: Vec<(&str, &dyn ToValue)>,

@@ -19,6 +19,7 @@ use crate::{
 #[derive(Debug, Clone, Serialize)]
 pub enum DomainEvent {
     General(GeneralEvent),
+    #[allow(dead_code)]
     AsyncTask(AsyncTaskEvent),
     Library(LibraryEventType),
     Pipeline(PipelineEvent),

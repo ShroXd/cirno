@@ -1,7 +1,6 @@
 use actix::prelude::*;
 use anyhow::Result;
 use chrono::Local;
-use gstreamer::prelude::*;
 use std::{env, path::PathBuf, sync::Arc};
 use tracing::*;
 use tracing_appender::non_blocking::WorkerGuard;
@@ -34,13 +33,13 @@ use crate::{
 use super::repository_manager::Repositories;
 
 pub struct SystemInitializer {
-    element_factory: Arc<ElementFactory>,
+    _element_factory: Arc<ElementFactory>,
 
     event_bus: Option<Arc<EventBus>>,
     repositories: Option<Repositories>,
 
     // Actor addresses
-    pipeline_addr: Option<Addr<Pipeline>>,
+    _pipeline_addr: Option<Addr<Pipeline>>,
     parser_addr: Option<Addr<ParserActor>>,
     database_addr: Option<Addr<Database>>,
     hls_state_actor_addr: Option<Addr<HlsStateActor>>,
@@ -58,10 +57,10 @@ impl SystemInitializer {
         let element_factory = Arc::new(ElementFactory);
 
         Ok(Self {
-            element_factory,
+            _element_factory: element_factory,
             event_bus: None,
             repositories: None,
-            pipeline_addr: None,
+            _pipeline_addr: None,
             parser_addr: None,
             database_addr: None,
             hls_state_actor_addr: None,
@@ -70,7 +69,7 @@ impl SystemInitializer {
 
     #[instrument(skip(self))]
     pub fn get_pipeline_addr(&self) -> Addr<Pipeline> {
-        match self.pipeline_addr.clone() {
+        match self._pipeline_addr.clone() {
             Some(addr) => addr,
             None => panic!("Pipeline actor not started"),
         }
@@ -143,19 +142,19 @@ impl SystemInitializer {
             };
         debug!("File source created");
 
-        let decoder = match Decodebin::new(&*self.element_factory) {
+        let decoder = match Decodebin::new(&*self._element_factory) {
             Ok(decoder) => decoder,
             Err(e) => return Err(anyhow::anyhow!("Failed to create decoder: {}", e)),
         };
         debug!("Decoder created");
 
-        let video_branch = match VideoBranch::new(&*self.element_factory) {
+        let video_branch = match VideoBranch::new(&*self._element_factory) {
             Ok(video_branch) => video_branch,
             Err(e) => return Err(anyhow::anyhow!("Failed to create video branch: {}", e)),
         };
         debug!("Video branch created");
 
-        let audio_branch = match AudioBranch::new(&*self.element_factory) {
+        let audio_branch = match AudioBranch::new(&*self._element_factory) {
             Ok(audio_branch) => audio_branch,
             Err(e) => return Err(anyhow::anyhow!("Failed to create audio branch: {}", e)),
         };
@@ -189,7 +188,7 @@ impl SystemInitializer {
         let addr = pipeline.start();
         let addr_clone = addr.clone();
         // app_state::set_pipeline_addr(addr.clone());
-        self.pipeline_addr = Some(addr);
+        self._pipeline_addr = Some(addr);
 
         let hls_state_actor = self.get_hls_state_actor_addr();
         match hls_state_actor.send(SetPipelineAddr(addr_clone)).await {

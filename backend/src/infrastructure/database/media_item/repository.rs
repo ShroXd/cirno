@@ -4,9 +4,7 @@ use std::result::Result::Ok;
 use std::sync::Arc;
 use tracing::*;
 
-use crate::infrastructure::database::actor::{
-    QueryAllMedia, QueryAllMediaItems, QueryEpisodes, QueryMediaById,
-};
+use crate::infrastructure::database::actor::{QueryAllMedia, QueryEpisodes, QueryMediaById};
 use crate::infrastructure::database::database::Database;
 use crate::interfaces::dtos::{EpisodeDto, MediaItemDto};
 

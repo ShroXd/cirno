@@ -2,7 +2,7 @@ use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use application::{file_service::FileService, pipeline_service::PipelineService};
-use std::{env, sync::Arc};
+use std::sync::Arc;
 use tracing::*;
 
 use infrastructure::{file::repository_impl::FileRepositoryImpl, task_pool::task_pool::TaskPool};
@@ -63,7 +63,7 @@ async fn main() -> std::io::Result<()> {
     };
 
     let file_repository = FileRepositoryImpl {};
-    let file_service = FileService::new(Arc::new(file_repository), event_bus.clone());
+    let file_service = FileService::new(Arc::new(file_repository));
 
     info!("Starting backend server");
     HttpServer::new(move || {

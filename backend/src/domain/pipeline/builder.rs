@@ -1,6 +1,5 @@
 use actix::Addr;
 use anyhow::*;
-use gstreamer::prelude::*;
 use std::{result::Result::Ok, sync::Arc};
 use tracing::*;
 

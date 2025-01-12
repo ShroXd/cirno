@@ -8,12 +8,12 @@ use tokio::{sync::RwLock, task::JoinHandle};
 use tracing::*;
 use uuid::Uuid;
 
+#[allow(unused_imports)]
+use crate::domain::task::task::ambassador_impl_TaskIdentifiable;
 use crate::domain::task::task::{AsyncTask, TaskId, TaskIdentifier};
 use crate::{
     domain::{
-        task::task::{
-            ambassador_impl_TaskIdentifiable, AsyncTaskInfo, TaskIdentifiable, TaskStatus, TaskType,
-        },
+        task::task::{AsyncTaskInfo, TaskIdentifiable, TaskStatus, TaskType},
         time::TimeProvider,
     },
     infrastructure::{event_bus::event_bus::EventBus, time::default::DefaultTimeProvider},
@@ -22,7 +22,7 @@ use crate::{
 #[derive(Clone)]
 pub struct TaskPool {
     tasks: Arc<RwLock<HashMap<TaskId, AsyncTaskInfo>>>,
-    event_bus: Arc<EventBus>,
+    _event_bus: Arc<EventBus>,
     task_tx: mpsc::Sender<Box<dyn AsyncTask>>,
 }
 
@@ -110,7 +110,7 @@ impl TaskPool {
 
         Self {
             tasks,
-            event_bus,
+            _event_bus: event_bus,
             task_tx,
         }
     }
@@ -145,11 +145,11 @@ impl TaskPool {
         debug!("Registering task: {}", task_id);
 
         let task_info = AsyncTaskInfo {
-            id: TaskId(task_id),
-            task_type,
+            _id: TaskId(task_id),
+            _task_type: task_type,
             status: TaskStatus::Queued,
             progress: 0.0,
-            websocket_client_key,
+            _websocket_client_key: websocket_client_key,
             cleanup_handle: None,
             retention_period: retention_period.unwrap_or(Duration::from_secs(60 * 10)), // 10 minutes
         };

@@ -1,4 +1,4 @@
-use std::{collections::HashSet, path::Path};
+use std::path::Path;
 
 pub type FileFilter = Box<dyn Fn(&Path) -> bool + Send + Sync>;
 
@@ -12,11 +12,6 @@ pub struct FinderOptions {
 impl FinderOptions {
     pub fn new() -> Self {
         Self::default()
-    }
-
-    pub fn recursive(mut self, recursive: bool) -> Self {
-        self.recursive = recursive;
-        self
     }
 
     pub fn include_hidden(mut self, include_hidden: bool) -> Self {
@@ -33,19 +28,20 @@ impl FinderOptions {
     }
 }
 
-pub fn by_extension(extension: &[&str]) -> impl Fn(&Path) -> bool + Send + Sync + 'static {
-    let extensions = extension
-        .iter()
-        .map(|e| e.trim_start_matches('.').to_lowercase())
-        .collect::<HashSet<_>>();
+// TODO: Integrate this
+// pub fn by_extension(extension: &[&str]) -> impl Fn(&Path) -> bool + Send + Sync + 'static {
+//     let extensions = extension
+//         .iter()
+//         .map(|e| e.trim_start_matches('.').to_lowercase())
+//         .collect::<HashSet<_>>();
 
-    move |path: &Path| {
-        path.extension()
-            .and_then(|ext| ext.to_str())
-            .map(|ext| extensions.contains(&ext.to_lowercase()))
-            .unwrap_or(false)
-    }
-}
+//     move |path: &Path| {
+//         path.extension()
+//             .and_then(|ext| ext.to_str())
+//             .map(|ext| extensions.contains(&ext.to_lowercase()))
+//             .unwrap_or(false)
+//     }
+// }
 
 pub fn all_files() -> impl Fn(&Path) -> bool + Send + Sync + 'static {
     move |_| true

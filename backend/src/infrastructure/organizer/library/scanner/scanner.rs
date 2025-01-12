@@ -35,9 +35,11 @@ pub fn scan_library(root_dir: &Path, event_bus: Arc<EventBus>) -> Library {
         .collect();
     debug!("Found {} series directories", series_dirs.len());
 
-    event_bus.publish(DomainEvent::General(GeneralEvent::TaskProgressUpdated {
+    if let Err(e) = event_bus.publish(DomainEvent::General(GeneralEvent::TaskProgressUpdated {
         progress: 50.0,
-    }));
+    })) {
+        error!("Failed to publish task progress updated event: {}", e);
+    }
 
     let series_data: Vec<TvShow> = series_dirs
         .par_iter()

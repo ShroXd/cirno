@@ -16,10 +16,6 @@ pub mod test {
                 notify: Arc::new(Notify::new()),
             }
         }
-
-        pub fn get_notify(&self) -> Arc<Notify> {
-            self.notify.clone()
-        }
     }
 
     #[async_trait]

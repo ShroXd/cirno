@@ -7,12 +7,9 @@ pub enum GeneralEvent {
     TaskProgressUpdated {
         progress: f32,
     },
-    TaskCompleted,
-    TaskError {
-        error: String,
-    },
 
     /// Test event used only in unit tests
     /// Contains an integer ID for test identification
+    #[allow(dead_code)]
     TestEvent(i32),
 }

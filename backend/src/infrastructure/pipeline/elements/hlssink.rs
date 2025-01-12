@@ -2,7 +2,7 @@ use actix::Addr;
 use anyhow::Result;
 use gio::prelude::*;
 use gstreamer::{Element, ElementFactory};
-use std::{path::Path, sync::Arc};
+use std::path::Path;
 use tokio::runtime::Runtime;
 use tracing::*;
 
