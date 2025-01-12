@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    infrastructure::event_bus::event_bus::EventBus,
+    infrastructure::dispatcher::event_bus::EventBus,
     interfaces::ws::{actor::WebSocketActor, utils::WsConnections},
 };
 

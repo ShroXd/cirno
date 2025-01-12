@@ -5,7 +5,7 @@ use tracing::*;
 
 use super::model::M3u8Tag;
 use crate::{
-    infrastructure::pipeline::actor::QueryDuration,
+    infrastructure::video_pipeline::actor::QueryDuration,
     init::app_state::{get_pipeline_addr, set_pipeline_duration, set_pipeline_segment_duration},
 };
 

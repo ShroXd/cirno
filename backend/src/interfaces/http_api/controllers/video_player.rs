@@ -7,7 +7,7 @@ use tracing::*;
 use super::api_models::PlayVideoWithPathPayload;
 use crate::{
     application::{file_service::FileService, pipeline_service::PipelineService},
-    infrastructure::task_pool::task_pool::TaskPool,
+    infrastructure::async_task_pool::task_pool::TaskPool,
     interfaces::ws::utils::WsConnections,
     shared::utils::extract_ws_client_key,
 };

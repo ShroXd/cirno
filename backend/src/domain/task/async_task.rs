@@ -8,7 +8,7 @@ use ts_rs::TS;
 use uuid::Uuid;
 
 use crate::{
-    infrastructure::event_bus::event_bus::EventBus, interfaces::ws::notification::ToJsonPayload,
+    infrastructure::dispatcher::event_bus::EventBus, interfaces::ws::notification::ToJsonPayload,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

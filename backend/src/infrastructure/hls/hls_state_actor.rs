@@ -1,6 +1,6 @@
 use super::stream::HlsStream;
-use crate::infrastructure::event_bus::event_bus::EventBus;
-use crate::infrastructure::pipeline::pipeline::Pipeline;
+use crate::infrastructure::dispatcher::event_bus::EventBus;
+use crate::infrastructure::video_pipeline::pipeline::Pipeline;
 use actix::{Actor, Addr, AsyncContext, Context, Handler, Message};
 use anyhow::*;
 use std::collections::HashMap;

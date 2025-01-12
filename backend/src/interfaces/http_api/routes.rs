@@ -6,7 +6,7 @@ use actix_web::{
 
 use crate::{
     application::{file_service::FileService, pipeline_service::PipelineService},
-    infrastructure::task_pool::task_pool::TaskPool,
+    infrastructure::async_task_pool::task_pool::TaskPool,
     init::{app_state::AppState, repository_manager::Repositories},
     interfaces::{
         http_api::controllers::{

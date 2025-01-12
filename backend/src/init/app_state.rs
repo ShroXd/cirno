@@ -6,11 +6,11 @@ use std::sync::{Arc, Mutex};
 
 use crate::application::file_service::FileService;
 use crate::infrastructure::media_db::database::Database;
-use crate::infrastructure::event_bus::event_bus::EventBus;
+use crate::infrastructure::dispatcher::event_bus::EventBus;
 use crate::infrastructure::hls::hls_state_actor::HlsStateActor;
-use crate::infrastructure::organizer::organizer::ParserActor;
-use crate::infrastructure::pipeline::pipeline::Pipeline;
-use crate::infrastructure::task_pool::task_pool::TaskPool;
+use crate::infrastructure::library_organizer::organizer::ParserActor;
+use crate::infrastructure::video_pipeline::pipeline::Pipeline;
+use crate::infrastructure::async_task_pool::task_pool::TaskPool;
 use crate::interfaces::ws::utils::WsConnections;
 
 use super::repository_manager::Repositories;

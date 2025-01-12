@@ -10,8 +10,8 @@ use crate::{
         ambassador_impl_TaskIdentifiable, AsyncTask, TaskId, TaskIdentifiable, TaskIdentifier,
     },
     infrastructure::{
-        event_bus::{domain_event::DomainEvent, event_bus::EventBus, model::GeneralEvent},
-        organizer::organizer::{ParserActor, ScanLibrary},
+        dispatcher::{domain_event::DomainEvent, event_bus::EventBus, model::GeneralEvent},
+        library_organizer::organizer::{ParserActor, ScanLibrary},
     },
 };
 

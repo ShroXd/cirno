@@ -136,7 +136,7 @@ impl EventBus {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::infrastructure::event_bus::model::GeneralEvent;
+    use crate::infrastructure::dispatcher::model::GeneralEvent;
     use std::{sync::atomic::AtomicBool, time::Duration};
     use tokio::sync::Notify;
 

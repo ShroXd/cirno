@@ -3,7 +3,7 @@ use anyhow::Error;
 use std::{path::Path, sync::Arc};
 
 use super::library::library_scanner::scanner::scan_library;
-use crate::{domain::media_library::model::Library, infrastructure::event_bus::event_bus::EventBus};
+use crate::{domain::media_library::model::Library, infrastructure::dispatcher::event_bus::EventBus};
 
 #[derive(Debug, Default)]
 pub struct ParserActor;

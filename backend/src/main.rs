@@ -5,7 +5,7 @@ use application::{file_service::FileService, pipeline_service::PipelineService};
 use std::sync::Arc;
 use tracing::*;
 
-use infrastructure::{file::repository_impl::FileRepositoryImpl, task_pool::task_pool::TaskPool};
+use infrastructure::{file::repository_impl::FileRepositoryImpl, async_task_pool::task_pool::TaskPool};
 use init::{app_state::AppState, system_initializer::SystemInitializer};
 use interfaces::ws::utils::WsConnections;
 

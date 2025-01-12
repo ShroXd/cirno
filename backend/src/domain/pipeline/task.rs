@@ -14,7 +14,7 @@ use crate::{
         },
     },
     infrastructure::{
-        event_bus::{domain_event::DomainEvent, event_bus::EventBus},
+        dispatcher::{domain_event::DomainEvent, event_bus::EventBus},
         file::finder_options::{all_files, FinderOptions},
         hls::hls_state_actor::HlsStateActor,
     },

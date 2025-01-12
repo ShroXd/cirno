@@ -7,8 +7,8 @@ use tracing::*;
 
 use super::media_library::model::Library;
 use crate::infrastructure::{
-    event_bus::event_bus::EventBus,
-    organizer::organizer::{ParserActor, ScanLibrary},
+    dispatcher::event_bus::EventBus,
+    library_organizer::organizer::{ParserActor, ScanLibrary},
 };
 
 #[instrument(skip(event_bus))]

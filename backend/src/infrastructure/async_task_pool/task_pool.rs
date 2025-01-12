@@ -16,7 +16,7 @@ use crate::{
         task::async_task::{AsyncTaskInfo, TaskIdentifiable, TaskStatus, TaskType},
         time::TimeProvider,
     },
-    infrastructure::{event_bus::event_bus::EventBus, time::default::DefaultTimeProvider},
+    infrastructure::{dispatcher::event_bus::EventBus, time::default::DefaultTimeProvider},
 };
 
 #[derive(Clone)]

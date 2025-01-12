@@ -13,10 +13,10 @@ use crate::{
             database::Database,
             query_manager::{FileQueryManager, QueryManager},
         },
-        event_bus::event_bus::EventBus,
+        dispatcher::event_bus::EventBus,
         hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
-        organizer::organizer::ParserActor,
-        pipeline::{
+        library_organizer::organizer::ParserActor,
+        video_pipeline::{
             elements::{
                 branch::{AudioBranch, VideoBranch},
                 decode::Decodebin,
