@@ -41,6 +41,18 @@ export default defineConfig(() => {
         },
       },
     },
+    test: {
+      coverage: {
+        provider: 'v8',
+        reporter: ['html', 'text', 'json'],
+        exclude: [
+          '**/node_modules/**',
+          '**/test/**',
+          '**/*.d.ts',
+          '**/*.test.ts',
+        ],
+      },
+    },
     build: {
       outDir: 'dist',
       sourcemap: false,
