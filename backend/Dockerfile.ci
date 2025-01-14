@@ -16,19 +16,32 @@ RUN apt-get update && apt-get install -y \
 RUN rustup component add clippy rustfmt
 
 ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
-
 WORKDIR /app/backend
+
+COPY Cargo.toml Cargo.lock ./
+
+RUN mkdir src && \
+    echo "fn main() { }" > src/main.rs && \
+    cargo fetch
+
+RUN cargo build
+
+RUN rm -rf src
 
 COPY . .
 
 ENV DATABASE_URL="sqlite:///app/backend/database.db"
-
 RUN chmod +x ./scripts/create_db.sh && \
     ./scripts/create_db.sh
 
-CMD ["/bin/bash", "-c", "\
-    cargo fmt -- --check && \
-    cargo check && \
-    cargo clippy -- -D warnings && \
-    cargo test \
-"]
+COPY <<EOF /app/backend/ci.sh
+#!/bin/bash
+set -e
+cargo fmt -- --check
+cargo check
+cargo clippy -- -D warnings
+cargo test
+EOF
+
+RUN chmod +x /app/backend/ci.sh
+CMD ["/app/backend/ci.sh"]
