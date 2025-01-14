@@ -16,11 +16,13 @@ use crate::{
         websocket::event::WebSocketEventType,
     },
     infrastructure::{
-        event_dispatcher::{domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig},
+        async_task_pool::task_pool::TaskPool,
+        event_dispatcher::{
+            domain_event::DomainEvent, event_bus::EventBus, handler::EventHandlerConfig,
+        },
         file::finder_options::{all_files, FinderOptions},
         hls::hls_state_actor::{HlsStateActor, Reset, SetPipelineAddr},
         video_pipeline::actor::PipelineAction,
-        async_task_pool::task_pool::TaskPool,
     },
     interfaces::ws::utils::WsConnections,
     listen_event,

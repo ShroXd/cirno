@@ -5,7 +5,9 @@ use tracing::*;
 use ts_rs::TS;
 
 use crate::domain::pipeline::model::{PipelineState, Position};
-use crate::{domain::pipeline::ports::PipelinePort, infrastructure::video_pipeline::pipeline::Pipeline};
+use crate::{
+    domain::pipeline::ports::PipelinePort, infrastructure::video_pipeline::pipeline::Pipeline,
+};
 
 impl Actor for Pipeline {
     type Context = Context<Pipeline>;
