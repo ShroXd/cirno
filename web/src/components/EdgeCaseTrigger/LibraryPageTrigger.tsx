@@ -32,13 +32,22 @@ export const LibraryPageTrigger = ({
     handleSaved({ libraryId: firstId })
   }
 
-  const handleAddNotification = () =>
+  const handleAddSuccessNotification = () =>
     addNotification(
       {
-        title: 'Test title',
-        message: 'Test',
+        title: 'Success title',
+        message: 'Success message',
       },
       Variation.Success
+    )
+
+  const handleAddErrorNotification = () =>
+    addNotification(
+      {
+        title: 'Error title',
+        message: 'Error message',
+      },
+      Variation.Error
     )
 
   const handleSelectPath = async () => {
@@ -65,8 +74,11 @@ export const LibraryPageTrigger = ({
   return (
     <div className='flex flex-wrap gap-4'>
       <Button onClick={() => setHasErrorState(true)}>Throw error</Button>
-      <Button onClick={() => handleAddNotification()}>
-        Show test notification
+      <Button onClick={() => handleAddSuccessNotification()}>
+        Show success notification
+      </Button>
+      <Button onClick={() => handleAddErrorNotification()}>
+        Show error notification
       </Button>
       <Button onClick={() => handleAddScanning()}>Add scanning</Button>
       <Button onClick={() => handleDeleteScanning()}>Delete scanning</Button>
