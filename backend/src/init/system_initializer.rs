@@ -9,13 +9,13 @@ use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 use crate::{
     domain::pipeline::ports::{Decoder, HlsSink, Source, StreamBranch},
     infrastructure::{
+        event_dispatcher::event_bus::EventBus,
+        hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
+        library_organizer::organizer::ParserActor,
         media_db::{
             database::Database,
             query_manager::{FileQueryManager, QueryManager},
         },
-        event_dispatcher::event_bus::EventBus,
-        hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
-        library_organizer::organizer::ParserActor,
         video_pipeline::{
             elements::{
                 branch::{AudioBranch, VideoBranch},
@@ -162,7 +162,7 @@ impl SystemInitializer {
 
         let event_bus = Arc::new(EventBus::new(16));
 
-        let hls_sink = match HlsSinkImpl::new(self.get_hls_state_actor_addr().into()) {
+        let hls_sink = match HlsSinkImpl::new(self.get_hls_state_actor_addr()) {
             Ok(hls_sink) => hls_sink,
             Err(e) => return Err(anyhow::anyhow!("Failed to initialize hls sink: {}", e)),
         };
@@ -253,7 +253,7 @@ impl SystemInitializer {
     async fn init_parser(&mut self) -> Result<()> {
         info!("Initializing parser");
 
-        let parser_actor = ParserActor::default();
+        let parser_actor = ParserActor;
         let addr = parser_actor.start();
         self.parser_addr = Some(addr);
 

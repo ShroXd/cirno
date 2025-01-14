@@ -85,7 +85,7 @@ impl StreamBranch for AudioBranch {
 
         // TODO: maybe we have better way to set capsfilter
         let cap = Caps::builder("audio/x-raw");
-        capsfilter.set_property("caps", &cap.build());
+        capsfilter.set_property("caps", cap.build());
 
         // let encoder = factory.make("opusenc")?;
         let encoder = factory.make("avenc_aac")?;

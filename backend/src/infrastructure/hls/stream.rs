@@ -85,12 +85,9 @@ impl HlsStream {
                 e
             })?;
 
-        let pipeline_addr = match self.state.send(GetPipelineAddr).await?.map_err(|e| {
-            error!("Failed to get pipeline address: {}", e);
-            e
-        })? {
-            Some(addr) => addr,
-            None => return Err(anyhow!("Failed to get pipeline address")),
+        let pipeline_addr = match self.state.send(GetPipelineAddr).await? {
+            Ok(Some(addr)) => addr,
+            _ => return Err(anyhow!("Failed to get pipeline address")),
         };
 
         let file_duration = pipeline_addr.send(QueryDuration).await?;
@@ -215,6 +212,7 @@ impl Write for HlsStream {
 
         let mut file = std::fs::OpenOptions::new()
             .create(true)
+            .truncate(false)
             .write(true)
             .open(self.path_str.clone())?;
 

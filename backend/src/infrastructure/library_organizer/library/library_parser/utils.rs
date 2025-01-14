@@ -31,17 +31,18 @@ pub fn parse_meta_files<F>(meta_files: &[PathBuf], tv_serie: &mut TvShow, encode
 where
     F: Fn(&Option<PathBuf>) -> Option<String>,
 {
-    meta_files.iter().for_each(|file| match file.file_stem() {
-        Some(file_stem) => match file_stem.to_string_lossy().as_ref() {
-            "poster" => {
-                tv_serie.poster_path = encode_fn(&Some(file.clone()));
+    meta_files.iter().for_each(|file| {
+        if let Some(file_stem) = file.file_stem() {
+            match file_stem.to_string_lossy().as_ref() {
+                "poster" => {
+                    tv_serie.poster_path = encode_fn(&Some(file.clone()));
+                }
+                "fanart" => {
+                    tv_serie.fanart_path = encode_fn(&Some(file.clone()));
+                }
+                _ => (),
             }
-            "fanart" => {
-                tv_serie.fanart_path = encode_fn(&Some(file.clone()));
-            }
-            _ => (),
-        },
-        None => (),
+        }
     });
 }
 

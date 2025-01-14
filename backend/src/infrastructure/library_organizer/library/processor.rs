@@ -32,7 +32,7 @@ pub fn process_series(series_path: &PathBuf) -> TvShow {
     debug!("Divided into {} episodes files", episodes.len());
 
     // Parse tv series nfo file
-    let mut tv_serie = match parse_tv_series_nfo(&series_path, parse_tv_serie) {
+    let mut tv_serie = match parse_tv_series_nfo(series_path, parse_tv_serie) {
         Ok(series) => series,
         Err(err) => {
             error!("Error parsing series nfo file: {}", err);
@@ -81,16 +81,15 @@ pub fn process_series(series_path: &PathBuf) -> TvShow {
 
         let season_map_key = season_number;
 
-        if !seasons_map.contains_key(&season_map_key) {
-            // TODO: maybe we dont need this
-            debug!("Adding season: {}", season_number);
-            seasons_map.insert(season_map_key, Season::default());
-        }
+        seasons_map
+            .entry(season_map_key)
+            .or_insert_with(Season::default);
 
         let season = seasons_map.get_mut(&season_map_key).unwrap();
-        if !season.episodes.contains_key(&episode_number) {
-            season.episodes.insert(episode_number, Episode::default());
-        }
+        season
+            .episodes
+            .entry(episode_number)
+            .or_insert_with(Episode::default);
 
         let extension = match episode_dir.extension() {
             Some(ext) => ext.to_string_lossy().to_lowercase(),

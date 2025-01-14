@@ -61,15 +61,12 @@ impl Pipeline {
     #[instrument(skip(self))]
     fn on_pipeline_msg(&self, msg: &GstMessage) {
         use gstreamer::MessageView;
-        match msg.view() {
-            MessageView::Error(err) => {
-                error!(
-                    "Pipeline error received from element {:?}",
-                    err.src().map(|s| s.path_string())
-                );
-                error!("Pipeline error: {}", err.error());
-            }
-            _ => (),
+        if let MessageView::Error(err) = msg.view() {
+            error!(
+                "Pipeline error received from element {:?}",
+                err.src().map(|s| s.path_string())
+            );
+            error!("Pipeline error: {}", err.error());
         }
     }
 
@@ -285,7 +282,7 @@ impl PipelinePort for Pipeline {
         info!("Duration: {:?}", q);
         info!("Duration: {:?}", q.nseconds());
 
-        Ok(DomainDuration::from_secs(q.nseconds() / 1_000_000_000)?)
+        DomainDuration::from_secs(q.nseconds() / 1_000_000_000)
     }
 
     #[instrument(skip(self))]

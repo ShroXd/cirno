@@ -5,8 +5,16 @@ use application::{file_service::FileService, pipeline_service::PipelineService};
 use std::sync::Arc;
 use tracing::*;
 
-use infrastructure::{file::repository_impl::FileRepositoryImpl, async_task_pool::task_pool::TaskPool};
-use init::{app_state::AppState, system_initializer::SystemInitializer};
+use infrastructure::{
+    async_task_pool::task_pool::TaskPool, file::repository_impl::FileRepositoryImpl,
+};
+use init::{
+    app_state::{
+        AppState, CommunicationContext, InfrastructureContext, MediaProcessingContext,
+        StorageContext,
+    },
+    system_initializer::SystemInitializer,
+};
 use interfaces::ws::utils::WsConnections;
 
 mod application;
@@ -66,15 +74,21 @@ async fn main() -> std::io::Result<()> {
     let file_service = FileService::new(Arc::new(file_repository));
 
     info!("Init app state");
-    let app_state = AppState::new(
-        parser_addr.clone(),
-        hls_state_actor_addr.clone(),
+    let media_context =
+        MediaProcessingContext::new(parser_addr.clone(), hls_state_actor_addr.clone());
+    let storage_context = StorageContext::new(
         database_addr.clone(),
         file_service.clone(),
         repositories.clone(),
-        ws_connections.clone(),
-        task_pool.clone(),
-        event_bus.clone(),
+    );
+    let communication_context = CommunicationContext::new(ws_connections.clone());
+    let infrastructure_context = InfrastructureContext::new(task_pool.clone(), event_bus.clone());
+
+    let app_state = AppState::new(
+        media_context,
+        storage_context,
+        communication_context,
+        infrastructure_context,
     );
 
     info!("Starting backend server");

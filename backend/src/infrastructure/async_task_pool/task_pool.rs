@@ -139,8 +139,7 @@ impl TaskPool {
         retention_period: Option<Duration>,
     ) -> Result<TaskId> {
         let task_id = Uuid::new_v4();
-        let task_id_clone = task_id.clone();
-        task.set_task_id(TaskId(task_id_clone));
+        task.set_task_id(TaskId(task_id));
 
         debug!("Registering task: {}", task_id);
 

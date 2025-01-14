@@ -5,12 +5,12 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 
 use crate::application::file_service::FileService;
-use crate::infrastructure::media_db::database::Database;
+use crate::infrastructure::async_task_pool::task_pool::TaskPool;
 use crate::infrastructure::event_dispatcher::event_bus::EventBus;
 use crate::infrastructure::hls::hls_state_actor::HlsStateActor;
 use crate::infrastructure::library_organizer::organizer::ParserActor;
+use crate::infrastructure::media_db::database::Database;
 use crate::infrastructure::video_pipeline::pipeline::Pipeline;
-use crate::infrastructure::async_task_pool::task_pool::TaskPool;
 use crate::interfaces::ws::utils::WsConnections;
 
 use super::repository_manager::Repositories;
@@ -68,6 +68,15 @@ pub struct MediaProcessingContext {
     hls_state_actor_addr: Addr<HlsStateActor>,
 }
 
+impl MediaProcessingContext {
+    pub fn new(parser_addr: Addr<ParserActor>, hls_state_actor_addr: Addr<HlsStateActor>) -> Self {
+        Self {
+            parser_addr,
+            hls_state_actor_addr,
+        }
+    }
+}
+
 #[derive(Clone, Getters)]
 #[getset(get = "pub")]
 pub struct StorageContext {
@@ -77,10 +86,30 @@ pub struct StorageContext {
     repositories: Repositories,
 }
 
+impl StorageContext {
+    pub fn new(
+        database_addr: Addr<Database>,
+        file_service: FileService,
+        repositories: Repositories,
+    ) -> Self {
+        Self {
+            database_addr,
+            file_service,
+            repositories,
+        }
+    }
+}
+
 #[derive(Clone, Getters)]
 #[getset(get = "pub")]
 pub struct CommunicationContext {
     ws_connections: WsConnections,
+}
+
+impl CommunicationContext {
+    pub fn new(ws_connections: WsConnections) -> Self {
+        Self { ws_connections }
+    }
 }
 
 #[derive(Clone, Getters)]
@@ -88,6 +117,15 @@ pub struct CommunicationContext {
 pub struct InfrastructureContext {
     task_pool: TaskPool,
     event_bus: Arc<EventBus>,
+}
+
+impl InfrastructureContext {
+    pub fn new(task_pool: TaskPool, event_bus: Arc<EventBus>) -> Self {
+        Self {
+            task_pool,
+            event_bus,
+        }
+    }
 }
 
 #[derive(Clone, Getters)]
@@ -101,30 +139,16 @@ pub struct AppState {
 
 impl AppState {
     pub fn new(
-        parser_addr: Addr<ParserActor>,
-        hls_state_actor_addr: Addr<HlsStateActor>,
-        database_addr: Addr<Database>,
-        file_service: FileService,
-        repositories: Repositories,
-        ws_connections: WsConnections,
-        task_pool: TaskPool,
-        event_bus: Arc<EventBus>,
+        media_context: MediaProcessingContext,
+        storage_context: StorageContext,
+        communication_context: CommunicationContext,
+        infrastructure_context: InfrastructureContext,
     ) -> Self {
         Self {
-            media: MediaProcessingContext {
-                parser_addr,
-                hls_state_actor_addr,
-            },
-            storage: StorageContext {
-                database_addr,
-                file_service,
-                repositories,
-            },
-            communication: CommunicationContext { ws_connections },
-            infrastructure: InfrastructureContext {
-                task_pool,
-                event_bus,
-            },
+            media: media_context,
+            storage: storage_context,
+            communication: communication_context,
+            infrastructure: infrastructure_context,
         }
     }
 }
