@@ -42,6 +42,8 @@ export default defineConfig(() => {
       },
     },
     test: {
+      environment: 'jsdom',
+      silent: true,
       coverage: {
         provider: 'v8',
         reporter: ['html', 'text', 'json'],
@@ -49,7 +51,12 @@ export default defineConfig(() => {
           '**/node_modules/**',
           '**/test/**',
           '**/*.d.ts',
-          '**/*.test.ts',
+          '**/*.{test,config}.{js,ts}',
+          '**/App.tsx',
+          '**/i18n.ts',
+          '**/main.tsx',
+          '**/types.ts',
+          '**/bindings/**',
         ],
       },
     },

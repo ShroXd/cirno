@@ -261,7 +261,7 @@ tasks:
       - |
         echo "📊 Counting lines of code..."
         cloc . \
-        --exclude-dir=node_modules,target,dist,build,.git,vendor,logs,tmp \
+        --exclude-dir=node_modules,target,dist,build,.git,vendor,logs,tmp,coverage \
         --exclude-ext=lock,tsbuildinfo \
         --not-match-f="(package-lock\.json|pnpm-lock\.yaml|Cargo\.lock)"
         echo "✅ Code line count completed."
