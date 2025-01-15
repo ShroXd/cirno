@@ -12,7 +12,7 @@ COPY web/ ./
 RUN pnpm run build
 
 # 🦀 Build Backend (Rust)
-FROM rust:1.80.1-slim AS backend-builder
+FROM rust:1.80.1-slim@sha256:907ff4b3ee7df57149ffee04f606e0a08b9b2ed3507f00a19cf3c9c0f74b7681 AS backend-builder
 
 # 📦 Install GStreamer Dependencies
 RUN apt-get update && apt-get install -y \
@@ -34,7 +34,7 @@ COPY backend/ ./
 RUN cargo build --release
 
 # 🚀 Final Stage: Application Runner
-FROM debian:bookworm-slim AS runner
+FROM debian:bookworm-slim@sha256:f70dc8d6a8b6a06824c92471a1a258030836b26b043881358b967bf73de7c5ab AS runner
 
 # 🔧 Install GStreamer Dependencies
 RUN apt-get update && apt-get install -y \
