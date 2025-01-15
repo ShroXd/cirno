@@ -1,5 +1,5 @@
 # 🚧 Build Frontend
-FROM node:20-alpine AS frontend-builder
+FROM node:20-alpine@sha256:24fb6aa7020d9a20b00d6da6d1714187c45ed00d1eb4adb01395843c338b9372 AS frontend-builder
 
 WORKDIR /app
 COPY .env.production ./web/.env.production
@@ -12,7 +12,7 @@ COPY web/ ./
 RUN pnpm run build
 
 # 🦀 Build Backend (Rust)
-FROM rust:1.80 AS backend-builder
+FROM rust:1.80.1-slim AS backend-builder
 
 # 📦 Install GStreamer Dependencies
 RUN apt-get update && apt-get install -y \
@@ -34,7 +34,7 @@ COPY backend/ ./
 RUN cargo build --release
 
 # 🚀 Final Stage: Application Runner
-FROM rust:1.80-slim AS runner
+FROM debian:bookworm-slim AS runner
 
 # 🔧 Install GStreamer Dependencies
 RUN apt-get update && apt-get install -y \
