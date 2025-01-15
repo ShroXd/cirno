@@ -1,1 +1,5 @@
-export const DefaultLoading = () => <div>Loading...</div>
+export const DefaultLoading = () => (
+  <div role='status' aria-live='polite'>
+    Loading...
+  </div>
+)

@@ -7,10 +7,10 @@ import { DefaultError } from './DefaultEdgeComponents/DefaultError'
 import { DefaultLoading } from './DefaultEdgeComponents/DefaultLoading'
 
 interface AsyncSwitcherProps<T> {
-  loading: boolean
-  error: Error | null
-  data: T | undefined | null
   children: ReactNode
+  loading?: boolean
+  error?: Error | null
+  data?: T | null
   loadingComponent?: ReactNode
   errorComponent?: ReactNode
   emptyComponent?: ReactNode

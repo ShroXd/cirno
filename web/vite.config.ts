@@ -42,8 +42,9 @@ export default defineConfig(() => {
       },
     },
     test: {
-      environment: 'jsdom',
       silent: true,
+      environment: 'jsdom',
+      setupFiles: [path.resolve(__dirname, 'vitest-setup.ts')],
       coverage: {
         provider: 'v8',
         reporter: ['html', 'text', 'json'],

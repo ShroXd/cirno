@@ -3,5 +3,7 @@ interface DefaultErrorProps {
 }
 
 export const DefaultError = ({ error }: DefaultErrorProps) => (
-  <div>Error: {error.message}</div>
+  <div role='alert' aria-live='assertive'>
+    Error: {error.message}
+  </div>
 )
