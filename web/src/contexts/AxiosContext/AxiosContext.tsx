@@ -1,4 +1,4 @@
-import { FC, ReactNode, createContext, useEffect, useState } from 'react'
+import { FC, ReactNode, createContext, useEffect } from 'react'
 
 import axios, { AxiosInstance } from 'axios'
 
@@ -15,24 +15,22 @@ export const AxiosContext = createContext<AxiosContextProps | undefined>(
 export const AxiosProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // TODO: support auth token
   // const [authToken, setAuthToken] = useState<string | null>(null)
-  const [wsClientKey, setWsClientKey] = useState<string | null>(null)
 
   const { onEvent } = useEventBus()
-  onEvent('RegisterClient', payload => {
-    setWsClientKey(payload.clientKey)
-  })
 
   // TODO: config url via env variable
   const axiosInstance = axios.create({})
 
-  useEffect(() => {
-    if (wsClientKey) {
-      axiosInstance.interceptors.request.use(request => {
-        request.headers['X-WS-CLIENT-KEY'] = wsClientKey
-        return request
-      })
-    }
-  }, [wsClientKey, axiosInstance.interceptors.request])
+  useEffect(
+    () =>
+      onEvent('RegisterClient', payload =>
+        axiosInstance.interceptors.request.use(request => {
+          request.headers['X-WS-CLIENT-KEY'] = payload.clientKey
+          return request
+        })
+      ),
+    [onEvent, axiosInstance.interceptors.request]
+  )
 
   axiosInstance.interceptors.response.use(
     response => response,
