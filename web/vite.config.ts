@@ -50,7 +50,7 @@ export default defineConfig(() => {
         reporter: ['html', 'text', 'json'],
         exclude: [
           '**/node_modules/**',
-          '**/test/**',
+          '**/*.test.{js,jsx,ts,tsx}',
           '**/*.d.ts',
           '**/*.{test,config}.{js,ts}',
           '**/App.tsx',

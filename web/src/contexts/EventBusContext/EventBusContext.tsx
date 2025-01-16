@@ -3,7 +3,7 @@ import { FC, ReactNode, createContext, useCallback, useMemo } from 'react'
 import { createEventBus } from './eventBus'
 import { EventHandler, EventType, PayloadMap } from './types'
 
-interface EventBusContextProps {
+export interface EventBusContextProps {
   emitEvent: <E extends EventType>(message: {
     event: E
     payload: PayloadMap[E]
