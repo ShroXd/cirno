@@ -4,7 +4,7 @@ import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import { FeatureProvider } from './contexts/FeatureContext/FeatureContext'
 import { AxiosProvider } from '~/contexts/AxiosContext/AxiosContext.tsx'
 import { EventBusProvider } from '~/contexts/EventBusContext/EventBusContext.tsx'
-import { NotificationProvider } from '~/contexts/NotificationContext.tsx'
+import { NotificationProvider } from '~/contexts/NotificationContext/NotificationContext.tsx'
 import { WebSocketProvider } from '~/contexts/WebSocketContext/WebSocketContext.tsx'
 import { Home } from '~/pages/Home/Home'
 

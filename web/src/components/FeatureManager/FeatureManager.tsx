@@ -5,12 +5,12 @@ import { Switch, Typography } from '@material-tailwind/react'
 import { useFeatures } from '~/hooks/feature/useFeatures'
 
 export const FeatureManager = () => {
-  const { features, toggleFeature } = useFeatures()
+  const { getAllFeatures, toggleFeature } = useFeatures()
   const { t } = useTranslation()
 
   return (
     <>
-      {features.map(feature => (
+      {getAllFeatures().map(feature => (
         <div className='flex items-center justify-between' key={feature.id}>
           <Switch
             ripple={false}

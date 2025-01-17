@@ -1,4 +1,10 @@
-import { ReactNode, createContext, useEffect, useState } from 'react'
+import {
+  ReactNode,
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 
 import { defaultFeatures } from '~/config/feature'
 
@@ -10,17 +16,17 @@ export interface Feature {
 }
 
 export interface FeatureContextType {
-  features: Feature[]
   isFeatureEnabled: (featureId: string) => boolean
   toggleFeature: (featureId: string) => void
   resetFeature: () => void
+  getAllFeatures: () => readonly Feature[]
 }
 
 export const FeatureContext = createContext<FeatureContextType>({
-  features: [],
   isFeatureEnabled: () => false,
   toggleFeature: () => {},
   resetFeature: () => {},
+  getAllFeatures: () => [],
 })
 
 export const FeatureProvider = ({ children }: { children: ReactNode }) => {
@@ -33,30 +39,34 @@ export const FeatureProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('features', JSON.stringify(features))
   }, [features])
 
-  const isFeatureEnabled = (featureId: string) =>
-    features.find(feature => feature.id === featureId)?.enabled ?? false
+  const isFeatureEnabled = useCallback(
+    (featureId: string) =>
+      features.find(feature => feature.id === featureId)?.enabled ?? false,
+    [features]
+  )
 
-  const toggleFeature = (featureId: string) => {
-    setFeatures(prevFeatures =>
-      prevFeatures.map(feature =>
-        feature.id === featureId
-          ? { ...feature, enabled: !feature.enabled }
-          : feature
-      )
-    )
-  }
+  const toggleFeature = useCallback(
+    (featureId: string) =>
+      setFeatures(prevFeatures =>
+        prevFeatures.map(feature =>
+          feature.id === featureId
+            ? { ...feature, enabled: !feature.enabled }
+            : feature
+        )
+      ),
+    []
+  )
 
-  const resetFeature = () => {
-    setFeatures(defaultFeatures)
-  }
+  const resetFeature = useCallback(() => setFeatures(defaultFeatures), [])
+  const getAllFeatures = useCallback(() => Object.freeze(features), [features])
 
   return (
     <FeatureContext.Provider
       value={{
-        features,
         isFeatureEnabled,
         toggleFeature,
         resetFeature,
+        getAllFeatures,
       }}
     >
       {children}

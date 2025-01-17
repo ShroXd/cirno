@@ -30,7 +30,7 @@ describe('FeatureContext', async () => {
     })
 
     expect(result.current).toBeDefined()
-    expect(result.current?.features).toBeDefined()
+    expect(result.current?.getAllFeatures()).toBeDefined()
   })
 
   it('should be able to check if a feature is enabled', () => {
@@ -64,7 +64,7 @@ describe('FeatureContext', async () => {
       wrapper,
     })
 
-    expect(result.current?.features).toEqual([
+    expect(result.current?.getAllFeatures()).toEqual([
       { id: 'feature1', enabled: false },
       { id: 'feature2', enabled: false },
     ])
@@ -74,7 +74,7 @@ describe('FeatureContext', async () => {
       result.current?.toggleFeature('feature1')
     })
 
-    expect(result.current?.features).toEqual([
+    expect(result.current?.getAllFeatures()).toEqual([
       { id: 'feature1', enabled: true },
       { id: 'feature2', enabled: false },
     ])
@@ -101,7 +101,7 @@ describe('FeatureContext', async () => {
       wrapper,
     })
 
-    expect(result.current?.features).toEqual([
+    expect(result.current?.getAllFeatures()).toEqual([
       { id: 'feature1', enabled: false },
       { id: 'feature2', enabled: false },
     ])
@@ -111,7 +111,7 @@ describe('FeatureContext', async () => {
       result.current?.resetFeature()
     })
 
-    expect(result.current?.features).toEqual(defaultFeatures)
+    expect(result.current?.getAllFeatures()).toEqual(defaultFeatures)
     expect(setItem).toHaveBeenCalledTimes(2)
     expect(setItem).toHaveBeenCalledWith(
       'features',

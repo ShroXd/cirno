@@ -8,7 +8,7 @@ import {
 import { IconButton, Typography } from '@material-tailwind/react'
 
 import { DefaultNotificationTimeout, Variation } from './constants'
-import { NotificationModel } from '~/contexts/NotificationContext'
+import { NotificationModel } from '~/contexts/NotificationContext/NotificationContext.tsx'
 
 export interface NotificationItemProps extends NotificationModel {
   onRemove: (id: string) => void
