@@ -21,7 +21,11 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Types */
-    "types": ["@types/wicg-file-system-access", "@testing-library/jest-dom"],
+    "types": [
+      "@types/wicg-file-system-access",
+      "@testing-library/jest-dom",
+      "jest-axe"
+    ],
 
     /* Paths */
     "baseUrl": ".",
