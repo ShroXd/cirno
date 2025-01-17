@@ -9,7 +9,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.{ts,tsx}', '**/*.test.{ts,tsx}'],
     ignores: ['dist', '**/src/bindings/**'],
     languageOptions: {
       ecmaVersion: 2020,

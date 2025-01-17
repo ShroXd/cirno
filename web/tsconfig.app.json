@@ -24,7 +24,7 @@
     "types": [
       "@types/wicg-file-system-access",
       "@testing-library/jest-dom",
-      "jest-axe"
+      "vitest/globals"
     ],
 
     /* Paths */

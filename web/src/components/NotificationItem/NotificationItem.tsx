@@ -25,14 +25,16 @@ export const NotificationItem = ({
 }: NotificationItemProps) => {
   const [isLeaving, setIsLeaving] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
-  const elementRef = useRef<HTMLDivElement>(null)
   const [height, setHeight] = useState(0)
+
+  const elementRef = useRef<HTMLDivElement>(null)
+  const autoCloseTimer = useRef<NodeJS.Timeout | undefined>(undefined)
 
   useEffect(() => {
     setIsVisible(true)
     setHeight(elementRef.current?.clientHeight || 0)
 
-    const timer = setTimeout(() => {
+    autoCloseTimer.current = setTimeout(() => {
       setIsLeaving(true)
       setIsVisible(false)
 
@@ -42,7 +44,7 @@ export const NotificationItem = ({
       }, 500)
     }, duration || DefaultNotificationTimeout)
 
-    return () => clearTimeout(timer)
+    return () => clearTimeout(autoCloseTimer.current)
   }, [duration, id, message, onRemove])
 
   const handleRemove = () => {
@@ -50,6 +52,7 @@ export const NotificationItem = ({
     setIsLeaving(true)
 
     setTimeout(() => {
+      clearTimeout(autoCloseTimer.current)
       onRemove(id)
     }, 400)
   }
@@ -68,11 +71,26 @@ export const NotificationItem = ({
   const getIcon = () => {
     switch (variation) {
       case Variation.Success:
-        return <CheckBadgeIcon className='mr-2 h-6 w-6 text-green-500' />
+        return (
+          <CheckBadgeIcon
+            data-testid='success-icon'
+            className='mr-2 h-6 w-6 text-green-500'
+          />
+        )
       case Variation.Error:
-        return <FaceFrownIcon className='mr-2 h-6 w-6 text-red-500' />
+        return (
+          <FaceFrownIcon
+            data-testid='error-icon'
+            className='mr-2 h-6 w-6 text-red-500'
+          />
+        )
       default:
-        return <CheckBadgeIcon className='mr-2 h-6 w-6 text-green-500' />
+        return (
+          <CheckBadgeIcon
+            data-testid='default-icon'
+            className='mr-2 h-6 w-6 text-green-500'
+          />
+        )
     }
   }
 
@@ -93,6 +111,7 @@ export const NotificationItem = ({
           {title}
         </Typography>
         <IconButton
+          aria-label='Close notification'
           variant='text'
           size='sm'
           ripple={false}
