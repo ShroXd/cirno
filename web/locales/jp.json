@@ -17,17 +17,21 @@
     }
   },
   "component": {
-    "navbar": {
+    "stickyNavbar": {
+      "title": "メインスティックナベゴ",
       "addLibrary": "ライブラリ追加",
-      "favorites": "お気に入り"
-    },
-    "sidebar": {
+      "favorites": "お気に入り",
       "home": "ホーム",
       "media": "メディア",
       "library": "ライブラリ",
       "plugins": "プラグイン",
       "test": "テスト",
-      "settings": "設定"
+      "settings": "設定",
+      "toggleSidebar": "サイドバーを切り替える",
+      "search": "検索"
+    },
+    "NotificationItem": {
+      "close": "通知を閉じる"
     },
     "featureManager": {
       "title": "機能管理",
@@ -76,6 +80,10 @@
       "media": "メディア",
       "favorites": "お気に入り",
       "settings": "設定"
+    },
+    "sidebar": {
+      "title": "ナビゲーションサイドバー",
+      "library": "ライブラリ"
     }
   },
   "page": {

@@ -17,17 +17,21 @@
     }
   },
   "component": {
-    "navbar": {
+    "stickyNavbar": {
+      "title": "Main sticky Navbar",
       "addLibrary": "Add Library",
-      "favorites": "Favorites"
-    },
-    "sidebar": {
+      "favorites": "Favorites",
       "home": "Home",
       "media": "Media",
       "library": "Library",
       "plugins": "Plugins",
       "test": "Test",
-      "settings": "Settings"
+      "settings": "Settings",
+      "toggleSidebar": "Toggle Sidebar",
+      "search": "Search"
+    },
+    "NotificationItem": {
+      "close": "Close notification"
     },
     "featureManager": {
       "title": "Feature Manager",
@@ -76,6 +80,10 @@
       "media": "Media",
       "favorites": "Favorites",
       "settings": "Settings"
+    },
+    "sidebar": {
+      "title": "Navigation Sidebar",
+      "library": "Library"
     }
   },
   "page": {

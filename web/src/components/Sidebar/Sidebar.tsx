@@ -51,10 +51,14 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
 
   return (
     <>
-      <Drawer open={open} onClose={onClose}>
+      <Drawer
+        open={open}
+        onClose={onClose}
+        aria-label={t('component.sidebar.title')}
+      >
         <Card color='transparent' shadow={false}>
           <div className='h-screen w-full max-w-[20rem] select-none overflow-y-auto border-r border-blue-gray-50 p-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
-            <List>
+            <List role='navigation'>
               <Accordion
                 open={expanded}
                 icon={
@@ -66,42 +70,45 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
                   />
                 }
               >
-                <div className='flex flex-row items-center gap-3'>
-                  <ListItem className='p-0'>
-                    <AccordionHeader
-                      onClick={toggleExpand}
-                      className='border-b-0 p-3'
+                <ListItem className='p-0'>
+                  <AccordionHeader
+                    onClick={toggleExpand}
+                    className='border-b-0 p-3'
+                    aria-expanded={expanded}
+                  >
+                    <Typography
+                      color='blue-gray'
+                      className='mr-auto font-normal'
                     >
-                      <Typography
-                        color='blue-gray'
-                        className='mr-auto font-normal'
-                      >
-                        {t('component.sidebar.library')}
-                      </Typography>
-                    </AccordionHeader>
-                  </ListItem>
-                </div>
+                      {t('component.sidebar.library')}
+                    </Typography>
+                  </AccordionHeader>
+                </ListItem>
                 <AccordionBody className='py-1'>
                   {!isLoading && (
                     <List className='p-0'>
                       {data?.map(mediaLibrary => (
-                        <div
-                          className='flex flex-row justify-between gap-3'
+                        <button
                           key={mediaLibrary.id.toString()}
+                          onClick={() =>
+                            navigate(`/library/${mediaLibrary.id}`)
+                          }
+                          className='flex w-full flex-row justify-between gap-3'
                         >
-                          <ListItem
-                            onClick={() =>
-                              navigate(`/library/${mediaLibrary.id}`)
-                            }
-                          >
+                          <ListItem>
                             <ListItemPrefix>
                               {getIconAccordingToCategory(
                                 mediaLibrary.category
                               )}
                             </ListItemPrefix>
-                            {mediaLibrary.name}
+                            <Typography
+                              color='blue-gray'
+                              className='mr-auto font-normal'
+                            >
+                              {mediaLibrary.name}
+                            </Typography>
                           </ListItem>
-                        </div>
+                        </button>
                       ))}
                     </List>
                   )}

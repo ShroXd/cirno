@@ -7,7 +7,7 @@ import { useEventBus } from '~/hooks/useEventBus'
 // This can lead to the creation of multiple WebSocket clients, causing issues with backend negotiation.
 // TODO: Optimize this code to ensure proper WebSocket cleanup when the context is updated.
 // For now, we're initializing the WebSocket outside the context to prevent duplicate connections.
-const ws = new WebSocket('/ws')
+const ws = new WebSocket('ws://localhost:8000/ws')
 export const WebSocketContext = createContext<WebSocket | null>(ws)
 
 interface WebSocketProviderProps {

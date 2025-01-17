@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   CheckBadgeIcon,
@@ -29,6 +30,8 @@ export const NotificationItem = ({
 
   const elementRef = useRef<HTMLDivElement>(null)
   const autoCloseTimer = useRef<NodeJS.Timeout | undefined>(undefined)
+
+  const { t } = useTranslation()
 
   useEffect(() => {
     setIsVisible(true)
@@ -111,7 +114,7 @@ export const NotificationItem = ({
           {title}
         </Typography>
         <IconButton
-          aria-label='Close notification'
+          aria-label={t('component.NotificationItem.close')}
           variant='text'
           size='sm'
           ripple={false}

@@ -17,17 +17,21 @@
     }
   },
   "component": {
-    "navbar": {
+    "stickyNavbar": {
+      "title": "主导航栏",
       "addLibrary": "添加媒体库",
-      "favorites": "收藏"
-    },
-    "sidebar": {
+      "favorites": "收藏",
       "home": "首页",
       "media": "媒体",
       "library": "库",
       "plugins": "插件",
       "test": "测试",
-      "settings": "设置"
+      "settings": "设置",
+      "toggleSidebar": "切换侧边栏",
+      "search": "搜索"
+    },
+    "NotificationItem": {
+      "close": "关闭通知"
     },
     "featureManager": {
       "title": "功能管理",
@@ -76,6 +80,10 @@
       "media": "媒体",
       "favorites": "收藏",
       "settings": "设置"
+    },
+    "sidebar": {
+      "title": "导航侧边栏",
+      "library": "媒体库"
     }
   },
   "page": {
