@@ -74,6 +74,12 @@ export default defineConfig(() => {
             if (id.includes('video.js')) {
               return 'video-vendor'
             }
+            if (id.includes('material-tailwind')) {
+              return 'material-tailwind-vendor'
+            }
+            if (id.includes('lodash.js')) {
+              return 'lodash-vendor'
+            }
             // TODO: split business logic into chunks if needed
           },
         },
