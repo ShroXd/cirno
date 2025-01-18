@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --coverage.reporter=html",
     "test:update": "vitest run -u",
     "lint": "eslint ./src",
     "lint:files": "eslint ./src --format unix | cut -d: -f1 | sort -u",

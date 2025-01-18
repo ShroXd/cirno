@@ -9,6 +9,7 @@ tasks:
   # 2. install rust
   # 3. install gstreamer and related plugins
   # 4. create tmp folder
+  # 5. cargo install cargo-tarpaulin
 
   # ---------------------------- 📦 Dependency Management 📦 ----------------------------
 
@@ -29,6 +30,7 @@ tasks:
     dir: backend
     cmds:
       - cargo fetch
+      # - cargo install cargo-tarpaulin
 
   # ---------------------------- 🧪 Testing Tasks 🧪 ----------------------------
 
@@ -49,6 +51,22 @@ tasks:
     dir: backend
     cmds:
       - cargo test
+
+  # ---------------------------- 📊 Coverage Tasks 📊 ----------------------------
+
+  coverage:frontend:
+    desc: "📊 Generate coverage report for front-end tests"
+    dir: web
+    cmds:
+      - pnpm run test:coverage
+      - open coverage/index.html
+
+  coverage:backend:
+    desc: "📊 Generate coverage report for back-end tests"
+    dir: backend
+    cmds:
+      - TS_RS_EXPORT_DIR="../web/src/bindings" cargo tarpaulin --out Html --output-dir coverage
+      - open coverage/tarpaulin-report.html
 
   # ---------------------------- 🛠️ Development Mode 🛠️ ----------------------------
 
