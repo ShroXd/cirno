@@ -1,0 +1,26 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ContentCard > should render correctly with imageUrl, title 1`] = `
+<div
+  class="relative bg-clip-border text-gray-700 flex select-none flex-col overflow-hidden rounded-xl bg-white shadow-lg"
+>
+  <div
+    class="overflow-hidden"
+  >
+    <img
+      alt="Test title"
+      class="h-64 w-full object-cover transition-all duration-700 ease-[linear(0,_0.402_7.4%,_0.711_15.3%,_0.929_23.7%,_1.008_28.2%,_1.067_33%,_1.099_36.9%,_1.12_41%,_1.13_45.4%,_1.13_50.1%,_1.111_58.5%,_1.019_83.2%,_1.004_91.3%,_1)] hover:scale-105"
+      src=""
+    />
+  </div>
+  <div
+    class="bg-white px-4 py-3"
+  >
+    <p
+      class="block antialiased font-sans text-base leading-relaxed text-inherit truncate text-center font-medium"
+    >
+      Test title
+    </p>
+  </div>
+</div>
+`;
