@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@material-tailwind/react'
 import { render } from '@testing-library/react'
 import { axe } from 'jest-axe'
 import { describe, expect, it } from 'vitest'
@@ -19,5 +20,23 @@ describe('BaseDialog', async () => {
     )
 
     expect(await axe(container)).toHaveNoViolations()
+  })
+
+  it('should render correctly', () => {
+    const { baseElement } = render(
+      <ThemeProvider>
+        <BaseDialog
+          title='Test title'
+          description='Test description'
+          submitButtonText='Test submit button text'
+          open={true}
+          onClose={() => {}}
+          onSubmit={() => Promise.resolve()}
+          dialogHandler={() => {}}
+        />
+      </ThemeProvider>
+    )
+
+    expect(baseElement).toMatchSnapshot()
   })
 })

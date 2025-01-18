@@ -69,10 +69,11 @@ export const BaseDialog: FC<BaseDialogProps> = ({
         outsidePress: false,
       }}
       className='p-4'
+      data-testid='library-manage-dialog'
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogHeader className='relative m-0 block'>
-          <Typography variant='h4' color='blue-gray'>
+          <Typography variant='h4' color='blue-gray' data-testid='dialog-title'>
             {title}
           </Typography>
           <Typography className='mt-1 font-normal text-gray-600'>
@@ -195,7 +196,7 @@ export const BaseDialog: FC<BaseDialogProps> = ({
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button className='ml-auto' type='submit'>
+          <Button className='ml-auto' type='submit' data-testid='submit-button'>
             {submitButtonText}
           </Button>
         </DialogFooter>

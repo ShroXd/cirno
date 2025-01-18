@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { act, cleanup, fireEvent } from '@testing-library/react'
+import { cleanup, fireEvent } from '@testing-library/react'
 import { axe } from 'jest-axe'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -59,7 +59,7 @@ describe('Breadcrumb', () => {
     expect(getByText('component.breadcrumb.bar')).toBeVisible()
   })
 
-  it('should handle back navigation correctly for nested routes', async () => {
+  it('should handle back navigation correctly for nested routes', () => {
     vi.mocked(useLocation).mockReturnValue({
       pathname: '/foo/1/bar/2/baz/3',
       search: '',
@@ -74,9 +74,7 @@ describe('Breadcrumb', () => {
       <Breadcrumb onBack={mockOnBack} />
     )
 
-    await act(() => {
-      fireEvent.click(getByLabelText('component.breadcrumb.back'))
-    })
+    fireEvent.click(getByLabelText('component.breadcrumb.back'))
 
     expect(mockOnBack).toHaveBeenCalledTimes(1)
     expect(mockNavigate).toHaveBeenCalledTimes(1)

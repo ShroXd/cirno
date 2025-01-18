@@ -1,6 +1,7 @@
 import { ReactElement } from 'react'
 import { HashRouter } from 'react-router-dom'
 
+import { ThemeProvider } from '@material-tailwind/react'
 import { render } from '@testing-library/react'
 
 import ErrorBoundary from '~/components/ErrorBoundary/ErrorBoundary'
@@ -18,7 +19,9 @@ export const renderWithContext = (children: ReactElement) =>
           <WebSocketProvider>
             <AxiosProvider>
               <HashRouter>
-                <FeatureProvider>{children}</FeatureProvider>
+                <ThemeProvider>
+                  <FeatureProvider>{children}</FeatureProvider>
+                </ThemeProvider>
               </HashRouter>
             </AxiosProvider>
           </WebSocketProvider>
