@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Divider > should render correctly with horizontal variant 1`] = `
+<div
+  class="h-px bg-gray-300 "
+/>
+`;
+
+exports[`Divider > should render correctly with vertical variant 1`] = `
+<div
+  class="h-full w-px bg-gray-300 "
+/>
+`;
