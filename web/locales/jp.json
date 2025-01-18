@@ -79,7 +79,8 @@
       "library": "ライブラリ",
       "media": "メディア",
       "favorites": "お気に入り",
-      "settings": "設定"
+      "settings": "設定",
+      "back": "戻る"
     },
     "sidebar": {
       "title": "ナビゲーションサイドバー",

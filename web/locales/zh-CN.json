@@ -79,7 +79,8 @@
       "library": "媒体库",
       "media": "媒体",
       "favorites": "收藏",
-      "settings": "设置"
+      "settings": "设置",
+      "back": "返回"
     },
     "sidebar": {
       "title": "导航侧边栏",

@@ -30,14 +30,9 @@ export const Breadcrumb = ({ onBack }: BreadcrumbProps) => {
 
   const handleGoBack = () => {
     console.log('pathSegmentsView', pathSegmentsView)
-    if (pathSegmentsView.length > 1) {
-      const parentPath = '/' + pathSegments.slice(0, -2).join('/')
-      onBack?.()
-      navigate(parentPath)
-    } else {
-      onBack?.()
-      navigate('/')
-    }
+    const parentPath = '/' + pathSegments.slice(0, -2).join('/')
+    onBack?.()
+    navigate(parentPath)
   }
 
   return (
@@ -48,18 +43,24 @@ export const Breadcrumb = ({ onBack }: BreadcrumbProps) => {
         variant='text'
         ripple={false}
         size='sm'
+        aria-label={t('component.breadcrumb.back')}
       >
         <ChevronLeftIcon className='h-4 w-4' />
       </Button>
       <Breadcrumbs>
-        <Link to={{ pathname: '/' }} className='opacity-60'>
-          <HomeIcon className='h-4 w-4' />
+        <Link
+          to={{ pathname: '/' }}
+          className='opacity-60'
+          aria-label={t('component.breadcrumb.home')}
+        >
+          <HomeIcon data-testid='home-icon' className='h-4 w-4' />
         </Link>
         {pathSegmentsView.map((segment, index) => (
           <Link
             key={segment}
             to={getBreadcrumbPath(index).to}
             className='opacity-60'
+            aria-label={t(`component.breadcrumb.${segment.toLowerCase()}`)}
           >
             <span>{t(`component.breadcrumb.${segment.toLowerCase()}`)}</span>
           </Link>

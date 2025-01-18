@@ -79,7 +79,8 @@
       "library": "Library",
       "media": "Media",
       "favorites": "Favorites",
-      "settings": "Settings"
+      "settings": "Settings",
+      "back": "Back"
     },
     "sidebar": {
       "title": "Navigation Sidebar",
