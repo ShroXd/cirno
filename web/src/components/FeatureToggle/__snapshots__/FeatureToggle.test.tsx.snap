@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`FeatureToggle > should render correctly with passed props 1`] = `
+<div>
+  <div>
+    <div
+      data-testid="text-content-1"
+    >
+      Text content 1
+    </div>
+  </div>
+  <div />
+</div>
+`;
