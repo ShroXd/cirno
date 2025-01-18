@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Container > should render correctly with children 1`] = `
+<div
+  class="px-6 pb-6 undefined"
+>
+  Child
+</div>
+`;
+
+exports[`Container > should render correctly with custom className 1`] = `
+<div
+  class="px-6 pb-6 mt-4"
+>
+  Child
+</div>
+`;

@@ -58,6 +58,7 @@ export default defineConfig(() => {
           '**/main.tsx',
           '**/types.ts',
           '**/bindings/**',
+          '**/dist/**',
         ],
       },
     },
