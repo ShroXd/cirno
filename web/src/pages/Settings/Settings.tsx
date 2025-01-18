@@ -27,13 +27,20 @@ export const Settings = () => {
         description={t('page.settings.general.description')}
       >
         <Select
+          aria-label={t('common.language.languageSelector')}
           label={t('common.language.languageSelector')}
           value={i18n.language}
           onChange={value => i18n.changeLanguage(value)}
         >
-          <Option value='en-US'>{t('common.language.en')}</Option>
-          <Option value='zh-CN'>{t('common.language.zh-CN')}</Option>
-          <Option value='jp'>{t('common.language.jp')}</Option>
+          <Option aria-label={t('common.language.en')} value='en-US'>
+            {t('common.language.en')}
+          </Option>
+          <Option aria-label={t('common.language.zh-CN')} value='zh-CN'>
+            {t('common.language.zh-CN')}
+          </Option>
+          <Option aria-label={t('common.language.jp')} value='jp'>
+            {t('common.language.jp')}
+          </Option>
         </Select>
       </SettingContainer>
 
@@ -52,6 +59,7 @@ export const Settings = () => {
           variant='outlined'
           className='flex items-center gap-3'
           onClick={handleReset}
+          aria-label={t('page.settings.reset.resetButton')}
         >
           {t('page.settings.reset.resetButton')}
           <ArrowPathIcon className='h-5 w-5' />

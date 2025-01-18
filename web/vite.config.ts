@@ -59,6 +59,7 @@ export default defineConfig(() => {
           '**/types.ts',
           '**/bindings/**',
           '**/dist/**',
+          '**/pages/Test/**',
         ],
       },
     },
