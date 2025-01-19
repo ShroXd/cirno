@@ -12,7 +12,7 @@ pub struct Library {
     pub tv_show: Vec<TvShow>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Default)]
 pub struct LibraryBrief {
     pub id: i64,
     pub name: String,
@@ -20,7 +20,7 @@ pub struct LibraryBrief {
     pub directory: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, TS)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, TS, Default)]
 #[ts(export)]
 pub struct LibraryPoster {
     pub id: i64,

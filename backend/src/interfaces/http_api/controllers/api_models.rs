@@ -5,7 +5,7 @@ use ts_rs::TS;
 // Create Media Library API Models
 //------------------------------------------------------------------------------
 
-#[derive(Debug, Deserialize, Serialize, Clone, TS)]
+#[derive(Debug, Deserialize, Serialize, Clone, Default, PartialEq, TS)]
 #[ts(export)]
 pub struct SaveLibraryPayload {
     pub name: String,
@@ -13,7 +13,7 @@ pub struct SaveLibraryPayload {
     pub category: LibraryCategory,
 }
 
-#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[derive(Debug, Deserialize, Serialize, TS, Clone, PartialEq, Default)]
 #[ts(export)]
 pub struct UpdateLibraryPayload {
     #[ts(type = "number")]
@@ -23,9 +23,10 @@ pub struct UpdateLibraryPayload {
     pub category: LibraryCategory,
 }
 
-#[derive(Debug, Deserialize, Serialize, TS, Clone)]
+#[derive(Debug, Deserialize, Serialize, TS, Clone, PartialEq, Default)]
 #[ts(export)]
 pub enum LibraryCategory {
+    #[default]
     Movie,
     TvShow,
     Animation,

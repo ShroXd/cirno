@@ -1,6 +1,7 @@
 use actix::Addr;
 use anyhow::*;
 use async_trait::async_trait;
+use mockall::automock;
 
 use crate::{
     domain::media_library::model::{LibraryBrief, LibraryPoster},
@@ -15,6 +16,7 @@ use crate::{
 };
 
 #[async_trait]
+#[automock]
 pub trait LibraryDatabase: Send + Sync {
     async fn update_library(&self, library_id: i64, payload: UpdateLibraryPayload) -> Result<()>;
     async fn query_library(&self, library_id: Option<i64>) -> Result<Vec<LibraryBrief>>;
@@ -37,11 +39,7 @@ impl LibraryDatabaseWrapper {
 
 #[async_trait]
 impl LibraryDatabase for LibraryDatabaseWrapper {
-    async fn update_library(
-        &self,
-        id: i64,
-        payload: UpdateLibraryPayload,
-    ) -> Result<(), anyhow::Error> {
+    async fn update_library(&self, id: i64, payload: UpdateLibraryPayload) -> Result<()> {
         self.addr
             .send(UpdateLibrary {
                 id,

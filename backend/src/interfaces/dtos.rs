@@ -18,7 +18,7 @@ pub struct MediaItemDto {
     pub genres: Vec<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, TS)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, TS)]
 #[ts(export)]
 pub struct LibraryDto {
     pub id: i64,
