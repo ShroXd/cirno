@@ -3,7 +3,9 @@ use std::sync::Arc;
 use tracing::*;
 
 use crate::{
-    infrastructure::media_db::library::repository::LibraryRepository,
+    infrastructure::media_db::library::{
+        repository::LibraryRepository, wrapper::LibraryDatabaseWrapper,
+    },
     interfaces::{dtos::LibraryDto, http_api::controllers::api_models::SaveLibraryPayload},
     shared::utils::is_valid_path,
 };
@@ -13,7 +15,7 @@ use crate::{
 #[instrument(skip(library_repository))]
 pub async fn create_library(
     payload: SaveLibraryPayload,
-    library_repository: Arc<LibraryRepository>,
+    library_repository: Arc<LibraryRepository<LibraryDatabaseWrapper>>,
 ) -> Result<i64> {
     debug!("Validating path");
     if !is_valid_path(&payload.directory) {
@@ -33,7 +35,9 @@ pub async fn create_library(
 }
 
 #[instrument(skip(library_repository))]
-pub async fn get_libraries(library_repository: Arc<LibraryRepository>) -> Result<Vec<LibraryDto>> {
+pub async fn get_libraries(
+    library_repository: Arc<LibraryRepository<LibraryDatabaseWrapper>>,
+) -> Result<Vec<LibraryDto>> {
     debug!("Getting libraries");
     let media_libraries = library_repository.get_libraries().await?;
 
@@ -43,7 +47,7 @@ pub async fn get_libraries(library_repository: Arc<LibraryRepository>) -> Result
 #[instrument(skip(library_repository))]
 pub async fn get_library_by_id(
     id: i64,
-    library_repository: Arc<LibraryRepository>,
+    library_repository: Arc<LibraryRepository<LibraryDatabaseWrapper>>,
 ) -> Result<LibraryDto> {
     debug!("Getting library for id: {}", id);
 
@@ -53,7 +57,10 @@ pub async fn get_library_by_id(
 }
 
 #[instrument(skip(library_repository))]
-pub async fn delete_library(id: i64, library_repository: Arc<LibraryRepository>) -> Result<()> {
+pub async fn delete_library(
+    id: i64,
+    library_repository: Arc<LibraryRepository<LibraryDatabaseWrapper>>,
+) -> Result<()> {
     debug!("Deleting library with id: {}", id);
     library_repository.delete_library(id).await?;
 
