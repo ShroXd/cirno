@@ -5,15 +5,17 @@ use actix_web::{
 use std::result::Result::Ok;
 use tracing::*;
 
-use crate::{handle_controller_result, init::repository_manager::Repositories};
+use crate::{handle_controller_result, init::app_state::AppState};
 
-#[instrument(skip(repositories))]
+#[instrument(skip(app_state))]
 pub async fn get_all_media_controller(
     library_id: Path<i64>,
-    repositories: Data<Repositories>,
+    app_state: Data<AppState>,
 ) -> impl Responder {
     handle_controller_result!(
-        repositories
+        app_state
+            .storage()
+            .repositories()
             .media
             .get_all_media(library_id.into_inner())
             .await,
@@ -22,14 +24,16 @@ pub async fn get_all_media_controller(
     )
 }
 
-#[instrument(skip(repositories))]
+#[instrument(skip(app_state))]
 pub async fn get_media_controller(
     path: Path<(i64, i64)>,
-    repositories: Data<Repositories>,
+    app_state: Data<AppState>,
 ) -> impl Responder {
     let (library_id, media_id) = path.into_inner();
     handle_controller_result!(
-        repositories
+        app_state
+            .storage()
+            .repositories()
             .media
             .get_media_by_id(library_id, media_id)
             .await,
@@ -38,15 +42,17 @@ pub async fn get_media_controller(
     )
 }
 
-#[instrument(skip(repositories))]
+#[instrument(skip(app_state))]
 pub async fn get_media_episodes_controller(
     path: Path<(i64, i64)>,
-    repositories: Data<Repositories>,
+    app_state: Data<AppState>,
 ) -> impl Responder {
     let (library_id, media_id) = path.into_inner();
 
     handle_controller_result!(
-        repositories
+        app_state
+            .storage()
+            .repositories()
             .media
             .get_media_episodes(library_id, media_id)
             .await,

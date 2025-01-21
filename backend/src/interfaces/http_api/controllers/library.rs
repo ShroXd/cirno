@@ -10,7 +10,7 @@ use crate::{
     application::library_service::create_library_service,
     domain::media_library::library::{delete_library, get_libraries, get_library_by_id},
     handle_controller_result,
-    init::{app_state::AppState, repository_manager::Repositories},
+    init::app_state::AppState,
     interfaces::http_api::controllers::consts::WS_CLIENT_KEY_HEADER,
 };
 
@@ -38,15 +38,17 @@ pub async fn create_library_controller(
     )
 }
 
-#[instrument(skip(repositories))]
+#[instrument(skip(app_state))]
 pub async fn update_library_controller(
     library_id: Path<i64>,
     payload: Json<UpdateLibraryPayload>,
-    repositories: Data<Repositories>,
+    app_state: Data<AppState>,
 ) -> impl Responder {
     debug!("Updating library for id: {}", library_id);
     handle_controller_result!(
-        repositories
+        app_state
+            .storage()
+            .repositories()
             .library
             .update_library(library_id.into_inner(), payload.into_inner())
             .await,
@@ -55,39 +57,44 @@ pub async fn update_library_controller(
     )
 }
 
-#[instrument(skip(repositories))]
-pub async fn get_libraries_controller(repositories: Data<Repositories>) -> impl Responder {
+#[instrument(skip(app_state))]
+pub async fn get_libraries_controller(app_state: Data<AppState>) -> impl Responder {
     debug!("Getting all libraries");
     handle_controller_result!(
-        get_libraries(repositories.library.clone()).await,
+        get_libraries(app_state.storage().repositories().library.clone()).await,
         HttpResponse::Ok(),
         HttpResponse::NotFound()
     )
 }
 
-#[instrument(skip(repositories))]
+#[instrument(skip(app_state))]
 pub async fn get_library_by_id_controller(
     id: Path<i64>,
-    repositories: Data<Repositories>,
+    app_state: Data<AppState>,
 ) -> impl Responder {
     debug!("Getting library for id: {}", id);
     handle_controller_result!(
-        get_library_by_id(id.into_inner(), repositories.library.clone()).await,
+        get_library_by_id(
+            id.into_inner(),
+            app_state.storage().repositories().library.clone()
+        )
+        .await,
         HttpResponse::Ok(),
         HttpResponse::NotFound()
     )
 }
 
-#[instrument(skip(repositories))]
-pub async fn delete_library_controller(
-    id: Path<i64>,
-    repositories: Data<Repositories>,
-) -> impl Responder {
+#[instrument(skip(app_state))]
+pub async fn delete_library_controller(id: Path<i64>, app_state: Data<AppState>) -> impl Responder {
     let library_id = id.into_inner();
     debug!("Deleting library for id: {}", library_id);
 
     handle_controller_result!(
-        delete_library(library_id, repositories.library.clone()).await,
+        delete_library(
+            library_id,
+            app_state.storage().repositories().library.clone()
+        )
+        .await,
         HttpResponse::Ok(),
         HttpResponse::InternalServerError()
     )

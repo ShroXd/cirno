@@ -5,6 +5,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 
 use crate::application::file_service::FileService;
+use crate::application::pipeline_service::PipelineService;
 use crate::infrastructure::async_task_pool::task_pool::TaskPool;
 use crate::infrastructure::event_dispatcher::event_bus::EventBus;
 use crate::infrastructure::hls::hls_state_actor::HlsStateActor;
@@ -63,14 +64,20 @@ pub fn get_pipeline_segment_duration() -> u64 {
 #[derive(Clone, Getters)]
 #[getset(get = "pub")]
 pub struct MediaProcessingContext {
+    pipeline_service: PipelineService,
     parser_addr: Addr<ParserActor>,
     #[allow(unused)]
     hls_state_actor_addr: Addr<HlsStateActor>,
 }
 
 impl MediaProcessingContext {
-    pub fn new(parser_addr: Addr<ParserActor>, hls_state_actor_addr: Addr<HlsStateActor>) -> Self {
+    pub fn new(
+        pipeline_service: PipelineService,
+        parser_addr: Addr<ParserActor>,
+        hls_state_actor_addr: Addr<HlsStateActor>,
+    ) -> Self {
         Self {
+            pipeline_service,
             parser_addr,
             hls_state_actor_addr,
         }

@@ -1,25 +1,21 @@
 use actix_web::{error::ErrorInternalServerError, get, web, HttpRequest, Responder};
 use actix_web_actors::ws;
-use std::sync::Arc;
 use tracing::*;
 
-use crate::{
-    infrastructure::event_dispatcher::event_bus::EventBus,
-    interfaces::ws::{actor::WebSocketActor, utils::WsConnections},
-};
+use crate::interfaces::ws::actor::WebSocketActor;
 
 #[get("/ws")]
 pub async fn ws_index(
     r: HttpRequest,
     stream: web::Payload,
-    ws_connections: web::Data<WsConnections>,
-    event_bus: web::Data<Arc<EventBus>>,
+    app_state: web::Data<crate::init::app_state::AppState>,
 ) -> impl Responder {
     info!("Starting websocket");
-    let ws_actor = WebSocketActor::new(
-        ws_connections.get_ref().clone(),
-        event_bus.get_ref().clone(),
-    );
+
+    let ws_connections = app_state.communication().ws_connections();
+    let event_bus = app_state.infrastructure().event_bus();
+
+    let ws_actor = WebSocketActor::new(ws_connections.clone(), event_bus.clone());
 
     match ws::start(ws_actor, &r, stream) {
         Ok(response) => Ok(response),
