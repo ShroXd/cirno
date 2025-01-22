@@ -1,9 +1,10 @@
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{middleware::Logger, web, App, HttpServer};
+use std::path::Path;
 use tracing::*;
 
-use init::system_initializer::SystemInitializer;
+use init::system_initializer::{SystemConfig, SystemInitializer};
 
 mod application;
 mod domain;
@@ -14,28 +15,13 @@ mod shared;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // unsafe {
-    //     env::set_var("GST_DEBUG", "3");
-    //     env::set_var(
-    //         "RUST_LOG",
-    //         "actix_web=info,actix_server=info,actix_rt=info,gstreamer=info",
-    //     );
-    // }
+    let _guard = SystemInitializer::init_logger(Path::new("logs"));
 
-    let _guard = SystemInitializer::init_logger();
-
-    let mut initializer = match SystemInitializer::new().await {
-        Ok(initializer) => initializer,
-        Err(e) => {
-            panic!("Failed to initialize system: {}", e);
-        }
-    };
-
-    let app_state = match initializer.run().await {
+    info!("Initializing system");
+    let initializer = SystemInitializer::new(SystemConfig::default());
+    let app_state = match initializer.initialize().await {
         Ok(app_state) => app_state,
-        Err(e) => {
-            panic!("Failed to run system: {}", e);
-        }
+        Err(e) => panic!("Failed to initialize system: {}", e),
     };
 
     info!("Starting backend server");

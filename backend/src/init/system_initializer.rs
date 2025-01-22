@@ -1,7 +1,11 @@
 use actix::prelude::*;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use chrono::Local;
-use std::{env, path::PathBuf, sync::Arc};
+use std::{
+    env,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 use tracing::*;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
@@ -29,75 +33,71 @@ use crate::{
     interfaces::ws::utils::WsConnections,
 };
 
-pub struct SystemInitializer {}
+#[derive(Debug)]
+pub struct SystemConfig {
+    pub database_url: String,
+    pub task_pool_size: usize,
+    pub event_bus_capacity: usize,
+}
+
+impl Default for SystemConfig {
+    fn default() -> Self {
+        // TODO: move all configs to env vars
+        Self {
+            database_url: env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
+            task_pool_size: 100,
+            event_bus_capacity: 100,
+        }
+    }
+}
+
+pub struct DatabaseBuilder {
+    url: String,
+    sql_dir: PathBuf,
+}
+
+impl DatabaseBuilder {
+    pub fn new(url: String) -> Self {
+        let sql_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("sql");
+        Self { url, sql_dir }
+    }
+
+    pub async fn build(&self) -> Result<Addr<Database>> {
+        let query_manager = Arc::new(FileQueryManager::new(&self.sql_dir).await?);
+        query_manager.reload().await?;
+
+        let database = Database::new(&self.url, query_manager).await?;
+        Ok(database.start())
+    }
+}
+
+pub struct EventBusBuilder {
+    capacity: usize,
+}
+
+impl EventBusBuilder {
+    pub fn new(capacity: usize) -> Self {
+        Self { capacity }
+    }
+
+    pub fn build(&self) -> Arc<EventBus> {
+        Arc::new(EventBus::new(self.capacity))
+    }
+}
+
+pub struct SystemInitializer {
+    config: SystemConfig,
+}
 
 impl SystemInitializer {
-    #[instrument]
-    pub async fn new() -> Result<Self> {
-        match gstreamer::init() {
-            Ok(_) => info!("Gstreamer initialized"),
-            Err(e) => return Err(anyhow::anyhow!("Failed to initialize gstreamer: {}", e)),
-        }
-
-        Ok(Self {})
-    }
-
-    #[instrument(skip(self))]
-    pub async fn run(&mut self) -> Result<AppState> {
-        let database_addr = self.init_database().await?;
-        let parser_addr = self.init_parser().await?;
-
-        let event_bus = self.init_event_bus().await?;
-        event_bus.start();
-
-        let hls_state_actor = HlsStateActor::new(event_bus.clone());
-        let hls_state_actor_addr = hls_state_actor.start();
-
-        let repository_manager = RepositoryManager::new(database_addr.clone());
-        let repositories = repository_manager.init_repositories()?;
-
-        // TODO: move this to env vars
-        let task_pool = TaskPool::new(100, event_bus.clone());
-        let ws_connections = WsConnections::default();
-
-        let pipeline_service =
-            match PipelineService::new(event_bus.clone(), hls_state_actor_addr.clone()) {
-                Ok(pipeline_service) => pipeline_service,
-                Err(e) => panic!("Failed to initialize pipeline service: {}", e),
-            };
-
-        let file_repository = FileRepositoryImpl {};
-        let file_service = FileService::new(Arc::new(file_repository));
-
-        info!("Initializing app state");
-        let media_context = MediaProcessingContext::new(
-            pipeline_service.clone(),
-            parser_addr.clone(),
-            hls_state_actor_addr.clone(),
-        );
-        let storage_context = StorageContext::new(
-            database_addr.clone(),
-            file_service.clone(),
-            repositories.clone(),
-        );
-        let communication_context = CommunicationContext::new(ws_connections.clone());
-        let infrastructure_context =
-            InfrastructureContext::new(task_pool.clone(), event_bus.clone());
-
-        let app_state = AppState::new(
-            media_context,
-            storage_context,
-            communication_context,
-            infrastructure_context,
-        );
-
-        Ok(app_state)
+    pub fn new(config: SystemConfig) -> Self {
+        Self { config }
     }
 
     #[instrument]
-    pub fn init_logger() -> WorkerGuard {
+    pub fn init_logger(log_dir: &Path) -> WorkerGuard {
         let file_name = format!("cirno_{}", Local::now().format("%Y-%m-%d"));
-        let file_appender = tracing_appender::rolling::daily("logs", &file_name);
+        let file_appender = tracing_appender::rolling::daily(log_dir, &file_name);
         let (non_blocking_writer, _guard) = tracing_appender::non_blocking(file_appender);
 
         let subscriber = tracing_subscriber::registry()
@@ -117,43 +117,55 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
-    async fn init_database(&mut self) -> Result<Addr<Database>> {
+    pub async fn initialize(self) -> Result<AppState> {
+        info!("Initializing gstreamer");
+        gstreamer::init().context("Failed to initialize gstreamer")?;
+
         info!("Initializing database");
+        let database_addr = DatabaseBuilder::new(self.config.database_url)
+            .build()
+            .await
+            .context("Failed to initialize database")?;
 
-        // TODO: move this to env vars
-        let cargo_project_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let sql_dir = cargo_project_dir.join("sql");
-
-        debug!("SQL directory: {:?}", sql_dir);
-
-        let query_manager = Arc::new(FileQueryManager::new(sql_dir).await?);
-        query_manager.reload().await?;
-
-        let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set");
-
-        debug!("Dabase url: {:?}", database_url);
-
-        let database = Database::new(&database_url, query_manager).await?;
-        let addr = database.start();
-
-        Ok(addr)
-    }
-
-    #[instrument(skip(self))]
-    async fn init_parser(&mut self) -> Result<Addr<ParserActor>> {
-        info!("Initializing parser");
-
-        let parser_actor = ParserActor;
-        let addr = parser_actor.start();
-
-        Ok(addr)
-    }
-
-    #[instrument(skip(self))]
-    async fn init_event_bus(&mut self) -> Result<Arc<EventBus>> {
         info!("Initializing event bus");
-        let event_bus = Arc::new(EventBus::new(100));
+        let event_bus = EventBusBuilder::new(self.config.event_bus_capacity).build();
+        event_bus.start();
 
-        Ok(event_bus)
+        info!("Initializing parser");
+        let parser_addr = ParserActor.start();
+
+        info!("Initializing hls state actor");
+        let hls_state_actor = HlsStateActor::new(event_bus.clone());
+        let hls_state_actor_addr = hls_state_actor.start();
+
+        info!("Initializing repository manager");
+        let repository_manager = RepositoryManager::new(database_addr.clone());
+        let repositories = repository_manager
+            .init_repositories()
+            .context("Failed to initialize repositories")?;
+
+        info!("Initializing task pool");
+        let task_pool = TaskPool::new(self.config.task_pool_size, event_bus.clone());
+
+        info!("Initializing websocket connections");
+        let ws_connections = WsConnections::default();
+
+        info!("Initializing pipeline service");
+        let pipeline_service =
+            PipelineService::new(event_bus.clone(), hls_state_actor_addr.clone())
+                .context("Failed to initialize pipeline service")?;
+
+        info!("Initializing file service");
+        let file_service = FileService::new(Arc::new(FileRepositoryImpl {}));
+
+        info!("Assembling application state");
+        let app_state = AppState::new(
+            MediaProcessingContext::new(pipeline_service, parser_addr, hls_state_actor_addr),
+            StorageContext::new(database_addr, file_service, repositories),
+            CommunicationContext::new(ws_connections.clone()),
+            InfrastructureContext::new(task_pool.clone(), event_bus.clone()),
+        );
+
+        Ok(app_state)
     }
 }
