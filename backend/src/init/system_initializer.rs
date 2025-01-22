@@ -7,9 +7,12 @@ use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 use crate::{
+    application::{file_service::FileService, pipeline_service::PipelineService},
     domain::pipeline::ports::{Decoder, HlsSink, Source, StreamBranch},
     infrastructure::{
+        async_task_pool::task_pool::TaskPool,
         event_dispatcher::event_bus::EventBus,
+        file::repository_impl::FileRepositoryImpl,
         hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
         library_organizer::organizer::ParserActor,
         media_db::{
@@ -26,17 +29,22 @@ use crate::{
             pipeline::Pipeline,
         },
     },
-    init::repository_manager::RepositoryManager,
+    init::{
+        app_state::{
+            AppState, CommunicationContext, InfrastructureContext, MediaProcessingContext,
+            StorageContext,
+        },
+        repository_manager::RepositoryManager,
+    },
+    interfaces::ws::utils::WsConnections,
     shared::utils::ElementFactory,
 };
-
-use super::repository_manager::Repositories;
 
 pub struct SystemInitializer {
     _element_factory: Arc<ElementFactory>,
 
     event_bus: Option<Arc<EventBus>>,
-    repositories: Option<Repositories>,
+    app_state: Option<AppState>,
 
     // Actor addresses
     _pipeline_addr: Option<Addr<Pipeline>>,
@@ -59,7 +67,7 @@ impl SystemInitializer {
         Ok(Self {
             _element_factory: element_factory,
             event_bus: None,
-            repositories: None,
+            app_state: None,
             _pipeline_addr: None,
             parser_addr: None,
             database_addr: None,
@@ -108,10 +116,10 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
-    pub fn get_repositories(&self) -> Repositories {
-        match self.repositories.clone() {
-            Some(repositories) => repositories,
-            None => panic!("Repositories not initialized"),
+    pub fn get_app_state(&self) -> AppState {
+        match self.app_state.clone() {
+            Some(app_state) => app_state,
+            None => panic!("App state not initialized"),
         }
     }
 
@@ -121,8 +129,59 @@ impl SystemInitializer {
         self.init_parser().await?;
         self.init_event_bus().await?;
         self.init_hls_state_actor().await?;
-        self.init_repositories().await?;
+        self.init_app_state().await?;
         // self.init_pipeline().await?;
+
+        Ok(())
+    }
+
+    #[instrument(skip(self))]
+    async fn init_app_state(&mut self) -> Result<()> {
+        let parser_addr = self.get_parser_addr();
+        let database_addr = self.get_database_addr();
+        let hls_state_actor_addr = self.get_hls_state_actor_addr();
+        let event_bus = self.get_event_bus();
+        event_bus.start();
+
+        let repository_manager = RepositoryManager::new(self.get_database_addr());
+        let repositories = repository_manager.init_repositories()?;
+
+        // TODO: move this to env vars
+        let task_pool = TaskPool::new(100, event_bus.clone());
+        let ws_connections = WsConnections::default();
+
+        let pipeline_service =
+            match PipelineService::new(event_bus.clone(), hls_state_actor_addr.clone()) {
+                Ok(pipeline_service) => pipeline_service,
+                Err(e) => panic!("Failed to initialize pipeline service: {}", e),
+            };
+
+        let file_repository = FileRepositoryImpl {};
+        let file_service = FileService::new(Arc::new(file_repository));
+
+        info!("Initializing app state");
+        let media_context = MediaProcessingContext::new(
+            pipeline_service.clone(),
+            parser_addr.clone(),
+            hls_state_actor_addr.clone(),
+        );
+        let storage_context = StorageContext::new(
+            database_addr.clone(),
+            file_service.clone(),
+            repositories.clone(),
+        );
+        let communication_context = CommunicationContext::new(ws_connections.clone());
+        let infrastructure_context =
+            InfrastructureContext::new(task_pool.clone(), event_bus.clone());
+
+        let app_state = AppState::new(
+            media_context,
+            storage_context,
+            communication_context,
+            infrastructure_context,
+        );
+
+        self.app_state = Some(app_state);
 
         Ok(())
     }
@@ -277,17 +336,6 @@ impl SystemInitializer {
         let hls_state_actor = HlsStateActor::new(self.get_event_bus());
         let addr = hls_state_actor.start();
         self.hls_state_actor_addr = Some(addr);
-
-        Ok(())
-    }
-
-    #[instrument(skip(self))]
-    async fn init_repositories(&mut self) -> Result<()> {
-        info!("Initializing repositories");
-
-        let repository_manager = RepositoryManager::new(self.get_database_addr());
-        let repositories = repository_manager.init_repositories()?;
-        self.repositories = Some(repositories);
 
         Ok(())
     }

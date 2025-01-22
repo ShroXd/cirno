@@ -1,21 +1,9 @@
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{middleware::Logger, web, App, HttpServer};
-use application::{file_service::FileService, pipeline_service::PipelineService};
-use std::sync::Arc;
 use tracing::*;
 
-use infrastructure::{
-    async_task_pool::task_pool::TaskPool, file::repository_impl::FileRepositoryImpl,
-};
-use init::{
-    app_state::{
-        AppState, CommunicationContext, InfrastructureContext, MediaProcessingContext,
-        StorageContext,
-    },
-    system_initializer::SystemInitializer,
-};
-use interfaces::ws::utils::WsConnections;
+use init::system_initializer::SystemInitializer;
 
 mod application;
 mod domain;
@@ -47,48 +35,7 @@ async fn main() -> std::io::Result<()> {
         panic!("Failed to run system: {}", e);
     }
 
-    let parser_addr = initializer.get_parser_addr();
-    let database_addr = initializer.get_database_addr();
-    let hls_state_actor_addr = initializer.get_hls_state_actor_addr();
-    let event_bus = initializer.get_event_bus();
-    event_bus.start();
-
-    let repositories = initializer.get_repositories();
-    let task_pool = TaskPool::new(100, event_bus.clone());
-    let ws_connections = WsConnections::default();
-
-    // TODO: move this to system initializer
-    let pipeline_service =
-        match PipelineService::new(event_bus.clone(), hls_state_actor_addr.clone()) {
-            Ok(service) => service,
-            Err(e) => {
-                panic!("Failed to initialize pipeline service: {}", e);
-            }
-        };
-
-    let file_repository = FileRepositoryImpl {};
-    let file_service = FileService::new(Arc::new(file_repository));
-
-    info!("Init app state");
-    let media_context = MediaProcessingContext::new(
-        pipeline_service.clone(),
-        parser_addr.clone(),
-        hls_state_actor_addr.clone(),
-    );
-    let storage_context = StorageContext::new(
-        database_addr.clone(),
-        file_service.clone(),
-        repositories.clone(),
-    );
-    let communication_context = CommunicationContext::new(ws_connections.clone());
-    let infrastructure_context = InfrastructureContext::new(task_pool.clone(), event_bus.clone());
-
-    let app_state = AppState::new(
-        media_context,
-        storage_context,
-        communication_context,
-        infrastructure_context,
-    );
+    let app_state = initializer.get_app_state();
 
     info!("Starting backend server");
     HttpServer::new(move || {
