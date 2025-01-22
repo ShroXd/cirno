@@ -8,25 +8,15 @@ use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
 
 use crate::{
     application::{file_service::FileService, pipeline_service::PipelineService},
-    domain::pipeline::ports::{Decoder, HlsSink, Source, StreamBranch},
     infrastructure::{
         async_task_pool::task_pool::TaskPool,
         event_dispatcher::event_bus::EventBus,
         file::repository_impl::FileRepositoryImpl,
-        hls::hls_state_actor::{HlsStateActor, SetPipelineAddr},
+        hls::hls_state_actor::HlsStateActor,
         library_organizer::organizer::ParserActor,
         media_db::{
             database::Database,
             query_manager::{FileQueryManager, QueryManager},
-        },
-        video_pipeline::{
-            elements::{
-                branch::{AudioBranch, VideoBranch},
-                decode::Decodebin,
-                hlssink::HlsSinkImpl,
-                source::FileSource,
-            },
-            pipeline::Pipeline,
         },
     },
     init::{
@@ -37,21 +27,9 @@ use crate::{
         repository_manager::RepositoryManager,
     },
     interfaces::ws::utils::WsConnections,
-    shared::utils::ElementFactory,
 };
 
-pub struct SystemInitializer {
-    _element_factory: Arc<ElementFactory>,
-
-    event_bus: Option<Arc<EventBus>>,
-    app_state: Option<AppState>,
-
-    // Actor addresses
-    _pipeline_addr: Option<Addr<Pipeline>>,
-    parser_addr: Option<Addr<ParserActor>>,
-    database_addr: Option<Addr<Database>>,
-    hls_state_actor_addr: Option<Addr<HlsStateActor>>,
-}
+pub struct SystemInitializer {}
 
 impl SystemInitializer {
     #[instrument]
@@ -61,89 +39,21 @@ impl SystemInitializer {
             Err(e) => return Err(anyhow::anyhow!("Failed to initialize gstreamer: {}", e)),
         }
 
-        // TODO: remove this
-        let element_factory = Arc::new(ElementFactory);
-
-        Ok(Self {
-            _element_factory: element_factory,
-            event_bus: None,
-            app_state: None,
-            _pipeline_addr: None,
-            parser_addr: None,
-            database_addr: None,
-            hls_state_actor_addr: None,
-        })
+        Ok(Self {})
     }
 
     #[instrument(skip(self))]
-    pub fn get_pipeline_addr(&self) -> Addr<Pipeline> {
-        match self._pipeline_addr.clone() {
-            Some(addr) => addr,
-            None => panic!("Pipeline actor not started"),
-        }
-    }
+    pub async fn run(&mut self) -> Result<AppState> {
+        let database_addr = self.init_database().await?;
+        let parser_addr = self.init_parser().await?;
 
-    #[instrument(skip(self))]
-    pub fn get_parser_addr(&self) -> Addr<ParserActor> {
-        match self.parser_addr.clone() {
-            Some(addr) => addr,
-            None => panic!("Parser actor not started"),
-        }
-    }
-
-    #[instrument(skip(self))]
-    pub fn get_database_addr(&self) -> Addr<Database> {
-        match self.database_addr.clone() {
-            Some(addr) => addr,
-            None => panic!("Database actor not started"),
-        }
-    }
-
-    #[instrument(skip(self))]
-    pub fn get_event_bus(&self) -> Arc<EventBus> {
-        match self.event_bus.clone() {
-            Some(event_bus) => event_bus,
-            None => panic!("Event bus not started"),
-        }
-    }
-
-    #[instrument(skip(self))]
-    pub fn get_hls_state_actor_addr(&self) -> Addr<HlsStateActor> {
-        match self.hls_state_actor_addr.clone() {
-            Some(addr) => addr,
-            None => panic!("Hls state actor not started"),
-        }
-    }
-
-    #[instrument(skip(self))]
-    pub fn get_app_state(&self) -> AppState {
-        match self.app_state.clone() {
-            Some(app_state) => app_state,
-            None => panic!("App state not initialized"),
-        }
-    }
-
-    #[instrument(skip(self))]
-    pub async fn run(&mut self) -> Result<()> {
-        self.init_database().await?;
-        self.init_parser().await?;
-        self.init_event_bus().await?;
-        self.init_hls_state_actor().await?;
-        self.init_app_state().await?;
-        // self.init_pipeline().await?;
-
-        Ok(())
-    }
-
-    #[instrument(skip(self))]
-    async fn init_app_state(&mut self) -> Result<()> {
-        let parser_addr = self.get_parser_addr();
-        let database_addr = self.get_database_addr();
-        let hls_state_actor_addr = self.get_hls_state_actor_addr();
-        let event_bus = self.get_event_bus();
+        let event_bus = self.init_event_bus().await?;
         event_bus.start();
 
-        let repository_manager = RepositoryManager::new(self.get_database_addr());
+        let hls_state_actor = HlsStateActor::new(event_bus.clone());
+        let hls_state_actor_addr = hls_state_actor.start();
+
+        let repository_manager = RepositoryManager::new(database_addr.clone());
         let repositories = repository_manager.init_repositories()?;
 
         // TODO: move this to env vars
@@ -181,86 +91,7 @@ impl SystemInitializer {
             infrastructure_context,
         );
 
-        self.app_state = Some(app_state);
-
-        Ok(())
-    }
-
-    /// TODO;
-    /// Initialize a pipeline for auxiliary tasks like taking screenshots or generating preview WebRTC streams.
-    /// The main playback pipeline will be built dynamically when a user plays a video.
-    /// This pipeline serves as a utility pipeline for background tasks.
-    #[instrument(skip(self))]
-    async fn init_pipeline(&mut self) -> Result<()> {
-        info!("Initializing pipeline");
-
-        let source =
-            match FileSource::new("/Users/atriiy/Animes_test/一拳超人 (2015)/S1/S01E01.mp4") {
-                Ok(source) => source,
-                Err(e) => return Err(anyhow::anyhow!("Failed to create file source: {}", e)),
-            };
-        debug!("File source created");
-
-        let decoder = match Decodebin::new(&*self._element_factory) {
-            Ok(decoder) => decoder,
-            Err(e) => return Err(anyhow::anyhow!("Failed to create decoder: {}", e)),
-        };
-        debug!("Decoder created");
-
-        let video_branch = match VideoBranch::new(&*self._element_factory) {
-            Ok(video_branch) => video_branch,
-            Err(e) => return Err(anyhow::anyhow!("Failed to create video branch: {}", e)),
-        };
-        debug!("Video branch created");
-
-        let audio_branch = match AudioBranch::new(&*self._element_factory) {
-            Ok(audio_branch) => audio_branch,
-            Err(e) => return Err(anyhow::anyhow!("Failed to create audio branch: {}", e)),
-        };
-        debug!("Audio branch created");
-
-        let event_bus = Arc::new(EventBus::new(16));
-
-        let hls_sink = match HlsSinkImpl::new(self.get_hls_state_actor_addr()) {
-            Ok(hls_sink) => hls_sink,
-            Err(e) => return Err(anyhow::anyhow!("Failed to initialize hls sink: {}", e)),
-        };
-
-        let pipeline = Pipeline::new(
-            Arc::new(source),
-            Arc::new(decoder),
-            Arc::new(video_branch),
-            Arc::new(audio_branch),
-            Arc::new(hls_sink),
-            event_bus,
-        );
-        debug!("Pipeline created");
-
-        // info!("Building pipeline");
-        // match pipeline.build() {
-        //     Ok(_) => info!("Pipeline built"),
-        //     Err(e) => return Err(anyhow::anyhow!("Failed to build pipeline: {}", e)),
-        // }
-
-        // TODO: consider if this is the best way to start the pipeline
-        info!("Starting pipeline actor");
-        let addr = pipeline.start();
-        let addr_clone = addr.clone();
-        // app_state::set_pipeline_addr(addr.clone());
-        self._pipeline_addr = Some(addr);
-
-        let hls_state_actor = self.get_hls_state_actor_addr();
-        match hls_state_actor.send(SetPipelineAddr(addr_clone)).await {
-            Ok(_) => info!("Hls state actor set pipeline address"),
-            Err(e) => {
-                return Err(anyhow::anyhow!(
-                    "Failed to set hls state actor pipeline address: {}",
-                    e
-                ))
-            }
-        }
-
-        Ok(())
+        Ok(app_state)
     }
 
     #[instrument]
@@ -286,7 +117,7 @@ impl SystemInitializer {
     }
 
     #[instrument(skip(self))]
-    async fn init_database(&mut self) -> Result<()> {
+    async fn init_database(&mut self) -> Result<Addr<Database>> {
         info!("Initializing database");
 
         // TODO: move this to env vars
@@ -303,40 +134,26 @@ impl SystemInitializer {
         debug!("Dabase url: {:?}", database_url);
 
         let database = Database::new(&database_url, query_manager).await?;
-        self.database_addr = Some(database.start());
+        let addr = database.start();
 
-        Ok(())
+        Ok(addr)
     }
 
     #[instrument(skip(self))]
-    async fn init_parser(&mut self) -> Result<()> {
+    async fn init_parser(&mut self) -> Result<Addr<ParserActor>> {
         info!("Initializing parser");
 
         let parser_actor = ParserActor;
         let addr = parser_actor.start();
-        self.parser_addr = Some(addr);
 
-        Ok(())
+        Ok(addr)
     }
 
     #[instrument(skip(self))]
-    async fn init_event_bus(&mut self) -> Result<()> {
+    async fn init_event_bus(&mut self) -> Result<Arc<EventBus>> {
         info!("Initializing event bus");
-
         let event_bus = Arc::new(EventBus::new(100));
-        self.event_bus = Some(event_bus);
 
-        Ok(())
-    }
-
-    #[instrument(skip(self))]
-    async fn init_hls_state_actor(&mut self) -> Result<()> {
-        info!("Initializing hls state actor");
-
-        let hls_state_actor = HlsStateActor::new(self.get_event_bus());
-        let addr = hls_state_actor.start();
-        self.hls_state_actor_addr = Some(addr);
-
-        Ok(())
+        Ok(event_bus)
     }
 }

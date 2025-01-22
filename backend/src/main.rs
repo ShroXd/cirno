@@ -31,11 +31,12 @@ async fn main() -> std::io::Result<()> {
         }
     };
 
-    if let Err(e) = initializer.run().await {
-        panic!("Failed to run system: {}", e);
-    }
-
-    let app_state = initializer.get_app_state();
+    let app_state = match initializer.run().await {
+        Ok(app_state) => app_state,
+        Err(e) => {
+            panic!("Failed to run system: {}", e);
+        }
+    };
 
     info!("Starting backend server");
     HttpServer::new(move || {
