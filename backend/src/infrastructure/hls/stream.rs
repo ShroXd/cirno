@@ -150,10 +150,10 @@ impl HlsStream {
             .get(&M3u8Tag::Inf)
             .ok_or_else(|| anyhow!("Missing EXTINF tag in header"))?;
 
-        let file_num_segments = file_duration / segment_duration;
+        let file_num_segments = (file_duration + segment_duration - 1) / segment_duration;
 
         let m3u8_header = format!(
-            "#EXTM3U\n#EXT-X-VERSION:{}\n#EXT-X-MEDIA-SEQUENCE:{}\n#EXT-X-TARGETDURATION:{}\n#EXT-X-PLAYLIST-TYPE:VOD\n#EXT-X-PLAYLIST-LENGTH:{}\n",
+            "#EXTM3U\n#EXT-X-VERSION:{}\n#EXT-X-MEDIA-SEQUENCE:{}\n#EXT-X-TARGETDURATION:{}\n#EXT-X-PLAYLIST-TYPE:VOD\n#EXT-X-PLAYLIST-LENGTH:{}\n\n",
             ext_x_version, ext_x_media_sequence, ext_x_target_duration, file_num_segments
         );
 
