@@ -52,6 +52,28 @@ fn generate_encoder() -> Result<Element> {
         .map_err(|e| anyhow::anyhow!("Failed to create x264enc element: {}", e))
 }
 
+// TODO: In the pipeline, we use decodebin3 to decode the file stream, it'll select the decoder automatically
+// But it may select the hard ware decoder or software decoder
+// If we use software encoder here, the pipeline may not work
+// We need to figure out how to sync the decoder and encoder before building the pipeline
+
+// #[cfg(target_os = "linux")]
+// fn generate_encoder() -> Result<Element> {
+//     // Try to use VAAPI hardware encoding
+//     if let Ok(encoder) = ElementFactory::make("vaapih264enc").build() {
+//         // encoder.set_property_from_str("rate-control", "cbr")?;
+//         // encoder.set_property("bitrate", 2000u32)?; // 2Mbps
+//         return Ok(encoder);
+//     }
+
+//     // Fallback to software encoding
+//     ElementFactory::make("x264enc")
+//         .property_from_str("speed-preset", "superfast")
+//         .property("tune", "zerolatency")
+//         .build()
+//         .map_err(|e| anyhow::anyhow!("Failed to create encoder element: {}", e))
+// }
+
 #[cfg(target_os = "macos")]
 fn generate_encoder() -> Result<Element> {
     let encoder = ElementFactory::make("vtenc_h264")
