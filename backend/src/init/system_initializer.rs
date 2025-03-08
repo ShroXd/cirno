@@ -1,6 +1,7 @@
 use actix::prelude::*;
 use anyhow::{Context, Result};
 use chrono::Local;
+use gstreamer::{log::add_log_function, DebugLevel};
 use std::{
     env,
     path::{Path, PathBuf},
@@ -96,8 +97,9 @@ impl SystemInitializer {
 
     #[instrument]
     pub fn init_logger(log_dir: &Path) -> WorkerGuard {
-        let file_name = format!("cirno_{}", Local::now().format("%Y-%m-%d"));
-        let file_appender = tracing_appender::rolling::daily(log_dir, &file_name);
+        let log_file_name = format!("cirno_{}", Local::now().format("%Y-%m-%d"));
+
+        let file_appender = tracing_appender::rolling::daily(log_dir, &log_file_name);
         let (non_blocking_writer, _guard) = tracing_appender::non_blocking(file_appender);
 
         let subscriber = tracing_subscriber::registry()
@@ -113,14 +115,69 @@ impl SystemInitializer {
 
         info!("Tracing subscriber initialized");
 
+        add_log_function(
+            |category, level, file, function, line, object, message| match level {
+                DebugLevel::Error => {
+                    event!(
+                        target: "gstreamer",
+                        Level::ERROR,
+                        category = category.name(),
+                        file = file.to_string(),
+                        function = function.to_string(),
+                        line = line,
+                        object = object.map(|o| o.to_string()),
+                        "{:?}",
+                        message,
+                    );
+                }
+                DebugLevel::Warning => {
+                    event!(
+                        target: "gstreamer",
+                        Level::WARN,
+                        "{:?}",
+                        message,
+                    );
+                }
+                DebugLevel::Info => {
+                    event!(
+                        target: "gstreamer",
+                        Level::INFO,
+                        "{:?}",
+                        message,
+                    );
+                }
+                DebugLevel::Debug => {
+                    event!(
+                        target: "gstreamer",
+                        Level::DEBUG,
+                        "{:?}",
+                        message,
+                    );
+                }
+                DebugLevel::Log | DebugLevel::Trace => {
+                    event!(
+                        target: "gstreamer",
+                        Level::TRACE,
+                        "{:?}",
+                        message,
+                    );
+                }
+                _ => {
+                    event!(
+                        target: "gstreamer",
+                        Level::INFO,
+                        "{:?}",
+                        message,
+                    );
+                }
+            },
+        );
+
         _guard
     }
 
     #[instrument(skip(self))]
     pub async fn initialize(self) -> Result<AppState> {
-        info!("Initializing gstreamer");
-        gstreamer::init().context("Failed to initialize gstreamer")?;
-
         info!("Initializing database");
         let database_addr = DatabaseBuilder::new(self.config.database_url)
             .build()

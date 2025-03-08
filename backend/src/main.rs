@@ -15,6 +15,9 @@ mod shared;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    info!("Initializing gstreamer");
+    gstreamer::init().expect("Failed to initialize gstreamer");
+
     let _guard = SystemInitializer::init_logger(Path::new("logs"));
 
     info!("Initializing system");
