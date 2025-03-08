@@ -6,7 +6,7 @@ dotenv: [".env.development"]
 env:
   DATABASE_URL: database.db
   VITE_API_URL: http://localhost:8000
-  GST_DEBUG_DUMP_DOT_DIR: "{{.ROOT_DIR}}/backend/diagrams"
+  GST_DEBUG_DUMP_DOT_DIR: "{{.ROOT_DIR}}/backend/gst_debug_dot_dir"
   GST_DEBUG: "4"
 
 tasks:
