@@ -3,6 +3,11 @@ silent: true
 
 dotenv: [".env.development"]
 
+env:
+  DATABASE_URL: database.db
+  VITE_API_URL: http://localhost:8000
+  GST_DEBUG_DUMP_DOT_DIR: "{{.ROOT_DIR}}/backend/diagrams"
+
 tasks:
   # TODO: add command to setup the project.
   # 1. install taskfile runtime
@@ -283,3 +288,17 @@ tasks:
         --exclude-ext=lock,tsbuildinfo \
         --not-match-f="(package-lock\.json|pnpm-lock\.yaml|Cargo\.lock)"
         echo "✅ Code line count completed."
+
+  test-env:
+    desc: "🧪 Test environment variables"
+    cmds:
+      - echo "GST_DEBUG_DUMP_DOT_DIR = $GST_DEBUG_DUMP_DOT_DIR"
+      - echo "DATABASE_URL = $DATABASE_URL"
+      - echo "VITE_API_URL = $VITE_API_URL"
+  
+  convert-dot:
+    desc: "💻 Convert GST_DEBUG_DOT_DIR files to SVG"
+    cmds:
+      - echo "💻 Converting GST_DEBUG_DOT_DIR files to SVG..."
+      - dot -Tsvg $GST_DEBUG_DUMP_DOT_DIR/pipeline.dot > $GST_DEBUG_DUMP_DOT_DIR/pipeline.svg
+      - echo "✔️ GST_DEBUG_DOT_DIR files converted to SVG."

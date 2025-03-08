@@ -1,9 +1,9 @@
 use anyhow::*;
 use async_trait::async_trait;
 use gstreamer::{
-    glib::WeakRef, prelude::*, query, BusSyncReply, ClockTime, Element as GstElement, Format,
-    GenericFormattedValue, Message as GstMessage, MessageView, Pipeline as GstPipeline, SeekFlags,
-    State,
+    glib::WeakRef, prelude::*, query, BusSyncReply, ClockTime, DebugGraphDetails,
+    Element as GstElement, Format, GenericFormattedValue, Message as GstMessage, MessageView,
+    Pipeline as GstPipeline, SeekFlags, State,
 };
 use std::{
     result::Result::Ok,
@@ -167,6 +167,9 @@ impl PipelinePort for Pipeline {
             bus_rx,
             self.event_bus.clone(),
         ));
+
+        gst_pipeline.debug_to_dot_file(DebugGraphDetails::ALL, "pipeline");
+        debug!("Pipeline debug graph saved to pipeline.dot");
 
         self.gst_pipeline = Some(gst_pipeline);
         debug!("Pipeline successfully built");
