@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
-import { Button } from "~/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
 import { Play, Plus } from "lucide-react"
 
 export default function HomePage() {
@@ -90,7 +90,9 @@ export default function HomePage() {
                     <section className="mb-10">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-2xl font-semibold">Featured</h2>
-                            <Button variant="link">View All</Button>
+                            <Button variant="link" asChild>
+                                <Link to="/view-all?category=all&title=Featured Content">View All</Link>
+                            </Button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -133,7 +135,9 @@ export default function HomePage() {
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-2xl font-semibold">Trending Now</h2>
-                            <Button variant="link">View All</Button>
+                            <Button variant="link" asChild>
+                                <Link to="/view-all?category=recent&title=Recently Added">View All</Link>
+                            </Button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -251,3 +255,4 @@ export default function HomePage() {
         </div>
     )
 }
+

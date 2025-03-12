@@ -207,8 +207,10 @@ export default function TvShowsPage() {
                         <section key={category.id}>
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-2xl font-semibold">{category.title}</h2>
-                                <Button variant="ghost" size="sm" className="gap-1">
-                                    See All <ChevronRight className="h-4 w-4" />
+                                <Button variant="ghost" size="sm" className="gap-1" asChild>
+                                    <Link to={`/view-all?category=tv&title=${category.title}`}>
+                                        See All <ChevronRight className="h-4 w-4" />
+                                    </Link>
                                 </Button>
                             </div>
 
@@ -328,4 +330,5 @@ function TvShowsPageSkeleton() {
         </div>
     )
 }
+
 

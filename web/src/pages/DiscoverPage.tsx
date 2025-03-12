@@ -251,7 +251,7 @@ export default function DiscoverPage() {
     }
 
     return (
-        <div className="container mx-auto py-6 px-4 md:px-6 overflow-y-auto h-screen">
+        <div className="container mx-auto py-6 px-4 md:px-6">
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-3xl font-bold">Discover</h1>
                 <Button variant="outline" size="sm" className="gap-2">
@@ -313,8 +313,10 @@ export default function DiscoverPage() {
                         <h2 className="text-2xl font-semibold flex items-center">
                             <Clock className="mr-2 h-5 w-5" /> Continue Watching
                         </h2>
-                        <Button variant="ghost" size="sm" className="gap-1">
-                            See All <ChevronRight className="h-4 w-4" />
+                        <Button variant="ghost" size="sm" className="gap-1" asChild>
+                            <Link to="/view-all?category=all&title=Continue Watching">
+                                See All <ChevronRight className="h-4 w-4" />
+                            </Link>
                         </Button>
                     </div>
 
@@ -332,8 +334,10 @@ export default function DiscoverPage() {
                     <h2 className="text-2xl font-semibold flex items-center">
                         <TrendingUp className="mr-2 h-5 w-5" /> Trending Now
                     </h2>
-                    <Button variant="ghost" size="sm" className="gap-1">
-                        See All <ChevronRight className="h-4 w-4" />
+                    <Button variant="ghost" size="sm" className="gap-1" asChild>
+                        <Link to="/view-all?category=recent&title=Trending Now">
+                            See All <ChevronRight className="h-4 w-4" />
+                        </Link>
                     </Button>
                 </div>
 
@@ -374,8 +378,10 @@ export default function DiscoverPage() {
                             {collection.icon}
                             <span className="ml-2">{collection.title}</span>
                         </h2>
-                        <Button variant="ghost" size="sm" className="gap-1">
-                            See All <ChevronRight className="h-4 w-4" />
+                        <Button variant="ghost" size="sm" className="gap-1" asChild>
+                            <Link to={`/view-all?category=all&title=${collection.title}`}>
+                                See All <ChevronRight className="h-4 w-4" />
+                            </Link>
                         </Button>
                     </div>
 
