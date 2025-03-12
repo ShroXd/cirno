@@ -7,7 +7,7 @@ env:
   DATABASE_URL: database.db
   VITE_API_URL: http://localhost:8000
   GST_DEBUG_DUMP_DOT_DIR: "{{.ROOT_DIR}}/backend/gst_debug_dot_dir"
-  GST_DEBUG: "4"
+  GST_DEBUG: "3"
 
 tasks:
   # TODO: add command to setup the project.
