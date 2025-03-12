@@ -81,7 +81,7 @@ tasks:
     deps:
       - dev:frontend
       - dev:backend
-
+  
   dev:frontend:
     desc: "🚀 Start front-end development server"
     dir: web
@@ -221,6 +221,19 @@ tasks:
     dir: backend
     cmds:
       - rm -rf tmp/*
+  
+  clean:logs:
+    desc: "🧹 Remove all log files under /backend/logs folder"
+    dir: backend
+    cmds:
+      - "[ -d logs ] && rm logs/* || true"
+  
+  clean:debug_dot:
+    desc: "🧹 Remove all debug dot files under /backend/gst_debug_dot_dir folder"
+    dir: backend
+    cmds:
+      - "[ -d gst_debug_dot_dir ] && rm gst_debug_dot_dir/* || true"
+
 
   # ---------------------------- 🔧 Tooling Tasks 🔧 ----------------------------
 
