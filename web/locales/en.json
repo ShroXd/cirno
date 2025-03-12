@@ -88,6 +88,14 @@
     }
   },
   "page": {
+    "home": {
+      "welcome": "Welcome to Cirno, your personal media management assistant",
+      "recent_added": "Recently Added",
+      "all": "All",
+      "anime": "Anime",
+      "movies": "Movies",
+      "tv": "TV Shows"
+    },
     "library": {
       "recent_added": "Recently Added"
     },

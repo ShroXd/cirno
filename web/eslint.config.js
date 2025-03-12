@@ -10,7 +10,13 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     files: ['src/**/*.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
-    ignores: ['**/dist/**/*', '**/node_modules/**', 'dist/', 'web/dist/'],
+    ignores: [
+      '**/dist/**/*',
+      '**/node_modules/**',
+      'dist/',
+      'web/dist/',
+      'web/src/components/ui/**',
+    ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,

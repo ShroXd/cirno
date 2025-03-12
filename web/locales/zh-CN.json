@@ -88,6 +88,16 @@
     }
   },
   "page": {
+    "home": {
+      "welcome": "欢迎来到 Cirno，您的个人媒体管理助手",
+      "recent_added": "最近添加",
+      "tab": {
+        "all": "全部",
+        "anime": "动画",
+        "movies": "电影",
+        "tv": "电视剧"
+      }
+    },
     "library": {
       "recent_added": "最近添加"
     },

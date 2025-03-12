@@ -22,8 +22,13 @@ body {
 }
 
 /* Hide scrollbar for WebKit browsers (Chrome, Safari, Opera) */
-html::-webkit-scrollbar {
-  display: none;
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
 }
 
 @layer base {

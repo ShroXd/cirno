@@ -88,6 +88,14 @@
     }
   },
   "page": {
+    "home": {
+      "welcome": "Cirno、あなたの個人的なメディア管理アシスタントへようこそ",
+      "recent_added": "最近追加",
+      "all": "すべて",
+      "anime": "アニメ",
+      "movies": "映画",
+      "tv": "テレビシリーズ"
+    },
     "library": {
       "recent_added": "最近追加"
     },
