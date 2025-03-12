@@ -43,41 +43,58 @@ impl StreamBranch for VideoBranch {
     }
 }
 
-// #[cfg(target_os = "linux")]
-// // TODO: use hardware encoder for linux
-// fn generate_encoder() -> Result<Element> {
-//     ElementFactory::make("x264enc")
-//         .property_from_str("speed-preset", "superfast")
-//         .build()
-//         .map_err(|e| anyhow::anyhow!("Failed to create x264enc element: {}", e))
-// }
-
-// TODO: In the pipeline, we use decodebin3 to decode the file stream, it'll select the decoder automatically
-// But it may select the hard ware decoder or software decoder
-// If we use software encoder here, the pipeline may not work
-// We need to figure out how to sync the decoder and encoder before building the pipeline
-
 #[cfg(target_os = "linux")]
 fn generate_encoder() -> Result<Element> {
-    // Try to use VAAPI hardware encoding
-    if let Ok(encoder) = ElementFactory::make("vaapih264enc").build() {
-        // encoder.set_property_from_str("rate-control", "cbr")?;
-        // encoder.set_property("bitrate", 2000u32)?; // 2Mbps
-        return Ok(encoder);
-    }
+    use std::sync::OnceLock;
+    use tracing::info;
 
-    if let Ok(encoder) = ElementFactory::make("nvh264enc").build() {
-        // encoder.set_property_from_str("rate-control", "cbr")?;
-        // encoder.set_property("bitrate", 2000u32)?; // 2Mbps
-        return Ok(encoder);
-    }
+    // Cache the encoder detection result to avoid repeated detection
+    static ENCODER_TYPE: OnceLock<&'static str> = OnceLock::new();
 
-    // Fallback to software encoding
-    ElementFactory::make("x264enc")
-        .property_from_str("speed-preset", "superfast")
-        .property("tune", "zerolatency")
-        .build()
-        .map_err(|e| anyhow::anyhow!("Failed to create encoder element: {}", e))
+    let encoder_type = ENCODER_TYPE.get_or_init(|| {
+        // Try to use VAAPI hardware encoding for Intel and AMD
+        if ElementFactory::make("vaapih264enc").build().is_ok() {
+            info!("Using VAAPI hardware encoder");
+            return "vaapih264enc";
+        }
+
+        // Try to use NVidia hardware encoding
+        if ElementFactory::make("nvh264enc").build().is_ok() {
+            info!("Using NVIDIA hardware encoder");
+            return "nvh264enc";
+        }
+
+        // Try to use V4L2 hardware encoding (for some ARM devices)
+        if ElementFactory::make("v4l2h264enc").build().is_ok() {
+            info!("Using V4L2 hardware encoder");
+            return "v4l2h264enc";
+        }
+
+        // Fallback to software encoding
+        info!("No hardware encoder available, falling back to software encoder");
+        "x264enc"
+    });
+
+    match *encoder_type {
+        "vaapih264enc" => ElementFactory::make("vaapih264enc")
+            .build()
+            .map_err(|e| anyhow::anyhow!("Failed to create VAAPI encoder: {}", e)),
+
+        "nvh264enc" => ElementFactory::make("nvh264enc")
+            .build()
+            .map_err(|e| anyhow::anyhow!("Failed to create NVIDIA encoder: {}", e)),
+
+        "v4l2h264enc" => ElementFactory::make("v4l2h264enc")
+            .build()
+            .map_err(|e| anyhow::anyhow!("Failed to create V4L2 encoder: {}", e)),
+
+        _ => ElementFactory::make("x264enc")
+            .property_from_str("speed-preset", "superfast")
+            .property("tune", "zerolatency")
+            .property("bitrate", 8000u32)
+            .build()
+            .map_err(|e| anyhow::anyhow!("Failed to create software encoder: {}", e)),
+    }
 }
 
 #[cfg(target_os = "macos")]
