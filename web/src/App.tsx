@@ -6,7 +6,8 @@ import { AxiosProvider } from '~/contexts/AxiosContext/AxiosContext.tsx'
 import { EventBusProvider } from '~/contexts/EventBusContext/EventBusContext.tsx'
 import { NotificationProvider } from '~/contexts/NotificationContext/NotificationContext.tsx'
 import { WebSocketProvider } from '~/contexts/WebSocketContext/WebSocketContext.tsx'
-import { Home } from '~/pages/Home/Home'
+import Layout from './layout'
+import { SidebarProvider } from './components/ui/sidebar'
 
 function App() {
   return (
@@ -17,7 +18,9 @@ function App() {
             <AxiosProvider>
               <HashRouter>
                 <FeatureProvider>
-                  <Home />
+                  <SidebarProvider>
+                    <Layout />
+                  </SidebarProvider>
                 </FeatureProvider>
               </HashRouter>
             </AxiosProvider>

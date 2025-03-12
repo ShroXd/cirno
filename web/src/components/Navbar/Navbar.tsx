@@ -3,21 +3,16 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import {
-  Bars3Icon,
-  InboxStackIcon,
-  MagnifyingGlassIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline'
-import {
-  Button,
   IconButton,
   Input,
   Navbar,
   Typography,
 } from '@material-tailwind/react'
+import { Inbox, Menu, Search, X } from 'lucide-react';
 
 import { CreateDialog } from '../LibraryManageDialog/CreateDialog/CreateDialog'
 import { Sidebar } from '~/components/Sidebar/Sidebar'
+import { Button } from '../ui/button'
 
 export const StickyNavbar = () => {
   const [open, setOpen] = useState(false)
@@ -51,9 +46,9 @@ export const StickyNavbar = () => {
             onClick={openSidebar}
           >
             {open ? (
-              <XMarkIcon className='h-6 w-6 stroke-2' />
+              <X className='h-6 w-6 stroke-2' />
             ) : (
-              <Bars3Icon className='h-6 w-6 stroke-2' />
+              <Menu className='h-6 w-6 stroke-2' />
             )}
           </IconButton>
           <Typography
@@ -85,18 +80,17 @@ export const StickyNavbar = () => {
             </Typography>
             <div className='w-[16rem] p-2'>
               <Input
-                icon={<MagnifyingGlassIcon className='h-5 w-5' />}
+                icon={<Search className='h-5 w-5' />}
                 size='md'
                 aria-label={t('component.stickyNavbar.search')}
               />
             </div>
             <Button
               aria-label={t('component.stickyNavbar.addLibrary')}
-              variant='gradient'
               className='flex items-center gap-4'
               onClick={createDialogHandler}
             >
-              <InboxStackIcon className='h-4 w-4' />
+              <Inbox className='h-4 w-4' />
               {t('component.stickyNavbar.addLibrary')}
             </Button>
           </div>
