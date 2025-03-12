@@ -2,17 +2,12 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import {
-  IconButton,
-  Input,
-  Navbar,
-  Typography,
-} from '@material-tailwind/react'
-import { Inbox, Menu, Search, X } from 'lucide-react';
+import { IconButton, Input, Navbar, Typography } from '@material-tailwind/react'
+import { Inbox, Menu, Search, X } from 'lucide-react'
 
 import { CreateDialog } from '../LibraryManageDialog/CreateDialog/CreateDialog'
-import { Sidebar } from '~/components/Sidebar/Sidebar'
 import { Button } from '../ui/button'
+import { Sidebar } from '~/components/Sidebar/Sidebar'
 
 export const StickyNavbar = () => {
   const [open, setOpen] = useState(false)
