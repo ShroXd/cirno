@@ -1,14 +1,12 @@
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
-import { Calendar, Clock, Play, Plus, Star } from 'lucide-react'
+import { Calendar, Play, Plus } from 'lucide-react'
 
+import { MediaItemDto } from '~/bindings/MediaItemDto'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
-import { useEventBus } from '~/hooks/useEventBus'
-import { usePost } from '~/hooks/usePost'
+import { useFetch } from '~/hooks/useFetch'
 
 // This would come from your database or API in a real app
 const getContentById = (id: string) => {
@@ -215,6 +213,12 @@ const getContentById = (id: string) => {
 
 export default function ContentDetailPage() {
   const { id } = useParams<{ id: string }>()
+
+  const {
+    data: media,
+    error: mediaError,
+    isLoading: mediaIsLoading,
+  } = useFetch<MediaItemDto>(`/media/${id}`)
   const content = getContentById(id || '')
 
   if (!content) {
@@ -242,8 +246,8 @@ export default function ContentDetailPage() {
       {/* Hero Section */}
       <div className='relative mb-8 h-[50vh] w-full overflow-hidden rounded-xl'>
         <img
-          src={content.image || '/placeholder.svg'}
-          alt={content.title}
+          src={media?.fanart_path || '/placeholder.svg'}
+          alt={media?.title}
           className='absolute inset-0 h-full w-full object-cover'
         />
         <div className='absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent' />
@@ -251,45 +255,31 @@ export default function ContentDetailPage() {
         <div className='absolute bottom-0 left-0 right-0 p-6 md:p-8'>
           <div className='flex max-w-3xl flex-col gap-4'>
             <div className='flex flex-wrap gap-2'>
-              {content.genres.map(genre => (
+              {media?.genres?.map(genre => (
                 <Badge key={genre} variant='secondary'>
                   {genre}
                 </Badge>
               ))}
             </div>
 
-            <h1 className='text-3xl font-bold md:text-5xl'>{content.title}</h1>
+            <h1 className='text-3xl font-bold md:text-5xl'>{media?.title}</h1>
 
             <div className='flex flex-wrap items-center gap-4 text-sm text-muted-foreground'>
-              <div className='flex items-center'>
+              {/* <div className='flex items-center'>
                 <Star className='mr-1 h-4 w-4 fill-yellow-400 text-yellow-400' />
-                <span>{content.rating}/10</span>
-              </div>
+                <span>{media?.rating}/10</span>
+              </div> */}
 
               <div className='flex items-center'>
                 <Calendar className='mr-1 h-4 w-4' />
-                <span>
-                  {isMovie
-                    ? content.releaseYear
-                    : `${content.releaseYear} - ${content.endYear || 'Present'}`}
-                </span>
+                <span>{media?.year}</span>
               </div>
-
-              {isMovie && (
-                <div className='flex items-center'>
-                  <Clock className='mr-1 h-4 w-4' />
-                  <span>{content.duration}</span>
-                </div>
-              )}
             </div>
 
             <div className='mt-2 flex gap-3'>
               <Button className='gap-2' asChild>
-                <Link
-                  to={`/watch/${isMovie ? content.id : content?.seasons?.[0]?.episodes?.[0]?.id}`}
-                >
+                <Link to={`/watch/${media?.id}`}>
                   <Play className='h-4 w-4' />
-                  {isMovie ? 'Watch Movie' : 'Watch Latest'}
                 </Link>
               </Button>
               <Button variant='outline' className='gap-2'>
@@ -305,9 +295,7 @@ export default function ContentDetailPage() {
       <div className='mb-8 grid grid-cols-1 gap-8 lg:grid-cols-3'>
         <div className='lg:col-span-2'>
           <h2 className='mb-4 text-2xl font-semibold'>Overview</h2>
-          <p className='mb-6 text-muted-foreground'>
-            {content.longDescription}
-          </p>
+          <p className='mb-6 text-muted-foreground'>{media?.plot}</p>
 
           {!isMovie && (
             <div className='mt-8'>
@@ -401,7 +389,7 @@ export default function ContentDetailPage() {
               <div>
                 <dt className='text-sm text-muted-foreground'>Genres</dt>
                 <dd className='mt-1 flex flex-wrap gap-1'>
-                  {content.genres.map(genre => (
+                  {media?.genres?.map(genre => (
                     <Badge key={genre} variant='outline'>
                       {genre}
                     </Badge>

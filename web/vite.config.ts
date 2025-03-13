@@ -34,6 +34,7 @@ export default defineConfig(() => {
           proxyTimeout: 30000,
         },
         '/library': devProxy,
+        '/media': devProxy,
         '/video-player': devProxy,
         '/ws': {
           ...devProxy,
