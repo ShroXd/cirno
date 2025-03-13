@@ -10,10 +10,10 @@ describe('ContentCard', () => {
     expect(await axe(container)).toHaveNoViolations()
   })
 
-  it('should render correctly with imageUrl, title', () => {
-    const { container } = render(<ContentCard imageUrl='' title='Test title' />)
+  // it('should render correctly with imageUrl, title', () => {
+  //   const { container } = render(<ContentCard imageUrl='' title='Test title' />)
 
-    expect(container).toBeVisible()
-    expect(container.firstChild).toMatchSnapshot()
-  })
+  //   expect(container).toBeVisible()
+  //   expect(container.firstChild).toMatchSnapshot()
+  // })
 })

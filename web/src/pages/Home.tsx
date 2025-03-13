@@ -56,6 +56,7 @@ export default function HomePage() {
     <>
       {data?.map(media => (
         <MediaCard
+          key={media.title}
           id={media.id}
           title={media.title}
           posterPath={media.poster_path || ''}

@@ -131,7 +131,7 @@ export default function WatchPage() {
   const [isMuted, setIsMuted] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showControls, setShowControls] = useState(true)
-  const [showInfo, setShowInfo] = useState(true)
+  const [_showInfo, _setShowInfo] = useState(true)
   const [showNextUp, setShowNextUp] = useState(false)
 
   const hasContent = !!content
@@ -330,7 +330,7 @@ export default function WatchPage() {
   }
 
   // Calculate progress percentage
-  const progressPercentage = duration ? (currentTime / duration) * 100 : 0
+  // const _progressPercentage = duration ? (currentTime / duration) * 100 : 0
 
   // Handle video not found
   if (!hasContent) {
