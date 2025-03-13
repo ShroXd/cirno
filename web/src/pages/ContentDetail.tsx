@@ -1,10 +1,14 @@
-import { Link, useParams } from 'react-router-dom'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { Calendar, Clock, Play, Plus, Star } from 'lucide-react'
 
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
+import { useEventBus } from '~/hooks/useEventBus'
+import { usePost } from '~/hooks/usePost'
 
 // This would come from your database or API in a real app
 const getContentById = (id: string) => {
@@ -223,6 +227,15 @@ export default function ContentDetailPage() {
   }
 
   const isMovie = content.type === 'movie'
+
+  // -----
+
+  // const [isWaitingForHlsStream, setIsWaitingForHlsStream] = useState(false)
+
+  // const { t } = useTranslation()
+  // const post = usePost()
+  // const navigate = useNavigate()
+  // const { onEvent } = useEventBus()
 
   return (
     <div className='container mx-auto h-screen overflow-y-auto px-4 py-6 md:px-6'>

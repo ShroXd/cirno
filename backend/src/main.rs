@@ -39,6 +39,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(web::Data::new(app_state.clone()))
             .configure(interfaces::http_api::routes::init_library_routes)
+            .configure(interfaces::http_api::routes::init_media_routes)
             .configure(interfaces::http_api::routes::init_video_player_routes)
             .service(Files::new("/hls", "./tmp").show_files_listing())
             .service(interfaces::ws::routes::ws_index);

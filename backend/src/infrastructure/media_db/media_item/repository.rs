@@ -4,7 +4,9 @@ use std::result::Result::Ok;
 use std::sync::Arc;
 use tracing::*;
 
-use crate::infrastructure::media_db::actor::{QueryAllMedia, QueryEpisodes, QueryMediaById};
+use crate::infrastructure::media_db::actor::{
+    QueryLibraryMedia, QueryLibraryMediaEpisodes, QueryLibraryMedias, QueryMediaById,
+};
 use crate::infrastructure::media_db::database::Database;
 use crate::interfaces::dtos::{EpisodeDto, MediaItemDto};
 
@@ -19,22 +21,22 @@ impl MediaRepository {
     }
 
     #[instrument(skip(self))]
-    pub async fn get_all_media(&self, library_id: i64) -> Result<Vec<MediaItemDto>> {
+    pub async fn get_library_medias(&self, library_id: i64) -> Result<Vec<MediaItemDto>> {
         debug!("Getting all media");
         let media_items = self
             .database_addr
-            .send(QueryAllMedia { library_id })
+            .send(QueryLibraryMedias { library_id })
             .await?;
 
         Ok(media_items)
     }
 
     #[instrument(skip(self))]
-    pub async fn get_media_by_id(&self, library_id: i64, media_id: i64) -> Result<MediaItemDto> {
+    pub async fn get_library_media(&self, library_id: i64, media_id: i64) -> Result<MediaItemDto> {
         debug!("Getting media for id: {}", media_id);
         let media = self
             .database_addr
-            .send(QueryMediaById {
+            .send(QueryLibraryMedia {
                 library_id,
                 media_id,
             })
@@ -48,7 +50,7 @@ impl MediaRepository {
     }
 
     #[instrument(skip(self))]
-    pub async fn get_media_episodes(
+    pub async fn get_library_media_episodes(
         &self,
         library_id: i64,
         media_id: i64,
@@ -60,12 +62,21 @@ impl MediaRepository {
 
         let episodes = self
             .database_addr
-            .send(QueryEpisodes {
+            .send(QueryLibraryMediaEpisodes {
                 library_id,
                 media_id,
             })
             .await?;
 
         Ok(episodes)
+    }
+
+    #[instrument(skip(self))]
+    pub async fn get_media_by_id(&self, media_id: i64) -> Result<MediaItemDto> {
+        debug!("Getting media for id: {}", media_id);
+        match self.database_addr.send(QueryMediaById { media_id }).await? {
+            Some(media) => Ok(media),
+            None => Err(anyhow::anyhow!("Media item not found")),
+        }
     }
 }

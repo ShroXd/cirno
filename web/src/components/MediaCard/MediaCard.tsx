@@ -23,7 +23,7 @@ export const MediaCard = ({ id, title, posterPath, plot }: MediaCardProps) => {
   return (
     <Card key={title} className='overflow-hidden'>
       <div className='relative h-48 w-full'>
-        <Link to={`/library/${id}`}>
+        <Link to={`/content/${id}`}>
           <div className='ease-[cubic-bezier(0.4,0,0.2,1)] relative h-48 w-full overflow-hidden object-cover transition-all duration-700 hover:scale-105'>
             <img
               src={posterPath || '/placeholder.svg'}

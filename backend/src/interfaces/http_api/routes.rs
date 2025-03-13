@@ -13,7 +13,8 @@ use crate::{
             get_library_by_id_controller, update_library_controller,
         },
         media_item::{
-            get_all_media_controller, get_media_controller, get_media_episodes_controller,
+            get_library_media_controller, get_library_media_episodes_controller,
+            get_library_medias_controller, get_media_controller,
         },
         video_player::{play_video_with_path_controller, stop_video_player_controller},
     },
@@ -30,21 +31,27 @@ use super::controllers::api_models::{PlayVideoWithPathPayload, UpdateLibraryPayl
 // --------------------------------
 
 #[get("/{library_id}/media")]
-async fn get_all_media_route(library_id: Path<i64>, app_state: Data<AppState>) -> impl Responder {
-    get_all_media_controller(library_id, app_state).await
+async fn get_library_medias_route(
+    library_id: Path<i64>,
+    app_state: Data<AppState>,
+) -> impl Responder {
+    get_library_medias_controller(library_id, app_state).await
 }
 
 #[get("/{library_id}/media/{media_id}")]
-async fn get_media_route(path: Path<(i64, i64)>, app_state: Data<AppState>) -> impl Responder {
-    get_media_controller(path, app_state).await
-}
-
-#[get("/{library_id}/media/{media_id}/episodes")]
-async fn get_media_episodes_route(
+async fn get_library_media_route(
     path: Path<(i64, i64)>,
     app_state: Data<AppState>,
 ) -> impl Responder {
-    get_media_episodes_controller(path, app_state).await
+    get_library_media_controller(path, app_state).await
+}
+
+#[get("/{library_id}/media/{media_id}/episodes")]
+async fn get_library_media_episodes_route(
+    path: Path<(i64, i64)>,
+    app_state: Data<AppState>,
+) -> impl Responder {
+    get_library_media_episodes_controller(path, app_state).await
 }
 
 // TODO: fetch at most 10 media items randomly?
@@ -85,15 +92,28 @@ async fn delete_library_route(id: Path<i64>, app_state: Data<AppState>) -> impl 
 pub fn init_library_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         scope("/library")
-            .service(get_all_media_route)
-            .service(get_media_route)
-            .service(get_media_episodes_route)
+            .service(get_library_medias_route)
+            .service(get_library_media_route)
+            .service(get_library_media_episodes_route)
             .service(create_library_route)
             .service(update_library_route)
             .service(get_libraries_route)
             .service(get_library_route)
             .service(delete_library_route),
     );
+}
+
+// --------------------------------
+// Media Routes
+// --------------------------------
+
+#[get("/{media_id}")]
+async fn get_media_route(path: Path<i64>, app_state: Data<AppState>) -> impl Responder {
+    get_media_controller(path, app_state).await
+}
+
+pub fn init_media_routes(cfg: &mut ServiceConfig) {
+    cfg.service(scope("/media").service(get_media_route));
 }
 
 // --------------------------------
