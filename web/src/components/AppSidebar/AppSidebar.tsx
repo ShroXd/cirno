@@ -2,18 +2,7 @@ import type React from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-import {
-  Compass,
-  Film,
-  Home,
-  Library,
-  ListPlus,
-  PlaySquare,
-  Plus,
-  Search,
-  Settings,
-  Star,
-} from 'lucide-react'
+import { Film, ListPlus, Plus, Settings } from 'lucide-react'
 
 import { Button } from '../ui/button'
 import {
@@ -40,6 +29,7 @@ import {
   SidebarRail,
   useSidebar,
 } from '../ui/sidebar'
+import { libraryItems, menuItems } from './constants'
 
 export default function AppSidebar() {
   const location = useLocation()
@@ -98,6 +88,23 @@ export default function AppSidebar() {
       ? {}
       : { width: `${sidebarWidth}px`, minWidth: `${sidebarWidth}px` }
 
+  const renderSidebarMenuButton = (
+    label: string,
+    icon: React.ReactNode,
+    path: string
+  ) => (
+    <SidebarMenuButton
+      className='transition-all duration-200 hover:translate-x-1'
+      asChild
+      isActive={location.pathname === path}
+    >
+      <Link to={path}>
+        {icon}
+        <span>{label}</span>
+      </Link>
+    </SidebarMenuButton>
+  )
+
   return (
     <div ref={sidebarRef} style={sidebarStyle} className='relative h-full'>
       <Sidebar>
@@ -112,39 +119,11 @@ export default function AppSidebar() {
             <SidebarGroupLabel>Menu</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === '/'}
-                  >
-                    <Link to='/'>
-                      <Home className='mr-2 h-4 w-4' />
-                      <span>Home</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === '/discover'}
-                  >
-                    <Link to='/discover'>
-                      <Compass className='mr-2 h-4 w-4' />
-                      <span>Discover</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === '/search'}
-                  >
-                    <Link to='/search'>
-                      <Search className='mr-2 h-4 w-4' />
-                      <span>Search</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {menuItems.map(item => (
+                  <SidebarMenuItem key={item.label}>
+                    {renderSidebarMenuButton(item.label, item.icon, item.path)}
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -153,50 +132,11 @@ export default function AppSidebar() {
             <SidebarGroupLabel>Library</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === '/library'}
-                  >
-                    <Link to='/library'>
-                      <Library className='mr-2 h-4 w-4' />
-                      <span>All Content</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === '/movies'}
-                  >
-                    <Link to='/movies'>
-                      <Film className='mr-2 h-4 w-4' />
-                      <span>Movies</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === '/tv-shows'}
-                  >
-                    <Link to='/tv-shows'>
-                      <PlaySquare className='mr-2 h-4 w-4' />
-                      <span>TV Shows</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === '/favorites'}
-                  >
-                    <Link to='/favorites'>
-                      <Star className='mr-2 h-4 w-4' />
-                      <span>Favorites</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {libraryItems.map(item => (
+                  <SidebarMenuItem key={item.label}>
+                    {renderSidebarMenuButton(item.label, item.icon, item.path)}
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -277,15 +217,11 @@ export default function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === '/settings'}
-                  >
-                    <Link to='/settings'>
-                      <Settings className='mr-2 h-4 w-4' />
-                      <span>Settings</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  {renderSidebarMenuButton(
+                    'Settings',
+                    <Settings className='mr-2 h-4 w-4' />,
+                    '/settings'
+                  )}
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>

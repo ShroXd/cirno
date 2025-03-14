@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 
 import { mutate } from 'swr'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
-import { wrapInGrid } from './utils'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
 import { AnimatedSection } from '~/components/AnimatedSection/AnimatedSection'
 import { AsyncSwitcher } from '~/components/AsyncSwitcher/AsyncSwitcher'
 import { VerticalCard } from '~/components/VerticalCard/VerticalCard'
-import { ScrollArea, ScrollBar } from '~/components/ui/scroll-area'
 import { useEventBus } from '~/hooks/useEventBus'
 import { useFetch } from '~/hooks/useFetch'
 
@@ -21,7 +20,6 @@ export default function HomePage() {
     useFetch<MediaItemDto[]>('/library/1/media')
 
   const { onEvent, offEvent } = useEventBus()
-  const container = useCallback(wrapInGrid, [])
   const { t } = useTranslation()
 
   const handleScanning = useCallback((payload: { libraryId: number }) => {
@@ -58,16 +56,17 @@ export default function HomePage() {
     <AnimatedSection delay={0.3} className='lg:col-span-1'>
       <div className='flex w-max space-x-4 p-1'>
         {data?.map(media => (
-          <VerticalCard
-            key={media.title}
-            title={media.title}
-            posterPath={media.poster_path || ''}
-            plot={media.plot || ''}
-            category={'movie'}
-            year={media?.year?.toString() || '2020'}
-            duration={'2h'}
-            episodeCount={1}
-          />
+          <Link to={`/content/${media.id}`} key={media.title}>
+            <VerticalCard
+              title={media.title}
+              posterPath={media.poster_path || ''}
+              plot={media.plot || ''}
+              category={'movie'}
+              year={media?.year?.toString() || '2020'}
+              duration={'2h'}
+              episodeCount={1}
+            />
+          </Link>
         ))}
       </div>
     </AnimatedSection>
