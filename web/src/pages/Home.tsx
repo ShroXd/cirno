@@ -6,8 +6,10 @@ import { mutate } from 'swr'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { wrapInGrid } from './utils'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
+import { AnimatedSection } from '~/components/AnimatedSection/AnimatedSection'
 import { AsyncSwitcher } from '~/components/AsyncSwitcher/AsyncSwitcher'
-import { MediaCard } from '~/components/MediaCard/MediaCard'
+import { VerticalCard } from '~/components/VerticalCard/VerticalCard'
+import { ScrollArea, ScrollBar } from '~/components/ui/scroll-area'
 import { useEventBus } from '~/hooks/useEventBus'
 import { useFetch } from '~/hooks/useFetch'
 
@@ -53,17 +55,22 @@ export default function HomePage() {
   }, [offEvent, onEvent, handleScanning, handleSaved])
 
   const renderContent = () => (
-    <>
-      {data?.map(media => (
-        <MediaCard
-          key={media.title}
-          id={media.id}
-          title={media.title}
-          posterPath={media.poster_path || ''}
-          plot={media.plot || ''}
-        />
-      ))}
-    </>
+    <AnimatedSection delay={0.3} className='lg:col-span-1'>
+      <div className='flex w-max space-x-4 p-1'>
+        {data?.map(media => (
+          <VerticalCard
+            key={media.title}
+            title={media.title}
+            posterPath={media.poster_path || ''}
+            plot={media.plot || ''}
+            category={'movie'}
+            year={media?.year?.toString() || '2020'}
+            duration={'2h'}
+            episodeCount={1}
+          />
+        ))}
+      </div>
+    </AnimatedSection>
   )
 
   return (
@@ -93,7 +100,7 @@ export default function HomePage() {
               data={data}
               loadingComponent={renderContent()}
             >
-              {container(renderContent())}
+              {renderContent()}
             </AsyncSwitcher>
           </section>
         </TabsContent>
