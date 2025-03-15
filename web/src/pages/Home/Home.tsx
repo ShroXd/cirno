@@ -65,7 +65,7 @@ export const Home = () => {
       <div className='flex h-screen flex-col'>
         <StickyNavbar />
 
-        <div className='h-full w-auto overflow-y-auto pt-20'>
+        <div className='h-full w-auto pt-20'>
           <div className='h-2'></div>
           <Routes>
             <Route path='/' element={<Library />} />
