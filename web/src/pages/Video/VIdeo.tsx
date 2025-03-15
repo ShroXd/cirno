@@ -1,5 +1,3 @@
-import Breadcrumb from '~/components/Breadcrumb/Breadcrumb'
-import { Container } from '~/components/Container/Container'
 import VideoPlayer from '~/components/VideoPlayer/VideoPlayer'
 import { usePost } from '~/hooks/usePost'
 
@@ -25,9 +23,6 @@ export const Video = () => {
 
   return (
     <div className='h-full w-full'>
-      <Container className='mb-6'>
-        <Breadcrumb onBack={onBack} />
-      </Container>
       <VideoPlayer options={videoJsOptions} />
     </div>
   )

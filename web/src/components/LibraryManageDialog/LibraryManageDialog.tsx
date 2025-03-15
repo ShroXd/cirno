@@ -2,7 +2,7 @@ import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import { FileVideo, FolderOpen, MonitorPlay } from 'lucide-react'
+import { FileVideo, MonitorPlay } from 'lucide-react'
 
 import { AsyncTaskResponse } from '~/bindings/AsyncTaskResponse'
 import { LibraryDto } from '~/bindings/LibraryDto'
