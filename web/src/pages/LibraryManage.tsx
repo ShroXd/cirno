@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { LibraryManageDialog } from '~/components/LibraryManageDialog/LibraryManageDialog'
 import {
   Accordion,
   AccordionContent,
@@ -1806,98 +1807,9 @@ export default function LibrariesPage() {
         </main>
 
         {/* Add Library Dialog */}
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogContent className='sm:max-w-[550px]'>
-            <DialogHeader>
-              <DialogTitle>添加媒体库</DialogTitle>
-              <DialogDescription>
-                添加新的媒体库路径到您的系统中
-              </DialogDescription>
-            </DialogHeader>
-            <div className='grid gap-4 py-4'>
-              <div className='grid gap-2'>
-                <Label htmlFor='name'>媒体库名称</Label>
-                <Input
-                  id='name'
-                  placeholder='例如：电影库、电视剧库'
-                  value={formData.name}
-                  onChange={e =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                />
-              </div>
-              <div className='grid gap-2'>
-                <Label htmlFor='path'>媒体库路径</Label>
-                <div className='flex gap-2'>
-                  <Input
-                    id='path'
-                    placeholder='/media/path'
-                    value={formData.path}
-                    onChange={e =>
-                      setFormData({ ...formData, path: e.target.value })
-                    }
-                    className='flex-1'
-                  />
-                  <Button variant='outline' onClick={handleBrowsePath}>
-                    浏览...
-                  </Button>
-                </div>
-                <p className='text-xs text-muted-foreground'>
-                  选择包含媒体文件的文件夹路径
-                </p>
-              </div>
-              <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                <div className='grid gap-2'>
-                  <Label htmlFor='type'>媒体库类型</Label>
-                  <Select
-                    value={formData.type}
-                    onValueChange={value =>
-                      setFormData({ ...formData, type: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder='选择媒体库类型' />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {libraryTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>
-                          <div className='flex items-center gap-2'>
-                            <type.icon className='h-4 w-4' />
-                            <span>{type.label}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className='flex items-center space-x-2 self-end'>
-                  <Switch
-                    id='auto-scan-new'
-                    checked={formData.autoScan}
-                    onCheckedChange={checked =>
-                      setFormData({ ...formData, autoScan: checked })
-                    }
-                  />
-                  <Label htmlFor='auto-scan-new'>启用自动扫描</Label>
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant='outline'>取消</Button>
-              </DialogClose>
-              <Button
-                onClick={() => handleSaveLibrary(true)}
-                disabled={!formData.name || !formData.path}
-              >
-                添加媒体库
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
         {/* Edit Library Dialog */}
-        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        {/* <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
           <DialogContent className='sm:max-w-[550px]'>
             <DialogHeader>
               <DialogTitle>编辑媒体库</DialogTitle>
@@ -1978,7 +1890,13 @@ export default function LibrariesPage() {
               </Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+        </Dialog> */}
+
+        <LibraryManageDialog
+          open={showAddDialog}
+          dialogHandler={setShowAddDialog}
+          onClose={() => setShowAddDialog(false)}
+        />
 
         {/* Scan Details Dialog */}
         <Dialog
