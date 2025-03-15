@@ -1,3 +1,5 @@
+import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 
 import {
@@ -10,18 +12,28 @@ import {
   Star,
   ThumbsUp,
 } from 'lucide-react'
-import { motion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 
 import { EpisodeDto } from '~/bindings/EpisodeDto'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
+import { PulseLoader } from '~/components/PulseLoader/PulseLoader'
+import VideoPlayer from '~/components/VideoPlayer/VideoPlayer'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { SidebarTrigger } from '~/components/ui/sidebar'
+import { useEventBus } from '~/hooks/useEventBus'
 import { useFetch } from '~/hooks/useFetch'
+import { usePost } from '~/hooks/usePost'
 
 export default function ContentDetailPage() {
+  const [isWaitingForHlsStream, setIsWaitingForHlsStream] = useState(false)
+  const [videoPlaying, setVideoPlaying] = useState(false)
+
   const { id } = useParams<{ id: string }>()
+  const { t } = useTranslation()
+  const post = usePost()
+  const { onEvent } = useEventBus()
 
   const {
     data: media,
@@ -35,7 +47,37 @@ export default function ContentDetailPage() {
     isLoading: episodesIsLoading,
   } = useFetch<EpisodeDto[]>(`/media/${id}/episodes`)
 
-  console.log(episodes)
+  const videoJsOptions = {
+    controls: true,
+    autoplay: true,
+    responsive: true,
+    preload: 'none',
+    sources: [
+      {
+        src: '/hls/playlist.m3u8',
+        type: 'application/x-mpegURL',
+      },
+    ],
+  }
+
+  const onBack = () => {
+    post('/video-player/stop')
+  }
+
+  const handlePlay = useCallback(
+    (episode: EpisodeDto) => {
+      setIsWaitingForHlsStream(true)
+      post('/video-player/play', {
+        path: episode.video_file_path,
+      })
+
+      onEvent('HlsStreamInitialized', () => {
+        console.log('HlsStreamInitialized')
+        setVideoPlaying(true)
+      })
+    },
+    [post, onEvent]
+  )
 
   if (!media || !episodes || mediaError || episodesError) {
     return (
@@ -46,21 +88,12 @@ export default function ContentDetailPage() {
     )
   }
 
-  // -----
-
-  // const [isWaitingForHlsStream, setIsWaitingForHlsStream] = useState(false)
-
-  // const { t } = useTranslation()
-  // const post = usePost()
-  // const navigate = useNavigate()
-  // const { onEvent } = useEventBus()
-
   return (
     <div className='flex h-full flex-col bg-background md:px-6'>
       <header className='sticky top-0 z-10 border-b border-border/40 bg-background/80 backdrop-blur-md'>
         <div className='container flex h-16 items-center px-4'>
           <SidebarTrigger className='mr-4 md:hidden' />
-          <Button variant='ghost' size='icon' asChild>
+          <Button variant='ghost' size='icon' onClick={onBack} asChild>
             <Link to='/'>
               <ArrowLeft className='h-5 w-5' />
               <span className='sr-only'>Back</span>
@@ -71,24 +104,58 @@ export default function ContentDetailPage() {
       </header>
 
       <main className='container mx-auto flex-1 overflow-y-auto px-4 py-6'>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'
-        >
-          <img
-            src={media?.fanart_path || '/placeholder.svg'}
-            alt={media?.title}
-            className='absolute inset-0 h-full w-full rounded-t-xl object-cover'
-          />
-          <div className='absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent' />
-          <div className='absolute inset-0 flex items-center justify-center opacity-70'>
-            <Button size='lg' className='h-16 w-16 rounded-full p-0'>
-              <Play className='h-12 w-12' />
-            </Button>
+        {isWaitingForHlsStream ? (
+          <div className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
+            <AnimatePresence mode='wait'>
+              {videoPlaying ? (
+                <motion.div
+                  key='video-player'
+                  className='absolute inset-0'
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.7, ease: 'easeInOut' }}
+                >
+                  <VideoPlayer options={videoJsOptions} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key='pulse-loader'
+                  className='absolute inset-0'
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.7, ease: 'easeInOut' }}
+                >
+                  <PulseLoader />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'
+          >
+            <img
+              src={media?.fanart_path || '/placeholder.svg'}
+              alt={media?.title}
+              className='absolute inset-0 h-full w-full rounded-t-xl object-cover'
+            />
+            <div className='absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent' />
+            <div className='absolute inset-0 flex items-center justify-center opacity-70'>
+              <Button
+                size='lg'
+                className='h-16 w-16 rounded-full p-0'
+                onClick={() => handlePlay(episodes[0])}
+              >
+                <Play className='h-12 w-12' />
+              </Button>
+            </div>
+          </motion.div>
+        )}
 
         <motion.div
           variants={{
