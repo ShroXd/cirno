@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-import { Button } from '@material-tailwind/react'
 import { directoryOpen } from 'browser-fs-access'
 
 import { Variation } from '../NotificationItem/constants'
+import { Button } from '~/components/ui/button'
 import { useNotification } from '~/hooks/useNotification'
 
 interface TriggerOnLibraryProps {

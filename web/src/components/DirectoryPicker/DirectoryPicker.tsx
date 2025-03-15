@@ -1,7 +1,8 @@
 import { FC } from 'react'
 
-import { FolderIcon } from '@heroicons/react/16/solid'
-import { IconButton } from '@material-tailwind/react'
+import { FolderIcon } from 'lucide-react'
+
+import { Button } from '~/components/ui/button'
 
 interface DirectoryPickerProps {
   setDirectoryHandle: (handle: FileSystemDirectoryHandle | null) => void
@@ -20,13 +21,13 @@ export const DirectoryPicker: FC<DirectoryPickerProps> = ({
   }
 
   return (
-    <IconButton
+    <Button
       size='sm'
       className='rounded'
-      variant='text'
+      variant='outline'
       onClick={selectDirectory}
     >
       <FolderIcon className='h-5 w-5' />
-    </IconButton>
+    </Button>
   )
 }

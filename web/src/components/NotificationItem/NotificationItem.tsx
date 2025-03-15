@@ -1,13 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  CheckBadgeIcon,
-  FaceFrownIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline'
-import { IconButton, Typography } from '@material-tailwind/react'
+import { BadgeCheckIcon, FrownIcon, X } from 'lucide-react'
 
+import { Button } from '../ui/button'
 import { DefaultNotificationTimeout, Variation } from './constants'
 import { NotificationModel } from '~/contexts/NotificationContext/NotificationContext.tsx'
 
@@ -75,21 +71,21 @@ export const NotificationItem = ({
     switch (variation) {
       case Variation.Success:
         return (
-          <CheckBadgeIcon
+          <BadgeCheckIcon
             data-testid='success-icon'
             className='mr-2 h-6 w-6 text-green-500'
           />
         )
       case Variation.Error:
         return (
-          <FaceFrownIcon
+          <FrownIcon
             data-testid='error-icon'
             className='mr-2 h-6 w-6 text-red-500'
           />
         )
       default:
         return (
-          <CheckBadgeIcon
+          <BadgeCheckIcon
             data-testid='default-icon'
             className='mr-2 h-6 w-6 text-green-500'
           />
@@ -107,29 +103,18 @@ export const NotificationItem = ({
     >
       <div className='mb-2 flex w-full items-center justify-between'>
         {getIcon()}
-        <Typography
-          className='flex-grow text-lg font-medium'
-          variant='paragraph'
-        >
-          {title}
-        </Typography>
-        <IconButton
+        <span className='flex-grow text-lg font-medium'>{title}</span>
+        <Button
           aria-label={t('component.NotificationItem.close')}
-          variant='text'
+          variant='outline'
           size='sm'
-          ripple={false}
           className='ml-auto text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
           onClick={handleRemove}
         >
-          <XMarkIcon className='h-5 w-5' />
-        </IconButton>
+          <X className='h-5 w-5' />
+        </Button>
       </div>
-      <Typography
-        className='ml-8 whitespace-pre-wrap break-words'
-        variant='small'
-      >
-        {message}
-      </Typography>
+      <span className='ml-8 whitespace-pre-wrap break-words'>{message}</span>
     </div>
   )
 }

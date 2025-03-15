@@ -1,9 +1,7 @@
 import { Component, ReactNode } from 'react'
 
-import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { Alert, Button } from '@material-tailwind/react'
-
 import { Divider } from '../Divider/Divider'
+import { Alert } from '~/components/ui/alert'
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -51,25 +49,15 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   render() {
+    if (!this.state.hasError) {
+      return this.props.children
+    }
     return (
       <>
         <Alert
           className='fixed left-1/2 top-6 z-[9999999] w-5/6 max-w-2xl -translate-x-1/2'
-          variant='gradient'
+          variant='destructive'
           color='red'
-          icon={<ExclamationTriangleIcon className='h-6 w-6' />}
-          open={this.state.open}
-          action={
-            <Button
-              variant='text'
-              color='white'
-              size='sm'
-              className='!absolute right-3 top-3'
-              onClick={this.handleClose}
-            >
-              <XMarkIcon className='h-4 w-4' />
-            </Button>
-          }
         >
           Sorry, something went wrong please try again.
           {process.env.NODE_ENV === 'development' && (
