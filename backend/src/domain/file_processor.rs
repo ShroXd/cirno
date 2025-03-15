@@ -20,7 +20,13 @@ pub async fn scan_library(
     debug!("Scanning library: {}", directory);
 
     // TODO: move complex logic in the scanner into domain layer
-    match parser_addr.send(ScanLibrary(directory, event_bus)).await {
+    match parser_addr
+        .send(ScanLibrary {
+            library_path: directory,
+            event_bus,
+        })
+        .await
+    {
         Ok(result) => result,
         Err(e) => return Err(anyhow::anyhow!("Error scanning library: {:?}", e)),
     }

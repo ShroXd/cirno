@@ -16,14 +16,17 @@ impl Actor for ParserActor {
 
 #[derive(Message)]
 #[rtype(result = "Result<Library, Error>")]
-pub struct ScanLibrary(pub String, pub Arc<EventBus>);
+pub struct ScanLibrary {
+    pub library_path: String,
+    pub event_bus: Arc<EventBus>,
+}
 
 impl Handler<ScanLibrary> for ParserActor {
     type Result = Result<Library, Error>;
 
     fn handle(&mut self, msg: ScanLibrary, _: &mut Self::Context) -> Self::Result {
-        let root_dir = Path::new(&msg.0);
-        let library = scan_library(root_dir, msg.1);
+        let root_dir = Path::new(&msg.library_path);
+        let library = scan_library(root_dir, msg.event_bus);
         // TODO: insert into database
         Ok(library)
     }

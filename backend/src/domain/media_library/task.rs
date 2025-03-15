@@ -30,7 +30,10 @@ impl AsyncTask for LibraryScanTask {
 
         let library = match self
             .parser_addr
-            .send(ScanLibrary(self.library_path.clone(), event_bus.clone()))
+            .send(ScanLibrary {
+                library_path: self.library_path.clone(),
+                event_bus: event_bus.clone(),
+            })
             .await
             .map_err(|_| anyhow!("Failed to send scan library message"))?
         {
