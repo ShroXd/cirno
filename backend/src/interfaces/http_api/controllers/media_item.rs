@@ -75,3 +75,21 @@ pub async fn get_media_controller(path: Path<i64>, app_state: Data<AppState>) ->
         HttpResponse::InternalServerError()
     )
 }
+
+#[instrument(skip(app_state))]
+pub async fn get_media_episodes_controller(
+    path: Path<i64>,
+    app_state: Data<AppState>,
+) -> impl Responder {
+    let media_id = path.into_inner();
+    handle_controller_result!(
+        app_state
+            .storage()
+            .repositories()
+            .media
+            .get_media_episodes(media_id)
+            .await,
+        HttpResponse::Ok(),
+        HttpResponse::InternalServerError()
+    )
+}

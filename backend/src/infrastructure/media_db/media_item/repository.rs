@@ -6,6 +6,7 @@ use tracing::*;
 
 use crate::infrastructure::media_db::actor::{
     QueryLibraryMedia, QueryLibraryMediaEpisodes, QueryLibraryMedias, QueryMediaById,
+    QueryMediaEpisodes,
 };
 use crate::infrastructure::media_db::database::Database;
 use crate::interfaces::dtos::{EpisodeDto, MediaItemDto};
@@ -78,5 +79,17 @@ impl MediaRepository {
             Some(media) => Ok(media),
             None => Err(anyhow::anyhow!("Media item not found")),
         }
+    }
+
+    #[instrument(skip(self))]
+    pub async fn get_media_episodes(&self, media_id: i64) -> Result<Vec<EpisodeDto>> {
+        debug!("Getting media episodes for id: {}", media_id);
+
+        let episodes = self
+            .database_addr
+            .send(QueryMediaEpisodes { media_id })
+            .await?;
+
+        Ok(episodes)
     }
 }

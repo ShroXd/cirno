@@ -19,7 +19,10 @@ use crate::{
     infrastructure::media_db::{
         category::query::check_category_exists,
         database::Database,
-        episode::{create::save_episode, query::query_episodes},
+        episode::{
+            create::save_episode,
+            query::{query_episodes, query_media_episodes},
+        },
         genre::create::save_genre,
         library::{
             create::save_library,
@@ -313,6 +316,31 @@ define_actor_message_handler!(
     ),
     success_return = |res| res,
     error_return = None
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "Vec<EpisodeDto>")]
+pub struct QueryMediaEpisodes {
+    pub media_id: i64,
+}
+
+impl Display for QueryMediaEpisodes {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "GetMediaEpisodes({})", self.media_id)
+    }
+}
+
+define_actor_message_handler!(
+    message_type = QueryMediaEpisodes,
+    return_type = Vec<EpisodeDto>,
+    db_call = |pool, query_manager, msg: QueryMediaEpisodes| query_media_episodes(
+        pool,
+        query_manager,
+        map_rows,
+        msg.media_id,
+    ),
+    success_return = |res| res,
+    error_return = Vec::<EpisodeDto>::new()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]

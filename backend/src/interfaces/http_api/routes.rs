@@ -14,7 +14,7 @@ use crate::{
         },
         media_item::{
             get_library_media_controller, get_library_media_episodes_controller,
-            get_library_medias_controller, get_media_controller,
+            get_library_medias_controller, get_media_controller, get_media_episodes_controller,
         },
         video_player::{play_video_with_path_controller, stop_video_player_controller},
     },
@@ -112,8 +112,17 @@ async fn get_media_route(path: Path<i64>, app_state: Data<AppState>) -> impl Res
     get_media_controller(path, app_state).await
 }
 
+#[get("/{media_id}/episodes")]
+async fn get_media_episodes_route(path: Path<i64>, app_state: Data<AppState>) -> impl Responder {
+    get_media_episodes_controller(path, app_state).await
+}
+
 pub fn init_media_routes(cfg: &mut ServiceConfig) {
-    cfg.service(scope("/media").service(get_media_route));
+    cfg.service(
+        scope("/media")
+            .service(get_media_route)
+            .service(get_media_episodes_route),
+    );
 }
 
 // --------------------------------
