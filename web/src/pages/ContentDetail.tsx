@@ -70,7 +70,7 @@ export default function ContentDetailPage() {
         </div>
       </header>
 
-      <main className='flex-1 overflow-y-auto px-4 py-6'>
+      <main className='container mx-auto flex-1 overflow-y-auto px-4 py-6'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -8,7 +8,7 @@ import ContentDetailPage from './pages/ContentDetail'
 import DiscoverPage from './pages/DiscoverPage'
 import FavoritesPage from './pages/FavoritesPage'
 import Home from './pages/Home'
-import LibraryPage from './pages/LibraryPage'
+import LibraryManage from './pages/LibraryManage'
 import MoviesPage from './pages/MoviesPage'
 import PlaylistsPage from './pages/PlaylistsPage'
 import SearchPage from './pages/SearchPage'
@@ -37,10 +37,10 @@ function App() {
                           path='content/:id'
                           element={<ContentDetailPage />}
                         />
+                        <Route path='library' element={<LibraryManage />} />
                         <Route path='playlists' element={<PlaylistsPage />} />
                         <Route path='discover' element={<DiscoverPage />} />
                         <Route path='search' element={<SearchPage />} />
-                        <Route path='library' element={<LibraryPage />} />
                         <Route path='movies' element={<MoviesPage />} />
                         <Route path='tv-shows' element={<TvShowsPage />} />
                         <Route path='favorites' element={<FavoritesPage />} />

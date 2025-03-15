@@ -15,6 +15,11 @@ export const menuItems = [
     path: '/',
   },
   {
+    label: 'Library',
+    icon: <Library className='mr-2 h-4 w-4' />,
+    path: '/library',
+  },
+  {
     label: 'Discover',
     icon: <Compass className='mr-2 h-4 w-4' />,
     path: '/discover',
