@@ -12,11 +12,12 @@ import {
 } from 'lucide-react'
 import { motion } from 'motion/react'
 
+import { EpisodeDto } from '~/bindings/EpisodeDto'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
+import { Card } from '~/components/ui/card'
 import { SidebarTrigger } from '~/components/ui/sidebar'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { useFetch } from '~/hooks/useFetch'
 
 export default function ContentDetailPage() {
@@ -28,7 +29,15 @@ export default function ContentDetailPage() {
     isLoading: mediaIsLoading,
   } = useFetch<MediaItemDto>(`/media/${id}`)
 
-  if (!media || mediaError) {
+  const {
+    data: episodes,
+    error: episodesError,
+    isLoading: episodesIsLoading,
+  } = useFetch<EpisodeDto[]>(`/media/${id}/episodes`)
+
+  console.log(episodes)
+
+  if (!media || !episodes || mediaError || episodesError) {
     return (
       <div className='container mx-auto px-4 py-12 text-center'>
         <h1 className='mb-4 text-3xl font-bold'>Content Not Found</h1>
@@ -73,7 +82,7 @@ export default function ContentDetailPage() {
             alt={media?.title}
             className='absolute inset-0 h-full w-full rounded-t-xl object-cover'
           />
-          <div className='absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent' />
+          <div className='absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent' />
           <div className='absolute inset-0 flex items-center justify-center opacity-70'>
             <Button size='lg' className='h-16 w-16 rounded-full p-0'>
               <Play className='h-12 w-12' />
@@ -211,192 +220,80 @@ export default function ContentDetailPage() {
             </motion.div>
           </div>
         </motion.div>
+
+        <motion.div
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+              },
+            },
+          }}
+          initial='hidden'
+          animate={episodesIsLoading ? 'hidden' : 'visible'}
+        >
+          <div className='space-y-4'>
+            {episodes?.map(episode => (
+              <motion.div
+                key={episode.title}
+                variants={{
+                  hidden: { y: 20, opacity: 0 },
+                  visible: {
+                    y: 0,
+                    opacity: 1,
+                    transition: {
+                      type: 'spring',
+                      stiffness: 100,
+                      damping: 15,
+                    },
+                  },
+                }}
+              >
+                <Card className='overflow-hidden'>
+                  <div className='flex flex-col sm:flex-row'>
+                    <div className='relative aspect-video w-full sm:aspect-[16/9] sm:w-48'>
+                      <img
+                        src={episode.thumb_image || '/placeholder.svg'}
+                        alt={episode.title || 'Episode'}
+                        className='absolute inset-0 h-full w-full rounded-l-xl object-cover'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100'>
+                        <Button size='sm' variant='secondary'>
+                          <Play className='mr-1 h-4 w-4' /> Play
+                        </Button>
+                      </div>
+                    </div>
+                    <div className='flex-1 p-4'>
+                      <div className='mb-2 flex items-center justify-between'>
+                        <div>
+                          <h3 className='font-medium'>
+                            {episode.episode_number !== null
+                              ? episode.episode_number.toString() +
+                                '. ' +
+                                episode.title
+                              : episode.title}
+                          </h3>
+                          <p className='text-sm text-muted-foreground'>
+                            20 min
+                          </p>
+                        </div>
+                        <Button variant='ghost' size='sm' className='sm:hidden'>
+                          <Play className='h-4 w-4' />
+                        </Button>
+                      </div>
+                      <p className='text-sm text-muted-foreground'>
+                        {episode.plot}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </main>
     </div>
-
-    // <div className='container mx-auto h-screen overflow-y-auto px-4 py-6 md:px-6'>
-    //   {/* Hero Section */}
-    //   <div className='relative mb-8 h-[50vh] w-full overflow-hidden rounded-xl'>
-    //     <img
-    //       src={media?.fanart_path || '/placeholder.svg'}
-    //       alt={media?.title}
-    //       className='absolute inset-0 h-full w-full object-cover'
-    //     />
-    //     <div className='absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent' />
-
-    //     <div className='absolute bottom-0 left-0 right-0 p-6 md:p-8'>
-    //       <div className='flex max-w-3xl flex-col gap-4'>
-    //         <div className='flex flex-wrap gap-2'>
-    //           {media?.genres?.map(genre => (
-    //             <Badge key={genre} variant='secondary'>
-    //               {genre}
-    //             </Badge>
-    //           ))}
-    //         </div>
-
-    //         <h1 className='text-3xl font-bold md:text-5xl'>{media?.title}</h1>
-
-    //         <div className='flex flex-wrap items-center gap-4 text-sm text-muted-foreground'>
-    //           {/* <div className='flex items-center'>
-    //             <Star className='mr-1 h-4 w-4 fill-yellow-400 text-yellow-400' />
-    //             <span>{media?.rating}/10</span>
-    //           </div> */}
-
-    //           <div className='flex items-center'>
-    //             <Calendar className='mr-1 h-4 w-4' />
-    //             <span>{media?.year}</span>
-    //           </div>
-    //         </div>
-
-    //         <div className='mt-2 flex gap-3'>
-    //           <Button className='gap-2' asChild>
-    //             <Link to={`/watch/${media?.id}`}>
-    //               <Play className='h-4 w-4' />
-    //             </Link>
-    //           </Button>
-    //           <Button variant='outline' className='gap-2'>
-    //             <Plus className='h-4 w-4' />
-    //             Add to Playlist
-    //           </Button>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </div>
-
-    //   {/* Content Details */}
-    //   <div className='mb-8 grid grid-cols-1 gap-8 lg:grid-cols-3'>
-    //     <div className='lg:col-span-2'>
-    //       <h2 className='mb-4 text-2xl font-semibold'>Overview</h2>
-    //       <p className='mb-6 text-muted-foreground'>{media?.plot}</p>
-
-    //       {!isMovie && (
-    //         <div className='mt-8'>
-    //           <h2 className='mb-4 text-2xl font-semibold'>
-    //             Seasons & Episodes
-    //           </h2>
-    //           <Tabs defaultValue={`season-${content.seasons?.[0]?.number}`}>
-    //             <TabsList className='mb-4 flex flex-wrap'>
-    //               {content.seasons?.map(season => (
-    //                 <TabsTrigger
-    //                   key={season.number}
-    //                   value={`season-${season.number}`}
-    //                 >
-    //                   Season {season.number}
-    //                 </TabsTrigger>
-    //               ))}
-    //             </TabsList>
-
-    //             {content.seasons?.map(season => (
-    //               <TabsContent
-    //                 key={season.number}
-    //                 value={`season-${season.number}`}
-    //               >
-    //                 <div className='space-y-4'>
-    //                   {season.episodes.map(episode => (
-    //                     <div
-    //                       key={episode.number}
-    //                       className='flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50'
-    //                     >
-    //                       <div className='flex items-center gap-4'>
-    //                         <div className='flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-medium text-primary'>
-    //                           {episode.number}
-    //                         </div>
-    //                         <div>
-    //                           <h4 className='font-medium'>{episode.title}</h4>
-    //                           <p className='text-sm text-muted-foreground'>
-    //                             {episode.duration}
-    //                           </p>
-    //                         </div>
-    //                       </div>
-    //                       <Button size='sm' variant='ghost' asChild>
-    //                         <Link to={`/watch/${episode.id}`}>
-    //                           <Play className='h-4 w-4' />
-    //                         </Link>
-    //                       </Button>
-    //                     </div>
-    //                   ))}
-    //                 </div>
-    //               </TabsContent>
-    //             ))}
-    //           </Tabs>
-    //         </div>
-    //       )}
-    //     </div>
-
-    //     <div>
-    //       <div className='rounded-lg border p-4'>
-    //         <h3 className='mb-4 text-lg font-medium'>Details</h3>
-    //         <dl className='space-y-4'>
-    //           {isMovie ? (
-    //             <>
-    //               <div>
-    //                 <dt className='text-sm text-muted-foreground'>Director</dt>
-    //                 <dd className='mt-1'>{content.director}</dd>
-    //               </div>
-    //             </>
-    //           ) : (
-    //             <>
-    //               <div>
-    //                 <dt className='text-sm text-muted-foreground'>Creator</dt>
-    //                 <dd className='mt-1'>{content.creator}</dd>
-    //               </div>
-    //               <div>
-    //                 <dt className='text-sm text-muted-foreground'>Seasons</dt>
-    //                 <dd className='mt-1'>{content.seasons?.length}</dd>
-    //               </div>
-    //             </>
-    //           )}
-
-    //           <div>
-    //             <dt className='text-sm text-muted-foreground'>Cast</dt>
-    //             <dd className='mt-1'>
-    //               <ul className='space-y-1'>
-    //                 {content.cast.map(actor => (
-    //                   <li key={actor}>{actor}</li>
-    //                 ))}
-    //               </ul>
-    //             </dd>
-    //           </div>
-
-    //           <div>
-    //             <dt className='text-sm text-muted-foreground'>Genres</dt>
-    //             <dd className='mt-1 flex flex-wrap gap-1'>
-    //               {media?.genres?.map(genre => (
-    //                 <Badge key={genre} variant='outline'>
-    //                   {genre}
-    //                 </Badge>
-    //               ))}
-    //             </dd>
-    //           </div>
-    //         </dl>
-    //       </div>
-    //     </div>
-    //   </div>
-
-    //   {/* Related Content Section */}
-    //   <div className='mt-12'>
-    //     <h2 className='mb-6 text-2xl font-semibold'>You May Also Like</h2>
-    //     <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
-    //       {/* This would be dynamically generated based on related content */}
-    //       {[1, 2, 3, 4].map(i => (
-    //         <div key={i} className='overflow-hidden rounded-lg border'>
-    //           <div className='relative aspect-video'>
-    //             <img
-    //               src='/placeholder.svg?height=300&width=500'
-    //               alt='Related content'
-    //               className='absolute inset-0 h-full w-full object-cover'
-    //             />
-    //           </div>
-    //           <div className='p-3'>
-    //             <h3 className='truncate font-medium'>Related Title {i}</h3>
-    //             <p className='mt-1 text-xs text-muted-foreground'>
-    //               {isMovie ? 'Movie' : 'TV Series'} • {2020 + i}
-    //             </p>
-    //           </div>
-    //         </div>
-    //       ))}
-    //     </div>
-    //   </div>
-    // </div>
   )
 }
