@@ -2,4 +2,4 @@
 import type { MediaActor } from "./MediaActor";
 import type { Season } from "./Season";
 
-export type TvShow = { title: string | null, original_title: string | null, show_title: string | null, sort_title: string | null, year: string | null, plot: string | null, genres: Array<string>, country: string | null, actors: Array<MediaActor>, tmdb_id: string | null, imdb_id: string | null, wikidata_id: string | null, tvdb_id: string | null, nfo_path: string | null, poster_path: string | null, fanart_path: string | null, seasons: { [key in number]?: Season }, };
+export type TvShow = { title: string | null, original_title: string | null, show_title: string | null, sort_title: string | null, year: string | null, plot: string | null, genres: Array<string>, studios: Array<string>, country: string | null, premiered: string | null, rating: number | null, runtime: string | null, actors: Array<MediaActor>, tmdb_id: string | null, imdb_id: string | null, wikidata_id: string | null, tvdb_id: string | null, nfo_path: string | null, poster_path: string | null, fanart_path: string | null, seasons: { [key in number]?: Season }, };

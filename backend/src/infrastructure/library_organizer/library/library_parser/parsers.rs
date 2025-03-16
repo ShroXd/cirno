@@ -19,6 +19,7 @@ pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TvShow> {
     let mut element_stack = Vec::new();
     let mut curr_elem: Option<String> = None;
     let mut is_in_actor = false;
+    let mut is_in_rating = false;
 
     let mut buf = Vec::new();
 
@@ -30,23 +31,25 @@ pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TvShow> {
             Event::Start(e) => {
                 let elem_name = String::from_utf8(e.name().as_ref().to_vec())?;
 
-                if elem_name == "actor" {
-                    is_in_actor = true;
-                }
-
-                if elem_name == "uniqueid" {
-                    for attr in e.attributes() {
-                        match attr {
-                            Ok(attr) => {
-                                if attr.key == QName(b"type") {
-                                    type_attr = Some(attr.unescape_value().unwrap().to_string());
+                match elem_name.as_ref() {
+                    "actor" => is_in_actor = true,
+                    "rating" => is_in_rating = true,
+                    "uniqueid" => {
+                        for attr in e.attributes() {
+                            match attr {
+                                Ok(attr) => {
+                                    if attr.key == QName(b"type") {
+                                        type_attr =
+                                            Some(attr.unescape_value().unwrap().to_string());
+                                    }
                                 }
-                            }
-                            Err(e) => {
-                                error!("Error reading attribute: {}", e);
+                                Err(e) => {
+                                    error!("Error reading attribute: {}", e);
+                                }
                             }
                         }
                     }
+                    _ => {}
                 }
 
                 element_stack.push(elem_name.clone());
@@ -66,6 +69,8 @@ pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TvShow> {
                         "year" => set_field(&mut tv_serie.year, &text, "year"),
                         "plot" => set_field(&mut tv_serie.plot, &text, "plot"),
                         "country" => set_field(&mut tv_serie.country, &text, "country"),
+                        "premiered" => set_field(&mut tv_serie.premiered, &text, "premiered"),
+                        "runtime" => set_field(&mut tv_serie.runtime, &text, "runtime"),
                         "uniqueid" => match type_attr.as_deref() {
                             Some("tmdb") => set_field(&mut tv_serie.tmdb_id, &text, "tmdb id"),
                             Some("imdb") => set_field(&mut tv_serie.imdb_id, &text, "imdb id"),
@@ -78,6 +83,16 @@ pub fn parse_tv_serie(nfo_path_str: &String) -> Result<TvShow> {
                         "genre" => {
                             debug!("genre: {}", text);
                             tv_serie.genres.push(text);
+                        }
+                        "studio" => {
+                            debug!("studio: {}", text);
+                            tv_serie.studios.push(text);
+                        }
+                        "value" => {
+                            if is_in_rating {
+                                debug!("rating: {}", text);
+                                tv_serie.rating = Some(text.parse::<f32>()?);
+                            }
                         }
                         "name" | "role" | "thumb" | "profile" | "tmdbid" => {
                             if !is_in_actor {

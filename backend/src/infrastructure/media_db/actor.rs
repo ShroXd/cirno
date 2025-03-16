@@ -36,6 +36,7 @@ use crate::{
             query_media_by_id,
         },
         season::{create::save_season, query::query_seasons},
+        studio::create::save_studio,
         tv_show::create::save_tv_show,
     },
     interfaces::{
@@ -100,6 +101,32 @@ define_actor_message_handler!(
         query_manager,
         msg.tv_show_id,
         msg.genre
+    ),
+    success_return = |_| (),
+    error_return = ()
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub struct SaveStudio {
+    pub tv_show_id: i64,
+    pub studio: String,
+}
+
+impl Display for SaveStudio {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SaveStudio({})", self.studio)
+    }
+}
+
+define_actor_message_handler!(
+    message_type = SaveStudio,
+    return_type = (),
+    db_call = |pool, query_manager, msg: SaveStudio| save_studio(
+        pool,
+        query_manager,
+        msg.tv_show_id,
+        msg.studio
     ),
     success_return = |_| (),
     error_return = ()

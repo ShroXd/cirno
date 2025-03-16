@@ -6,7 +6,7 @@ use tracing::*;
 use crate::{
     domain::{episode::model::Episode, season::model::Season, tv_show::model::TvShow},
     infrastructure::media_db::{
-        actor::{SaveActor, SaveEpisode, SaveGenre, SaveSeason, SaveTvShow},
+        actor::{SaveActor, SaveEpisode, SaveGenre, SaveSeason, SaveStudio, SaveTvShow},
         database::Database,
     },
 };
@@ -20,6 +20,7 @@ pub async fn insert_media_item(
     debug!("Inserting media item: {:?}", media_item.title);
 
     let genres = media_item.genres.clone();
+    let studios = media_item.studios.clone();
     let actors = media_item.actors.clone();
     let seasons_map = media_item.seasons.clone();
     let seasons = seasons_map.values().collect::<Vec<&Season>>();
@@ -39,6 +40,14 @@ pub async fn insert_media_item(
             .send(SaveGenre { tv_show_id, genre })
             .await
             .map_err(|e| anyhow::anyhow!("Error inserting genre: {:?}", e))?;
+    }
+
+    for studio in studios {
+        debug!("Inserting studio: {}", studio);
+        database_addr
+            .send(SaveStudio { tv_show_id, studio })
+            .await
+            .map_err(|e| anyhow::anyhow!("Error inserting studio: {:?}", e))?;
     }
 
     for actor in actors {

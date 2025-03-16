@@ -2,11 +2,15 @@
 INSERT INTO
     tv_shows (
         title,
+        original_title,
         nfo_path,
         poster_path,
         fanart_path,
         country,
         year,
+        premiered,
+        rating,
+        runtime,
         plot,
         tmdb_id,
         imdb_id,
@@ -14,7 +18,7 @@ INSERT INTO
         tvdb_id
     )
 VALUES
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (title) DO
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (title) DO
 UPDATE
 SET
     id = id RETURNING id;

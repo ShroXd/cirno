@@ -7,27 +7,27 @@ use tracing::*;
 use crate::infrastructure::media_db::query_manager::QueryManager;
 
 #[instrument(skip(conn_pool, query_manager))]
-pub async fn save_genre(
+pub async fn save_studio(
     conn_pool: &SqlitePool,
     query_manager: Arc<dyn QueryManager>,
     tv_show_id: i64,
-    genre: String,
+    studio: String,
 ) -> Result<()> {
     let mut conn = conn_pool.acquire().await?;
     let mut tx = conn.begin().await?;
 
-    let save_genre_query = query_manager.get_query("genre", "save_genre").await?;
-    let genre_id: i64 = sqlx::query_scalar(&save_genre_query)
-        .bind(genre)
+    let save_studio_query = query_manager.get_query("studio", "save_studio").await?;
+    let studio_id: i64 = sqlx::query_scalar(&save_studio_query)
+        .bind(studio)
         .fetch_one(&mut *tx)
         .await?;
 
-    let save_tv_show_genre_query = query_manager
-        .get_query("genre", "save_tv_show_genre")
+    let save_tv_show_studio_query = query_manager
+        .get_query("studio", "save_tv_show_studio")
         .await?;
-    sqlx::query(&save_tv_show_genre_query)
+    sqlx::query(&save_tv_show_studio_query)
         .bind(tv_show_id)
-        .bind(genre_id)
+        .bind(studio_id)
         .execute(&mut *tx)
         .await?;
 

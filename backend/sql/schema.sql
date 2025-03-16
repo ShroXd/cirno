@@ -12,11 +12,15 @@ CREATE TABLE IF NOT EXISTS library (
 CREATE TABLE IF NOT EXISTS tv_shows (
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL UNIQUE,
+    original_title TEXT,
     nfo_path TEXT,
     poster_path TEXT,
     fanart_path TEXT,
     country TEXT,
     year INTEGER,
+    premiered TEXT,
+    rating INTEGER,
+    runtime INTEGER,
     plot TEXT,
     tmdb_id TEXT,
     imdb_id TEXT,
@@ -91,6 +95,26 @@ CREATE TABLE IF NOT EXISTS tv_show_genres (
     PRIMARY KEY (tv_show_id, genre_id),
     FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genres (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS studios (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    reference_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS tv_show_studios (
+    tv_show_id INTEGER NOT NULL,
+    studio_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME,
+    PRIMARY KEY (tv_show_id, studio_id),
+    FOREIGN KEY (tv_show_id) REFERENCES tv_shows (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (studio_id) REFERENCES studios (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS actors (
@@ -170,6 +194,30 @@ WHERE
     AND reference_count = 0;
 
 END;
+
+CREATE TRIGGER increment_studio_reference_count AFTER INSERT ON tv_show_studios BEGIN
+UPDATE studios
+SET
+    reference_count = reference_count + 1
+WHERE
+    id = NEW.studio_id;
+
+END;
+
+CREATE TRIGGER decrement_studio_reference_count AFTER DELETE ON tv_show_studios BEGIN
+UPDATE studios
+SET
+    reference_count = reference_count - 1
+WHERE
+    id = OLD.studio_id;
+
+DELETE FROM studios
+WHERE
+    id = OLD.studio_id
+    AND reference_count = 0;
+
+END;
+
 
 CREATE TRIGGER increment_actor_reference_count AFTER INSERT ON tv_show_actors BEGIN
 UPDATE actors

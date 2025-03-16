@@ -40,16 +40,23 @@ GROUP BY
 SELECT
     ts.id,
     ts.title,
+    ts.original_title,
     ts.poster_path,
     ts.fanart_path,
     ts.country,
     ts.year,
+    ts.premiered,
+    ts.rating,
+    ts.runtime,
     ts.plot,
-    group_concat (g.name, ', ') AS genres
+    group_concat (DISTINCT g.name) AS genres,
+    group_concat (DISTINCT s.name) AS studios
 FROM
     tv_shows ts
-    JOIN tv_show_genres tsg ON ts.id = tsg.tv_show_id
-    JOIN genres g ON tsg.genre_id = g.id
+    LEFT JOIN tv_show_genres tsg ON ts.id = tsg.tv_show_id
+    LEFT JOIN genres g ON tsg.genre_id = g.id
+    LEFT JOIN tv_show_studios tss ON ts.id = tss.tv_show_id
+    LEFT JOIN studios s ON tss.studio_id = s.id
 WHERE
     ts.id = ?
 GROUP BY

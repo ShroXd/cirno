@@ -8,4 +8,5 @@ pub mod media_actor;
 pub mod media_item;
 pub mod query_manager;
 pub mod season;
+pub mod studio;
 pub mod tv_show;

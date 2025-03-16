@@ -10,12 +10,17 @@ use super::http_api::controllers::api_models::LibraryCategory;
 pub struct MediaItemDto {
     pub id: i64,
     pub title: String,
+    pub original_title: Option<String>,
     pub plot: Option<String>,
     pub poster_path: Option<String>,
     pub fanart_path: Option<String>,
     pub country: Option<String>,
     pub year: Option<String>,
+    pub premiered: Option<String>,
+    pub rating: Option<f64>,
+    pub runtime: Option<i64>,
     pub genres: Vec<String>,
+    pub studios: Vec<String>,
     pub actors: Vec<MediaActor>,
 }
 

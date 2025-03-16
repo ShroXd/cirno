@@ -195,10 +195,11 @@ export default function ContentDetailPage() {
                   <Calendar className='h-4 w-4' /> {media?.year}
                 </span>
                 <span className='flex items-center gap-1'>
-                  <Clock className='h-4 w-4' /> {'2h'}
+                  <Clock className='h-4 w-4' /> {media?.runtime?.toString()}
                 </span>
                 <span className='flex items-center gap-1'>
-                  <Star className='h-4 w-4 text-yellow-500' /> {'8.5'}
+                  <Star className='h-4 w-4 text-yellow-500' />{' '}
+                  {media?.rating?.toFixed(1)}
                 </span>
                 <Badge variant='outline'>Movie</Badge>
               </div>
@@ -248,16 +249,22 @@ export default function ContentDetailPage() {
               className='space-y-4'
             >
               <div>
-                <h3 className='mb-1 text-lg font-semibold'>Director</h3>
-                <p className='text-muted-foreground'>John Doe</p>
+                <h3 className='mb-1 text-lg font-semibold'>Original Title</h3>
+                <p className='text-muted-foreground'>{media?.original_title}</p>
+              </div>
+              <div>
+                <h3 className='mb-1 text-lg font-semibold'>Country</h3>
+                <p className='text-muted-foreground'>{media?.country}</p>
               </div>
               <div>
                 <h3 className='mb-1 text-lg font-semibold'>Studio</h3>
-                <p className='text-muted-foreground'>Studio Doe</p>
-              </div>
-              <div>
-                <h3 className='mb-1 text-lg font-semibold'>Release Date</h3>
-                <p className='text-muted-foreground'>2023-01-01</p>
+                <div className='text-muted-foreground'>
+                  {media?.studios.map(studio => (
+                    <Badge className='mb-1 mr-1' key={studio} variant='outline'>
+                      {studio}
+                    </Badge>
+                  ))}
+                </div>
               </div>
               <div>
                 <h3 className='mb-1 text-lg font-semibold'>Actors</h3>
