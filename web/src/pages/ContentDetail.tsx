@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 
 import {
@@ -17,6 +16,10 @@ import { AnimatePresence, motion } from 'motion/react'
 import { EpisodeDto } from '~/bindings/EpisodeDto'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
 import { PulseLoader } from '~/components/PulseLoader/PulseLoader'
+import {
+  HideOnLoading,
+  SkeletonSwitcher,
+} from '~/components/TransitionSwitcher/TransitionSwitcher'
 import VideoPlayer from '~/components/VideoPlayer/VideoPlayer'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
@@ -31,20 +34,19 @@ export default function ContentDetailPage() {
   const [videoPlaying, setVideoPlaying] = useState(false)
 
   const { id } = useParams<{ id: string }>()
-  const { t } = useTranslation()
   const post = usePost()
   const { onEvent } = useEventBus()
 
   const {
     data: media,
     error: mediaError,
-    isLoading: mediaIsLoading,
+    isLoading: isMediaLoading,
   } = useFetch<MediaItemDto>(`/media/${id}`)
 
   const {
     data: episodes,
     error: episodesError,
-    isLoading: episodesIsLoading,
+    isLoading: isEpisodesLoading,
   } = useFetch<EpisodeDto[]>(`/media/${id}/episodes`)
 
   const videoJsOptions = {
@@ -65,7 +67,9 @@ export default function ContentDetailPage() {
   }
 
   const handlePlay = useCallback(
-    (episode: EpisodeDto) => {
+    (episode?: EpisodeDto) => {
+      if (!episode) return
+
       setIsWaitingForHlsStream(true)
       post('/video-player/play', {
         path: episode.video_file_path,
@@ -79,7 +83,7 @@ export default function ContentDetailPage() {
     [post, onEvent]
   )
 
-  if (!media || !episodes || mediaError || episodesError) {
+  if (mediaError || episodesError) {
     return (
       <div className='container mx-auto px-4 py-12 text-center'>
         <h1 className='mb-4 text-3xl font-bold'>Content Not Found</h1>
@@ -139,21 +143,30 @@ export default function ContentDetailPage() {
             transition={{ duration: 0.5 }}
             className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'
           >
-            <img
-              src={media?.fanart_path || '/placeholder.svg'}
-              alt={media?.title}
-              className='absolute inset-0 h-full w-full rounded-t-xl object-cover'
-            />
-            <div className='absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent' />
-            <div className='absolute inset-0 flex items-center justify-center opacity-70'>
-              <Button
-                size='lg'
-                className='h-16 w-16 rounded-full p-0'
-                onClick={() => handlePlay(episodes[0])}
-              >
-                <Play className='h-12 w-12' />
-              </Button>
-            </div>
+            <SkeletonSwitcher
+              isLoading={isMediaLoading}
+              className='absolute inset-0 h-full w-full rounded-t-xl'
+            >
+              <img
+                src={media?.fanart_path || '/placeholder.svg'}
+                alt={media?.title}
+                className='absolute inset-0 h-full w-full rounded-t-xl object-cover'
+              />
+            </SkeletonSwitcher>
+            <HideOnLoading isLoading={isMediaLoading}>
+              <div className='absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent' />
+            </HideOnLoading>
+            <HideOnLoading isLoading={isMediaLoading}>
+              <div className='absolute inset-0 flex items-center justify-center opacity-70'>
+                <Button
+                  size='lg'
+                  className='h-16 w-16 rounded-full p-0'
+                  onClick={() => handlePlay(episodes?.[0])}
+                >
+                  <Play className='h-12 w-12' />
+                </Button>
+              </div>
+            </HideOnLoading>
           </motion.div>
         )}
 
@@ -168,7 +181,7 @@ export default function ContentDetailPage() {
             },
           }}
           initial='hidden'
-          animate={mediaIsLoading ? 'hidden' : 'visible'}
+          animate={isMediaLoading ? 'hidden' : 'visible'}
           className='mb-12 grid grid-cols-1 gap-8 lg:grid-cols-3'
         >
           <div className='lg:col-span-2'>
@@ -187,48 +200,71 @@ export default function ContentDetailPage() {
               }}
               className='overflow-y-auto'
             >
-              <h1 className='mb-2 text-3xl font-bold md:text-4xl'>
-                {media?.title}
-              </h1>
-              <div className='mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground'>
-                <span className='flex items-center gap-1'>
-                  <Calendar className='h-4 w-4' /> {media?.year}
-                </span>
-                <span className='flex items-center gap-1'>
-                  <Clock className='h-4 w-4' /> {media?.runtime?.toString()}
-                </span>
-                <span className='flex items-center gap-1'>
-                  <Star className='h-4 w-4 text-yellow-500' />{' '}
-                  {media?.rating?.toFixed(1)}
-                </span>
-                <Badge variant='outline'>Movie</Badge>
-              </div>
-              <div className='mb-4 flex flex-wrap gap-2'>
-                {media?.genres?.map(genre => (
-                  <Badge key={genre} variant='secondary'>
-                    {genre}
-                  </Badge>
-                ))}
-              </div>
-              <p className='mb-6 text-muted-foreground'>{media?.plot}</p>
-              <div className='flex flex-wrap gap-3'>
-                <Button asChild size='lg' className='gap-2'>
-                  <Link to={`/watch/${media?.id}`}>
-                    <Play className='h-4 w-4' /> Watch Now
-                  </Link>
-                </Button>
-                <Button variant='outline' size='lg' className='gap-2'>
-                  <Plus className='h-4 w-4' /> Add to Watchlist
-                </Button>
-                <Button variant='ghost' size='icon' className='ml-auto'>
-                  <Share className='h-5 w-5' />
-                  <span className='sr-only'>Share</span>
-                </Button>
-                <Button variant='ghost' size='icon'>
-                  <ThumbsUp className='h-5 w-5' />
-                  <span className='sr-only'>Like</span>
-                </Button>
-              </div>
+              <SkeletonSwitcher
+                isLoading={isMediaLoading}
+                className='mb-2 h-[2.5rem] w-full'
+              >
+                <h1 className='mb-2 text-3xl font-bold md:text-4xl'>
+                  {media?.title}
+                </h1>
+              </SkeletonSwitcher>
+              <SkeletonSwitcher
+                isLoading={isMediaLoading}
+                className='h-6 w-[300px]'
+              >
+                <div className='mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground'>
+                  <span className='flex items-center gap-1'>
+                    <Calendar className='h-4 w-4' /> {media?.year}
+                  </span>
+                  <span className='flex items-center gap-1'>
+                    <Clock className='h-4 w-4' /> {media?.runtime?.toString()}
+                  </span>
+                  <span className='flex items-center gap-1'>
+                    <Star className='h-4 w-4 text-yellow-500' />{' '}
+                    {media?.rating?.toFixed(1)}
+                  </span>
+                  <Badge variant='outline'>Movie</Badge>
+                </div>
+              </SkeletonSwitcher>
+              <SkeletonSwitcher
+                isLoading={isMediaLoading}
+                className='h-6 w-[200px]'
+              >
+                <div className='mb-4 flex flex-wrap gap-2'>
+                  {media?.genres?.map(genre => (
+                    <Badge key={genre} variant='secondary'>
+                      {genre}
+                    </Badge>
+                  ))}
+                </div>
+              </SkeletonSwitcher>
+
+              <SkeletonSwitcher
+                isLoading={isMediaLoading}
+                className='h-[100px] w-full'
+              >
+                <p className='mb-6 text-muted-foreground'>{media?.plot}</p>
+              </SkeletonSwitcher>
+              <HideOnLoading isLoading={isMediaLoading}>
+                <div className='flex flex-wrap gap-3'>
+                  <Button asChild size='lg' className='gap-2'>
+                    <Link to={`/watch/${media?.id}`}>
+                      <Play className='h-4 w-4' /> Watch Now
+                    </Link>
+                  </Button>
+                  <Button variant='outline' size='lg' className='gap-2'>
+                    <Plus className='h-4 w-4' /> Add to Watchlist
+                  </Button>
+                  <Button variant='ghost' size='icon' className='ml-auto'>
+                    <Share className='h-5 w-5' />
+                    <span className='sr-only'>Share</span>
+                  </Button>
+                  <Button variant='ghost' size='icon'>
+                    <ThumbsUp className='h-5 w-5' />
+                    <span className='sr-only'>Like</span>
+                  </Button>
+                </div>
+              </HideOnLoading>
             </motion.div>
           </div>
 
@@ -250,45 +286,71 @@ export default function ContentDetailPage() {
             >
               <div>
                 <h3 className='mb-1 text-lg font-semibold'>Original Title</h3>
-                <p className='text-muted-foreground'>{media?.original_title}</p>
+                <SkeletonSwitcher
+                  isLoading={isMediaLoading}
+                  className='h-6 w-full'
+                >
+                  <p className='text-muted-foreground'>
+                    {media?.original_title}
+                  </p>
+                </SkeletonSwitcher>
               </div>
               <div>
                 <h3 className='mb-1 text-lg font-semibold'>Country</h3>
-                <p className='text-muted-foreground'>{media?.country}</p>
+                <SkeletonSwitcher
+                  isLoading={isMediaLoading}
+                  className='h-6 w-full'
+                >
+                  <p className='text-muted-foreground'>{media?.country}</p>
+                </SkeletonSwitcher>
               </div>
               <div>
                 <h3 className='mb-1 text-lg font-semibold'>Studio</h3>
-                <div className='text-muted-foreground'>
-                  {media?.studios.map(studio => (
-                    <Badge className='mb-1 mr-1' key={studio} variant='outline'>
-                      {studio}
-                    </Badge>
-                  ))}
-                </div>
+                <SkeletonSwitcher
+                  isLoading={isMediaLoading}
+                  className='h-6 w-full'
+                >
+                  <div className='text-muted-foreground'>
+                    {media?.studios.map(studio => (
+                      <Badge
+                        className='mb-1 mr-1'
+                        key={studio}
+                        variant='outline'
+                      >
+                        {studio}
+                      </Badge>
+                    ))}
+                  </div>
+                </SkeletonSwitcher>
               </div>
               <div>
                 <h3 className='mb-1 text-lg font-semibold'>Actors</h3>
-                <div className='grid grid-cols-2 gap-2'>
-                  {media?.actors.map(actor => (
-                    <div key={actor.name} className='flex items-center gap-2'>
-                      <div className='relative h-8 w-8 overflow-hidden rounded-full'>
-                        <img
-                          src={actor.thumb || '/placeholder.svg'}
-                          alt={actor.name || ''}
-                          className='h-full w-full object-cover'
-                        />
+                <SkeletonSwitcher
+                  isLoading={isMediaLoading}
+                  className='h-6 w-full'
+                >
+                  <div className='grid grid-cols-2 gap-2'>
+                    {media?.actors.map(actor => (
+                      <div key={actor.name} className='flex items-center gap-2'>
+                        <div className='relative h-8 w-8 overflow-hidden rounded-full'>
+                          <img
+                            src={actor.thumb || '/placeholder.svg'}
+                            alt={actor.name || ''}
+                            className='h-full w-full object-cover'
+                          />
+                        </div>
+                        <div className='overflow-hidden'>
+                          <p className='truncate text-sm font-medium'>
+                            {actor.name}
+                          </p>
+                          <p className='truncate text-xs text-muted-foreground'>
+                            {actor.role}
+                          </p>
+                        </div>
                       </div>
-                      <div className='overflow-hidden'>
-                        <p className='truncate text-sm font-medium'>
-                          {actor.name}
-                        </p>
-                        <p className='truncate text-xs text-muted-foreground'>
-                          {actor.role}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </SkeletonSwitcher>
               </div>
             </motion.div>
           </div>
@@ -305,65 +367,74 @@ export default function ContentDetailPage() {
             },
           }}
           initial='hidden'
-          animate={episodesIsLoading ? 'hidden' : 'visible'}
+          animate={isEpisodesLoading ? 'hidden' : 'visible'}
         >
           <div className='space-y-4'>
-            {episodes?.map(episode => (
-              <motion.div
-                key={episode.title}
-                variants={{
-                  hidden: { y: 20, opacity: 0 },
-                  visible: {
-                    y: 0,
-                    opacity: 1,
-                    transition: {
-                      type: 'spring',
-                      stiffness: 100,
-                      damping: 15,
+            <SkeletonSwitcher
+              isLoading={isEpisodesLoading}
+              className='h-32 w-full'
+            >
+              {episodes?.map(episode => (
+                <motion.div
+                  key={episode.title}
+                  variants={{
+                    hidden: { y: 20, opacity: 0 },
+                    visible: {
+                      y: 0,
+                      opacity: 1,
+                      transition: {
+                        type: 'spring',
+                        stiffness: 100,
+                        damping: 15,
+                      },
                     },
-                  },
-                }}
-              >
-                <Card className='overflow-hidden'>
-                  <div className='flex flex-col sm:flex-row'>
-                    <div className='relative aspect-video w-full sm:aspect-[16/9] sm:w-48'>
-                      <img
-                        src={episode.thumb_image || '/placeholder.svg'}
-                        alt={episode.title || 'Episode'}
-                        className='absolute inset-0 h-full w-full rounded-l-xl object-cover'
-                      />
-                      <div className='absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100'>
-                        <Button size='sm' variant='secondary'>
-                          <Play className='mr-1 h-4 w-4' /> Play
-                        </Button>
-                      </div>
-                    </div>
-                    <div className='flex-1 p-4'>
-                      <div className='mb-2 flex items-center justify-between'>
-                        <div>
-                          <h3 className='font-medium'>
-                            {episode.episode_number !== null
-                              ? episode.episode_number.toString() +
-                                '. ' +
-                                episode.title
-                              : episode.title}
-                          </h3>
-                          <p className='text-sm text-muted-foreground'>
-                            20 min
-                          </p>
+                  }}
+                >
+                  <Card className='overflow-hidden'>
+                    <div className='flex flex-col sm:flex-row'>
+                      <div className='relative aspect-video w-full sm:aspect-[16/9] sm:w-48'>
+                        <img
+                          src={episode.thumb_image || '/placeholder.svg'}
+                          alt={episode.title || 'Episode'}
+                          className='absolute inset-0 h-full w-full rounded-l-xl object-cover'
+                        />
+                        <div className='absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100'>
+                          <Button size='sm' variant='secondary'>
+                            <Play className='mr-1 h-4 w-4' /> Play
+                          </Button>
                         </div>
-                        <Button variant='ghost' size='sm' className='sm:hidden'>
-                          <Play className='h-4 w-4' />
-                        </Button>
                       </div>
-                      <p className='text-sm text-muted-foreground'>
-                        {episode.plot}
-                      </p>
+                      <div className='flex-1 p-4'>
+                        <div className='mb-2 flex items-center justify-between'>
+                          <div>
+                            <h3 className='font-medium'>
+                              {episode.episode_number !== null
+                                ? episode.episode_number.toString() +
+                                  '. ' +
+                                  episode.title
+                                : episode.title}
+                            </h3>
+                            <p className='text-sm text-muted-foreground'>
+                              20 min
+                            </p>
+                          </div>
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            className='sm:hidden'
+                          >
+                            <Play className='h-4 w-4' />
+                          </Button>
+                        </div>
+                        <p className='text-sm text-muted-foreground'>
+                          {episode.plot}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+                  </Card>
+                </motion.div>
+              ))}
+            </SkeletonSwitcher>
           </div>
         </motion.div>
       </main>
