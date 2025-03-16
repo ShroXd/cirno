@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::domain::media_library::model::LibraryPoster;
+use crate::domain::{media_actor::model::MediaActor, media_library::model::LibraryPoster};
 
 use super::http_api::controllers::api_models::LibraryCategory;
 
@@ -16,6 +16,7 @@ pub struct MediaItemDto {
     pub country: Option<String>,
     pub year: Option<String>,
     pub genres: Vec<String>,
+    pub actors: Vec<MediaActor>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, TS)]

@@ -17,6 +17,7 @@ impl SqliteRowMapper<MediaItemDto> for MediaItemDto {
                 .split(',')
                 .map(|s| s.to_string())
                 .collect(),
+            actors: vec![],
         }
     }
 }

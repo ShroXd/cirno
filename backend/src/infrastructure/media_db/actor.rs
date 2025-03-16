@@ -311,7 +311,6 @@ define_actor_message_handler!(
     db_call = |pool, query_manager, msg: QueryMediaById| query_media_by_id(
         pool,
         query_manager,
-        map_rows,
         msg.media_id
     ),
     success_return = |res| res,

@@ -260,28 +260,27 @@ export default function ContentDetailPage() {
                 <p className='text-muted-foreground'>2023-01-01</p>
               </div>
               <div>
-                <h3 className='mb-1 text-lg font-semibold'>Cast</h3>
+                <h3 className='mb-1 text-lg font-semibold'>Actors</h3>
                 <div className='grid grid-cols-2 gap-2'>
-                  {/* {media?.cast.map(person => (
-                    <div key={person.name} className='flex items-center gap-2'>
+                  {media?.actors.map(actor => (
+                    <div key={actor.name} className='flex items-center gap-2'>
                       <div className='relative h-8 w-8 overflow-hidden rounded-full'>
-                        <Image
-                          src={person.image || '/placeholder.svg'}
-                          alt={person.name}
-                          fill
-                          className='object-cover'
+                        <img
+                          src={actor.thumb || '/placeholder.svg'}
+                          alt={actor.name || ''}
+                          className='h-full w-full object-cover'
                         />
                       </div>
                       <div className='overflow-hidden'>
                         <p className='truncate text-sm font-medium'>
-                          {person.name}
+                          {actor.name}
                         </p>
                         <p className='truncate text-xs text-muted-foreground'>
-                          {person.role}
+                          {actor.role}
                         </p>
                       </div>
                     </div>
-                  ))} */}
+                  ))}
                 </div>
               </div>
             </motion.div>
