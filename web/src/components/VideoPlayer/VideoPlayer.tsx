@@ -10,8 +10,23 @@ import { useWebSocket } from '~/hooks/useWebSocket'
 export const VideoPlayer = (props: any) => {
   const videoRef = useRef<any>(null)
   const playerRef = useRef<any>(null)
-  const { options, onReady } = props
+  const { options, onReady, onReset } = props
   const { sendMessage } = useWebSocket()
+
+  const resetPlayer = () => {
+    const player = playerRef.current
+    if (player && !player.isDisposed()) {
+      player.reset()
+      player.src(options.sources)
+      player.load()
+    }
+  }
+
+  useEffect(() => {
+    if (onReset) {
+      onReset(resetPlayer)
+    }
+  }, [onReset, resetPlayer])
 
   useEffect(() => {
     if (!playerRef.current) {

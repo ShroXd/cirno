@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import {
@@ -11,10 +11,11 @@ import {
   Star,
   ThumbsUp,
 } from 'lucide-react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, cubicBezier, motion } from 'motion/react'
 
 import { EpisodeDto } from '~/bindings/EpisodeDto'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
+import { AnimatedSection } from '~/components/AnimatedSection/AnimatedSection'
 import { PulseLoader } from '~/components/PulseLoader/PulseLoader'
 import {
   HideOnLoading,
@@ -29,9 +30,43 @@ import { useEventBus } from '~/hooks/useEventBus'
 import { useFetch } from '~/hooks/useFetch'
 import { usePost } from '~/hooks/usePost'
 
+enum VideoPlayerState {
+  Idle = 'idle',
+  Loading = 'loading',
+  Playing = 'playing',
+  Paused = 'paused',
+  Ended = 'ended',
+}
+
+const renderWithTransition = (
+  delay: number,
+  className: string,
+  children: React.ReactNode
+) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 export default function ContentDetailPage() {
   const [isWaitingForHlsStream, setIsWaitingForHlsStream] = useState(false)
   const [videoPlaying, setVideoPlaying] = useState(false)
+
+  const [videoPlayerState, setVideoPlayerState] = useState<VideoPlayerState>(
+    VideoPlayerState.Idle
+  )
+
+  const playerResetRef = useRef<(() => void) | null>(null)
+  const handlePlayerReset = useCallback((resetFn: () => void) => {
+    playerResetRef.current = resetFn
+  }, [])
 
   const { id } = useParams<{ id: string }>()
   const post = usePost()
@@ -67,8 +102,13 @@ export default function ContentDetailPage() {
   }
 
   const handlePlay = useCallback(
-    (episode?: EpisodeDto) => {
+    async (episode?: EpisodeDto) => {
       if (!episode) return
+
+      if (playerResetRef.current && videoPlaying) {
+        playerResetRef.current()
+        await post('/video-player/stop')
+      }
 
       setIsWaitingForHlsStream(true)
       post('/video-player/play', {
@@ -80,7 +120,7 @@ export default function ContentDetailPage() {
         setVideoPlaying(true)
       })
     },
-    [post, onEvent]
+    [post, onEvent, playerResetRef, videoPlaying]
   )
 
   if (mediaError || episodesError) {
@@ -90,6 +130,58 @@ export default function ContentDetailPage() {
         <p>The content you're looking for doesn't exist or has been removed.</p>
       </div>
     )
+  }
+
+  const renderVideoPlayer = () => {
+    switch (videoPlayerState) {
+      case VideoPlayerState.Loading:
+        return (
+          <AnimatedSection delay={0.5} className='absolute inset-0'>
+            <PulseLoader />
+          </AnimatedSection>
+        )
+      case VideoPlayerState.Playing:
+        return (
+          <AnimatedSection
+            delay={0.5}
+            className='absolute inset-0'
+            key='video-player'
+          >
+            <VideoPlayer options={videoJsOptions} onReset={handlePlayerReset} />
+          </AnimatedSection>
+        )
+      default:
+        return renderWithTransition(
+          0,
+          'relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl',
+          <>
+            <SkeletonSwitcher
+              isLoading={isMediaLoading}
+              className='absolute inset-0 h-full w-full rounded-t-xl'
+            >
+              <img
+                src={media?.fanart_path || '/placeholder.svg'}
+                alt={media?.title}
+                className='absolute inset-0 h-full w-full rounded-t-xl object-cover'
+              />
+            </SkeletonSwitcher>
+            <HideOnLoading isLoading={isMediaLoading}>
+              <div className='absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent' />
+            </HideOnLoading>
+            <HideOnLoading isLoading={isMediaLoading}>
+              <div className='absolute inset-0 flex items-center justify-center opacity-70'>
+                <Button
+                  size='lg'
+                  className='h-16 w-16 rounded-full p-0'
+                  onClick={() => handlePlay(episodes?.[0])}
+                >
+                  <Play className='h-12 w-12' />
+                </Button>
+              </div>
+            </HideOnLoading>
+          </>
+        )
+    }
   }
 
   return (
@@ -108,7 +200,8 @@ export default function ContentDetailPage() {
       </header>
 
       <main className='container mx-auto flex-1 overflow-y-auto px-4 py-6'>
-        {isWaitingForHlsStream ? (
+        {renderVideoPlayer()}
+        {/* {isWaitingForHlsStream ? (
           <div className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
             <AnimatePresence mode='wait'>
               {videoPlaying ? (
@@ -120,7 +213,10 @@ export default function ContentDetailPage() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.7, ease: 'easeInOut' }}
                 >
-                  <VideoPlayer options={videoJsOptions} />
+                  <VideoPlayer
+                    options={videoJsOptions}
+                    onReset={handlePlayerReset}
+                  />
                 </motion.div>
               ) : (
                 <motion.div
@@ -168,7 +264,7 @@ export default function ContentDetailPage() {
               </div>
             </HideOnLoading>
           </motion.div>
-        )}
+        )} */}
 
         <motion.div
           variants={{
@@ -247,10 +343,12 @@ export default function ContentDetailPage() {
               </SkeletonSwitcher>
               <HideOnLoading isLoading={isMediaLoading}>
                 <div className='flex flex-wrap gap-3'>
-                  <Button asChild size='lg' className='gap-2'>
-                    <Link to={`/watch/${media?.id}`}>
-                      <Play className='h-4 w-4' /> Watch Now
-                    </Link>
+                  <Button
+                    onClick={() => handlePlay(episodes?.[0])}
+                    size='lg'
+                    className='gap-2'
+                  >
+                    <Play className='h-4 w-4' /> Watch Now
                   </Button>
                   <Button variant='outline' size='lg' className='gap-2'>
                     <Plus className='h-4 w-4' /> Add to Watchlist
@@ -399,7 +497,11 @@ export default function ContentDetailPage() {
                           className='absolute inset-0 h-full w-full rounded-l-xl object-cover'
                         />
                         <div className='absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100'>
-                          <Button size='sm' variant='secondary'>
+                          <Button
+                            size='sm'
+                            variant='secondary'
+                            onClick={() => handlePlay(episode)}
+                          >
                             <Play className='mr-1 h-4 w-4' /> Play
                           </Button>
                         </div>
