@@ -11,6 +11,7 @@ import {
   Star,
   ThumbsUp,
 } from 'lucide-react'
+import { AnimatePresence } from 'motion/react'
 
 import {
   FadeInUpTransitionContainer,
@@ -135,51 +136,58 @@ export default function ContentDetailPage() {
     </header>
   )
 
-  const renderVideoPlayer = () => {
-    switch (videoPlayerState) {
-      case VideoPlayerState.Loading:
-        return (
-          <FadeTransitionContainer>
-            <PulseLoader />
-          </FadeTransitionContainer>
-        )
-      case VideoPlayerState.Playing:
-        return (
-          <FadeTransitionContainer>
-            <VideoPlayer options={videoJsOptions} onReset={handlePlayerReset} />
-          </FadeTransitionContainer>
-        )
-      default:
-        return (
-          <FadeInUpTransitionContainer className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
-            <SkeletonSwitcher
-              isLoading={isMediaLoading}
-              className='absolute inset-0 h-full w-full rounded-t-xl'
+  const renderVideoPlayer = () =>
+    videoPlayerState !== VideoPlayerState.Idle ? (
+      <div className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
+        <AnimatePresence>
+          {videoPlayerState === VideoPlayerState.Playing ? (
+            <FadeTransitionContainer
+              key='video-player'
+              className='absolute inset-0'
             >
-              <img
-                src={media?.fanart_path || '/placeholder.svg'}
-                alt={media?.title}
-                className='absolute inset-0 h-full w-full rounded-t-xl object-cover'
+              <VideoPlayer
+                options={videoJsOptions}
+                onReset={handlePlayerReset}
               />
-            </SkeletonSwitcher>
-            <HideOnLoading isLoading={isMediaLoading}>
-              <div className='absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent' />
-            </HideOnLoading>
-            <HideOnLoading isLoading={isMediaLoading}>
-              <div className='absolute inset-0 flex items-center justify-center opacity-70'>
-                <Button
-                  size='lg'
-                  className='h-16 w-16 rounded-full p-0'
-                  onClick={() => handlePlay(episodes?.[0])}
-                >
-                  <Play className='h-12 w-12' />
-                </Button>
-              </div>
-            </HideOnLoading>
-          </FadeInUpTransitionContainer>
-        )
-    }
-  }
+            </FadeTransitionContainer>
+          ) : (
+            <FadeTransitionContainer
+              key='pulse-loader'
+              className='absolute inset-0'
+            >
+              <PulseLoader />
+            </FadeTransitionContainer>
+          )}
+        </AnimatePresence>
+      </div>
+    ) : (
+      <FadeInUpTransitionContainer className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
+        <SkeletonSwitcher
+          isLoading={isMediaLoading}
+          className='absolute inset-0 h-full w-full rounded-t-xl'
+        >
+          <img
+            src={media?.fanart_path || '/placeholder.svg'}
+            alt={media?.title}
+            className='absolute inset-0 h-full w-full rounded-t-xl object-cover'
+          />
+        </SkeletonSwitcher>
+        <HideOnLoading isLoading={isMediaLoading}>
+          <div className='absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent' />
+        </HideOnLoading>
+        <HideOnLoading isLoading={isMediaLoading}>
+          <div className='absolute inset-0 flex items-center justify-center opacity-70'>
+            <Button
+              size='lg'
+              className='h-16 w-16 rounded-full p-0'
+              onClick={() => handlePlay(episodes?.[0])}
+            >
+              <Play className='h-12 w-12' />
+            </Button>
+          </div>
+        </HideOnLoading>
+      </FadeInUpTransitionContainer>
+    )
 
   const renderPrimaryInfo = () => (
     <div className='lg:col-span-2'>
@@ -312,7 +320,10 @@ export default function ContentDetailPage() {
   const renderEpisodes = () => (
     <SkeletonSwitcher isLoading={isEpisodesLoading} className='h-32 w-full'>
       {episodes?.map((episode, index) => (
-        <FadeInUpTransitionContainer delay={0.5 + index * 0.1}>
+        <FadeInUpTransitionContainer
+          key={episode.title}
+          delay={0.5 + index * 0.1}
+        >
           <Card className='overflow-hidden'>
             <div className='flex flex-col sm:flex-row'>
               <div className='relative aspect-video w-full sm:aspect-[16/9] sm:w-48'>
