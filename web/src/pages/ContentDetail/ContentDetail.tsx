@@ -11,11 +11,11 @@ import {
   Star,
   ThumbsUp,
 } from 'lucide-react'
-import { AnimatePresence, cubicBezier, motion } from 'motion/react'
+import { motion } from 'motion/react'
 
+import { FadeTransitionContainer } from './Container'
 import { EpisodeDto } from '~/bindings/EpisodeDto'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
-import { AnimatedSection } from '~/components/AnimatedSection/AnimatedSection'
 import { PulseLoader } from '~/components/PulseLoader/PulseLoader'
 import {
   HideOnLoading,
@@ -38,27 +38,7 @@ enum VideoPlayerState {
   Ended = 'ended',
 }
 
-const renderWithTransition = (
-  delay: number,
-  className: string,
-  children: React.ReactNode
-) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
 export default function ContentDetailPage() {
-  const [isWaitingForHlsStream, setIsWaitingForHlsStream] = useState(false)
-  const [videoPlaying, setVideoPlaying] = useState(false)
-
   const [videoPlayerState, setVideoPlayerState] = useState<VideoPlayerState>(
     VideoPlayerState.Idle
   )
@@ -104,23 +84,28 @@ export default function ContentDetailPage() {
   const handlePlay = useCallback(
     async (episode?: EpisodeDto) => {
       if (!episode) return
+      setVideoPlayerState(VideoPlayerState.Loading)
 
-      if (playerResetRef.current && videoPlaying) {
+      if (
+        playerResetRef.current &&
+        videoPlayerState === VideoPlayerState.Playing
+      ) {
         playerResetRef.current()
         await post('/video-player/stop')
       }
 
-      setIsWaitingForHlsStream(true)
       post('/video-player/play', {
         path: episode.video_file_path,
       })
 
       onEvent('HlsStreamInitialized', () => {
         console.log('HlsStreamInitialized')
-        setVideoPlaying(true)
+        setVideoPlayerState(VideoPlayerState.Playing)
       })
+
+      // TODO: handle the error and set the state to error or idle
     },
-    [post, onEvent, playerResetRef, videoPlaying]
+    [post, onEvent, playerResetRef]
   )
 
   if (mediaError || episodesError) {
@@ -136,25 +121,19 @@ export default function ContentDetailPage() {
     switch (videoPlayerState) {
       case VideoPlayerState.Loading:
         return (
-          <AnimatedSection delay={0.5} className='absolute inset-0'>
+          <FadeTransitionContainer>
             <PulseLoader />
-          </AnimatedSection>
+          </FadeTransitionContainer>
         )
       case VideoPlayerState.Playing:
         return (
-          <AnimatedSection
-            delay={0.5}
-            className='absolute inset-0'
-            key='video-player'
-          >
+          <FadeTransitionContainer>
             <VideoPlayer options={videoJsOptions} onReset={handlePlayerReset} />
-          </AnimatedSection>
+          </FadeTransitionContainer>
         )
       default:
-        return renderWithTransition(
-          0,
-          'relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl',
-          <>
+        return (
+          <FadeTransitionContainer>
             <SkeletonSwitcher
               isLoading={isMediaLoading}
               className='absolute inset-0 h-full w-full rounded-t-xl'
@@ -179,7 +158,7 @@ export default function ContentDetailPage() {
                 </Button>
               </div>
             </HideOnLoading>
-          </>
+          </FadeTransitionContainer>
         )
     }
   }
@@ -201,71 +180,6 @@ export default function ContentDetailPage() {
 
       <main className='container mx-auto flex-1 overflow-y-auto px-4 py-6'>
         {renderVideoPlayer()}
-        {/* {isWaitingForHlsStream ? (
-          <div className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
-            <AnimatePresence mode='wait'>
-              {videoPlaying ? (
-                <motion.div
-                  key='video-player'
-                  className='absolute inset-0'
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.7, ease: 'easeInOut' }}
-                >
-                  <VideoPlayer
-                    options={videoJsOptions}
-                    onReset={handlePlayerReset}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key='pulse-loader'
-                  className='absolute inset-0'
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.7, ease: 'easeInOut' }}
-                >
-                  <PulseLoader />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'
-          >
-            <SkeletonSwitcher
-              isLoading={isMediaLoading}
-              className='absolute inset-0 h-full w-full rounded-t-xl'
-            >
-              <img
-                src={media?.fanart_path || '/placeholder.svg'}
-                alt={media?.title}
-                className='absolute inset-0 h-full w-full rounded-t-xl object-cover'
-              />
-            </SkeletonSwitcher>
-            <HideOnLoading isLoading={isMediaLoading}>
-              <div className='absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent' />
-            </HideOnLoading>
-            <HideOnLoading isLoading={isMediaLoading}>
-              <div className='absolute inset-0 flex items-center justify-center opacity-70'>
-                <Button
-                  size='lg'
-                  className='h-16 w-16 rounded-full p-0'
-                  onClick={() => handlePlay(episodes?.[0])}
-                >
-                  <Play className='h-12 w-12' />
-                </Button>
-              </div>
-            </HideOnLoading>
-          </motion.div>
-        )} */}
-
         <motion.div
           variants={{
             hidden: { opacity: 0 },
