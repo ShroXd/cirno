@@ -11,9 +11,11 @@ import {
   Star,
   ThumbsUp,
 } from 'lucide-react'
-import { motion } from 'motion/react'
 
-import { FadeTransitionContainer } from './Container'
+import {
+  FadeInUpTransitionContainer,
+  FadeTransitionContainer,
+} from './Container'
 import { EpisodeDto } from '~/bindings/EpisodeDto'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
 import { PulseLoader } from '~/components/PulseLoader/PulseLoader'
@@ -133,7 +135,7 @@ export default function ContentDetailPage() {
         )
       default:
         return (
-          <FadeTransitionContainer>
+          <FadeInUpTransitionContainer className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
             <SkeletonSwitcher
               isLoading={isMediaLoading}
               className='absolute inset-0 h-full w-full rounded-t-xl'
@@ -158,7 +160,7 @@ export default function ContentDetailPage() {
                 </Button>
               </div>
             </HideOnLoading>
-          </FadeTransitionContainer>
+          </FadeInUpTransitionContainer>
         )
     }
   }
@@ -180,36 +182,10 @@ export default function ContentDetailPage() {
 
       <main className='container mx-auto flex-1 overflow-y-auto px-4 py-6'>
         {renderVideoPlayer()}
-        <motion.div
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.1,
-              },
-            },
-          }}
-          initial='hidden'
-          animate={isMediaLoading ? 'hidden' : 'visible'}
-          className='mb-12 grid grid-cols-1 gap-8 lg:grid-cols-3'
-        >
+
+        <div className='mb-12 grid grid-cols-1 gap-8 lg:grid-cols-3'>
           <div className='lg:col-span-2'>
-            <motion.div
-              variants={{
-                hidden: { y: 20, opacity: 0 },
-                visible: {
-                  y: 0,
-                  opacity: 1,
-                  transition: {
-                    type: 'spring',
-                    stiffness: 100,
-                    damping: 15,
-                  },
-                },
-              }}
-              className='overflow-y-auto'
-            >
+            <FadeInUpTransitionContainer delay={0.1}>
               <SkeletonSwitcher
                 isLoading={isMediaLoading}
                 className='mb-2 h-[2.5rem] w-full'
@@ -218,6 +194,8 @@ export default function ContentDetailPage() {
                   {media?.title}
                 </h1>
               </SkeletonSwitcher>
+            </FadeInUpTransitionContainer>
+            <FadeInUpTransitionContainer delay={0.2}>
               <SkeletonSwitcher
                 isLoading={isMediaLoading}
                 className='h-6 w-[300px]'
@@ -236,6 +214,8 @@ export default function ContentDetailPage() {
                   <Badge variant='outline'>Movie</Badge>
                 </div>
               </SkeletonSwitcher>
+            </FadeInUpTransitionContainer>
+            <FadeInUpTransitionContainer delay={0.3}>
               <SkeletonSwitcher
                 isLoading={isMediaLoading}
                 className='h-6 w-[200px]'
@@ -248,13 +228,16 @@ export default function ContentDetailPage() {
                   ))}
                 </div>
               </SkeletonSwitcher>
-
+            </FadeInUpTransitionContainer>
+            <FadeInUpTransitionContainer delay={0.4}>
               <SkeletonSwitcher
                 isLoading={isMediaLoading}
                 className='h-[100px] w-full'
               >
                 <p className='mb-6 text-muted-foreground'>{media?.plot}</p>
               </SkeletonSwitcher>
+            </FadeInUpTransitionContainer>
+            <FadeInUpTransitionContainer delay={0.5}>
               <HideOnLoading isLoading={isMediaLoading}>
                 <div className='flex flex-wrap gap-3'>
                   <Button
@@ -277,182 +260,128 @@ export default function ContentDetailPage() {
                   </Button>
                 </div>
               </HideOnLoading>
-            </motion.div>
+            </FadeInUpTransitionContainer>
           </div>
 
-          <div>
-            <motion.div
-              variants={{
-                hidden: { y: 20, opacity: 0 },
-                visible: {
-                  y: 0,
-                  opacity: 1,
-                  transition: {
-                    type: 'spring',
-                    stiffness: 100,
-                    damping: 15,
-                  },
-                },
-              }}
-              className='space-y-4'
-            >
-              <div>
-                <h3 className='mb-1 text-lg font-semibold'>Original Title</h3>
-                <SkeletonSwitcher
-                  isLoading={isMediaLoading}
-                  className='h-6 w-full'
-                >
-                  <p className='text-muted-foreground'>
-                    {media?.original_title}
-                  </p>
-                </SkeletonSwitcher>
-              </div>
-              <div>
-                <h3 className='mb-1 text-lg font-semibold'>Country</h3>
-                <SkeletonSwitcher
-                  isLoading={isMediaLoading}
-                  className='h-6 w-full'
-                >
-                  <p className='text-muted-foreground'>{media?.country}</p>
-                </SkeletonSwitcher>
-              </div>
-              <div>
-                <h3 className='mb-1 text-lg font-semibold'>Studio</h3>
-                <SkeletonSwitcher
-                  isLoading={isMediaLoading}
-                  className='h-6 w-full'
-                >
-                  <div className='text-muted-foreground'>
-                    {media?.studios.map(studio => (
-                      <Badge
-                        className='mb-1 mr-1'
-                        key={studio}
-                        variant='outline'
-                      >
-                        {studio}
-                      </Badge>
-                    ))}
-                  </div>
-                </SkeletonSwitcher>
-              </div>
-              <div>
-                <h3 className='mb-1 text-lg font-semibold'>Actors</h3>
-                <SkeletonSwitcher
-                  isLoading={isMediaLoading}
-                  className='h-6 w-full'
-                >
-                  <div className='grid grid-cols-2 gap-2'>
-                    {media?.actors.map(actor => (
-                      <div key={actor.name} className='flex items-center gap-2'>
-                        <div className='relative h-8 w-8 overflow-hidden rounded-full'>
-                          <img
-                            src={actor.thumb || '/placeholder.svg'}
-                            alt={actor.name || ''}
-                            className='h-full w-full object-cover'
-                          />
-                        </div>
-                        <div className='overflow-hidden'>
-                          <p className='truncate text-sm font-medium'>
-                            {actor.name}
-                          </p>
-                          <p className='truncate text-xs text-muted-foreground'>
-                            {actor.role}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </SkeletonSwitcher>
-              </div>
-            </motion.div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.1,
-              },
-            },
-          }}
-          initial='hidden'
-          animate={isEpisodesLoading ? 'hidden' : 'visible'}
-        >
           <div className='space-y-4'>
-            <SkeletonSwitcher
-              isLoading={isEpisodesLoading}
-              className='h-32 w-full'
-            >
-              {episodes?.map(episode => (
-                <motion.div
-                  key={episode.title}
-                  variants={{
-                    hidden: { y: 20, opacity: 0 },
-                    visible: {
-                      y: 0,
-                      opacity: 1,
-                      transition: {
-                        type: 'spring',
-                        stiffness: 100,
-                        damping: 15,
-                      },
-                    },
-                  }}
-                >
-                  <Card className='overflow-hidden'>
-                    <div className='flex flex-col sm:flex-row'>
-                      <div className='relative aspect-video w-full sm:aspect-[16/9] sm:w-48'>
+            <FadeInUpTransitionContainer delay={0.1}>
+              <h3 className='mb-1 text-lg font-semibold'>Original Title</h3>
+              <SkeletonSwitcher
+                isLoading={isMediaLoading}
+                className='h-6 w-full'
+              >
+                <p className='text-muted-foreground'>{media?.original_title}</p>
+              </SkeletonSwitcher>
+            </FadeInUpTransitionContainer>
+            <FadeInUpTransitionContainer delay={0.2}>
+              <h3 className='mb-1 text-lg font-semibold'>Country</h3>
+              <SkeletonSwitcher
+                isLoading={isMediaLoading}
+                className='h-6 w-full'
+              >
+                <p className='text-muted-foreground'>{media?.country}</p>
+              </SkeletonSwitcher>
+            </FadeInUpTransitionContainer>
+            <FadeInUpTransitionContainer delay={0.3}>
+              <h3 className='mb-1 text-lg font-semibold'>Studio</h3>
+              <SkeletonSwitcher
+                isLoading={isMediaLoading}
+                className='h-6 w-full'
+              >
+                <div className='text-muted-foreground'>
+                  {media?.studios.map(studio => (
+                    <Badge className='mb-1 mr-1' key={studio} variant='outline'>
+                      {studio}
+                    </Badge>
+                  ))}
+                </div>
+              </SkeletonSwitcher>
+            </FadeInUpTransitionContainer>
+            <FadeInUpTransitionContainer delay={0.4}>
+              <h3 className='mb-1 text-lg font-semibold'>Actors</h3>
+              <SkeletonSwitcher
+                isLoading={isMediaLoading}
+                className='h-6 w-full'
+              >
+                <div className='grid grid-cols-2 gap-2'>
+                  {media?.actors.map(actor => (
+                    <div key={actor.name} className='flex items-center gap-2'>
+                      <div className='relative h-8 w-8 overflow-hidden rounded-full'>
                         <img
-                          src={episode.thumb_image || '/placeholder.svg'}
-                          alt={episode.title || 'Episode'}
-                          className='absolute inset-0 h-full w-full rounded-l-xl object-cover'
+                          src={actor.thumb || '/placeholder.svg'}
+                          alt={actor.name || ''}
+                          className='h-full w-full object-cover'
                         />
-                        <div className='absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100'>
-                          <Button
-                            size='sm'
-                            variant='secondary'
-                            onClick={() => handlePlay(episode)}
-                          >
-                            <Play className='mr-1 h-4 w-4' /> Play
-                          </Button>
-                        </div>
                       </div>
-                      <div className='flex-1 p-4'>
-                        <div className='mb-2 flex items-center justify-between'>
-                          <div>
-                            <h3 className='font-medium'>
-                              {episode.episode_number !== null
-                                ? episode.episode_number.toString() +
-                                  '. ' +
-                                  episode.title
-                                : episode.title}
-                            </h3>
-                            <p className='text-sm text-muted-foreground'>
-                              20 min
-                            </p>
-                          </div>
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            className='sm:hidden'
-                          >
-                            <Play className='h-4 w-4' />
-                          </Button>
-                        </div>
-                        <p className='text-sm text-muted-foreground'>
-                          {episode.plot}
+                      <div className='overflow-hidden'>
+                        <p className='truncate text-sm font-medium'>
+                          {actor.name}
+                        </p>
+                        <p className='truncate text-xs text-muted-foreground'>
+                          {actor.role}
                         </p>
                       </div>
                     </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </SkeletonSwitcher>
+                  ))}
+                </div>
+              </SkeletonSwitcher>
+            </FadeInUpTransitionContainer>
           </div>
-        </motion.div>
+        </div>
+
+        <div className='space-y-4'>
+          <SkeletonSwitcher
+            isLoading={isEpisodesLoading}
+            className='h-32 w-full'
+          >
+            {episodes?.map((episode, index) => (
+              <FadeInUpTransitionContainer delay={0.5 + index * 0.1}>
+                <Card className='overflow-hidden'>
+                  <div className='flex flex-col sm:flex-row'>
+                    <div className='relative aspect-video w-full sm:aspect-[16/9] sm:w-48'>
+                      <img
+                        src={episode.thumb_image || '/placeholder.svg'}
+                        alt={episode.title || 'Episode'}
+                        className='absolute inset-0 h-full w-full rounded-l-xl object-cover'
+                      />
+                      <div className='absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100'>
+                        <Button
+                          size='sm'
+                          variant='secondary'
+                          onClick={() => handlePlay(episode)}
+                        >
+                          <Play className='mr-1 h-4 w-4' /> Play
+                        </Button>
+                      </div>
+                    </div>
+                    <div className='flex-1 p-4'>
+                      <div className='mb-2 flex items-center justify-between'>
+                        <div>
+                          <h3 className='font-medium'>
+                            {episode.episode_number !== null
+                              ? episode.episode_number.toString() +
+                                '. ' +
+                                episode.title
+                              : episode.title}
+                          </h3>
+                          <p className='text-sm text-muted-foreground'>
+                            20 min
+                          </p>
+                        </div>
+                        <Button variant='ghost' size='sm' className='sm:hidden'>
+                          <Play className='h-4 w-4' />
+                        </Button>
+                      </div>
+                      <p className='text-sm text-muted-foreground'>
+                        {episode.plot}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </FadeInUpTransitionContainer>
+            ))}
+          </SkeletonSwitcher>
+        </div>
       </main>
     </div>
   )

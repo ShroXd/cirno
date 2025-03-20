@@ -24,3 +24,30 @@ export const FadeTransitionContainer = ({
     {children}
   </motion.div>
 )
+
+interface FadeInUpTransitionContainerProps {
+  className?: string
+  children: React.ReactNode
+  delay?: number
+  duration?: number
+}
+
+export const FadeInUpTransitionContainer = ({
+  children,
+  className,
+  delay = 0,
+  duration = 0.5,
+}: FadeInUpTransitionContainerProps) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{
+      duration,
+      delay,
+      ease: 'easeOut',
+    }}
+    className={cn(className)}
+  >
+    {children}
+  </motion.div>
+)
