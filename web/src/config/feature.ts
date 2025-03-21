@@ -7,4 +7,16 @@ export const defaultFeatures: Feature[] = [
     name: 'feature.edgeCaseTrigger.name',
     description: 'feature.edgeCaseTrigger.description',
   },
+  {
+    id: 'library',
+    enabled: false,
+    name: 'feature.library.name',
+    description: 'feature.library.description',
+  },
+  {
+    id: 'playlists',
+    enabled: false,
+    name: 'feature.playlists.name',
+    description: 'feature.playlists.description',
+  },
 ]

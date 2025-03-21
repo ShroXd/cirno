@@ -1,12 +1,4 @@
-import {
-  Compass,
-  Film,
-  Home,
-  Library,
-  PlaySquare,
-  Search,
-  Star,
-} from 'lucide-react'
+import { Film, Home, Library, PlaySquare, Star } from 'lucide-react'
 
 export const menuItems = [
   {
@@ -19,16 +11,16 @@ export const menuItems = [
     icon: <Library className='mr-2 h-4 w-4' />,
     path: '/library',
   },
-  {
-    label: 'Discover',
-    icon: <Compass className='mr-2 h-4 w-4' />,
-    path: '/discover',
-  },
-  {
-    label: 'Search',
-    icon: <Search className='mr-2 h-4 w-4' />,
-    path: '/search',
-  },
+  // {
+  //   label: 'Discover',
+  //   icon: <Compass className='mr-2 h-4 w-4' />,
+  //   path: '/discover',
+  // },
+  // {
+  //   label: 'Search',
+  //   icon: <Search className='mr-2 h-4 w-4' />,
+  //   path: '/search',
+  // },
 ]
 
 export const libraryItems = [

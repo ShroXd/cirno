@@ -30,6 +30,7 @@ import {
   useSidebar,
 } from '../ui/sidebar'
 import { libraryItems, menuItems } from './constants'
+import { useFeatures } from '~/hooks/feature/useFeatures'
 
 export default function AppSidebar() {
   const location = useLocation()
@@ -39,6 +40,8 @@ export default function AppSidebar() {
   const sidebarRef = useRef<HTMLDivElement>(null)
   const resizingRef = useRef(false)
   const { state } = useSidebar()
+
+  const { isFeatureEnabled } = useFeatures()
 
   const handleCreatePlaylist = () => {
     // In a real app, you would save this to a database
@@ -105,6 +108,98 @@ export default function AppSidebar() {
     </SidebarMenuButton>
   )
 
+  const renderLibraryGroup = () => {
+    return (
+      <SidebarGroup>
+        <SidebarGroupLabel>Library</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {libraryItems.map(item => (
+              <SidebarMenuItem key={item.label}>
+                {renderSidebarMenuButton(item.label, item.icon, item.path)}
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    )
+  }
+
+  const renderPlaylistsGroup = () => {
+    return (
+      <SidebarGroup>
+        <div className='flex items-center justify-between px-2'>
+          <SidebarGroupLabel>Playlists</SidebarGroupLabel>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button variant='ghost' size='icon' className='h-6 w-6'>
+                <Plus className='h-4 w-4' />
+                <span className='sr-only'>Create Playlist</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Playlist</DialogTitle>
+                <DialogDescription>
+                  Give your playlist a name to get started.
+                </DialogDescription>
+              </DialogHeader>
+              <div className='grid gap-4 py-4'>
+                <div className='grid gap-2'>
+                  <Label htmlFor='playlist-name'>Playlist Name</Label>
+                  <Input
+                    id='playlist-name'
+                    value={playlistName}
+                    onChange={e => setPlaylistName(e.target.value)}
+                    placeholder='My Awesome Playlist'
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  onClick={handleCreatePlaylist}
+                  disabled={!playlistName.trim()}
+                >
+                  Create Playlist
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={location.pathname === '/playlists'}
+              >
+                <Link to='/playlists'>
+                  <ListPlus className='mr-2 h-4 w-4' />
+                  <span>All Playlists</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {/* Example playlists - in a real app these would be dynamically generated */}
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link to='/playlists/weekend'>
+                  <span>Weekend Watchlist</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link to='/playlists/sci-fi'>
+                  <span>Sci-Fi Collection</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    )
+  }
+
   return (
     <div ref={sidebarRef} style={sidebarStyle} className='relative h-full'>
       <Sidebar>
@@ -128,89 +223,8 @@ export default function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          <SidebarGroup>
-            <SidebarGroupLabel>Library</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {libraryItems.map(item => (
-                  <SidebarMenuItem key={item.label}>
-                    {renderSidebarMenuButton(item.label, item.icon, item.path)}
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-
-          <SidebarGroup>
-            <div className='flex items-center justify-between px-2'>
-              <SidebarGroupLabel>Playlists</SidebarGroupLabel>
-              <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                  <Button variant='ghost' size='icon' className='h-6 w-6'>
-                    <Plus className='h-4 w-4' />
-                    <span className='sr-only'>Create Playlist</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create New Playlist</DialogTitle>
-                    <DialogDescription>
-                      Give your playlist a name to get started.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className='grid gap-4 py-4'>
-                    <div className='grid gap-2'>
-                      <Label htmlFor='playlist-name'>Playlist Name</Label>
-                      <Input
-                        id='playlist-name'
-                        value={playlistName}
-                        onChange={e => setPlaylistName(e.target.value)}
-                        placeholder='My Awesome Playlist'
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      onClick={handleCreatePlaylist}
-                      disabled={!playlistName.trim()}
-                    >
-                      Create Playlist
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === '/playlists'}
-                  >
-                    <Link to='/playlists'>
-                      <ListPlus className='mr-2 h-4 w-4' />
-                      <span>All Playlists</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                {/* Example playlists - in a real app these would be dynamically generated */}
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to='/playlists/weekend'>
-                      <span>Weekend Watchlist</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to='/playlists/sci-fi'>
-                      <span>Sci-Fi Collection</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {isFeatureEnabled('library') && renderLibraryGroup()}
+          {isFeatureEnabled('playlists') && renderPlaylistsGroup()}
 
           <SidebarGroup>
             <SidebarGroupLabel>Settings</SidebarGroupLabel>
