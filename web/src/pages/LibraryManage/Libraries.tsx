@@ -14,9 +14,7 @@ import {
   FolderOpen,
   FolderPlus,
   HardDrive,
-  Link,
   MonitorPlay,
-  MoreHorizontal,
   RefreshCw,
   Search,
   Trash,
@@ -63,103 +61,11 @@ import {
 import { Tooltip } from '~/components/ui/tooltip'
 import { useFetch } from '~/hooks/useFetch'
 
-const mockLibraries = [
-  {
-    id: 'lib-1',
-    name: '电影库',
-    path: '/media/movies',
-    type: 'movies',
-    itemCount: 87,
-    lastScanned: '2023-12-15 14:30',
-    status: 'active',
-    autoScan: true,
-    storageUsed: '256.4 GB',
-    storageTotal: '1 TB',
-    healthScore: 95,
-    mediaTypes: {
-      mp4: 45,
-      mkv: 32,
-      avi: 10,
-    },
-    resolutions: {
-      '4K': 15,
-      '1080p': 52,
-      '720p': 20,
-    },
-  },
-  {
-    id: 'lib-2',
-    name: '电视剧库',
-    path: '/media/tv-shows',
-    type: 'tv',
-    itemCount: 24,
-    lastScanned: '2023-12-14 09:15',
-    status: 'active',
-    autoScan: true,
-    storageUsed: '512.7 GB',
-    storageTotal: '2 TB',
-    healthScore: 88,
-    mediaTypes: {
-      mp4: 10,
-      mkv: 14,
-    },
-    resolutions: {
-      '4K': 5,
-      '1080p': 15,
-      '720p': 4,
-    },
-  },
-  {
-    id: 'lib-3',
-    name: '动画库',
-    path: '/media/animation',
-    type: 'movies',
-    itemCount: 45,
-    lastScanned: '2023-12-10 18:45',
-    status: 'active',
-    autoScan: false,
-    storageUsed: '128.3 GB',
-    storageTotal: '500 GB',
-    healthScore: 92,
-    mediaTypes: {
-      mp4: 25,
-      mkv: 20,
-    },
-    resolutions: {
-      '1080p': 30,
-      '720p': 15,
-    },
-  },
-  {
-    id: 'lib-4',
-    name: '纪录片库',
-    path: '/media/documentaries',
-    type: 'movies',
-    itemCount: 32,
-    lastScanned: '2023-12-05 11:20',
-    status: 'error',
-    autoScan: true,
-    error: '路径不可访问',
-    storageUsed: '96.5 GB',
-    storageTotal: '500 GB',
-    healthScore: 45,
-    mediaTypes: {
-      mp4: 20,
-      mkv: 12,
-    },
-    resolutions: {
-      '1080p': 22,
-      '720p': 10,
-    },
-  },
-]
-
 interface LibrariesProps {
   handleAddLibrary: () => void
 }
 
 export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
-  const [libraries, setLibraries] = useState(mockLibraries)
   const [filteredLibraries, setFilteredLibraries] = useState<LibraryDto[]>([])
   const [activeScan, setActiveScan] = useState<string | null>(null)
   const [_scanProgress, setScanProgress] = useState(0)
@@ -180,15 +86,19 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
     autoScan: true,
   })
 
-  const { data, error, isLoading } = useFetch<LibraryDto[]>('/library/')
-  console.log('libraries data', data)
+  const {
+    data: libraries,
+    error,
+    isLoading,
+  } = useFetch<LibraryDto[]>('/library/')
+  console.log('libraries data', libraries)
   console.log('libraries error', error)
 
   useEffect(() => {
-    if (data) {
-      setFilteredLibraries(data)
+    if (libraries) {
+      setFilteredLibraries(libraries)
     }
-  }, [data])
+  }, [libraries])
 
   const handleEditLibrary = (library: any) => {
     setCurrentLibrary(library)
@@ -201,10 +111,8 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
     setShowEditDialog(true)
   }
 
-  const handleDeleteLibrary = (id: string) => {
+  const handleDeleteLibrary = (_id: string) => {
     // In a real app, you would call an API to delete the library
-    setLibraries(libraries.filter(lib => lib.id !== id))
-    setSelectedLibraries(selectedLibraries.filter(libId => libId !== id))
     toast('媒体库已删除')
   }
 
@@ -516,51 +424,24 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                           </Tooltip>
                         </TooltipProvider>
 
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant='ghost' size='icon'>
-                              <MoreHorizontal className='h-4 w-4' />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align='end'>
-                            <DropdownMenuLabel>媒体库操作</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleScanLibrary(library.id.toString())
-                              }
-                              disabled={
-                                !!activeScan ||
-                                library.current_status === 'Error'
-                              }
-                            >
-                              <RefreshCw className='mr-2 h-4 w-4' />
-                              扫描
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleEditLibrary(library)}
-                            >
-                              <Edit className='mr-2 h-4 w-4' />
-                              编辑
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link to={`/media?library=${library.id}`}>
-                                <Search className='mr-2 h-4 w-4' />
-                                浏览内容
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className='text-destructive focus:text-destructive'
-                              onClick={() =>
-                                handleDeleteLibrary(library.id.toString())
-                              }
-                            >
-                              <Trash className='mr-2 h-4 w-4' />
-                              删除
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={() =>
+                                  handleDeleteLibrary(library.id.toString())
+                                }
+                              >
+                                <Trash className='h-4 w-4 text-destructive' />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>删除媒体库</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -574,8 +455,8 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
       <CardFooter className='flex justify-between'>
         <div className='text-sm text-muted-foreground'>
           {filteredLibraries.length > 0
-            ? `显示 ${filteredLibraries.length} 个媒体库 (共 ${libraries.length} 个)`
-            : `共 ${libraries.length} 个媒体库`}
+            ? `显示 ${filteredLibraries.length} 个媒体库 (共 ${libraries?.length} 个)`
+            : `共 ${libraries?.length} 个媒体库`}
         </div>
         <Button
           variant='outline'
