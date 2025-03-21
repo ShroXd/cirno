@@ -40,7 +40,6 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
   open,
   defaultValues,
   dialogHandler,
-  onClose,
 }) => {
   const [formData, setFormData] = useState({
     name: '',

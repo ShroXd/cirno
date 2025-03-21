@@ -244,16 +244,6 @@ const recentScans = [
   },
 ]
 
-// 修改 libraryTypes 数组，确保类型是预定义的
-const libraryTypes = [
-  { value: 'movies', label: '电影', icon: MonitorPlay },
-  { value: 'tv', label: '电视剧', icon: FileVideo },
-  { value: 'animation', label: '动画', icon: FileVideo },
-  { value: 'documentary', label: '纪录片', icon: FileVideo },
-  { value: 'music', label: '音乐', icon: FolderOpen },
-  { value: 'other', label: '其他', icon: FolderOpen },
-]
-
 // Mock storage data
 const storageData = {
   totalSpace: '4 TB',
@@ -271,20 +261,20 @@ const storageData = {
 export default function LibrariesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [libraries, setLibraries] = useState(mockLibraries)
-  const [filteredLibraries, setFilteredLibraries] = useState(mockLibraries)
+  const [_filteredLibraries, setFilteredLibraries] = useState(mockLibraries)
   const [activeScan, setActiveScan] = useState<string | null>(null)
   const [scanProgress, setScanProgress] = useState(0)
   const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [_showEditDialog, _setShowEditDialog] = useState(false)
   const [showScanDetailsDialog, setShowScanDetailsDialog] = useState(false)
-  const [currentLibrary, setCurrentLibrary] = useState<any>(null)
+  const [_currentLibrary, _setCurrentLibrary] = useState<any>(null)
   const [currentScan, setCurrentScan] = useState<any>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [typeFilter, setTypeFilter] = useState('all')
-  const [sortOption, setSortOption] = useState('name-asc')
+  const [searchQuery, _setSearchQuery] = useState('')
+  const [statusFilter, _setStatusFilter] = useState('all')
+  const [typeFilter, _setTypeFilter] = useState('all')
+  const [sortOption, _setSortOption] = useState('name-asc')
   const [selectedLibraries, setSelectedLibraries] = useState<string[]>([])
-  const [formData, setFormData] = useState({
+  const [_formData, setFormData] = useState({
     name: '',
     path: '',
     type: 'movies',
@@ -450,24 +440,6 @@ export default function LibrariesPage() {
     setShowAddDialog(true)
   }
 
-  const handleEditLibrary = (library: any) => {
-    setCurrentLibrary(library)
-    setFormData({
-      name: library.name,
-      path: library.path,
-      type: library.type,
-      autoScan: library.autoScan,
-    })
-    setShowEditDialog(true)
-  }
-
-  const handleDeleteLibrary = (id: string) => {
-    // In a real app, you would call an API to delete the library
-    setLibraries(libraries.filter(lib => lib.id !== id))
-    setSelectedLibraries(selectedLibraries.filter(libId => libId !== id))
-    toast('媒体库已删除')
-  }
-
   const handleBatchDelete = () => {
     if (selectedLibraries.length === 0) return
 
@@ -492,93 +464,9 @@ export default function LibrariesPage() {
     toast('批量扫描已开始')
   }
 
-  const handleSaveLibrary = (isNew = true) => {
-    if (isNew) {
-      // In a real app, you would call an API to add the library
-      const newLibrary = {
-        id: `lib-${Date.now()}`,
-        name: formData.name,
-        path: formData.path,
-        type: formData.type,
-        itemCount: 0,
-        lastScanned: '从未',
-        status: 'active',
-        autoScan: formData.autoScan,
-        storageUsed: '0 GB',
-        storageTotal: '1 TB',
-        healthScore: 100,
-        mediaTypes: {},
-        resolutions: {},
-      }
-      //   setLibraries([...libraries, newLibrary])
-      setShowAddDialog(false)
-      toast('媒体库已添加')
-    } else {
-      // In a real app, you would call an API to update the library
-      setLibraries(
-        libraries.map(lib =>
-          lib.id === currentLibrary.id ? { ...lib, ...formData } : lib
-        )
-      )
-      setShowEditDialog(false)
-      toast('媒体库已更新')
-    }
-  }
-
-  const handleBrowsePath = () => {
-    // In a real app, this would open a file browser dialog
-    // For this demo, we'll just simulate it
-    setTimeout(() => {
-      setFormData({
-        ...formData,
-        path: '/selected/media/path',
-      })
-    }, 500)
-  }
-
   const handleViewScanDetails = (scan: any) => {
     setCurrentScan(scan)
     setShowScanDetailsDialog(true)
-  }
-
-  const handleSelectLibrary = (id: string, checked: boolean) => {
-    if (checked) {
-      setSelectedLibraries([...selectedLibraries, id])
-    } else {
-      setSelectedLibraries(selectedLibraries.filter(libId => libId !== id))
-    }
-  }
-
-  const handleSelectAllLibraries = (checked: boolean) => {
-    if (checked) {
-      setSelectedLibraries(filteredLibraries.map(lib => lib.id))
-    } else {
-      setSelectedLibraries([])
-    }
-  }
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-      },
-    },
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
-        damping: 15,
-      },
-    },
   }
 
   return (

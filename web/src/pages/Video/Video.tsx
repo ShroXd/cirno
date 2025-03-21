@@ -1,9 +1,6 @@
 import VideoPlayer from '~/components/VideoPlayer/VideoPlayer'
-import { usePost } from '~/hooks/usePost'
 
 export const Video = () => {
-  const post = usePost()
-
   const videoJsOptions = {
     controls: true,
     autoplay: true,
@@ -15,10 +12,6 @@ export const Video = () => {
         type: 'application/x-mpegURL',
       },
     ],
-  }
-
-  const onBack = () => {
-    post('/video-player/stop')
   }
 
   return (

@@ -90,7 +90,7 @@ fn generate_encoder() -> Result<Element> {
 
         _ => ElementFactory::make("x264enc")
             .property_from_str("speed-preset", "superfast")
-            .property("tune", "zerolatency")
+            // .property("tune", "zerolatency")
             .property("bitrate", 8000u32)
             .build()
             .map_err(|e| anyhow::anyhow!("Failed to create software encoder: {}", e)),

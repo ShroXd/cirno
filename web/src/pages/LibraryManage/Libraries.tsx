@@ -162,18 +162,18 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
   const [libraries, setLibraries] = useState(mockLibraries)
   const [filteredLibraries, setFilteredLibraries] = useState<LibraryDto[]>([])
   const [activeScan, setActiveScan] = useState<string | null>(null)
-  const [scanProgress, setScanProgress] = useState(0)
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [showScanDetailsDialog, setShowScanDetailsDialog] = useState(false)
-  const [currentLibrary, setCurrentLibrary] = useState<any>(null)
-  const [currentScan, setCurrentScan] = useState<any>(null)
+  const [_scanProgress, setScanProgress] = useState(0)
+  const [_showAddDialog, _setShowAddDialog] = useState(false)
+  const [_showEditDialog, setShowEditDialog] = useState(false)
+  const [_showScanDetailsDialog, _setShowScanDetailsDialog] = useState(false)
+  const [_currentLibrary, setCurrentLibrary] = useState<any>(null)
+  const [_currentScan, _setCurrentScan] = useState<any>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
-  const [sortOption, setSortOption] = useState('name-asc')
+  const [_sortOption, setSortOption] = useState('name-asc')
   const [selectedLibraries, setSelectedLibraries] = useState<string[]>([])
-  const [formData, setFormData] = useState({
+  const [_formData, setFormData] = useState({
     name: '',
     path: '',
     type: 'movies',
