@@ -88,6 +88,17 @@ impl<D: LibraryDatabase> LibraryRepository<D> {
     }
 
     #[instrument(skip(self))]
+    pub async fn populate_library_metadata(
+        &self,
+        library_id: i64,
+        item_count: usize,
+    ) -> Result<()> {
+        self.database
+            .populate_library_metadata(library_id, item_count)
+            .await
+    }
+
+    #[instrument(skip(self))]
     pub async fn delete_library(&self, id: i64) -> Result<()> {
         self.database.delete_library(id).await
     }

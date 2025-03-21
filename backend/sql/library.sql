@@ -38,6 +38,16 @@ OR IGNORE INTO library (name, directory, category_id)
 VALUES
     (?, ?, ?) RETURNING id;
 
+-- name: populate_library_metadata
+UPDATE library
+SET
+    item_count = ?,
+    last_scanned = ?,
+    current_status = ?,
+    health_score = ?
+WHERE
+    id = ?;
+
 -- name: delete_library
 DELETE FROM library
 WHERE

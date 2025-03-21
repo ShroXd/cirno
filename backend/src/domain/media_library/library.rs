@@ -35,6 +35,28 @@ pub async fn create_library(
 }
 
 #[instrument(skip(library_repository))]
+pub async fn populate_library_metadata(
+    library_id: i64,
+    item_count: usize,
+    library_repository: Arc<LibraryRepository<LibraryDatabaseWrapper>>,
+) -> Result<()> {
+    debug!("Populating library metadata");
+
+    match library_repository.get_library_by_id(library_id).await {
+        Ok(_) => {
+            library_repository
+                .populate_library_metadata(library_id, item_count)
+                .await?;
+        }
+        Err(e) => {
+            return Err(e);
+        }
+    }
+
+    Ok(())
+}
+
+#[instrument(skip(library_repository))]
 pub async fn get_libraries(
     library_repository: Arc<LibraryRepository<LibraryDatabaseWrapper>>,
 ) -> Result<Vec<LibraryDto>> {

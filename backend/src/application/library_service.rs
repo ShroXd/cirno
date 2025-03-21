@@ -8,7 +8,9 @@ use crate::{
     chain_events,
     domain::{
         media_library::{
-            constant::SENTINEL_LIBRARY_ID, event::LibraryEventType, library::create_library,
+            constant::SENTINEL_LIBRARY_ID,
+            event::LibraryEventType,
+            library::{create_library, populate_library_metadata},
             task::LibraryScanTask,
         },
         task::async_task::{AsyncTaskResponse, TaskIdentifiable, TaskType},
@@ -72,6 +74,23 @@ pub async fn create_library_service(
                             library_name,
                         }))?;
                     }
+                    Ok(())
+                }
+            },
+            config: EventHandlerConfig::one_time()
+        },
+        {
+            match_pattern: DomainEvent::Library(LibraryEventType::LibraryScanned { .. }),
+            handler: move |event, _ | {
+                let library_id = library_id.clone();
+                let library_repository = library_repository.clone();
+
+                async move {
+                    if let DomainEvent::Library(LibraryEventType::LibraryScanned { library, .. }) = event {
+                        let item_count = library.tv_show.len();
+                        populate_library_metadata(library_id, item_count, library_repository.clone()).await?;
+                    }
+
                     Ok(())
                 }
             },

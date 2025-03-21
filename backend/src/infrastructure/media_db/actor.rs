@@ -28,7 +28,7 @@ use crate::{
             create::save_library,
             delete::delete_library,
             query::{query_library, query_library_posters},
-            update::update_library,
+            update::{populate_library_metadata, update_library},
         },
         media_actor::create::save_actor,
         media_item::query::{
@@ -406,6 +406,32 @@ define_actor_message_handler!(
         |pool, query_manager, msg: SaveLibrary| save_library(pool, query_manager, msg.payload),
     success_return = |res| res,
     error_return = SENTINEL_LIBRARY_ID
+);
+
+#[derive(Debug, Serialize, Deserialize, TS, Message)]
+#[rtype(result = "()")]
+pub struct PopulateLibraryMetadata {
+    pub library_id: i64,
+    pub item_count: usize,
+}
+
+impl Display for PopulateLibraryMetadata {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "PopulateLibraryMetadata({} items)", self.item_count)
+    }
+}
+
+define_actor_message_handler!(
+    message_type = PopulateLibraryMetadata,
+    return_type = (),
+    db_call = |pool, query_manager, msg: PopulateLibraryMetadata| populate_library_metadata(
+        pool,
+        query_manager,
+        msg.library_id,
+        msg.item_count
+    ),
+    success_return = |_| (),
+    error_return = ()
 );
 
 #[derive(Debug, Serialize, Deserialize, TS, Message)]

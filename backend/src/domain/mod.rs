@@ -2,6 +2,7 @@ pub mod actor;
 pub mod episode;
 pub mod file_processor;
 pub mod file_system;
+pub mod library;
 pub mod media_actor;
 pub mod media_item;
 pub mod media_library;

@@ -3,6 +3,13 @@ CREATE TABLE IF NOT EXISTS library (
     name TEXT NOT NULL,
     directory TEXT NOT NULL,
     category_id INTEGER,
+    item_count INTEGER DEFAULT 0,
+    last_scanned TEXT DEFAULT NULL,
+    current_status INTEGER DEFAULT 1,
+    auto_scan BOOLEAN DEFAULT TRUE,
+    error TEXT DEFAULT NULL,
+    storage_used INTEGER DEFAULT 0,
+    health_score INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted_at DATETIME,
@@ -149,6 +156,14 @@ CREATE TABLE category_mapping (
     deleted_at DATETIME
 );
 
+CREATE TABLE IF NOT EXISTS library_status (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME
+);
+
 CREATE TRIGGER increment_library_tv_show_reference_count AFTER INSERT ON library_tv_shows BEGIN
 UPDATE tv_shows
 SET
@@ -242,6 +257,8 @@ WHERE
 
 END;
 
+-- Category Mapping
+
 INSERT INTO
     category_mapping (id, name, created_at, updated_at)
 VALUES
@@ -261,3 +278,30 @@ VALUES
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP
     );
+
+-- Library Status
+
+INSERT INTO
+    library_status (id, name, created_at, updated_at)
+VALUES
+    (1, 'Pending', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO
+    library_status (id, name, created_at, updated_at)
+VALUES
+    (2, 'Scanning', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO
+    library_status (id, name, created_at, updated_at)
+VALUES
+    (3, 'Active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO
+    library_status (id, name, created_at, updated_at)
+VALUES
+    (4, 'Inactive', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO
+    library_status (id, name, created_at, updated_at)
+VALUES
+    (5, 'Error', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

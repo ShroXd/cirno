@@ -7,8 +7,8 @@ use crate::{
     domain::media_library::model::{LibraryBrief, LibraryPoster},
     infrastructure::media_db::{
         actor::{
-            DeleteLibrary, QueryLibrary, QueryLibraryPosters, SaveLibrary, UpdateLibrary,
-            ValidateCategory,
+            DeleteLibrary, PopulateLibraryMetadata, QueryLibrary, QueryLibraryPosters, SaveLibrary,
+            UpdateLibrary, ValidateCategory,
         },
         database::Database,
     },
@@ -24,6 +24,7 @@ pub trait LibraryDatabase: Send + Sync {
     async fn validate_category(&self, category_id: i64) -> Result<bool>;
     async fn save_library(&self, payload: SaveLibraryPayload) -> Result<i64>;
     async fn delete_library(&self, id: i64) -> Result<()>;
+    async fn populate_library_metadata(&self, library_id: i64, item_count: usize) -> Result<()>;
 }
 
 #[derive(Clone)]
@@ -77,6 +78,16 @@ impl LibraryDatabase for LibraryDatabaseWrapper {
             .send(SaveLibrary { payload })
             .await
             .map_err(|e| anyhow!("Error creating library: {}", e))
+    }
+
+    async fn populate_library_metadata(&self, library_id: i64, item_count: usize) -> Result<()> {
+        self.addr
+            .send(PopulateLibraryMetadata {
+                library_id,
+                item_count,
+            })
+            .await
+            .map_err(|e| anyhow!("Error populating library metadata: {}", e))
     }
 
     async fn delete_library(&self, id: i64) -> Result<()> {
