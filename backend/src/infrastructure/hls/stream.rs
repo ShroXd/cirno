@@ -46,9 +46,8 @@ impl HlsStream {
 
     #[instrument(skip(self, buf))]
     pub fn extract_header(&mut self, buf: &[u8]) -> Result<()> {
-        let header_str = std::str::from_utf8(buf).map_err(|e| {
+        let header_str = std::str::from_utf8(buf).inspect_err(|&e| {
             error!("Failed to convert buffer to string: {}", e);
-            e
         })?;
 
         for line in header_str.lines() {
@@ -150,7 +149,7 @@ impl HlsStream {
             .get(&M3u8Tag::Inf)
             .ok_or_else(|| anyhow!("Missing EXTINF tag in header"))?;
 
-        let file_num_segments = (file_duration + segment_duration - 1) / segment_duration;
+        let file_num_segments = file_duration.div_ceil(segment_duration);
 
         let m3u8_header = format!(
             "#EXTM3U\n#EXT-X-VERSION:{}\n#EXT-X-MEDIA-SEQUENCE:{}\n#EXT-X-TARGETDURATION:{}\n#EXT-X-PLAYLIST-TYPE:VOD\n#EXT-X-PLAYLIST-LENGTH:{}\n\n",

@@ -20,7 +20,6 @@
 /// - The success value and provided OK status
 /// - The error message string and provided error status
 ///
-
 #[macro_export]
 macro_rules! handle_controller_result {
     ($result:expr, $ok_status:expr, $err_status:expr) => {
@@ -58,7 +57,6 @@ macro_rules! handle_controller_result {
 /// - Processes the result with success_return on success
 /// - Returns error_return on failure
 ///
-
 #[macro_export]
 macro_rules! define_actor_message_handler {
     (
@@ -117,7 +115,6 @@ macro_rules! define_actor_message_handler {
 /// - If pipeline address exists, forwards the action to the pipeline actor
 /// - If forwarding fails, logs an error message
 ///
-
 #[macro_export]
 macro_rules! process_pipeline_action {
     ($self:ident, $pipeline_action:ident) => {{
@@ -166,7 +163,6 @@ macro_rules! process_pipeline_action {
 ///   since the JSON payload will be sent via WebSocket to the web client
 ///   and consumed by TypeScript code
 ///
-
 #[macro_export]
 macro_rules! define_payload {
     (

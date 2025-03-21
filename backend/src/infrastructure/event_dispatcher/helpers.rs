@@ -19,7 +19,6 @@
 /// ## Returns
 /// Registers the handler with the event bus and returns the registration future
 ///
-
 #[macro_export]
 macro_rules! listen_event {
     ($event_bus:expr, $event_type:pat, $handler:expr $(,)?) => {
@@ -81,7 +80,6 @@ macro_rules! listen_event {
 /// completes when all handlers are registered. Each handler can trigger events that
 /// will be picked up by subsequent handlers in the chain.
 ///
-
 #[macro_export]
 macro_rules! chain_events {
     (
