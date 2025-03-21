@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 
 import { Checkbox } from '@radix-ui/react-checkbox'
 import {
@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { LibraryDto } from '~/bindings/LibraryDto'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
@@ -60,6 +61,7 @@ import {
   TableRow,
 } from '~/components/ui/table'
 import { Tooltip } from '~/components/ui/tooltip'
+import { useFetch } from '~/hooks/useFetch'
 
 const mockLibraries = [
   {
@@ -157,9 +159,8 @@ interface LibrariesProps {
 }
 
 export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
-  const [isLoading, setIsLoading] = useState(false)
   const [libraries, setLibraries] = useState(mockLibraries)
-  const [filteredLibraries, setFilteredLibraries] = useState(mockLibraries)
+  const [filteredLibraries, setFilteredLibraries] = useState<LibraryDto[]>([])
   const [activeScan, setActiveScan] = useState<string | null>(null)
   const [scanProgress, setScanProgress] = useState(0)
   const [showAddDialog, setShowAddDialog] = useState(false)
@@ -178,6 +179,16 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
     type: 'movies',
     autoScan: true,
   })
+
+  const { data, error, isLoading } = useFetch<LibraryDto[]>('/library/')
+  console.log('libraries data', data)
+  console.log('libraries error', error)
+
+  useEffect(() => {
+    if (data) {
+      setFilteredLibraries(data)
+    }
+  }, [data])
 
   const handleEditLibrary = (library: any) => {
     setCurrentLibrary(library)
@@ -199,7 +210,7 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
 
   const handleSelectAllLibraries = (checked: boolean) => {
     if (checked) {
-      setSelectedLibraries(filteredLibraries.map(lib => lib.id))
+      setSelectedLibraries(filteredLibraries.map(lib => lib.id.toString()))
     } else {
       setSelectedLibraries([])
     }
@@ -377,28 +388,30 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
               </TableHeader>
               <TableBody>
                 {filteredLibraries.map(library => (
-                  <TableRow key={library.id}>
+                  <TableRow key={library.id.toString()}>
                     <TableCell>
                       <Checkbox
-                        checked={selectedLibraries.includes(library.id)}
+                        checked={selectedLibraries.includes(
+                          library.id.toString()
+                        )}
                         onCheckedChange={checked =>
-                          handleSelectLibrary(library.id, !!checked)
+                          handleSelectLibrary(library.id.toString(), !!checked)
                         }
                         aria-label={`Select ${library.name}`}
                       />
                     </TableCell>
                     <TableCell>
                       <div className='flex items-center gap-2'>
-                        {library.type === 'movies' ? (
+                        {library.category === 'Movie' ? (
                           <MonitorPlay className='h-4 w-4 text-primary' />
-                        ) : library.type === 'tv' ? (
+                        ) : library.category === 'TvShow' ? (
                           <FileVideo className='h-4 w-4 text-primary' />
                         ) : (
                           <FolderOpen className='h-4 w-4 text-primary' />
                         )}
                         <div>
                           <div className='font-medium'>{library.name}</div>
-                          {library.status === 'error' && (
+                          {library.current_status === 'Error' && (
                             <Badge variant='destructive' className='mt-1'>
                               错误
                             </Badge>
@@ -408,48 +421,48 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                     </TableCell>
                     <TableCell className='hidden md:table-cell'>
                       <span className='block max-w-[200px] truncate text-sm text-muted-foreground'>
-                        {library.path}
+                        {library.directory}
                       </span>
                     </TableCell>
                     <TableCell className='hidden md:table-cell'>
                       <Badge variant='secondary'>
-                        {library.type === 'movies'
+                        {library.category === 'Movie'
                           ? '电影'
-                          : library.type === 'tv'
+                          : library.category === 'TvShow'
                             ? '电视剧'
                             : '混合内容'}
                       </Badge>
                     </TableCell>
                     <TableCell className='hidden lg:table-cell'>
-                      {library.itemCount}
+                      {library.item_count.toString()}
                     </TableCell>
                     <TableCell className='hidden lg:table-cell'>
                       <span className='text-sm text-muted-foreground'>
-                        {library.lastScanned}
+                        {library.last_scanned}
                       </span>
                     </TableCell>
                     <TableCell className='hidden xl:table-cell'>
-                      {library.status === 'active' ? (
+                      {library.current_status === 'Active' ? (
                         <div className='flex items-center gap-2'>
                           <Progress
-                            value={library.healthScore || 0}
+                            value={Number(library.health_score) || 0}
                             className='h-2 w-16'
                             style={
                               {
                                 backgroundColor: 'rgba(0,0,0,0.1)',
                                 '--progress-background':
-                                  library.healthScore >= 90
+                                  Number(library.health_score) >= 90
                                     ? 'rgba(34, 197, 94, 0.8)'
-                                    : library.healthScore >= 70
+                                    : Number(library.health_score) >= 70
                                       ? 'rgba(245, 158, 11, 0.8)'
                                       : 'rgba(239, 68, 68, 0.8)',
                               } as React.CSSProperties
                             }
                           />
                           <span
-                            className={`text-sm ${library.healthScore >= 90 ? 'text-green-500' : library.healthScore >= 70 ? 'text-amber-500' : 'text-red-500'}`}
+                            className={`text-sm ${Number(library.health_score) >= 90 ? 'text-green-500' : Number(library.health_score) >= 70 ? 'text-amber-500' : 'text-red-500'}`}
                           >
-                            {library.healthScore || 0}%
+                            {Number(library.health_score) || 0}%
                           </span>
                         </div>
                       ) : (
@@ -458,7 +471,7 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                     </TableCell>
                     <TableCell className='hidden xl:table-cell'>
                       <span className='text-sm text-muted-foreground'>
-                        {library.storageUsed}
+                        {library.storage_used.toString()}
                       </span>
                     </TableCell>
                     <TableCell className='text-right'>
@@ -470,9 +483,12 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                                 variant='ghost'
                                 size='icon'
                                 disabled={
-                                  !!activeScan || library.status === 'error'
+                                  !!activeScan ||
+                                  library.current_status === 'Error'
                                 }
-                                onClick={() => handleScanLibrary(library.id)}
+                                onClick={() =>
+                                  handleScanLibrary(library.id.toString())
+                                }
                               >
                                 <RefreshCw className='h-4 w-4' />
                               </Button>
@@ -510,9 +526,12 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                             <DropdownMenuLabel>媒体库操作</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              onClick={() => handleScanLibrary(library.id)}
+                              onClick={() =>
+                                handleScanLibrary(library.id.toString())
+                              }
                               disabled={
-                                !!activeScan || library.status === 'error'
+                                !!activeScan ||
+                                library.current_status === 'Error'
                               }
                             >
                               <RefreshCw className='mr-2 h-4 w-4' />
@@ -533,7 +552,9 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className='text-destructive focus:text-destructive'
-                              onClick={() => handleDeleteLibrary(library.id)}
+                              onClick={() =>
+                                handleDeleteLibrary(library.id.toString())
+                              }
                             >
                               <Trash className='mr-2 h-4 w-4' />
                               删除

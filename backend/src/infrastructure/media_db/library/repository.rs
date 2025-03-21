@@ -68,6 +68,15 @@ impl<D: LibraryDatabase> LibraryRepository<D> {
                     category: media_library_brief.category,
                     directory: media_library_brief.directory,
                     posters: media_library_posters,
+                    item_count: media_library_brief.item_count,
+                    last_scanned: media_library_brief.last_scanned,
+                    current_status: media_library_brief.current_status,
+                    auto_scan: media_library_brief.auto_scan,
+                    error: media_library_brief.error,
+                    storage_used: media_library_brief.storage_used,
+                    health_score: media_library_brief.health_score,
+                    created_at: media_library_brief.created_at,
+                    updated_at: media_library_brief.updated_at,
                 }
             })
             .collect();
@@ -112,7 +121,10 @@ mod tests {
 
     use super::*;
     use crate::{
-        domain::media_library::model::{LibraryBrief, LibraryPoster},
+        domain::{
+            library::model::LibraryStatus,
+            media_library::model::{LibraryBrief, LibraryPoster},
+        },
         infrastructure::media_db::library::wrapper::MockLibraryDatabase,
         interfaces::http_api::controllers::api_models::LibraryCategory,
     };
@@ -162,6 +174,15 @@ mod tests {
                     name: "test".to_string(),
                     category: LibraryCategory::Movie,
                     directory: "test".to_string(),
+                    item_count: 1,
+                    last_scanned: Some("2021-01-01".to_string()),
+                    current_status: LibraryStatus::Active,
+                    auto_scan: true,
+                    error: None,
+                    storage_used: 1,
+                    health_score: 1,
+                    created_at: "2021-01-01".to_string(),
+                    updated_at: "2021-01-01".to_string(),
                 }])))
             });
 
@@ -182,6 +203,15 @@ mod tests {
                 category: LibraryCategory::Movie,
                 directory: "test".to_string(),
                 posters: vec![LibraryPoster::default()],
+                item_count: 1,
+                last_scanned: Some("2021-01-01".to_string()),
+                current_status: LibraryStatus::Active,
+                auto_scan: true,
+                error: None,
+                storage_used: 1,
+                health_score: 1,
+                created_at: "2021-01-01".to_string(),
+                updated_at: "2021-01-01".to_string(),
             }]
         );
     }
@@ -218,6 +248,15 @@ mod tests {
                     name: "test".to_string(),
                     category: LibraryCategory::Movie,
                     directory: "test".to_string(),
+                    item_count: 1,
+                    last_scanned: Some("2021-01-01".to_string()),
+                    current_status: LibraryStatus::Active,
+                    auto_scan: true,
+                    error: None,
+                    storage_used: 1,
+                    health_score: 1,
+                    created_at: "2021-01-01".to_string(),
+                    updated_at: "2021-01-01".to_string(),
                 }])))
             });
 
@@ -238,6 +277,15 @@ mod tests {
                 category: LibraryCategory::Movie,
                 directory: "test".to_string(),
                 posters: vec![],
+                item_count: 1,
+                last_scanned: Some("2021-01-01".to_string()),
+                current_status: LibraryStatus::Active,
+                auto_scan: true,
+                error: None,
+                storage_used: 1,
+                health_score: 1,
+                created_at: "2021-01-01".to_string(),
+                updated_at: "2021-01-01".to_string(),
             }]
         );
     }

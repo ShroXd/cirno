@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::domain::{media_actor::model::MediaActor, media_library::model::LibraryPoster};
+use crate::domain::{
+    library::model::LibraryStatus, media_actor::model::MediaActor,
+    media_library::model::LibraryPoster,
+};
 
 use super::http_api::controllers::api_models::LibraryCategory;
 
@@ -32,6 +35,15 @@ pub struct LibraryDto {
     pub category: LibraryCategory,
     pub directory: String,
     pub posters: Vec<LibraryPoster>,
+    pub item_count: i64,
+    pub last_scanned: Option<String>,
+    pub current_status: LibraryStatus,
+    pub auto_scan: bool,
+    pub error: Option<String>,
+    pub storage_used: i64,
+    pub health_score: i64,
+    pub created_at: String,
+    pub updated_at: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, TS)]

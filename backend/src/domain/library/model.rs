@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-#[derive(Debug, Clone, Deserialize, Serialize, TS)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, TS)]
 #[ts(export)]
 pub enum LibraryStatus {
     Pending,
@@ -32,5 +32,11 @@ impl LibraryStatus {
             Self::Inactive => 4,
             Self::Error => 5,
         }
+    }
+}
+
+impl Default for LibraryStatus {
+    fn default() -> Self {
+        Self::Pending
     }
 }

@@ -2,8 +2,17 @@
 SELECT
     id,
     name,
+    directory,
     category_id,
-    directory
+    item_count,
+    last_scanned,
+    current_status,
+    auto_scan,
+    error,
+    storage_used,
+    health_score,
+    created_at,
+    updated_at
 FROM
     library
 ORDER BY
@@ -13,8 +22,17 @@ ORDER BY
 SELECT
     id,
     name,
+    directory,
     category_id,
-    directory
+    item_count,
+    last_scanned,
+    current_status,
+    auto_scan,
+    error,
+    storage_used,
+    health_score,
+    created_at,
+    updated_at
 FROM
     library
 WHERE

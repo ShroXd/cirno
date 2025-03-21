@@ -1,6 +1,7 @@
 use sqlx::{sqlite::SqliteRow, Row};
 
 use crate::{
+    domain::library::model::LibraryStatus,
     interfaces::http_api::controllers::api_models::LibraryCategory,
     shared::util_traits::SqliteRowMapper,
 };
@@ -17,6 +18,15 @@ impl SqliteRowMapper<LibraryBrief> for LibraryBrief {
             name: row.get::<String, _>("name"),
             category: LibraryCategory::try_from(row.get::<i64, _>("category_id")).unwrap(),
             directory: row.get::<String, _>("directory"),
+            item_count: row.get::<i64, _>("item_count"),
+            last_scanned: row.get::<Option<String>, _>("last_scanned"),
+            current_status: LibraryStatus::from_id(row.get::<i64, _>("current_status")),
+            auto_scan: row.get::<bool, _>("auto_scan"),
+            error: row.get::<Option<String>, _>("error"),
+            storage_used: row.get::<i64, _>("storage_used"),
+            health_score: row.get::<i64, _>("health_score"),
+            created_at: row.get::<String, _>("created_at"),
+            updated_at: row.get::<String, _>("updated_at"),
         }
     }
 }

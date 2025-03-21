@@ -5,12 +5,9 @@ import { Link } from 'react-router-dom'
 import {
   AlertCircle,
   ArrowLeft,
-  ArrowUpDown,
   BarChart3,
   Clock,
   Database,
-  Edit,
-  FileQuestion,
   FileVideo,
   FolderOpen,
   FolderPlus,
@@ -18,10 +15,8 @@ import {
   History,
   Loader2,
   MonitorPlay,
-  MoreHorizontal,
   PieChart,
   RefreshCw,
-  Search,
   Settings,
   Trash,
   X,
@@ -50,21 +45,12 @@ import {
 import { Checkbox } from '~/components/ui/checkbox'
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Progress } from '~/components/ui/progress'
@@ -90,12 +76,6 @@ import {
   TableRow,
 } from '~/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '~/components/ui/tooltip'
 
 // Mock data for media libraries
 const mockLibraries = [
