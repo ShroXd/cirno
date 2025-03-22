@@ -53,7 +53,7 @@ export default function HomePage() {
   }, [offEvent, onEvent, handleScanning, handleSaved])
 
   const renderContent = () => (
-    <AnimatedSection delay={0.3} className='lg:col-span-1'>
+    <AnimatedSection delay={0.2} className='lg:col-span-1'>
       <div className='flex w-max space-x-4 p-1'>
         {data?.map(media => (
           <Link to={`/content/${media.id}`} key={media.title}>

@@ -24,7 +24,9 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { FadeTransitionContainer } from '../ContentDetail/Container'
 import { Libraries } from './Libraries'
+import { AnimatedSection } from '~/components/AnimatedSection/AnimatedSection'
 import { LibraryManageDialog } from '~/components/LibraryManageDialog/LibraryManageDialog'
 import {
   Accordion,
@@ -478,59 +480,61 @@ export default function LibrariesPage() {
     <>
       <Toaster />
       <div className='h-screen w-full overflow-y-auto bg-background px-4 pb-6 md:px-6'>
-        <header className='sticky top-0 z-10 w-full border-b border-border/40 bg-background/80 backdrop-blur-md'>
-          <div className='flex h-16 items-center px-4'>
-            <SidebarTrigger className='mr-4 md:hidden' />
-            <Button variant='ghost' size='icon' className='mr-2' asChild>
-              <Link to='/'>
-                <ArrowLeft className='h-5 w-5' />
-                <span className='sr-only'>Back</span>
-              </Link>
-            </Button>
-            <h1 className='text-xl font-bold'>媒体库管理</h1>
-            <div className='flex-1' />
-            <div className='flex items-center gap-2'>
-              {selectedLibraries.length > 0 && (
-                <>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    className='gap-2'
-                    onClick={handleBatchScan}
-                    disabled={!!activeScan}
-                  >
-                    <RefreshCw className='h-4 w-4' />
-                    <span>批量扫描</span>
-                  </Button>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    className='gap-2 text-destructive hover:text-destructive'
-                    onClick={handleBatchDelete}
-                  >
-                    <Trash className='h-4 w-4' />
-                    <span>批量删除</span>
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='gap-2'
-                    onClick={() => setSelectedLibraries([])}
-                  >
-                    <X className='h-4 w-4' />
-                    <span>取消选择</span>
-                  </Button>
-                </>
-              )}
-              <Button onClick={handleAddLibrary} className='gap-2'>
-                <FolderPlus className='h-4 w-4' />
-                <span className='hidden sm:inline'>添加媒体库</span>
+        <FadeTransitionContainer>
+          <header className='sticky top-0 z-10 w-full border-b border-border/40 bg-background/80 backdrop-blur-md'>
+            <div className='flex h-16 items-center px-4'>
+              <SidebarTrigger className='mr-4 md:hidden' />
+              <Button variant='ghost' size='icon' className='mr-2' asChild>
+                <Link to='/'>
+                  <ArrowLeft className='h-5 w-5' />
+                  <span className='sr-only'>Back</span>
+                </Link>
               </Button>
+              <h1 className='text-xl font-bold'>媒体库管理</h1>
+              <div className='flex-1' />
+              <div className='flex items-center gap-2'>
+                {selectedLibraries.length > 0 && (
+                  <>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='gap-2'
+                      onClick={handleBatchScan}
+                      disabled={!!activeScan}
+                    >
+                      <RefreshCw className='h-4 w-4' />
+                      <span>批量扫描</span>
+                    </Button>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='gap-2 text-destructive hover:text-destructive'
+                      onClick={handleBatchDelete}
+                    >
+                      <Trash className='h-4 w-4' />
+                      <span>批量删除</span>
+                    </Button>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      className='gap-2'
+                      onClick={() => setSelectedLibraries([])}
+                    >
+                      <X className='h-4 w-4' />
+                      <span>取消选择</span>
+                    </Button>
+                  </>
+                )}
+                <Button onClick={handleAddLibrary} className='gap-2'>
+                  <FolderPlus className='h-4 w-4' />
+                  <span className='hidden sm:inline'>添加媒体库</span>
+                </Button>
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
+        </FadeTransitionContainer>
 
-        <main className='mx-auto max-w-7xl px-4 py-6'>
+        <main className='container mx-auto px-4 py-6'>
           {/* Active Scan Alert */}
           {activeScan && (
             <Alert className='mb-6'>
@@ -548,742 +552,771 @@ export default function LibrariesPage() {
             </Alert>
           )}
 
-          {/* Main Tabs */}
           <Tabs defaultValue='libraries' className='mb-8'>
-            <TabsList className='mb-4'>
-              {isFeatureEnabled('libraryOverview') && (
-                <TabsTrigger value='overview' className='gap-2'>
-                  <BarChart3 className='h-4 w-4' />
-                  <span>概览</span>
+            <AnimatedSection>
+              <TabsList className='mb-4'>
+                {isFeatureEnabled('libraryOverview') && (
+                  <TabsTrigger value='overview' className='gap-2'>
+                    <BarChart3 className='h-4 w-4' />
+                    <span>概览</span>
+                  </TabsTrigger>
+                )}
+                <TabsTrigger value='libraries' className='gap-2'>
+                  <HardDrive className='h-4 w-4' />
+                  <span>{t('page.library.libraries.tab_name')}</span>
                 </TabsTrigger>
-              )}
-              <TabsTrigger value='libraries' className='gap-2'>
-                <HardDrive className='h-4 w-4' />
-                <span>{t('page.library.libraries.tab_name')}</span>
-              </TabsTrigger>
-              {isFeatureEnabled('scanHistory') && (
-                <TabsTrigger value='history' className='gap-2'>
-                  <History className='h-4 w-4' />
-                  <span>扫描历史</span>
-                </TabsTrigger>
-              )}
-              {isFeatureEnabled('librarySettings') && (
-                <TabsTrigger value='settings' className='gap-2'>
-                  <Settings className='h-4 w-4' />
-                  <span>设置</span>
-                </TabsTrigger>
-              )}
-            </TabsList>
+                {isFeatureEnabled('scanHistory') && (
+                  <TabsTrigger value='history' className='gap-2'>
+                    <History className='h-4 w-4' />
+                    <span>扫描历史</span>
+                  </TabsTrigger>
+                )}
+                {isFeatureEnabled('librarySettings') && (
+                  <TabsTrigger value='settings' className='gap-2'>
+                    <Settings className='h-4 w-4' />
+                    <span>设置</span>
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            </AnimatedSection>
 
             {/* Overview Tab */}
-            <TabsContent value='overview' className='mt-0'>
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-                {/* 存储概览卡片 */}
-                <Card className='lg:col-span-1'>
-                  <CardHeader>
-                    <CardTitle className='flex items-center gap-2'>
-                      <Database className='h-5 w-5' />
-                      媒体库存储
-                    </CardTitle>
-                    <CardDescription>各媒体库存储占比</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {isLoading ? (
-                      <div className='space-y-4'>
-                        <Skeleton className='h-[200px] w-full' />
-                      </div>
-                    ) : (
-                      <div>
-                        <div className='relative mx-auto aspect-square max-w-[250px]'>
-                          <canvas
-                            ref={storageChartRef}
-                            width={250}
-                            height={250}
-                            className='mx-auto'
-                          />
+            <AnimatedSection delay={0.1}>
+              <TabsContent value='overview' className='mt-0'>
+                <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                  {/* 存储概览卡片 */}
+                  <Card className='lg:col-span-1'>
+                    <CardHeader>
+                      <CardTitle className='flex items-center gap-2'>
+                        <Database className='h-5 w-5' />
+                        媒体库存储
+                      </CardTitle>
+                      <CardDescription>各媒体库存储占比</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoading ? (
+                        <div className='space-y-4'>
+                          <Skeleton className='h-[200px] w-full' />
                         </div>
-                        <div className='mt-4'>
-                          <h3 className='mb-2 text-lg font-medium'>
-                            媒体库存储分布
-                          </h3>
-                          <div className='space-y-3'>
-                            {storageData.libraries.map((lib, index) => (
-                              <div key={index} className='space-y-1'>
-                                <div className='flex justify-between text-sm'>
-                                  <span className='text-muted-foreground'>
-                                    {lib.name}:
-                                  </span>
-                                  <span className='font-medium'>
-                                    {lib.used} ({lib.percentage}%)
-                                  </span>
+                      ) : (
+                        <div>
+                          <div className='relative mx-auto aspect-square max-w-[250px]'>
+                            <canvas
+                              ref={storageChartRef}
+                              width={250}
+                              height={250}
+                              className='mx-auto'
+                            />
+                          </div>
+                          <div className='mt-4'>
+                            <h3 className='mb-2 text-lg font-medium'>
+                              媒体库存储分布
+                            </h3>
+                            <div className='space-y-3'>
+                              {storageData.libraries.map((lib, index) => (
+                                <div key={index} className='space-y-1'>
+                                  <div className='flex justify-between text-sm'>
+                                    <span className='text-muted-foreground'>
+                                      {lib.name}:
+                                    </span>
+                                    <span className='font-medium'>
+                                      {lib.used} ({lib.percentage}%)
+                                    </span>
+                                  </div>
+                                  <Progress
+                                    value={lib.percentage}
+                                    className='h-2'
+                                    style={
+                                      {
+                                        backgroundColor: 'rgba(0,0,0,0.1)',
+                                        '--progress-background':
+                                          index === 0
+                                            ? 'rgba(147, 51, 234, 0.8)'
+                                            : index === 1
+                                              ? 'rgba(59, 130, 246, 0.8)'
+                                              : index === 2
+                                                ? 'rgba(236, 72, 153, 0.8)'
+                                                : 'rgba(16, 185, 129, 0.8)',
+                                      } as React.CSSProperties
+                                    }
+                                  />
                                 </div>
-                                <Progress
-                                  value={lib.percentage}
-                                  className='h-2'
-                                  style={
-                                    {
-                                      backgroundColor: 'rgba(0,0,0,0.1)',
-                                      '--progress-background':
-                                        index === 0
-                                          ? 'rgba(147, 51, 234, 0.8)'
-                                          : index === 1
-                                            ? 'rgba(59, 130, 246, 0.8)'
-                                            : index === 2
-                                              ? 'rgba(236, 72, 153, 0.8)'
-                                              : 'rgba(16, 185, 129, 0.8)',
-                                    } as React.CSSProperties
-                                  }
-                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Library Stats Card */}
+                  <Card className='lg:col-span-2'>
+                    <CardHeader>
+                      <CardTitle className='flex items-center gap-2'>
+                        <PieChart className='h-5 w-5' />
+                        媒体库统计
+                      </CardTitle>
+                      <CardDescription>媒体库数量和内容统计</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoading ? (
+                        <div className='space-y-4'>
+                          <Skeleton className='h-10 w-full' />
+                          <Skeleton className='h-10 w-full' />
+                          <Skeleton className='h-10 w-full' />
+                        </div>
+                      ) : (
+                        <div className='space-y-6'>
+                          <div>
+                            <h3 className='mb-2 text-lg font-medium'>
+                              媒体库概况
+                            </h3>
+                            <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
+                              <div className='rounded-lg bg-muted/30 p-3 text-center'>
+                                <p className='text-3xl font-bold'>
+                                  {libraries.length}
+                                </p>
+                                <p className='text-sm text-muted-foreground'>
+                                  总媒体库
+                                </p>
                               </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Library Stats Card */}
-                <Card className='lg:col-span-2'>
-                  <CardHeader>
-                    <CardTitle className='flex items-center gap-2'>
-                      <PieChart className='h-5 w-5' />
-                      媒体库统计
-                    </CardTitle>
-                    <CardDescription>媒体库数量和内容统计</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {isLoading ? (
-                      <div className='space-y-4'>
-                        <Skeleton className='h-10 w-full' />
-                        <Skeleton className='h-10 w-full' />
-                        <Skeleton className='h-10 w-full' />
-                      </div>
-                    ) : (
-                      <div className='space-y-6'>
-                        <div>
-                          <h3 className='mb-2 text-lg font-medium'>
-                            媒体库概况
-                          </h3>
-                          <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
-                            <div className='rounded-lg bg-muted/30 p-3 text-center'>
-                              <p className='text-3xl font-bold'>
-                                {libraries.length}
-                              </p>
-                              <p className='text-sm text-muted-foreground'>
-                                总媒体库
-                              </p>
-                            </div>
-                            <div className='rounded-lg bg-muted/30 p-3 text-center'>
-                              <p className='text-3xl font-bold'>
-                                {libraries.reduce(
-                                  (sum, lib) => sum + lib.itemCount,
-                                  0
-                                )}
-                              </p>
-                              <p className='text-sm text-muted-foreground'>
-                                总媒体文件
-                              </p>
-                            </div>
-                            <div className='rounded-lg bg-muted/30 p-3 text-center'>
-                              <p className='text-3xl font-bold'>
-                                {
-                                  libraries.filter(
-                                    lib => lib.status === 'active'
-                                  ).length
-                                }
-                              </p>
-                              <p className='text-sm text-muted-foreground'>
-                                正常媒体库
-                              </p>
-                            </div>
-                            <div className='rounded-lg bg-muted/30 p-3 text-center'>
-                              <p className='text-3xl font-bold'>
-                                {
-                                  libraries.filter(
-                                    lib => lib.status === 'error'
-                                  ).length
-                                }
-                              </p>
-                              <p className='text-sm text-muted-foreground'>
-                                错误媒体库
-                              </p>
+                              <div className='rounded-lg bg-muted/30 p-3 text-center'>
+                                <p className='text-3xl font-bold'>
+                                  {libraries.reduce(
+                                    (sum, lib) => sum + lib.itemCount,
+                                    0
+                                  )}
+                                </p>
+                                <p className='text-sm text-muted-foreground'>
+                                  总媒体文件
+                                </p>
+                              </div>
+                              <div className='rounded-lg bg-muted/30 p-3 text-center'>
+                                <p className='text-3xl font-bold'>
+                                  {
+                                    libraries.filter(
+                                      lib => lib.status === 'active'
+                                    ).length
+                                  }
+                                </p>
+                                <p className='text-sm text-muted-foreground'>
+                                  正常媒体库
+                                </p>
+                              </div>
+                              <div className='rounded-lg bg-muted/30 p-3 text-center'>
+                                <p className='text-3xl font-bold'>
+                                  {
+                                    libraries.filter(
+                                      lib => lib.status === 'error'
+                                    ).length
+                                  }
+                                </p>
+                                <p className='text-sm text-muted-foreground'>
+                                  错误媒体库
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div>
-                          <h3 className='mb-2 text-lg font-medium'>
-                            媒体类型分布
-                          </h3>
-                          <div className='grid grid-cols-3 gap-2 text-center md:grid-cols-6'>
-                            <div className='rounded-lg bg-muted/30 p-2'>
-                              <MonitorPlay className='mx-auto mb-1 h-5 w-5 text-primary' />
-                              <p className='text-xl font-bold'>
-                                {
-                                  libraries.filter(lib => lib.type === 'movies')
-                                    .length
-                                }
-                              </p>
-                              <p className='text-xs text-muted-foreground'>
-                                电影
-                              </p>
-                            </div>
-                            <div className='rounded-lg bg-muted/30 p-2'>
-                              <FileVideo className='mx-auto mb-1 h-5 w-5 text-primary' />
-                              <p className='text-xl font-bold'>
-                                {
-                                  libraries.filter(lib => lib.type === 'tv')
-                                    .length
-                                }
-                              </p>
-                              <p className='text-xs text-muted-foreground'>
-                                电视剧
-                              </p>
-                            </div>
-                            <div className='rounded-lg bg-muted/30 p-2'>
-                              <FileVideo className='mx-auto mb-1 h-5 w-5 text-primary' />
-                              <p className='text-xl font-bold'>
-                                {
-                                  libraries.filter(
-                                    lib => lib.type === 'animation'
-                                  ).length
-                                }
-                              </p>
-                              <p className='text-xs text-muted-foreground'>
-                                动画
-                              </p>
-                            </div>
-                            <div className='rounded-lg bg-muted/30 p-2'>
-                              <FileVideo className='mx-auto mb-1 h-5 w-5 text-primary' />
-                              <p className='text-xl font-bold'>
-                                {
-                                  libraries.filter(
-                                    lib => lib.type === 'documentary'
-                                  ).length
-                                }
-                              </p>
-                              <p className='text-xs text-muted-foreground'>
-                                纪录片
-                              </p>
-                            </div>
-                            <div className='rounded-lg bg-muted/30 p-2'>
-                              <FolderOpen className='mx-auto mb-1 h-5 w-5 text-primary' />
-                              <p className='text-xl font-bold'>
-                                {
-                                  libraries.filter(lib => lib.type === 'music')
-                                    .length
-                                }
-                              </p>
-                              <p className='text-xs text-muted-foreground'>
-                                音乐
-                              </p>
-                            </div>
-                            <div className='rounded-lg bg-muted/30 p-2'>
-                              <FolderOpen className='mx-auto mb-1 h-5 w-5 text-primary' />
-                              <p className='text-xl font-bold'>
-                                {
-                                  libraries.filter(lib => lib.type === 'other')
-                                    .length
-                                }
-                              </p>
-                              <p className='text-xs text-muted-foreground'>
-                                其他
-                              </p>
+                          <div>
+                            <h3 className='mb-2 text-lg font-medium'>
+                              媒体类型分布
+                            </h3>
+                            <div className='grid grid-cols-3 gap-2 text-center md:grid-cols-6'>
+                              <div className='rounded-lg bg-muted/30 p-2'>
+                                <MonitorPlay className='mx-auto mb-1 h-5 w-5 text-primary' />
+                                <p className='text-xl font-bold'>
+                                  {
+                                    libraries.filter(
+                                      lib => lib.type === 'movies'
+                                    ).length
+                                  }
+                                </p>
+                                <p className='text-xs text-muted-foreground'>
+                                  电影
+                                </p>
+                              </div>
+                              <div className='rounded-lg bg-muted/30 p-2'>
+                                <FileVideo className='mx-auto mb-1 h-5 w-5 text-primary' />
+                                <p className='text-xl font-bold'>
+                                  {
+                                    libraries.filter(lib => lib.type === 'tv')
+                                      .length
+                                  }
+                                </p>
+                                <p className='text-xs text-muted-foreground'>
+                                  电视剧
+                                </p>
+                              </div>
+                              <div className='rounded-lg bg-muted/30 p-2'>
+                                <FileVideo className='mx-auto mb-1 h-5 w-5 text-primary' />
+                                <p className='text-xl font-bold'>
+                                  {
+                                    libraries.filter(
+                                      lib => lib.type === 'animation'
+                                    ).length
+                                  }
+                                </p>
+                                <p className='text-xs text-muted-foreground'>
+                                  动画
+                                </p>
+                              </div>
+                              <div className='rounded-lg bg-muted/30 p-2'>
+                                <FileVideo className='mx-auto mb-1 h-5 w-5 text-primary' />
+                                <p className='text-xl font-bold'>
+                                  {
+                                    libraries.filter(
+                                      lib => lib.type === 'documentary'
+                                    ).length
+                                  }
+                                </p>
+                                <p className='text-xs text-muted-foreground'>
+                                  纪录片
+                                </p>
+                              </div>
+                              <div className='rounded-lg bg-muted/30 p-2'>
+                                <FolderOpen className='mx-auto mb-1 h-5 w-5 text-primary' />
+                                <p className='text-xl font-bold'>
+                                  {
+                                    libraries.filter(
+                                      lib => lib.type === 'music'
+                                    ).length
+                                  }
+                                </p>
+                                <p className='text-xs text-muted-foreground'>
+                                  音乐
+                                </p>
+                              </div>
+                              <div className='rounded-lg bg-muted/30 p-2'>
+                                <FolderOpen className='mx-auto mb-1 h-5 w-5 text-primary' />
+                                <p className='text-xl font-bold'>
+                                  {
+                                    libraries.filter(
+                                      lib => lib.type === 'other'
+                                    ).length
+                                  }
+                                </p>
+                                <p className='text-xs text-muted-foreground'>
+                                  其他
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div>
-                          <h3 className='mb-2 text-lg font-medium'>
-                            媒体库健康状况
-                          </h3>
-                          <div className='space-y-3'>
-                            {libraries.map(lib => (
-                              <div key={lib.id} className='space-y-1'>
-                                <div className='flex justify-between text-sm'>
-                                  <span className='max-w-[70%] truncate text-muted-foreground'>
-                                    {lib.name}:
-                                  </span>
-                                  <span
-                                    className={`font-medium ${lib.healthScore >= 90 ? 'text-green-500' : lib.healthScore >= 70 ? 'text-amber-500' : 'text-red-500'}`}
-                                  >
-                                    {lib.healthScore || 0}%
-                                  </span>
+                          <div>
+                            <h3 className='mb-2 text-lg font-medium'>
+                              媒体库健康状况
+                            </h3>
+                            <div className='space-y-3'>
+                              {libraries.map(lib => (
+                                <div key={lib.id} className='space-y-1'>
+                                  <div className='flex justify-between text-sm'>
+                                    <span className='max-w-[70%] truncate text-muted-foreground'>
+                                      {lib.name}:
+                                    </span>
+                                    <span
+                                      className={`font-medium ${lib.healthScore >= 90 ? 'text-green-500' : lib.healthScore >= 70 ? 'text-amber-500' : 'text-red-500'}`}
+                                    >
+                                      {lib.healthScore || 0}%
+                                    </span>
+                                  </div>
+                                  <Progress
+                                    value={lib.healthScore || 0}
+                                    className='h-2'
+                                    style={
+                                      {
+                                        backgroundColor: 'rgba(0,0,0,0.1)',
+                                        '--progress-background':
+                                          lib.healthScore >= 90
+                                            ? 'rgba(34, 197, 94, 0.8)'
+                                            : lib.healthScore >= 70
+                                              ? 'rgba(245, 158, 11, 0.8)'
+                                              : 'rgba(239, 68, 68, 0.8)',
+                                      } as React.CSSProperties
+                                    }
+                                  />
                                 </div>
-                                <Progress
-                                  value={lib.healthScore || 0}
-                                  className='h-2'
-                                  style={
-                                    {
-                                      backgroundColor: 'rgba(0,0,0,0.1)',
-                                      '--progress-background':
-                                        lib.healthScore >= 90
-                                          ? 'rgba(34, 197, 94, 0.8)'
-                                          : lib.healthScore >= 70
-                                            ? 'rgba(245, 158, 11, 0.8)'
-                                            : 'rgba(239, 68, 68, 0.8)',
-                                    } as React.CSSProperties
-                                  }
-                                />
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                      )}
+                    </CardContent>
+                  </Card>
 
-                {/* Recent Activity Card */}
-                <Card className='lg:col-span-3'>
+                  {/* Recent Activity Card */}
+                  <Card className='lg:col-span-3'>
+                    <CardHeader>
+                      <CardTitle className='flex items-center gap-2'>
+                        <Clock className='h-5 w-5' />
+                        最近活动
+                      </CardTitle>
+                      <CardDescription>最近的扫描和更改</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoading ? (
+                        <div className='space-y-4'>
+                          {[...Array(3)].map((_, i) => (
+                            <Skeleton key={i} className='h-16 w-full' />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className='space-y-4'>
+                          {recentScans.slice(0, 3).map(scan => (
+                            <div
+                              key={scan.id}
+                              className={`rounded-lg border p-3 ${scan.status === 'failed' ? 'border-destructive/50 bg-destructive/5' : 'border-border bg-muted/30'}`}
+                            >
+                              <div className='flex items-start justify-between'>
+                                <div>
+                                  <div className='flex items-center gap-2'>
+                                    <h3 className='font-medium'>
+                                      {scan.libraryName}
+                                    </h3>
+                                    {scan.status === 'completed' && (
+                                      <Badge
+                                        variant='outline'
+                                        className='bg-green-500/10 text-green-500 hover:bg-green-500/20 hover:text-green-600'
+                                      >
+                                        完成
+                                      </Badge>
+                                    )}
+                                    {scan.status === 'failed' && (
+                                      <Badge variant='destructive'>失败</Badge>
+                                    )}
+                                  </div>
+                                  <p className='text-sm text-muted-foreground'>
+                                    {scan.startTime}{' '}
+                                    {scan.status === 'completed'
+                                      ? `(耗时: ${scan.duration})`
+                                      : ''}
+                                  </p>
+                                </div>
+                                <div className='text-right'>
+                                  {scan.status === 'completed' && (
+                                    <div className='text-sm'>
+                                      <span className='text-green-500'>
+                                        +{scan.itemsAdded}
+                                      </span>{' '}
+                                      /
+                                      <span className='text-amber-500'>
+                                        {' '}
+                                        ~{scan.itemsUpdated}
+                                      </span>{' '}
+                                      /
+                                      <span className='text-red-500'>
+                                        {' '}
+                                        -{scan.itemsRemoved}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {scan.status === 'failed' && (
+                                    <p className='text-sm text-destructive'>
+                                      {scan.error}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          <div className='text-center'>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              onClick={() => {}}
+                            >
+                              查看所有历史记录
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            </AnimatedSection>
+
+            {/* Libraries Tab */}
+            <AnimatedSection delay={0.1}>
+              <TabsContent value='libraries' className='mt-0'>
+                <Libraries handleAddLibrary={handleAddLibrary} />
+              </TabsContent>
+            </AnimatedSection>
+
+            {/* History Tab */}
+            <AnimatedSection delay={0.1}>
+              <TabsContent value='history' className='mt-0'>
+                <Card>
                   <CardHeader>
                     <CardTitle className='flex items-center gap-2'>
-                      <Clock className='h-5 w-5' />
-                      最近活动
+                      <History className='h-5 w-5' />
+                      扫描历史
                     </CardTitle>
-                    <CardDescription>最近的扫描和更改</CardDescription>
+                    <CardDescription>
+                      查看媒体库扫描的历史记录和结果
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     {isLoading ? (
                       <div className='space-y-4'>
                         {[...Array(3)].map((_, i) => (
-                          <Skeleton key={i} className='h-16 w-full' />
+                          <Skeleton key={i} className='h-24 w-full' />
                         ))}
                       </div>
+                    ) : recentScans.length === 0 ? (
+                      <div className='py-8 text-center'>
+                        <Clock className='mx-auto mb-2 h-12 w-12 text-muted-foreground' />
+                        <h3 className='text-lg font-medium'>没有扫描历史</h3>
+                        <p className='text-muted-foreground'>
+                          扫描您的媒体库以查看历史记录
+                        </p>
+                      </div>
                     ) : (
-                      <div className='space-y-4'>
-                        {recentScans.slice(0, 3).map(scan => (
-                          <div
-                            key={scan.id}
-                            className={`rounded-lg border p-3 ${scan.status === 'failed' ? 'border-destructive/50 bg-destructive/5' : 'border-border bg-muted/30'}`}
-                          >
-                            <div className='flex items-start justify-between'>
-                              <div>
-                                <div className='flex items-center gap-2'>
-                                  <h3 className='font-medium'>
+                      <div className='rounded-md border'>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>媒体库</TableHead>
+                              <TableHead>开始时间</TableHead>
+                              <TableHead className='hidden md:table-cell'>
+                                状态
+                              </TableHead>
+                              <TableHead className='hidden lg:table-cell'>
+                                耗时
+                              </TableHead>
+                              <TableHead className='hidden lg:table-cell'>
+                                扫描项目
+                              </TableHead>
+                              <TableHead className='hidden md:table-cell'>
+                                变更
+                              </TableHead>
+                              <TableHead className='hidden xl:table-cell'>
+                                发起方式
+                              </TableHead>
+                              <TableHead className='text-right'>操作</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {recentScans.map(scan => (
+                              <TableRow key={scan.id}>
+                                <TableCell>
+                                  <div className='font-medium'>
                                     {scan.libraryName}
-                                  </h3>
-                                  {scan.status === 'completed' && (
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className='text-sm'>
+                                    {scan.startTime}
+                                  </div>
+                                </TableCell>
+                                <TableCell className='hidden md:table-cell'>
+                                  {scan.status === 'completed' ? (
                                     <Badge
                                       variant='outline'
                                       className='bg-green-500/10 text-green-500 hover:bg-green-500/20 hover:text-green-600'
                                     >
                                       完成
                                     </Badge>
-                                  )}
-                                  {scan.status === 'failed' && (
+                                  ) : (
                                     <Badge variant='destructive'>失败</Badge>
                                   )}
-                                </div>
-                                <p className='text-sm text-muted-foreground'>
-                                  {scan.startTime}{' '}
-                                  {scan.status === 'completed'
-                                    ? `(耗时: ${scan.duration})`
-                                    : ''}
-                                </p>
-                              </div>
-                              <div className='text-right'>
-                                {scan.status === 'completed' && (
-                                  <div className='text-sm'>
-                                    <span className='text-green-500'>
-                                      +{scan.itemsAdded}
-                                    </span>{' '}
-                                    /
-                                    <span className='text-amber-500'>
-                                      {' '}
-                                      ~{scan.itemsUpdated}
-                                    </span>{' '}
-                                    /
-                                    <span className='text-red-500'>
-                                      {' '}
-                                      -{scan.itemsRemoved}
+                                </TableCell>
+                                <TableCell className='hidden lg:table-cell'>
+                                  <span className='text-sm text-muted-foreground'>
+                                    {scan.duration || 'N/A'}
+                                  </span>
+                                </TableCell>
+                                <TableCell className='hidden lg:table-cell'>
+                                  <span className='text-sm text-muted-foreground'>
+                                    {scan.itemsScanned}
+                                  </span>
+                                </TableCell>
+                                <TableCell className='hidden md:table-cell'>
+                                  {scan.status === 'completed' ? (
+                                    <div className='text-sm'>
+                                      <span className='text-green-500'>
+                                        +{scan.itemsAdded}
+                                      </span>{' '}
+                                      /
+                                      <span className='text-amber-500'>
+                                        {' '}
+                                        ~{scan.itemsUpdated}
+                                      </span>{' '}
+                                      /
+                                      <span className='text-red-500'>
+                                        {' '}
+                                        -{scan.itemsRemoved}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className='text-sm text-destructive'>
+                                      错误
                                     </span>
-                                  </div>
-                                )}
-                                {scan.status === 'failed' && (
-                                  <p className='text-sm text-destructive'>
-                                    {scan.error}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                        <div className='text-center'>
-                          <Button variant='ghost' size='sm' onClick={() => {}}>
-                            查看所有历史记录
-                          </Button>
-                        </div>
+                                  )}
+                                </TableCell>
+                                <TableCell className='hidden xl:table-cell'>
+                                  <span className='text-sm text-muted-foreground'>
+                                    {scan.initiatedBy}
+                                  </span>
+                                </TableCell>
+                                <TableCell className='text-right'>
+                                  <Button
+                                    variant='ghost'
+                                    size='sm'
+                                    onClick={() => handleViewScanDetails(scan)}
+                                  >
+                                    详情
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
                       </div>
                     )}
                   </CardContent>
                 </Card>
-              </div>
-            </TabsContent>
-
-            {/* Libraries Tab */}
-            <TabsContent value='libraries' className='mt-0'>
-              <Libraries handleAddLibrary={handleAddLibrary} />
-            </TabsContent>
-
-            {/* History Tab */}
-            <TabsContent value='history' className='mt-0'>
-              <Card>
-                <CardHeader>
-                  <CardTitle className='flex items-center gap-2'>
-                    <History className='h-5 w-5' />
-                    扫描历史
-                  </CardTitle>
-                  <CardDescription>
-                    查看媒体库扫描的历史记录和结果
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className='space-y-4'>
-                      {[...Array(3)].map((_, i) => (
-                        <Skeleton key={i} className='h-24 w-full' />
-                      ))}
-                    </div>
-                  ) : recentScans.length === 0 ? (
-                    <div className='py-8 text-center'>
-                      <Clock className='mx-auto mb-2 h-12 w-12 text-muted-foreground' />
-                      <h3 className='text-lg font-medium'>没有扫描历史</h3>
-                      <p className='text-muted-foreground'>
-                        扫描您的媒体库以查看历史记录
-                      </p>
-                    </div>
-                  ) : (
-                    <div className='rounded-md border'>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>媒体库</TableHead>
-                            <TableHead>开始时间</TableHead>
-                            <TableHead className='hidden md:table-cell'>
-                              状态
-                            </TableHead>
-                            <TableHead className='hidden lg:table-cell'>
-                              耗时
-                            </TableHead>
-                            <TableHead className='hidden lg:table-cell'>
-                              扫描项目
-                            </TableHead>
-                            <TableHead className='hidden md:table-cell'>
-                              变更
-                            </TableHead>
-                            <TableHead className='hidden xl:table-cell'>
-                              发起方式
-                            </TableHead>
-                            <TableHead className='text-right'>操作</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {recentScans.map(scan => (
-                            <TableRow key={scan.id}>
-                              <TableCell>
-                                <div className='font-medium'>
-                                  {scan.libraryName}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className='text-sm'>{scan.startTime}</div>
-                              </TableCell>
-                              <TableCell className='hidden md:table-cell'>
-                                {scan.status === 'completed' ? (
-                                  <Badge
-                                    variant='outline'
-                                    className='bg-green-500/10 text-green-500 hover:bg-green-500/20 hover:text-green-600'
-                                  >
-                                    完成
-                                  </Badge>
-                                ) : (
-                                  <Badge variant='destructive'>失败</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell className='hidden lg:table-cell'>
-                                <span className='text-sm text-muted-foreground'>
-                                  {scan.duration || 'N/A'}
-                                </span>
-                              </TableCell>
-                              <TableCell className='hidden lg:table-cell'>
-                                <span className='text-sm text-muted-foreground'>
-                                  {scan.itemsScanned}
-                                </span>
-                              </TableCell>
-                              <TableCell className='hidden md:table-cell'>
-                                {scan.status === 'completed' ? (
-                                  <div className='text-sm'>
-                                    <span className='text-green-500'>
-                                      +{scan.itemsAdded}
-                                    </span>{' '}
-                                    /
-                                    <span className='text-amber-500'>
-                                      {' '}
-                                      ~{scan.itemsUpdated}
-                                    </span>{' '}
-                                    /
-                                    <span className='text-red-500'>
-                                      {' '}
-                                      -{scan.itemsRemoved}
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <span className='text-sm text-destructive'>
-                                    错误
-                                  </span>
-                                )}
-                              </TableCell>
-                              <TableCell className='hidden xl:table-cell'>
-                                <span className='text-sm text-muted-foreground'>
-                                  {scan.initiatedBy}
-                                </span>
-                              </TableCell>
-                              <TableCell className='text-right'>
-                                <Button
-                                  variant='ghost'
-                                  size='sm'
-                                  onClick={() => handleViewScanDetails(scan)}
-                                >
-                                  详情
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+              </TabsContent>
+            </AnimatedSection>
 
             {/* Settings Tab */}
-            <TabsContent value='settings' className='mt-0'>
-              <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
-                <Card className='lg:col-span-2'>
-                  <CardHeader>
-                    <CardTitle className='flex items-center gap-2'>
-                      <Settings className='h-5 w-5' />
-                      扫描设置
-                    </CardTitle>
-                    <CardDescription>配置媒体库扫描的全局设置</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
-                      <div className='space-y-6'>
-                        <div className='space-y-2'>
-                          <div className='flex items-center justify-between'>
-                            <Label htmlFor='auto-scan'>
-                              添加媒体库后自动扫描
-                            </Label>
-                            <Switch id='auto-scan' defaultChecked />
-                          </div>
-                          <p className='text-sm text-muted-foreground'>
-                            添加新媒体库后立即开始扫描
-                          </p>
-                        </div>
-
-                        <div className='space-y-2'>
-                          <div className='flex items-center justify-between'>
-                            <Label htmlFor='schedule-scan'>定时扫描</Label>
-                            <Switch id='schedule-scan' defaultChecked />
-                          </div>
-                          <p className='text-sm text-muted-foreground'>
-                            按计划自动扫描所有媒体库
-                          </p>
-                          <div className='pt-2'>
-                            <Select defaultValue='daily'>
-                              <SelectTrigger>
-                                <SelectValue placeholder='选择扫描频率' />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value='hourly'>每小时</SelectItem>
-                                <SelectItem value='daily'>每天</SelectItem>
-                                <SelectItem value='weekly'>每周</SelectItem>
-                                <SelectItem value='custom'>自定义</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-
-                        <div className='space-y-2'>
-                          <div className='flex items-center justify-between'>
-                            <Label htmlFor='scan-on-startup'>启动时扫描</Label>
-                            <Switch id='scan-on-startup' />
-                          </div>
-                          <p className='text-sm text-muted-foreground'>
-                            应用启动时自动扫描所有媒体库
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className='space-y-6'>
-                        <div className='space-y-2'>
-                          <div className='flex items-center justify-between'>
-                            <Label htmlFor='deep-scan'>深度扫描</Label>
-                            <Switch id='deep-scan' />
-                          </div>
-                          <p className='text-sm text-muted-foreground'>
-                            扫描时重新检查所有文件，而不仅是新文件（较慢但更彻底）
-                          </p>
-                        </div>
-
-                        <div className='space-y-2'>
-                          <div className='flex items-center justify-between'>
-                            <Label htmlFor='auto-metadata'>
-                              自动获取元数据
-                            </Label>
-                            <Switch id='auto-metadata' defaultChecked />
-                          </div>
-                          <p className='text-sm text-muted-foreground'>
-                            扫描时自动从在线数据库获取缺失的元数据
-                          </p>
-                        </div>
-
-                        <div className='space-y-2'>
-                          <div className='flex items-center justify-between'>
-                            <Label htmlFor='notify-changes'>变更通知</Label>
-                            <Switch id='notify-changes' defaultChecked />
-                          </div>
-                          <p className='text-sm text-muted-foreground'>
-                            扫描发现媒体库变更时发送通知
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button>保存设置</Button>
-                  </CardFooter>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center gap-2'>
-                      <FolderOpen className='h-5 w-5' />
-                      高级选项
-                    </CardTitle>
-                    <CardDescription>配置媒体库的高级扫描选项</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Accordion type='single' collapsible className='w-full'>
-                      <AccordionItem value='item-1'>
-                        <AccordionTrigger>文件类型过滤</AccordionTrigger>
-                        <AccordionContent>
-                          <div className='space-y-4'>
+            <AnimatedSection delay={0.1}>
+              <TabsContent value='settings' className='mt-0'>
+                <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
+                  <Card className='lg:col-span-2'>
+                    <CardHeader>
+                      <CardTitle className='flex items-center gap-2'>
+                        <Settings className='h-5 w-5' />
+                        扫描设置
+                      </CardTitle>
+                      <CardDescription>
+                        配置媒体库扫描的全局设置
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
+                        <div className='space-y-6'>
+                          <div className='space-y-2'>
+                            <div className='flex items-center justify-between'>
+                              <Label htmlFor='auto-scan'>
+                                添加媒体库后自动扫描
+                              </Label>
+                              <Switch id='auto-scan' defaultChecked />
+                            </div>
                             <p className='text-sm text-muted-foreground'>
-                              选择扫描时要包含的文件类型
+                              添加新媒体库后立即开始扫描
                             </p>
-                            <div className='grid grid-cols-2 gap-2'>
-                              <div className='flex items-center space-x-2'>
-                                <Checkbox id='video-mp4' defaultChecked />
-                                <Label htmlFor='video-mp4'>.mp4</Label>
-                              </div>
-                              <div className='flex items-center space-x-2'>
-                                <Checkbox id='video-mkv' defaultChecked />
-                                <Label htmlFor='video-mkv'>.mkv</Label>
-                              </div>
-                              <div className='flex items-center space-x-2'>
-                                <Checkbox id='video-avi' defaultChecked />
-                                <Label htmlFor='video-avi'>.avi</Label>
-                              </div>
-                              <div className='flex items-center space-x-2'>
-                                <Checkbox id='video-mov' defaultChecked />
-                                <Label htmlFor='video-mov'>.mov</Label>
-                              </div>
-                              <div className='flex items-center space-x-2'>
-                                <Checkbox id='video-wmv' defaultChecked />
-                                <Label htmlFor='video-wmv'>.wmv</Label>
-                              </div>
-                              <div className='flex items-center space-x-2'>
-                                <Checkbox id='video-m4v' defaultChecked />
-                                <Label htmlFor='video-m4v'>.m4v</Label>
-                              </div>
+                          </div>
+
+                          <div className='space-y-2'>
+                            <div className='flex items-center justify-between'>
+                              <Label htmlFor='schedule-scan'>定时扫描</Label>
+                              <Switch id='schedule-scan' defaultChecked />
+                            </div>
+                            <p className='text-sm text-muted-foreground'>
+                              按计划自动扫描所有媒体库
+                            </p>
+                            <div className='pt-2'>
+                              <Select defaultValue='daily'>
+                                <SelectTrigger>
+                                  <SelectValue placeholder='选择扫描频率' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value='hourly'>每小时</SelectItem>
+                                  <SelectItem value='daily'>每天</SelectItem>
+                                  <SelectItem value='weekly'>每周</SelectItem>
+                                  <SelectItem value='custom'>自定义</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                      <AccordionItem value='item-2'>
-                        <AccordionTrigger>排除路径</AccordionTrigger>
-                        <AccordionContent>
-                          <div className='space-y-4'>
-                            <p className='text-sm text-muted-foreground'>
-                              设置扫描时要排除的文件夹路径
-                            </p>
-                            <div className='space-y-2'>
-                              <div className='flex items-center space-x-2'>
-                                <Input
-                                  placeholder='/path/to/exclude'
-                                  className='flex-1'
-                                />
-                                <Button variant='outline' size='icon'>
-                                  <Trash className='h-4 w-4' />
-                                </Button>
-                              </div>
-                              <div className='flex items-center space-x-2'>
-                                <Input
-                                  placeholder='/another/path'
-                                  className='flex-1'
-                                />
-                                <Button variant='outline' size='icon'>
-                                  <Trash className='h-4 w-4' />
-                                </Button>
-                              </div>
-                              <Button
-                                variant='outline'
-                                size='sm'
-                                className='mt-2 w-full'
-                              >
-                                添加排除路径
-                              </Button>
+
+                          <div className='space-y-2'>
+                            <div className='flex items-center justify-between'>
+                              <Label htmlFor='scan-on-startup'>
+                                启动时扫描
+                              </Label>
+                              <Switch id='scan-on-startup' />
                             </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                      <AccordionItem value='item-3'>
-                        <AccordionTrigger>扫描优先级</AccordionTrigger>
-                        <AccordionContent>
-                          <div className='space-y-4'>
                             <p className='text-sm text-muted-foreground'>
-                              设置媒体库扫描的优先级
+                              应用启动时自动扫描所有媒体库
                             </p>
-                            <RadioGroup defaultValue='normal'>
-                              <div className='flex items-center space-x-2'>
-                                <RadioGroupItem
-                                  value='high'
-                                  id='priority-high'
-                                />
-                                <Label htmlFor='priority-high'>高优先级</Label>
-                              </div>
-                              <div className='flex items-center space-x-2'>
-                                <RadioGroupItem
-                                  value='normal'
-                                  id='priority-normal'
-                                />
-                                <Label htmlFor='priority-normal'>
-                                  正常优先级
-                                </Label>
-                              </div>
-                              <div className='flex items-center space-x-2'>
-                                <RadioGroupItem value='low' id='priority-low' />
-                                <Label htmlFor='priority-low'>低优先级</Label>
-                              </div>
-                            </RadioGroup>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant='outline' className='w-full'>
-                      应用高级设置
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
-            </TabsContent>
+                        </div>
+
+                        <div className='space-y-6'>
+                          <div className='space-y-2'>
+                            <div className='flex items-center justify-between'>
+                              <Label htmlFor='deep-scan'>深度扫描</Label>
+                              <Switch id='deep-scan' />
+                            </div>
+                            <p className='text-sm text-muted-foreground'>
+                              扫描时重新检查所有文件，而不仅是新文件（较慢但更彻底）
+                            </p>
+                          </div>
+
+                          <div className='space-y-2'>
+                            <div className='flex items-center justify-between'>
+                              <Label htmlFor='auto-metadata'>
+                                自动获取元数据
+                              </Label>
+                              <Switch id='auto-metadata' defaultChecked />
+                            </div>
+                            <p className='text-sm text-muted-foreground'>
+                              扫描时自动从在线数据库获取缺失的元数据
+                            </p>
+                          </div>
+
+                          <div className='space-y-2'>
+                            <div className='flex items-center justify-between'>
+                              <Label htmlFor='notify-changes'>变更通知</Label>
+                              <Switch id='notify-changes' defaultChecked />
+                            </div>
+                            <p className='text-sm text-muted-foreground'>
+                              扫描发现媒体库变更时发送通知
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button>保存设置</Button>
+                    </CardFooter>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className='flex items-center gap-2'>
+                        <FolderOpen className='h-5 w-5' />
+                        高级选项
+                      </CardTitle>
+                      <CardDescription>
+                        配置媒体库的高级扫描选项
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Accordion type='single' collapsible className='w-full'>
+                        <AccordionItem value='item-1'>
+                          <AccordionTrigger>文件类型过滤</AccordionTrigger>
+                          <AccordionContent>
+                            <div className='space-y-4'>
+                              <p className='text-sm text-muted-foreground'>
+                                选择扫描时要包含的文件类型
+                              </p>
+                              <div className='grid grid-cols-2 gap-2'>
+                                <div className='flex items-center space-x-2'>
+                                  <Checkbox id='video-mp4' defaultChecked />
+                                  <Label htmlFor='video-mp4'>.mp4</Label>
+                                </div>
+                                <div className='flex items-center space-x-2'>
+                                  <Checkbox id='video-mkv' defaultChecked />
+                                  <Label htmlFor='video-mkv'>.mkv</Label>
+                                </div>
+                                <div className='flex items-center space-x-2'>
+                                  <Checkbox id='video-avi' defaultChecked />
+                                  <Label htmlFor='video-avi'>.avi</Label>
+                                </div>
+                                <div className='flex items-center space-x-2'>
+                                  <Checkbox id='video-mov' defaultChecked />
+                                  <Label htmlFor='video-mov'>.mov</Label>
+                                </div>
+                                <div className='flex items-center space-x-2'>
+                                  <Checkbox id='video-wmv' defaultChecked />
+                                  <Label htmlFor='video-wmv'>.wmv</Label>
+                                </div>
+                                <div className='flex items-center space-x-2'>
+                                  <Checkbox id='video-m4v' defaultChecked />
+                                  <Label htmlFor='video-m4v'>.m4v</Label>
+                                </div>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value='item-2'>
+                          <AccordionTrigger>排除路径</AccordionTrigger>
+                          <AccordionContent>
+                            <div className='space-y-4'>
+                              <p className='text-sm text-muted-foreground'>
+                                设置扫描时要排除的文件夹路径
+                              </p>
+                              <div className='space-y-2'>
+                                <div className='flex items-center space-x-2'>
+                                  <Input
+                                    placeholder='/path/to/exclude'
+                                    className='flex-1'
+                                  />
+                                  <Button variant='outline' size='icon'>
+                                    <Trash className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                                <div className='flex items-center space-x-2'>
+                                  <Input
+                                    placeholder='/another/path'
+                                    className='flex-1'
+                                  />
+                                  <Button variant='outline' size='icon'>
+                                    <Trash className='h-4 w-4' />
+                                  </Button>
+                                </div>
+                                <Button
+                                  variant='outline'
+                                  size='sm'
+                                  className='mt-2 w-full'
+                                >
+                                  添加排除路径
+                                </Button>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value='item-3'>
+                          <AccordionTrigger>扫描优先级</AccordionTrigger>
+                          <AccordionContent>
+                            <div className='space-y-4'>
+                              <p className='text-sm text-muted-foreground'>
+                                设置媒体库扫描的优先级
+                              </p>
+                              <RadioGroup defaultValue='normal'>
+                                <div className='flex items-center space-x-2'>
+                                  <RadioGroupItem
+                                    value='high'
+                                    id='priority-high'
+                                  />
+                                  <Label htmlFor='priority-high'>
+                                    高优先级
+                                  </Label>
+                                </div>
+                                <div className='flex items-center space-x-2'>
+                                  <RadioGroupItem
+                                    value='normal'
+                                    id='priority-normal'
+                                  />
+                                  <Label htmlFor='priority-normal'>
+                                    正常优先级
+                                  </Label>
+                                </div>
+                                <div className='flex items-center space-x-2'>
+                                  <RadioGroupItem
+                                    value='low'
+                                    id='priority-low'
+                                  />
+                                  <Label htmlFor='priority-low'>低优先级</Label>
+                                </div>
+                              </RadioGroup>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </CardContent>
+                    <CardFooter>
+                      <Button variant='outline' className='w-full'>
+                        应用高级设置
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </div>
+              </TabsContent>
+            </AnimatedSection>
           </Tabs>
         </main>
 

@@ -124,18 +124,20 @@ export default function ContentDetailPage() {
     )
 
   const renderHeader = () => (
-    <header className='sticky top-0 z-10 border-b border-border/40 bg-background/80 backdrop-blur-md'>
-      <div className='container flex h-16 items-center px-4'>
-        <SidebarTrigger className='mr-4 md:hidden' />
-        <Button variant='ghost' size='icon' onClick={onBack} asChild>
-          <Link to='/'>
-            <ArrowLeft className='h-5 w-5' />
-            <span className='sr-only'>Back</span>
-          </Link>
-        </Button>
-        <h1 className='ml-4 text-lg font-medium'>Details</h1>
-      </div>
-    </header>
+    <FadeTransitionContainer>
+      <header className='sticky top-0 z-10 border-b border-border/40 bg-background/80 backdrop-blur-md'>
+        <div className='container flex h-16 items-center px-4'>
+          <SidebarTrigger className='mr-4 md:hidden' />
+          <Button variant='ghost' size='icon' onClick={onBack} asChild>
+            <Link to='/'>
+              <ArrowLeft className='h-5 w-5' />
+              <span className='sr-only'>Back</span>
+            </Link>
+          </Button>
+          <h1 className='ml-4 text-lg font-medium'>Details</h1>
+        </div>
+      </header>
+    </FadeTransitionContainer>
   )
 
   const renderVideoPlayer = () =>
