@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
 
 import {
@@ -52,6 +53,7 @@ export default function ContentDetailPage() {
   const post = usePost()
   const { onEvent } = useEventBus()
   const { isFeatureEnabled } = useFeatures()
+  const { t } = useTranslation()
 
   const {
     data: media,
@@ -130,7 +132,9 @@ export default function ContentDetailPage() {
               <span className='sr-only'>Back</span>
             </Link>
           </Button>
-          <h1 className='ml-4 text-lg font-medium'>Details</h1>
+          <h1 className='ml-4 text-lg font-medium'>
+            {t('page.content_detail.header.title')}
+          </h1>
         </div>
       </header>
     </FadeIn>

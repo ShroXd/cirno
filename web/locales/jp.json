@@ -17,6 +17,10 @@
       }
     },
     "library": {
+      "header": {
+        "title": "ライブラリ",
+        "add_library": "ライブラリを追加"
+      },
       "libraries": {
         "tab_name": "ライブラリ",
         "title": "ライブラリリスト",
@@ -80,6 +84,9 @@
       }
     },
     "settings": {
+      "header": {
+        "title": "設定"
+      },
       "title": "設定",
       "tabs": {
         "general": "一般",
@@ -114,6 +121,11 @@
         "autoplay_description": "現在のエピソードが終了したら次のエピソードを自動的に再生する",
         "notifications": "通知",
         "notifications_description": "新しいコンテンツや更新に関する通知を受け取る"
+      }
+    },
+    "content_detail": {
+      "header": {
+        "title": "詳細"
       }
     }
   }

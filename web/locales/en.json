@@ -17,6 +17,10 @@
       }
     },
     "library": {
+      "header": {
+        "title": "Libraries",
+        "add_library": "Add Library"
+      },
       "libraries": {
         "tab_name": "Libraries",
         "title": "Libraries List",
@@ -80,7 +84,9 @@
       }
     },
     "settings": {
-      "title": "Settings",
+      "header": {
+        "title": "Settings"
+      },
       "tabs": {
         "general": "General",
         "privacy": "Privacy",
@@ -114,6 +120,11 @@
         "autoplay_description": "Automatically play the next episode when the current one ends",
         "notifications": "Notifications",
         "notifications_description": "Receive notifications about new content and updates"
+      }
+    },
+    "content_detail": {
+      "header": {
+        "title": "Details"
       }
     }
   }

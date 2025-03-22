@@ -490,7 +490,9 @@ export default function LibrariesPage() {
                   <span className='sr-only'>Back</span>
                 </Link>
               </Button>
-              <h1 className='text-xl font-bold'>媒体库管理</h1>
+              <h1 className='text-xl font-bold'>
+                {t('page.library.header.title')}
+              </h1>
               <div className='flex-1' />
               <div className='flex items-center gap-2'>
                 {selectedLibraries.length > 0 && (
@@ -527,7 +529,9 @@ export default function LibrariesPage() {
                 )}
                 <Button onClick={handleAddLibrary} className='gap-2'>
                   <FolderPlus className='h-4 w-4' />
-                  <span className='hidden sm:inline'>添加媒体库</span>
+                  <span className='hidden sm:inline'>
+                    {t('page.library.header.add_library')}
+                  </span>
                 </Button>
               </div>
             </div>

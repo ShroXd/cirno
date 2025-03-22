@@ -78,7 +78,9 @@ export default function SettingsPage() {
                 <span className='sr-only'>Back</span>
               </Link>
             </Button>
-            <h1 className='text-xl font-bold'>设置</h1>
+            <h1 className='text-xl font-bold'>
+              {t('page.settings.header.title')}
+            </h1>
           </div>
         </header>
       </FadeIn>

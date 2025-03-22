@@ -17,6 +17,10 @@
       }
     },
     "library": {
+      "header": {
+        "title": "媒体库",
+        "add_library": "添加媒体库"
+      },
       "libraries": {
         "tab_name": "媒体库",
         "title": "媒体库列表",
@@ -80,6 +84,9 @@
       }
     },
     "settings": {
+      "header": {
+        "title": "设置"
+      },
       "title": "设置",
       "tabs": {
         "general": "常规",
@@ -114,6 +121,11 @@
         "autoplay_description": "当前集结束时自动播放下一集",
         "notifications": "通知",
         "notifications_description": "接收关于新内容和更新的通知"
+      }
+    },
+    "content_detail": {
+      "header": {
+        "title": "详情"
       }
     }
   }
