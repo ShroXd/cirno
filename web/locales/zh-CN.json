@@ -126,6 +126,18 @@
     "content_detail": {
       "header": {
         "title": "详情"
+      },
+      "button": {
+        "watch_now": "立即观看",
+        "add_to_watchlist": "添加到观看列表",
+        "share": "分享",
+        "like": "点赞"
+      },
+      "info": {
+        "original_title": "原标题",
+        "country": "国家",
+        "studio": "工作室",
+        "actors": "演员"
       }
     }
   }

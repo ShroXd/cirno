@@ -126,6 +126,18 @@
     "content_detail": {
       "header": {
         "title": "詳細"
+      },
+      "button": {
+        "watch_now": "今すぐ見る",
+        "add_to_watchlist": "見ているリストに追加",
+        "share": "共有",
+        "like": "いいね"
+      },
+      "info": {
+        "original_title": "オリジナルタイトル",
+        "country": "国",
+        "studio": "スタジオ",
+        "actors": "俳優"
       }
     }
   }

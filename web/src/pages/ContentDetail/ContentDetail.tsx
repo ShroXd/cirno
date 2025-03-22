@@ -243,20 +243,26 @@ export default function ContentDetailPage() {
               size='lg'
               className='gap-2'
             >
-              <Play className='h-4 w-4' /> Watch Now
+              <Play className='h-4 w-4' />{' '}
+              {t('page.content_detail.button.watch_now')}
             </Button>
             {isFeatureEnabled('watchlist') && (
               <Button variant='outline' size='lg' className='gap-2'>
-                <Plus className='h-4 w-4' /> Add to Watchlist
+                <Plus className='h-4 w-4' />{' '}
+                {t('page.content_detail.button.add_to_watchlist')}
               </Button>
             )}
             <Button variant='ghost' size='icon' className='ml-auto'>
               <Share className='h-5 w-5' />
-              <span className='sr-only'>Share</span>
+              <span className='sr-only'>
+                {t('page.content_detail.button.share')}
+              </span>
             </Button>
             <Button variant='ghost' size='icon'>
               <ThumbsUp className='h-5 w-5' />
-              <span className='sr-only'>Like</span>
+              <span className='sr-only'>
+                {t('page.content_detail.button.like')}
+              </span>
             </Button>
           </div>
         </HideOnLoading>
@@ -267,19 +273,25 @@ export default function ContentDetailPage() {
   const renderSecondaryInfo = () => (
     <div className='space-y-4'>
       <FadeInUp delay={0.1}>
-        <h3 className='mb-1 text-lg font-semibold'>Original Title</h3>
+        <h3 className='mb-1 text-lg font-semibold'>
+          {t('page.content_detail.info.original_title')}
+        </h3>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-full'>
           <p className='text-muted-foreground'>{media?.original_title}</p>
         </SkeletonSwitcher>
       </FadeInUp>
       <FadeInUp delay={0.2}>
-        <h3 className='mb-1 text-lg font-semibold'>Country</h3>
+        <h3 className='mb-1 text-lg font-semibold'>
+          {t('page.content_detail.info.country')}
+        </h3>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-full'>
           <p className='text-muted-foreground'>{media?.country}</p>
         </SkeletonSwitcher>
       </FadeInUp>
       <FadeInUp delay={0.3}>
-        <h3 className='mb-1 text-lg font-semibold'>Studio</h3>
+        <h3 className='mb-1 text-lg font-semibold'>
+          {t('page.content_detail.info.studio')}
+        </h3>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-full'>
           <div className='text-muted-foreground'>
             {media?.studios.map(studio => (
@@ -291,7 +303,9 @@ export default function ContentDetailPage() {
         </SkeletonSwitcher>
       </FadeInUp>
       <FadeInUp delay={0.4}>
-        <h3 className='mb-1 text-lg font-semibold'>Actors</h3>
+        <h3 className='mb-1 text-lg font-semibold'>
+          {t('page.content_detail.info.actors')}
+        </h3>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-full'>
           <div className='grid grid-cols-2 gap-2'>
             {media?.actors.map(actor => (

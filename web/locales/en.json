@@ -125,6 +125,18 @@
     "content_detail": {
       "header": {
         "title": "Details"
+      },
+      "button": {
+        "watch_now": "Watch Now",
+        "add_to_watchlist": "Add to Watchlist",
+        "share": "Share",
+        "like": "Like"
+      },
+      "info": {
+        "original_title": "Original Title",
+        "country": "Country",
+        "studio": "Studio",
+        "actors": "Actors"
       }
     }
   }
