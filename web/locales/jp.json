@@ -1,1 +1,51 @@
-{}
+{
+  "page": {
+    "home": {
+      "welcome": "ホームページにようこそ",
+      "recent_added": "最近追加された",
+      "tab": {
+        "all": "すべて",
+        "anime": "アニメ",
+        "movies": "映画",
+        "tv": "テレビ"
+      }
+    },
+    "settings": {
+      "title": "設定",
+      "tabs": {
+        "general": "一般",
+        "privacy": "プライバシー",
+        "about": "について"
+      },
+      "general": {
+        "title": "一般",
+        "description": "StreamHubの外観をカスタマイズする",
+        "theme": {
+          "title": "テーマ",
+          "light": "ライト",
+          "dark": "ダーク",
+          "system": "システム"
+        }
+      },
+      "language": {
+        "title": "言語",
+        "description": "お好みの言語を選択してください",
+        "interface": "インターフェース言語",
+        "interface_description": "お好みのインターフェース言語を選択してください",
+        "interface_languages": {
+          "en": "英語",
+          "jp": "日本語",
+          "cn": "中国語"
+        }
+      },
+      "behavior": {
+        "title": "動作",
+        "description": "StreamHubの動作を制御する",
+        "autoplay": "次のエピソードを自動再生",
+        "autoplay_description": "現在のエピソードが終了したら次のエピソードを自動的に再生する",
+        "notifications": "通知",
+        "notifications_description": "新しいコンテンツや更新に関する通知を受け取る"
+      }
+    }
+  }
+}

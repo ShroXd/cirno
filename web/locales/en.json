@@ -1,1 +1,51 @@
-{}
+{
+  "page": {
+    "home": {
+      "welcome": "Welcome to the home page",
+      "recent_added": "Recent Added",
+      "tab": {
+        "all": "All",
+        "anime": "Anime",
+        "movies": "Movies",
+        "tv": "TV"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "tabs": {
+        "general": "General",
+        "privacy": "Privacy",
+        "about": "About"
+      },
+      "general": {
+        "title": "General",
+        "description": "Customize how StreamHub looks",
+        "theme": {
+          "title": "Theme",
+          "light": "Light",
+          "dark": "Dark",
+          "system": "System"
+        }
+      },
+      "language": {
+        "title": "Language",
+        "description": "Choose your preferred language",
+        "interface": "Interface Language",
+        "interface_description": "Choose your preferred interface language",
+        "interface_languages": {
+          "en": "English",
+          "jp": "Japanese",
+          "cn": "Chinese"
+        }
+      },
+      "behavior": {
+        "title": "Behavior",
+        "description": "Control how StreamHub behaves",
+        "autoplay": "Autoplay next episode",
+        "autoplay_description": "Automatically play the next episode when the current one ends",
+        "notifications": "Notifications",
+        "notifications_description": "Receive notifications about new content and updates"
+      }
+    }
+  }
+}
