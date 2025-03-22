@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Checkbox } from '@radix-ui/react-checkbox'
 import {
@@ -6,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@radix-ui/react-tooltip'
+import { format, parseISO } from 'date-fns'
 import {
   ArrowUpDown,
   Edit,
@@ -86,6 +88,8 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
     autoScan: true,
   })
 
+  const { t } = useTranslation()
+
   const {
     data: libraries,
     error,
@@ -143,11 +147,13 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
       <CardHeader>
         <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
           <div>
-            <CardTitle className='flex items-center gap-2'>
+            <CardTitle className='mb-2 flex items-center gap-2'>
               <HardDrive className='h-5 w-5' />
-              媒体库列表
+              {t('page.library.libraries.title')}
             </CardTitle>
-            <CardDescription>管理您的媒体库路径和扫描设置</CardDescription>
+            <CardDescription>
+              {t('page.library.libraries.description')}
+            </CardDescription>
           </div>
           <div className='flex items-center gap-2'>
             <Button
@@ -157,7 +163,7 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
               className='gap-2'
             >
               <FolderPlus className='h-4 w-4' />
-              <span>添加媒体库</span>
+              <span>{t('page.library.libraries.add_library')}</span>
             </Button>
           </div>
         </div>
@@ -170,7 +176,7 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
             <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
             <Input
               type='search'
-              placeholder='搜索媒体库...'
+              placeholder={t('page.library.libraries.search')}
               className='pl-9'
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
@@ -179,28 +185,42 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
           <div className='flex gap-2'>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className='w-[130px]'>
-                <SelectValue placeholder='状态' />
+                <SelectValue
+                  placeholder={t('page.library.libraries.status.all')}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>所有状态</SelectItem>
-                <SelectItem value='active'>正常</SelectItem>
-                <SelectItem value='error'>错误</SelectItem>
+                <SelectItem value='all'>
+                  {t('page.library.libraries.status.all')}
+                </SelectItem>
+                <SelectItem value='active'>
+                  {t('page.library.libraries.status.active')}
+                </SelectItem>
+                <SelectItem value='error'>
+                  {t('page.library.libraries.status.error')}
+                </SelectItem>
               </SelectContent>
             </Select>
 
-            {/* 修改 Select 组件中的类型选项，确保与 libraryTypes 数组一致 */}
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className='w-[130px]'>
-                <SelectValue placeholder='类型' />
+                <SelectValue
+                  placeholder={t('page.library.libraries.type.all')}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>所有类型</SelectItem>
-                <SelectItem value='movies'>电影</SelectItem>
-                <SelectItem value='tv'>电视剧</SelectItem>
-                <SelectItem value='animation'>动画</SelectItem>
-                <SelectItem value='documentary'>纪录片</SelectItem>
-                <SelectItem value='music'>音乐</SelectItem>
-                <SelectItem value='other'>其他</SelectItem>
+                <SelectItem value='all'>
+                  {t('page.library.libraries.type.all')}
+                </SelectItem>
+                <SelectItem value='movies'>
+                  {t('page.library.libraries.type.movies')}
+                </SelectItem>
+                <SelectItem value='tv'>
+                  {t('page.library.libraries.type.tv')}
+                </SelectItem>
+                <SelectItem value='anime'>
+                  {t('page.library.libraries.type.anime')}
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -211,30 +231,32 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end'>
-                <DropdownMenuLabel>排序方式</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  {t('page.library.libraries.sort.title')}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setSortOption('name-asc')}>
-                  名称 (A-Z)
+                  {t('page.library.libraries.sort.name_asc')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortOption('name-desc')}>
-                  名称 (Z-A)
+                  {t('page.library.libraries.sort.name_desc')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortOption('items-desc')}>
-                  项目数 (多-少)
+                  {t('page.library.libraries.sort.items_desc')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortOption('items-asc')}>
-                  项目数 (少-多)
+                  {t('page.library.libraries.sort.items_asc')}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setSortOption('lastScanned-desc')}
                 >
-                  最近扫描
+                  {t('page.library.libraries.sort.lastScanned_desc')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortOption('health-desc')}>
-                  健康状况 (高-低)
+                  {t('page.library.libraries.sort.health_desc')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setSortOption('health-asc')}>
-                  健康状况 (低-高)
+                  {t('page.library.libraries.sort.health_asc')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -250,16 +272,18 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
         ) : filteredLibraries.length === 0 ? (
           <div className='py-8 text-center'>
             <FileQuestion className='mx-auto mb-2 h-12 w-12 text-muted-foreground' />
-            <h3 className='text-lg font-medium'>没有找到媒体库</h3>
+            <h3 className='text-lg font-medium'>
+              {t('page.library.libraries.table.no_libraries.title')}
+            </h3>
             <p className='mb-4 text-muted-foreground'>
               {searchQuery || statusFilter !== 'all' || typeFilter !== 'all'
-                ? '尝试调整搜索条件或筛选器'
-                : '添加您的第一个媒体库以开始管理您的媒体内容'}
+                ? t('page.library.libraries.table.no_libraries.adjust_search')
+                : t('page.library.libraries.table.no_libraries.add_library')}
             </p>
             {!searchQuery && statusFilter === 'all' && typeFilter === 'all' && (
               <Button onClick={handleAddLibrary} className='gap-2'>
                 <FolderPlus className='h-4 w-4' />
-                <span>添加媒体库</span>
+                <span>{t('page.library.libraries.add_library')}</span>
               </Button>
             )}
           </div>
@@ -278,20 +302,30 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                       aria-label='Select all libraries'
                     />
                   </TableHead>
-                  <TableHead>名称</TableHead>
-                  <TableHead className='hidden md:table-cell'>路径</TableHead>
-                  <TableHead className='hidden md:table-cell'>类型</TableHead>
-                  <TableHead className='hidden lg:table-cell'>项目数</TableHead>
+                  <TableHead>
+                    {t('page.library.libraries.table.columns.name')}
+                  </TableHead>
+                  <TableHead className='hidden md:table-cell'>
+                    {t('page.library.libraries.table.columns.path')}
+                  </TableHead>
+                  <TableHead className='hidden md:table-cell'>
+                    {t('page.library.libraries.table.columns.type')}
+                  </TableHead>
                   <TableHead className='hidden lg:table-cell'>
-                    上次扫描
+                    {t('page.library.libraries.table.columns.items')}
+                  </TableHead>
+                  <TableHead className='hidden lg:table-cell'>
+                    {t('page.library.libraries.table.columns.lastScanned')}
                   </TableHead>
                   <TableHead className='hidden xl:table-cell'>
-                    健康状况
+                    {t('page.library.libraries.table.columns.health')}
                   </TableHead>
                   <TableHead className='hidden xl:table-cell'>
-                    存储使用
+                    {t('page.library.libraries.table.columns.storage')}
                   </TableHead>
-                  <TableHead className='text-right'>操作</TableHead>
+                  <TableHead className='text-right'>
+                    {t('page.library.libraries.table.columns.actions')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -321,7 +355,7 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                           <div className='font-medium'>{library.name}</div>
                           {library.current_status === 'Error' && (
                             <Badge variant='destructive' className='mt-1'>
-                              错误
+                              {t('page.library.libraries.table.cell.error')}
                             </Badge>
                           )}
                         </div>
@@ -335,10 +369,10 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                     <TableCell className='hidden md:table-cell'>
                       <Badge variant='secondary'>
                         {library.category === 'Movie'
-                          ? '电影'
+                          ? t('page.library.libraries.table.cell.movies')
                           : library.category === 'TvShow'
-                            ? '电视剧'
-                            : '混合内容'}
+                            ? t('page.library.libraries.table.cell.tv')
+                            : t('page.library.libraries.table.cell.mixed')}
                       </Badge>
                     </TableCell>
                     <TableCell className='hidden lg:table-cell'>
@@ -346,7 +380,12 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                     </TableCell>
                     <TableCell className='hidden lg:table-cell'>
                       <span className='text-sm text-muted-foreground'>
-                        {library.last_scanned}
+                        {library.last_scanned
+                          ? format(
+                              parseISO(library.last_scanned),
+                              'yyyy-MM-dd HH:mm:ss'
+                            )
+                          : 'N/A'}
                       </span>
                     </TableCell>
                     <TableCell className='hidden xl:table-cell'>
@@ -402,7 +441,9 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>扫描媒体库</p>
+                              <p>
+                                {t('page.library.libraries.table.action.scan')}
+                              </p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -419,7 +460,9 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>编辑媒体库</p>
+                              <p>
+                                {t('page.library.libraries.table.action.edit')}
+                              </p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -438,7 +481,11 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>删除媒体库</p>
+                              <p>
+                                {t(
+                                  'page.library.libraries.table.action.delete'
+                                )}
+                              </p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -455,18 +502,14 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
       <CardFooter className='flex justify-between'>
         <div className='text-sm text-muted-foreground'>
           {filteredLibraries.length > 0
-            ? `显示 ${filteredLibraries.length} 个媒体库 (共 ${libraries?.length} 个)`
-            : `共 ${libraries?.length} 个媒体库`}
+            ? `${t('page.library.libraries.footer.displayed', {
+                count: filteredLibraries.length,
+                total: libraries?.length,
+              })}`
+            : `${t('page.library.libraries.footer.total', {
+                total: libraries?.length,
+              })}`}
         </div>
-        <Button
-          variant='outline'
-          size='sm'
-          onClick={handleAddLibrary}
-          className='gap-2'
-        >
-          <FolderPlus className='h-4 w-4' />
-          <span>添加媒体库</span>
-        </Button>
       </CardFooter>
     </Card>
   )

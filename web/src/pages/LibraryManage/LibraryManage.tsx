@@ -1,5 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import {
@@ -76,6 +77,7 @@ import {
   TableRow,
 } from '~/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
+import { useFeatures } from '~/hooks/feature/useFeatures'
 
 // Mock data for media libraries
 const mockLibraries = [
@@ -280,6 +282,9 @@ export default function LibrariesPage() {
     type: 'movies',
     autoScan: true,
   })
+
+  const { isFeatureEnabled } = useFeatures()
+  const { t } = useTranslation()
 
   // Ref for the storage chart canvas
   const storageChartRef = useRef<HTMLCanvasElement>(null)
@@ -544,24 +549,30 @@ export default function LibrariesPage() {
           )}
 
           {/* Main Tabs */}
-          <Tabs defaultValue='overview' className='mb-8'>
+          <Tabs defaultValue='libraries' className='mb-8'>
             <TabsList className='mb-4'>
-              <TabsTrigger value='overview' className='gap-2'>
-                <BarChart3 className='h-4 w-4' />
-                <span>概览</span>
-              </TabsTrigger>
+              {isFeatureEnabled('libraryOverview') && (
+                <TabsTrigger value='overview' className='gap-2'>
+                  <BarChart3 className='h-4 w-4' />
+                  <span>概览</span>
+                </TabsTrigger>
+              )}
               <TabsTrigger value='libraries' className='gap-2'>
                 <HardDrive className='h-4 w-4' />
-                <span>媒体库</span>
+                <span>{t('page.library.libraries.tab_name')}</span>
               </TabsTrigger>
-              <TabsTrigger value='history' className='gap-2'>
-                <History className='h-4 w-4' />
-                <span>扫描历史</span>
-              </TabsTrigger>
-              <TabsTrigger value='settings' className='gap-2'>
-                <Settings className='h-4 w-4' />
-                <span>设置</span>
-              </TabsTrigger>
+              {isFeatureEnabled('scanHistory') && (
+                <TabsTrigger value='history' className='gap-2'>
+                  <History className='h-4 w-4' />
+                  <span>扫描历史</span>
+                </TabsTrigger>
+              )}
+              {isFeatureEnabled('librarySettings') && (
+                <TabsTrigger value='settings' className='gap-2'>
+                  <Settings className='h-4 w-4' />
+                  <span>设置</span>
+                </TabsTrigger>
+              )}
             </TabsList>
 
             {/* Overview Tab */}

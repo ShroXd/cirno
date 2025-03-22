@@ -29,6 +29,7 @@ import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { SidebarTrigger } from '~/components/ui/sidebar'
+import { useFeatures } from '~/hooks/feature/useFeatures'
 import { useEventBus } from '~/hooks/useEventBus'
 import { useFetch } from '~/hooks/useFetch'
 import { usePost } from '~/hooks/usePost'
@@ -54,6 +55,7 @@ export default function ContentDetailPage() {
   const { id } = useParams<{ id: string }>()
   const post = usePost()
   const { onEvent } = useEventBus()
+  const { isFeatureEnabled } = useFeatures()
 
   const {
     data: media,
@@ -247,9 +249,11 @@ export default function ContentDetailPage() {
             >
               <Play className='h-4 w-4' /> Watch Now
             </Button>
-            <Button variant='outline' size='lg' className='gap-2'>
-              <Plus className='h-4 w-4' /> Add to Watchlist
-            </Button>
+            {isFeatureEnabled('watchlist') && (
+              <Button variant='outline' size='lg' className='gap-2'>
+                <Plus className='h-4 w-4' /> Add to Watchlist
+              </Button>
+            )}
             <Button variant='ghost' size='icon' className='ml-auto'>
               <Share className='h-5 w-5' />
               <span className='sr-only'>Share</span>

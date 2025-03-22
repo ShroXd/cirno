@@ -2,12 +2,12 @@ import { Film, Home, Library, PlaySquare, Star } from 'lucide-react'
 
 export const menuItems = [
   {
-    label: 'Home',
+    label: 'sidebar.home',
     icon: <Home className='mr-2 h-4 w-4' />,
     path: '/',
   },
   {
-    label: 'Library',
+    label: 'sidebar.library',
     icon: <Library className='mr-2 h-4 w-4' />,
     path: '/library',
   },

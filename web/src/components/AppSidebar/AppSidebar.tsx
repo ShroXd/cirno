@@ -1,5 +1,6 @@
 import type React from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
 import { Film, ListPlus, Plus, Settings } from 'lucide-react'
@@ -42,6 +43,7 @@ export default function AppSidebar() {
   const { state } = useSidebar()
 
   const { isFeatureEnabled } = useFeatures()
+  const { t } = useTranslation()
 
   const handleCreatePlaylist = () => {
     // In a real app, you would save this to a database
@@ -103,7 +105,7 @@ export default function AppSidebar() {
     >
       <Link to={path}>
         {icon}
-        <span>{label}</span>
+        <span>{t(label)}</span>
       </Link>
     </SidebarMenuButton>
   )
@@ -111,7 +113,7 @@ export default function AppSidebar() {
   const renderLibraryGroup = () => {
     return (
       <SidebarGroup>
-        <SidebarGroupLabel>Library</SidebarGroupLabel>
+        <SidebarGroupLabel>{t('sidebar.library')}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             {libraryItems.map(item => (
@@ -206,12 +208,12 @@ export default function AppSidebar() {
         <SidebarHeader className='p-4'>
           <Link to='/' className='flex items-center gap-2'>
             <Film className='h-6 w-6 text-primary' />
-            <span className='text-xl font-bold'>StreamHub</span>
+            <span className='text-xl font-bold'>Cirno</span>
           </Link>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+            <SidebarGroupLabel>{t('sidebar.menu')}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {menuItems.map(item => (
@@ -227,12 +229,12 @@ export default function AppSidebar() {
           {isFeatureEnabled('playlists') && renderPlaylistsGroup()}
 
           <SidebarGroup>
-            <SidebarGroupLabel>Settings</SidebarGroupLabel>
+            <SidebarGroupLabel>{t('sidebar.settings')}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   {renderSidebarMenuButton(
-                    'Settings',
+                    t('sidebar.settings'),
                     <Settings className='mr-2 h-4 w-4' />,
                     '/settings'
                   )}

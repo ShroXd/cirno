@@ -1,4 +1,10 @@
 {
+  "sidebar": {
+    "menu": "Menu",
+    "home": "Home",
+    "library": "Library",
+    "settings": "Settings"
+  },
   "page": {
     "home": {
       "welcome": "Welcome to the home page",
@@ -8,6 +14,69 @@
         "anime": "Anime",
         "movies": "Movies",
         "tv": "TV"
+      }
+    },
+    "library": {
+      "libraries": {
+        "tab_name": "Libraries",
+        "title": "Libraries List",
+        "description": "Manage your media library paths and scanning settings",
+        "add_library": "Add Library",
+        "search": "Search Media Library...",
+        "status": {
+          "all": "All Status",
+          "active": "Active",
+          "error": "Error"
+        },
+        "type": {
+          "all": "All Types",
+          "anime": "Anime",
+          "movies": "Movies",
+          "tv": "TV"
+        },
+        "sort": {
+          "title": "Sort Options",
+          "name_asc": "Name (A-Z)",
+          "name_desc": "Name (Z-A)",
+          "items_desc": "Items (High-Low)",
+          "items_asc": "Items (Low-High)",
+          "lastScanned_desc": "Last Scanned (New-Old)",
+          "lastScanned_asc": "Last Scanned (Old-New)",
+          "health_desc": "Health (Good-Bad)",
+          "health_asc": "Health (Bad-Good)"
+        },
+        "table": {
+          "no_libraries": {
+            "title": "No Libraries Found",
+            "adjust_search": "Adjust search conditions or filters",
+            "add_library": "Add your first library to start managing your media content"
+          },
+          "columns": {
+            "name": "Name",
+            "path": "Path",
+            "type": "Type",
+            "items": "Items",
+            "lastScanned": "Last Scanned",
+            "health": "Health",
+            "storage": "Storage",
+            "actions": "Actions"
+          },
+          "cell": {
+            "error": "Error",
+            "movies": "Movies",
+            "tv": "TV",
+            "mixed": "Mixed"
+          },
+          "action": {
+            "scan": "Scan Media Library",
+            "edit": "Edit",
+            "delete": "Delete"
+          }
+        },
+        "footer": {
+          "total": "Total Libraries",
+          "displayed": "Displayed {{count}} of {{total}} libraries"
+        }
       }
     },
     "settings": {

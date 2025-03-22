@@ -41,6 +41,7 @@
     "browser-fs-access": "^0.35.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "dplayer": "^1.27.1",
     "hls.js": "^1.5.17",
     "i18next": "^23.16.4",

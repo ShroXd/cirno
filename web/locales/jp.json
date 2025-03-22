@@ -1,4 +1,10 @@
 {
+  "sidebar": {
+    "menu": "メニュー",
+    "home": "ホーム",
+    "library": "ライブラリ",
+    "settings": "設定"
+  },
   "page": {
     "home": {
       "welcome": "ホームページにようこそ",
@@ -8,6 +14,69 @@
         "anime": "アニメ",
         "movies": "映画",
         "tv": "テレビ"
+      }
+    },
+    "library": {
+      "libraries": {
+        "tab_name": "ライブラリ",
+        "title": "ライブラリリスト",
+        "description": "メディアライブラリのパスとスキャン設定を管理する",
+        "add_library": "ライブラリを追加",
+        "search": "メディアライブラリを検索...",
+        "status": {
+          "all": "すべてのステータス",
+          "active": "アクティブ",
+          "error": "エラー"
+        },
+        "type": {
+          "all": "すべてのタイプ",
+          "anime": "アニメ",
+          "movies": "映画",
+          "tv": "テレビ"
+        },
+        "sort": {
+          "title": "並べ替えオプション",
+          "name_asc": "名前 (A-Z)",
+          "name_desc": "名前 (Z-A)",
+          "items_desc": "アイテム (多い-少ない)",
+          "items_asc": "アイテム (少ない-多い)",
+          "lastScanned_desc": "最終スキャン (新しい-古い)",
+          "lastScanned_asc": "最終スキャン (古い-新しい)",
+          "health_desc": "ヘルス状態 (良好-不良)",
+          "health_asc": "ヘルス状態 (不良-良好)"
+        },
+        "table": {
+          "no_libraries": {
+            "title": "ライブラリが見つかりません",
+            "adjust_search": "検索条件やフィルターを調整してください",
+            "add_library": "最初のライブラリを追加してメディアコンテンツの管理を開始する"
+          },
+          "columns": {
+            "name": "名前",
+            "path": "パス",
+            "type": "タイプ",
+            "items": "アイテム",
+            "lastScanned": "最終スキャン",
+            "health": "ヘルス状態",
+            "storage": "ストレージ",
+            "actions": "アクション"
+          },
+          "cell": {
+            "error": "エラー",
+            "movies": "映画",
+            "tv": "テレビ",
+            "mixed": "混合"
+          },
+          "action": {
+            "scan": "メディアライブラリをスキャン",
+            "edit": "編集",
+            "delete": "削除"
+          }
+        },
+        "footer": {
+          "total": "ライブラリ総数",
+          "displayed": "{{total}}個中{{count}}個のライブラリを表示"
+        }
       }
     },
     "settings": {

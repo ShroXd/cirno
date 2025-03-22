@@ -1,4 +1,10 @@
 {
+  "sidebar": {
+    "menu": "菜单",
+    "home": "主页",
+    "library": "媒体库",
+    "settings": "设置"
+  },
   "page": {
     "home": {
       "welcome": "欢迎来到主页",
@@ -8,6 +14,69 @@
         "anime": "动漫",
         "movies": "电影",
         "tv": "电视剧"
+      }
+    },
+    "library": {
+      "libraries": {
+        "tab_name": "媒体库",
+        "title": "媒体库列表",
+        "description": "管理您的媒体库路径和扫描设置",
+        "add_library": "添加媒体库",
+        "search": "搜索媒体库...",
+        "status": {
+          "all": "所有状态",
+          "active": "活跃",
+          "error": "错误"
+        },
+        "type": {
+          "all": "所有类型",
+          "anime": "动漫",
+          "movies": "电影",
+          "tv": "电视剧"
+        },
+        "sort": {
+          "title": "排序选项",
+          "name_asc": "名称 (A-Z)",
+          "name_desc": "名称 (Z-A)",
+          "items_desc": "项目 (多-少)",
+          "items_asc": "项目 (少-多)",
+          "lastScanned_desc": "最后扫描 (新-旧)",
+          "lastScanned_asc": "最后扫描 (旧-新)",
+          "health_desc": "健康状况 (良好-差)",
+          "health_asc": "健康状况 (差-良好)"
+        },
+        "table": {
+          "no_libraries": {
+            "title": "未找到媒体库",
+            "adjust_search": "调整搜索条件或筛选器",
+            "add_library": "添加您的第一个媒体库以开始管理您的媒体内容"
+          },
+          "columns": {
+            "name": "名称",
+            "path": "路径",
+            "type": "类型",
+            "items": "项目",
+            "lastScanned": "最后扫描",
+            "health": "健康状况",
+            "storage": "存储",
+            "actions": "操作"
+          },
+          "cell": {
+            "error": "错误",
+            "movies": "电影",
+            "tv": "电视剧",
+            "mixed": "混合"
+          },
+          "action": {
+            "scan": "扫描媒体库",
+            "edit": "编辑",
+            "delete": "删除"
+          }
+        },
+        "footer": {
+          "total": "媒体库总数",
+          "displayed": "显示 {{count}} 个，共 {{total}} 个媒体库"
+        }
       }
     },
     "settings": {

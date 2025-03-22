@@ -37,4 +37,10 @@ export const defaultFeatures: Feature[] = [
     name: 'feature.librarySettings.name',
     description: 'feature.librarySettings.description',
   },
+  {
+    id: 'watchlist',
+    enabled: false,
+    name: 'feature.watchlist.name',
+    description: 'feature.watchlist.description',
+  },
 ]
