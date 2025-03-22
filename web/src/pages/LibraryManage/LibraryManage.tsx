@@ -24,10 +24,10 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { FadeTransitionContainer } from '../ContentDetail/Container'
 import { Libraries } from './Libraries'
-import { AnimatedSection } from '~/components/AnimatedSection/AnimatedSection'
 import { LibraryManageDialog } from '~/components/LibraryManageDialog/LibraryManageDialog'
+import { FadeIn } from '~/components/TransitionContainer/FadeIn'
+import { MatrialFadeIn } from '~/components/TransitionContainer/MatrialFadeInContainer'
 import {
   Accordion,
   AccordionContent,
@@ -480,7 +480,7 @@ export default function LibrariesPage() {
     <>
       <Toaster />
       <div className='h-screen w-full overflow-y-auto bg-background px-4 pb-6 md:px-6'>
-        <FadeTransitionContainer>
+        <FadeIn>
           <header className='sticky top-0 z-10 w-full border-b border-border/40 bg-background/80 backdrop-blur-md'>
             <div className='flex h-16 items-center px-4'>
               <SidebarTrigger className='mr-4 md:hidden' />
@@ -532,7 +532,7 @@ export default function LibrariesPage() {
               </div>
             </div>
           </header>
-        </FadeTransitionContainer>
+        </FadeIn>
 
         <main className='container mx-auto px-4 py-6'>
           {/* Active Scan Alert */}
@@ -553,7 +553,7 @@ export default function LibrariesPage() {
           )}
 
           <Tabs defaultValue='libraries' className='mb-8'>
-            <AnimatedSection>
+            <MatrialFadeIn>
               <TabsList className='mb-4'>
                 {isFeatureEnabled('libraryOverview') && (
                   <TabsTrigger value='overview' className='gap-2'>
@@ -578,10 +578,10 @@ export default function LibrariesPage() {
                   </TabsTrigger>
                 )}
               </TabsList>
-            </AnimatedSection>
+            </MatrialFadeIn>
 
             {/* Overview Tab */}
-            <AnimatedSection delay={0.1}>
+            <MatrialFadeIn delay={0.1}>
               <TabsContent value='overview' className='mt-0'>
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
                   {/* 存储概览卡片 */}
@@ -934,17 +934,17 @@ export default function LibrariesPage() {
                   </Card>
                 </div>
               </TabsContent>
-            </AnimatedSection>
+            </MatrialFadeIn>
 
             {/* Libraries Tab */}
-            <AnimatedSection delay={0.1}>
+            <MatrialFadeIn delay={0.1}>
               <TabsContent value='libraries' className='mt-0'>
                 <Libraries handleAddLibrary={handleAddLibrary} />
               </TabsContent>
-            </AnimatedSection>
+            </MatrialFadeIn>
 
             {/* History Tab */}
-            <AnimatedSection delay={0.1}>
+            <MatrialFadeIn delay={0.1}>
               <TabsContent value='history' className='mt-0'>
                 <Card>
                   <CardHeader>
@@ -1077,10 +1077,10 @@ export default function LibrariesPage() {
                   </CardContent>
                 </Card>
               </TabsContent>
-            </AnimatedSection>
+            </MatrialFadeIn>
 
             {/* Settings Tab */}
-            <AnimatedSection delay={0.1}>
+            <MatrialFadeIn delay={0.1}>
               <TabsContent value='settings' className='mt-0'>
                 <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
                   <Card className='lg:col-span-2'>
@@ -1316,7 +1316,7 @@ export default function LibrariesPage() {
                   </Card>
                 </div>
               </TabsContent>
-            </AnimatedSection>
+            </MatrialFadeIn>
           </Tabs>
         </main>
 

@@ -22,7 +22,7 @@ import {
 import { Separator } from '../../components/ui/separator'
 import { Switch } from '../../components/ui/switch'
 import { languages } from './constants'
-import { AnimatedSection } from '~/components/AnimatedSection/AnimatedSection'
+import { MatrialFadeIn } from '~/components/TransitionContainer/MatrialFadeInContainer'
 import i18n from '~/i18n'
 
 enum Theme {
@@ -67,7 +67,7 @@ export default function General() {
 
   return (
     <>
-      <AnimatedSection delay={0.1}>
+      <MatrialFadeIn delay={0.1}>
         <Card>
           <CardHeader>
             <CardTitle>{t('page.settings.general.title')}</CardTitle>
@@ -112,9 +112,9 @@ export default function General() {
             </div>
           </CardContent>
         </Card>
-      </AnimatedSection>
+      </MatrialFadeIn>
 
-      <AnimatedSection delay={0.2}>
+      <MatrialFadeIn delay={0.2}>
         <Card>
           <CardHeader>
             <CardTitle>{t('page.settings.language.title')}</CardTitle>
@@ -146,9 +146,9 @@ export default function General() {
             </div>
           </CardContent>
         </Card>
-      </AnimatedSection>
+      </MatrialFadeIn>
 
-      <AnimatedSection delay={0.3}>
+      <MatrialFadeIn delay={0.3}>
         <Card>
           <CardHeader>
             <CardTitle>{t('page.settings.behavior.title')}</CardTitle>
@@ -192,7 +192,7 @@ export default function General() {
             </div>
           </CardContent>
         </Card>
-      </AnimatedSection>
+      </MatrialFadeIn>
     </>
   )
 }

@@ -1,16 +1,18 @@
 import { isValidElement } from 'react'
 
-import { Skeleton } from '../ui/skeleton'
+import { Skeleton } from '~/components/ui/skeleton'
+
+interface SkeletonSwitcherProps {
+  isLoading: boolean
+  children: React.ReactNode
+  className?: string
+}
 
 export const SkeletonSwitcher = ({
   isLoading,
   children,
   className = '',
-}: {
-  children: React.ReactNode
-  isLoading: boolean
-  className?: string
-}) => {
+}: SkeletonSwitcherProps) => {
   const childClassName = isValidElement(children)
     ? children.props.className || ''
     : ''
@@ -20,14 +22,4 @@ export const SkeletonSwitcher = ({
   return (
     <>{isLoading ? <Skeleton className={combinedClassName} /> : children}</>
   )
-}
-
-export const HideOnLoading = ({
-  isLoading,
-  children,
-}: {
-  isLoading: boolean
-  children: React.ReactNode
-}) => {
-  return <>{isLoading ? null : children}</>
 }

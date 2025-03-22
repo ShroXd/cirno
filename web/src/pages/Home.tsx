@@ -6,8 +6,8 @@ import { mutate } from 'swr'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
-import { AnimatedSection } from '~/components/AnimatedSection/AnimatedSection'
 import { AsyncSwitcher } from '~/components/AsyncSwitcher/AsyncSwitcher'
+import { MatrialFadeIn } from '~/components/TransitionContainer/MatrialFadeInContainer'
 import { VerticalCard } from '~/components/VerticalCard/VerticalCard'
 import { useEventBus } from '~/hooks/useEventBus'
 import { useFetch } from '~/hooks/useFetch'
@@ -53,7 +53,7 @@ export default function HomePage() {
   }, [offEvent, onEvent, handleScanning, handleSaved])
 
   const renderContent = () => (
-    <AnimatedSection delay={0.2} className='lg:col-span-1'>
+    <MatrialFadeIn delay={0.2} className='lg:col-span-1'>
       <div className='flex w-max space-x-4 p-1'>
         {data?.map(media => (
           <Link to={`/content/${media.id}`} key={media.title}>
@@ -69,7 +69,7 @@ export default function HomePage() {
           </Link>
         ))}
       </div>
-    </AnimatedSection>
+    </MatrialFadeIn>
   )
 
   return (

@@ -40,10 +40,10 @@ import {
   TabsList,
   TabsTrigger,
 } from '../../components/ui/tabs'
-import { FadeTransitionContainer } from '../ContentDetail/Container'
 import General from './General'
 import { settingsTabs } from './constants'
-import { AnimatedSection } from '~/components/AnimatedSection/AnimatedSection'
+import { FadeIn } from '~/components/TransitionContainer/FadeIn'
+import { MatrialFadeIn } from '~/components/TransitionContainer/MatrialFadeInContainer'
 import { SidebarTrigger } from '~/components/ui/sidebar'
 
 export default function SettingsPage() {
@@ -68,7 +68,7 @@ export default function SettingsPage() {
 
   return (
     <div className='flex h-full flex-col bg-background md:px-6'>
-      <FadeTransitionContainer>
+      <FadeIn>
         <header className='sticky top-0 z-10 w-full border-b border-border/40 bg-background/80 backdrop-blur-md'>
           <div className='flex h-16 items-center px-4'>
             <SidebarTrigger className='mr-4 md:hidden' />
@@ -81,11 +81,11 @@ export default function SettingsPage() {
             <h1 className='text-xl font-bold'>设置</h1>
           </div>
         </header>
-      </FadeTransitionContainer>
+      </FadeIn>
 
       <main className='container mx-auto px-4 py-6'>
         <Tabs defaultValue='general'>
-          <AnimatedSection>
+          <MatrialFadeIn>
             <TabsList className='mb-4'>
               {settingsTabs.map(tab => (
                 <TabsTrigger key={tab.value} value={tab.value}>
@@ -93,13 +93,13 @@ export default function SettingsPage() {
                 </TabsTrigger>
               ))}
             </TabsList>
-          </AnimatedSection>
+          </MatrialFadeIn>
 
           <TabsContent value='general' className='animate-fade-in space-y-6'>
             <General />
           </TabsContent>
 
-          <AnimatedSection delay={0.1}>
+          <MatrialFadeIn delay={0.1}>
             <TabsContent value='privacy' className='animate-fade-in space-y-6'>
               <Card>
                 <CardHeader>
@@ -187,9 +187,9 @@ export default function SettingsPage() {
                 </CardFooter>
               </Card>
             </TabsContent>
-          </AnimatedSection>
+          </MatrialFadeIn>
 
-          <AnimatedSection delay={0.1}>
+          <MatrialFadeIn delay={0.1}>
             <TabsContent value='about' className='animate-fade-in space-y-6'>
               <Card>
                 <CardHeader>
@@ -278,7 +278,7 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
             </TabsContent>
-          </AnimatedSection>
+          </MatrialFadeIn>
         </Tabs>
       </main>
     </div>

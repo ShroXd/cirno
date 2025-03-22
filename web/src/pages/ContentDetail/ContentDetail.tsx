@@ -13,17 +13,13 @@ import {
 } from 'lucide-react'
 import { AnimatePresence } from 'motion/react'
 
-import {
-  FadeInUpTransitionContainer,
-  FadeTransitionContainer,
-} from './Container'
 import { EpisodeDto } from '~/bindings/EpisodeDto'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
 import { PulseLoader } from '~/components/PulseLoader/PulseLoader'
-import {
-  HideOnLoading,
-  SkeletonSwitcher,
-} from '~/components/TransitionSwitcher/TransitionSwitcher'
+import { FadeIn } from '~/components/TransitionContainer/FadeIn'
+import { FadeInUp } from '~/components/TransitionContainer/FadeInUp'
+import { HideOnLoading } from '~/components/TransitionContainer/HideOnLoading'
+import { SkeletonSwitcher } from '~/components/TransitionContainer/SkeletonSwitcher'
 import VideoPlayer from '~/components/VideoPlayer/VideoPlayer'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
@@ -124,7 +120,7 @@ export default function ContentDetailPage() {
     )
 
   const renderHeader = () => (
-    <FadeTransitionContainer>
+    <FadeIn>
       <header className='sticky top-0 z-10 border-b border-border/40 bg-background/80 backdrop-blur-md'>
         <div className='container flex h-16 items-center px-4'>
           <SidebarTrigger className='mr-4 md:hidden' />
@@ -137,7 +133,7 @@ export default function ContentDetailPage() {
           <h1 className='ml-4 text-lg font-medium'>Details</h1>
         </div>
       </header>
-    </FadeTransitionContainer>
+    </FadeIn>
   )
 
   const renderVideoPlayer = () =>
@@ -145,27 +141,21 @@ export default function ContentDetailPage() {
       <div className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
         <AnimatePresence>
           {videoPlayerState === VideoPlayerState.Playing ? (
-            <FadeTransitionContainer
-              key='video-player'
-              className='absolute inset-0'
-            >
+            <FadeIn key='video-player' className='absolute inset-0'>
               <VideoPlayer
                 options={videoJsOptions}
                 onReset={handlePlayerReset}
               />
-            </FadeTransitionContainer>
+            </FadeIn>
           ) : (
-            <FadeTransitionContainer
-              key='pulse-loader'
-              className='absolute inset-0'
-            >
+            <FadeIn key='pulse-loader' className='absolute inset-0'>
               <PulseLoader />
-            </FadeTransitionContainer>
+            </FadeIn>
           )}
         </AnimatePresence>
       </div>
     ) : (
-      <FadeInUpTransitionContainer className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
+      <FadeInUp className='relative mb-8 aspect-[21/9] w-full overflow-hidden rounded-t-xl'>
         <SkeletonSwitcher
           isLoading={isMediaLoading}
           className='absolute inset-0 h-full w-full rounded-t-xl'
@@ -190,12 +180,12 @@ export default function ContentDetailPage() {
             </Button>
           </div>
         </HideOnLoading>
-      </FadeInUpTransitionContainer>
+      </FadeInUp>
     )
 
   const renderPrimaryInfo = () => (
     <div className='lg:col-span-2'>
-      <FadeInUpTransitionContainer delay={0.1}>
+      <FadeInUp delay={0.1}>
         <SkeletonSwitcher
           isLoading={isMediaLoading}
           className='mb-2 h-[2.5rem] w-full'
@@ -204,8 +194,8 @@ export default function ContentDetailPage() {
             {media?.title}
           </h1>
         </SkeletonSwitcher>
-      </FadeInUpTransitionContainer>
-      <FadeInUpTransitionContainer delay={0.2}>
+      </FadeInUp>
+      <FadeInUp delay={0.2}>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-[300px]'>
           <div className='mb-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground'>
             <span className='flex items-center gap-1'>
@@ -221,8 +211,8 @@ export default function ContentDetailPage() {
             <Badge variant='outline'>Movie</Badge>
           </div>
         </SkeletonSwitcher>
-      </FadeInUpTransitionContainer>
-      <FadeInUpTransitionContainer delay={0.3}>
+      </FadeInUp>
+      <FadeInUp delay={0.3}>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-[200px]'>
           <div className='mb-4 flex flex-wrap gap-2'>
             {media?.genres?.map(genre => (
@@ -232,16 +222,16 @@ export default function ContentDetailPage() {
             ))}
           </div>
         </SkeletonSwitcher>
-      </FadeInUpTransitionContainer>
-      <FadeInUpTransitionContainer delay={0.4}>
+      </FadeInUp>
+      <FadeInUp delay={0.4}>
         <SkeletonSwitcher
           isLoading={isMediaLoading}
           className='h-[100px] w-full'
         >
           <p className='mb-6 text-muted-foreground'>{media?.plot}</p>
         </SkeletonSwitcher>
-      </FadeInUpTransitionContainer>
-      <FadeInUpTransitionContainer delay={0.5}>
+      </FadeInUp>
+      <FadeInUp delay={0.5}>
         <HideOnLoading isLoading={isMediaLoading}>
           <div className='flex flex-wrap gap-3'>
             <Button
@@ -266,25 +256,25 @@ export default function ContentDetailPage() {
             </Button>
           </div>
         </HideOnLoading>
-      </FadeInUpTransitionContainer>
+      </FadeInUp>
     </div>
   )
 
   const renderSecondaryInfo = () => (
     <div className='space-y-4'>
-      <FadeInUpTransitionContainer delay={0.1}>
+      <FadeInUp delay={0.1}>
         <h3 className='mb-1 text-lg font-semibold'>Original Title</h3>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-full'>
           <p className='text-muted-foreground'>{media?.original_title}</p>
         </SkeletonSwitcher>
-      </FadeInUpTransitionContainer>
-      <FadeInUpTransitionContainer delay={0.2}>
+      </FadeInUp>
+      <FadeInUp delay={0.2}>
         <h3 className='mb-1 text-lg font-semibold'>Country</h3>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-full'>
           <p className='text-muted-foreground'>{media?.country}</p>
         </SkeletonSwitcher>
-      </FadeInUpTransitionContainer>
-      <FadeInUpTransitionContainer delay={0.3}>
+      </FadeInUp>
+      <FadeInUp delay={0.3}>
         <h3 className='mb-1 text-lg font-semibold'>Studio</h3>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-full'>
           <div className='text-muted-foreground'>
@@ -295,8 +285,8 @@ export default function ContentDetailPage() {
             ))}
           </div>
         </SkeletonSwitcher>
-      </FadeInUpTransitionContainer>
-      <FadeInUpTransitionContainer delay={0.4}>
+      </FadeInUp>
+      <FadeInUp delay={0.4}>
         <h3 className='mb-1 text-lg font-semibold'>Actors</h3>
         <SkeletonSwitcher isLoading={isMediaLoading} className='h-6 w-full'>
           <div className='grid grid-cols-2 gap-2'>
@@ -319,17 +309,14 @@ export default function ContentDetailPage() {
             ))}
           </div>
         </SkeletonSwitcher>
-      </FadeInUpTransitionContainer>
+      </FadeInUp>
     </div>
   )
 
   const renderEpisodes = () => (
     <SkeletonSwitcher isLoading={isEpisodesLoading} className='h-32 w-full'>
       {episodes?.map((episode, index) => (
-        <FadeInUpTransitionContainer
-          key={episode.title}
-          delay={0.5 + index * 0.1}
-        >
+        <FadeInUp key={episode.title} delay={0.5 + index * 0.1}>
           <Card className='overflow-hidden'>
             <div className='flex flex-col sm:flex-row'>
               <div className='relative aspect-video w-full sm:aspect-[16/9] sm:w-48'>
@@ -368,7 +355,7 @@ export default function ContentDetailPage() {
               </div>
             </div>
           </Card>
-        </FadeInUpTransitionContainer>
+        </FadeInUp>
       ))}
     </SkeletonSwitcher>
   )
