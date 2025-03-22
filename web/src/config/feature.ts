@@ -19,4 +19,22 @@ export const defaultFeatures: Feature[] = [
     name: 'feature.playlists.name',
     description: 'feature.playlists.description',
   },
+  {
+    id: 'libraryOverview',
+    enabled: false,
+    name: 'feature.libraryOverview.name',
+    description: 'feature.libraryOverview.description',
+  },
+  {
+    id: 'scanHistory',
+    enabled: false,
+    name: 'feature.scanHistory.name',
+    description: 'feature.scanHistory.description',
+  },
+  {
+    id: 'librarySettings',
+    enabled: false,
+    name: 'feature.librarySettings.name',
+    description: 'feature.librarySettings.description',
+  },
 ]

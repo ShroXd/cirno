@@ -24,8 +24,14 @@ import { Switch } from '../../components/ui/switch'
 import { languages } from './constants'
 import i18n from '~/i18n'
 
+enum Theme {
+  Light = 'light',
+  Dark = 'dark',
+  System = 'system',
+}
+
 export default function General() {
-  const [theme, setTheme] = useState('system')
+  const [theme, setTheme] = useState(Theme.System)
   const [autoplay, setAutoplay] = useState(true)
   const [notifications, setNotifications] = useState(true)
 
@@ -34,6 +40,28 @@ export default function General() {
   const handleLanguageChange = (value: string) => {
     console.log('value', value)
     i18n.changeLanguage(value)
+  }
+
+  const handleThemeChange = (value: Theme) => {
+    console.log('value', value)
+
+    switch (value) {
+      case Theme.Light:
+        setTheme(Theme.Light)
+        document.documentElement.classList.remove('dark')
+        break
+      case Theme.Dark:
+        setTheme(Theme.Dark)
+        document.documentElement.classList.add('dark')
+        break
+      case Theme.System:
+        setTheme(Theme.System)
+        document.documentElement.classList.remove('dark')
+        break
+      default:
+        setTheme(Theme.System)
+        break
+    }
   }
 
   return (
@@ -52,28 +80,28 @@ export default function General() {
             <Label>{t('page.settings.general.theme.title')}</Label>
             <div className='flex flex-wrap gap-2'>
               <Button
-                variant={theme === 'light' ? 'default' : 'outline'}
+                variant={theme === Theme.Light ? 'default' : 'outline'}
                 size='sm'
                 className='gap-2'
-                onClick={() => setTheme('light')}
+                onClick={() => handleThemeChange(Theme.Light)}
               >
                 <Sun className='h-4 w-4' />{' '}
                 {t('page.settings.general.theme.light')}
               </Button>
               <Button
-                variant={theme === 'dark' ? 'default' : 'outline'}
+                variant={theme === Theme.Dark ? 'default' : 'outline'}
                 size='sm'
                 className='gap-2'
-                onClick={() => setTheme('dark')}
+                onClick={() => handleThemeChange(Theme.Dark)}
               >
                 <Moon className='h-4 w-4' />{' '}
                 {t('page.settings.general.theme.dark')}
               </Button>
               <Button
-                variant={theme === 'system' ? 'default' : 'outline'}
+                variant={theme === Theme.System ? 'default' : 'outline'}
                 size='sm'
                 className='gap-2'
-                onClick={() => setTheme('system')}
+                onClick={() => handleThemeChange(Theme.System)}
               >
                 <Laptop className='h-4 w-4' />{' '}
                 {t('page.settings.general.theme.system')}
