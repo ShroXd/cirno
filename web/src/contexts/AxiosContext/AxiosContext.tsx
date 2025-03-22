@@ -1,6 +1,8 @@
 import { FC, ReactNode, createContext, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import axios, { AxiosInstance } from 'axios'
+import { toast } from 'sonner'
 
 import { useEventBus } from '~/hooks/useEventBus'
 
@@ -17,6 +19,7 @@ export const AxiosProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // const [authToken, setAuthToken] = useState<string | null>(null)
 
   const { onEvent } = useEventBus()
+  const { t } = useTranslation()
 
   // TODO: config url via env variable
   const axiosInstance = axios.create({})
@@ -35,8 +38,15 @@ export const AxiosProvider: FC<{ children: ReactNode }> = ({ children }) => {
   axiosInstance.interceptors.response.use(
     response => response,
     error => {
-      // TODO: integrate with backend error handling
       console.error(error)
+      switch (error.response?.status) {
+        case 500:
+          toast.error(t('Internal server error'))
+          break
+        default:
+          toast.error(error.response?.data.message || t('common.error.title'))
+          break
+      }
       return Promise.reject(error)
     }
   )

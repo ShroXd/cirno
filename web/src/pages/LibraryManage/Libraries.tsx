@@ -22,8 +22,10 @@ import {
   Trash,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { mutate } from 'swr'
 
 import { LibraryDto } from '~/bindings/LibraryDto'
+import ConfirmDialog from '~/components/ConfirmDialog/ConfirmDialog'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
@@ -61,6 +63,7 @@ import {
   TableRow,
 } from '~/components/ui/table'
 import { Tooltip } from '~/components/ui/tooltip'
+import { useDelete } from '~/hooks/useDelete'
 import { useFetch } from '~/hooks/useFetch'
 
 interface LibrariesProps {
@@ -89,6 +92,7 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
   })
 
   const { t } = useTranslation()
+  const del = useDelete()
 
   const {
     data: libraries,
@@ -115,9 +119,11 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
     setShowEditDialog(true)
   }
 
-  const handleDeleteLibrary = (_id: string) => {
-    // In a real app, you would call an API to delete the library
-    toast('媒体库已删除')
+  const handleDeleteLibrary = async (id: string) => {
+    // TODO: design the error handling
+    await del(`/library/${id}`)
+    await mutate('/library/')
+    toast.success(t('page.library.libraries.table.action.delete.success'))
   }
 
   const handleSelectAllLibraries = (checked: boolean) => {
@@ -467,28 +473,22 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
                           </Tooltip>
                         </TooltipProvider>
 
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                onClick={() =>
-                                  handleDeleteLibrary(library.id.toString())
-                                }
-                              >
-                                <Trash className='h-4 w-4 text-destructive' />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>
-                                {t(
-                                  'page.library.libraries.table.action.delete'
-                                )}
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <ConfirmDialog
+                          title={t(
+                            'page.library.libraries.table.action.delete.title'
+                          )}
+                          description={t(
+                            'page.library.libraries.table.action.delete.description'
+                          )}
+                          onConfirm={() =>
+                            handleDeleteLibrary(library.id.toString())
+                          }
+                          trigger={
+                            <Button variant='ghost' size='icon'>
+                              <Trash className='h-4 w-4 text-destructive' />
+                            </Button>
+                          }
+                        />
                       </div>
                     </TableCell>
                   </TableRow>

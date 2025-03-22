@@ -278,12 +278,6 @@ export default function LibrariesPage() {
   const [typeFilter, _setTypeFilter] = useState('all')
   const [sortOption, _setSortOption] = useState('name-asc')
   const [selectedLibraries, setSelectedLibraries] = useState<string[]>([])
-  const [_formData, setFormData] = useState({
-    name: '',
-    path: '',
-    type: 'movies',
-    autoScan: true,
-  })
 
   const { isFeatureEnabled } = useFeatures()
   const { t } = useTranslation()
@@ -438,12 +432,6 @@ export default function LibrariesPage() {
   }, [isLoading])
 
   const handleAddLibrary = () => {
-    setFormData({
-      name: '',
-      path: '',
-      type: 'movies',
-      autoScan: true,
-    })
     setShowAddDialog(true)
   }
 

@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
 import { FileVideo, MonitorPlay } from 'lucide-react'
+import { mutate } from 'swr'
 
 import { AsyncTaskResponse } from '~/bindings/AsyncTaskResponse'
 import { LibraryDto } from '~/bindings/LibraryDto'
@@ -91,6 +92,7 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
       })
 
       dialogHandler(false)
+      mutate('/library/')
     } catch (error) {
       console.error('Failed to create media library', error)
 
