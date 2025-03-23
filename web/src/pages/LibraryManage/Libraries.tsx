@@ -94,13 +94,7 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
   const { t } = useTranslation()
   const del = useDelete()
 
-  const {
-    data: libraries,
-    error,
-    isLoading,
-  } = useFetch<LibraryDto[]>('/library/')
-  console.log('libraries data', libraries)
-  console.log('libraries error', error)
+  const { data: libraries, isLoading } = useFetch<LibraryDto[]>('/library/')
 
   useEffect(() => {
     if (libraries) {
@@ -121,6 +115,7 @@ export const Libraries: FC<LibrariesProps> = ({ handleAddLibrary }) => {
 
   const handleDeleteLibrary = async (id: string) => {
     // TODO: design the error handling
+    // TODO: should wait for the delete event from the backend
     await del(`/library/${id}`)
     await mutate('/library/')
     toast.success(t('page.library.libraries.table.action.delete.success'))

@@ -5,6 +5,9 @@
     "error": {
       "title": "发生意外错误",
       "message": "请稍后再试"
+    },
+    "event_message": {
+      "library_saved": "媒体库 {{libraryName}} 已保存"
     }
   },
   "sidebar": {
@@ -12,6 +15,51 @@
     "home": "主页",
     "library": "媒体库",
     "settings": "设置"
+  },
+  "component": {
+    "libraryManageDialog": {
+      "add": {
+        "title": "添加媒体库",
+        "description": "向系统添加新的媒体库路径"
+      },
+      "form": {
+        "name": {
+          "label": "媒体库名称",
+          "placeholder": "例如：电影库、电视剧库",
+          "rule": {
+            "nameRequired": "名称为必填项"
+          }
+        },
+        "path": {
+          "label": "媒体库路径",
+          "placeholder": "例如：/media/path",
+          "hint": "选择包含媒体文件的文件夹路径",
+          "action": {
+            "browse": "浏览..."
+          },
+          "rule": {
+            "pathRequired": "路径为必填项"
+          }
+        },
+        "type": {
+          "label": "媒体库类型",
+          "placeholder": "例如：电影、电视剧",
+          "options": {
+            "movie": "电影",
+            "tv": "电视剧",
+            "anime": "动漫"
+          }
+        },
+        "autoScan": {
+          "label": "启用自动扫描",
+          "description": "自动扫描库中的新媒体文件"
+        }
+      },
+      "action": {
+        "add": "添加媒体库",
+        "cancel": "取消"
+      }
+    }
   },
   "page": {
     "home": {

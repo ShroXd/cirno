@@ -5,6 +5,9 @@
     "error": {
       "title": "Unexpected error occurred",
       "message": "Please try again later"
+    },
+    "event_message": {
+      "library_saved": "Library {{libraryName}} saved"
     }
   },
   "sidebar": {
@@ -12,6 +15,51 @@
     "home": "Home",
     "library": "Library",
     "settings": "Settings"
+  },
+  "component": {
+    "libraryManageDialog": {
+      "add": {
+        "title": "Add Media Library",
+        "description": "Add a new media library path to your system"
+      },
+      "form": {
+        "name": {
+          "label": "Media Library Name",
+          "placeholder": "e.g. Movie Library, TV Library",
+          "rule": {
+            "nameRequired": "Name is required"
+          }
+        },
+        "path": {
+          "label": "Media Library Path",
+          "placeholder": "e.g. /media/path",
+          "hint": "Select the folder path containing media files",
+          "action": {
+            "browse": "Browse..."
+          },
+          "rule": {
+            "pathRequired": "Path is required"
+          }
+        },
+        "type": {
+          "label": "Media Library Type",
+          "placeholder": "e.g. Movie, TV",
+          "options": {
+            "movie": "Movie",
+            "tv": "TV",
+            "anime": "Anime"
+          }
+        },
+        "autoScan": {
+          "label": "Enable Auto Scan",
+          "description": "Automatically scan new media files in the library"
+        }
+      },
+      "action": {
+        "add": "Add Media Library",
+        "cancel": "Cancel"
+      }
+    }
   },
   "page": {
     "home": {

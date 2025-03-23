@@ -51,7 +51,7 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
 
   const post = usePost()
   const { t } = useTranslation()
-  const { emitEvent } = useEventBus()
+  const { emitEvent, onEvent } = useEventBus()
 
   const {
     register,
@@ -71,9 +71,21 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
   }, [open, reset, defaultValues])
 
   const libraryTypes = [
-    { value: 'Movie', label: '电影', icon: MonitorPlay },
-    { value: 'TvShow', label: '电视剧', icon: FileVideo },
-    { value: 'Animation', label: '动画', icon: FileVideo },
+    {
+      value: 'Movie',
+      label: 'component.libraryManageDialog.form.type.options.movie',
+      icon: MonitorPlay,
+    },
+    {
+      value: 'TvShow',
+      label: 'component.libraryManageDialog.form.type.options.tv',
+      icon: FileVideo,
+    },
+    {
+      value: 'Animation',
+      label: 'component.libraryManageDialog.form.type.options.anime',
+      icon: FileVideo,
+    },
   ]
 
   const onSubmit = async (data: LibraryDto) => {
@@ -92,7 +104,9 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
       })
 
       dialogHandler(false)
-      mutate('/library/')
+      onEvent('LibrarySaved', () => {
+        mutate('/library/')
+      })
     } catch (error) {
       console.error('Failed to create media library', error)
 
@@ -122,50 +136,67 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
       <DialogContent className='sm:max-w-[550px]'>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>添加媒体库</DialogTitle>
+            <DialogTitle>
+              {t('component.libraryManageDialog.add.title')}
+            </DialogTitle>
             <DialogDescription>
-              添加新的媒体库路径到您的系统中
+              {t('component.libraryManageDialog.add.description')}
             </DialogDescription>
           </DialogHeader>
           <div className='grid gap-4 py-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='name'>媒体库名称</Label>
+              <Label htmlFor='name'>
+                {t('component.libraryManageDialog.form.name.label')}
+              </Label>
               <Input
                 id='name'
-                placeholder='例如：电影库、电视剧库'
+                placeholder={t(
+                  'component.libraryManageDialog.form.name.placeholder'
+                )}
                 {...register('name', { required: true })}
               />
               {errors.name && (
                 <span className='mt-1 text-xs text-red-500'>
-                  {t('component.libraryManageDialog.nameRequired')}
+                  {t(
+                    'component.libraryManageDialog.form.name.rule.nameRequired'
+                  )}
                 </span>
               )}
             </div>
             <div className='grid gap-2'>
-              <Label htmlFor='path'>媒体库路径</Label>
+              <Label htmlFor='path'>
+                {t('component.libraryManageDialog.form.path.label')}
+              </Label>
               <div className='flex gap-2'>
                 <Input
                   id='path'
-                  placeholder='/media/path'
+                  placeholder={t(
+                    'component.libraryManageDialog.form.path.placeholder'
+                  )}
                   {...register('directory', { required: true })}
                   className='flex-1'
                 />
                 <Button variant='outline' onClick={handleBrowsePath}>
-                  浏览...
+                  {t('component.libraryManageDialog.form.path.action.browse')}
                 </Button>
               </div>
-              {errors.directory && (
+              {errors.directory ? (
                 <span className='mt-1 text-xs text-red-500'>
-                  {t('component.libraryManageDialog.directoryRequired')}
+                  {t(
+                    'component.libraryManageDialog.form.path.rule.pathRequired'
+                  )}
                 </span>
+              ) : (
+                <p className='text-xs text-muted-foreground'>
+                  {t('component.libraryManageDialog.form.path.hint')}
+                </p>
               )}
-              <p className='text-xs text-muted-foreground'>
-                选择包含媒体文件的文件夹路径
-              </p>
             </div>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='type'>媒体库类型</Label>
+                <Label htmlFor='type'>
+                  {t('component.libraryManageDialog.form.type.label')}
+                </Label>
                 <Controller
                   name='category'
                   defaultValue='Movie'
@@ -181,14 +212,18 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
                       {...rest}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder='选择媒体库类型' />
+                        <SelectValue
+                          placeholder={t(
+                            'component.libraryManageDialog.form.type.placeholder'
+                          )}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {libraryTypes.map(type => (
                           <SelectItem key={type.value} value={type.value}>
                             <div className='flex items-center gap-2'>
                               <type.icon className='h-4 w-4' />
-                              <span>{type.label}</span>
+                              <span>{t(type.label)}</span>
                             </div>
                           </SelectItem>
                         ))}
@@ -199,15 +234,21 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
               </div>
               <div className='flex items-center space-x-2 self-end'>
                 <Switch id='auto-scan-new' />
-                <Label htmlFor='auto-scan-new'>启用自动扫描</Label>
+                <Label htmlFor='auto-scan-new'>
+                  {t('component.libraryManageDialog.form.autoScan.label')}
+                </Label>
               </div>
             </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant='outline'>取消</Button>
+              <Button variant='outline'>
+                {t('component.libraryManageDialog.action.cancel')}
+              </Button>
             </DialogClose>
-            <Button type='submit'>添加媒体库</Button>
+            <Button type='submit'>
+              {t('component.libraryManageDialog.action.add')}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

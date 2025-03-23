@@ -5,6 +5,9 @@
     "error": {
       "title": "予期せぬエラーが発生しました",
       "message": "後でもう一度試してください"
+    },
+    "event_message": {
+      "library_saved": "ライブラリ {{libraryName}} が保存されました"
     }
   },
   "sidebar": {
@@ -12,6 +15,51 @@
     "home": "ホーム",
     "library": "ライブラリ",
     "settings": "設定"
+  },
+  "component": {
+    "libraryManageDialog": {
+      "add": {
+        "title": "メディアライブラリを追加",
+        "description": "システムに新しいメディアライブラリパスを追加する"
+      },
+      "form": {
+        "name": {
+          "label": "メディアライブラリ名",
+          "placeholder": "例：映画ライブラリ、TVライブラリ",
+          "rule": {
+            "nameRequired": "名前は必須です"
+          }
+        },
+        "path": {
+          "label": "メディアライブラリパス",
+          "placeholder": "例：/media/path",
+          "hint": "メディアファイルを含むフォルダのパスを選択してください",
+          "action": {
+            "browse": "ブラウズ..."
+          },
+          "rule": {
+            "pathRequired": "パスは必須です"
+          }
+        },
+        "type": {
+          "label": "メディアライブラリタイプ",
+          "placeholder": "例：映画、TV",
+          "options": {
+            "movie": "映画",
+            "tv": "TV",
+            "anime": "アニメ"
+          }
+        },
+        "autoScan": {
+          "label": "自動スキャンを有効にする",
+          "description": "ライブラリ内の新しいメディアファイルを自動的にスキャンする"
+        }
+      },
+      "action": {
+        "add": "メディアライブラリを追加",
+        "cancel": "キャンセル"
+      }
+    }
   },
   "page": {
     "home": {
