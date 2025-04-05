@@ -16,6 +16,7 @@ import { AnimatePresence } from 'motion/react'
 
 import { EpisodeDto } from '~/bindings/EpisodeDto'
 import { MediaItemDto } from '~/bindings/MediaItemDto'
+import PlyrPlayer from '~/components/PlyrPlayer/PlyrPlayer'
 import { PulseLoader } from '~/components/PulseLoader/PulseLoader'
 import { FadeIn } from '~/components/TransitionContainer/FadeIn'
 import { FadeInUp } from '~/components/TransitionContainer/FadeInUp'
@@ -146,10 +147,11 @@ export default function ContentDetailPage() {
         <AnimatePresence>
           {videoPlayerState === VideoPlayerState.Playing ? (
             <FadeIn key='video-player' className='absolute inset-0'>
-              <VideoPlayer
+              {/* <VideoPlayer
                 options={videoJsOptions}
                 onReset={handlePlayerReset}
-              />
+              /> */}
+              <PlyrPlayer />
             </FadeIn>
           ) : (
             <FadeIn key='pulse-loader' className='absolute inset-0'>

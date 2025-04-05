@@ -158,7 +158,7 @@
       },
       "general": {
         "title": "常规",
-        "description": "自定义 StreamHub 的外观",
+        "description": "自定义 Cirno 的外观",
         "theme": {
           "title": "主题",
           "light": "浅色",
@@ -179,7 +179,7 @@
       },
       "behavior": {
         "title": "行为",
-        "description": "控制 StreamHub 的行为方式",
+        "description": "控制 Cirno 的行为方式",
         "autoplay": "自动播放下一集",
         "autoplay_description": "当前集结束时自动播放下一集",
         "notifications": "通知",

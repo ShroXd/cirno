@@ -72,20 +72,21 @@ export const LibraryManageDialog: FC<LibraryManageDialogProps> = ({
 
   const libraryTypes = [
     {
-      value: 'Movie',
-      label: 'component.libraryManageDialog.form.type.options.movie',
-      icon: MonitorPlay,
-    },
-    {
       value: 'TvShow',
       label: 'component.libraryManageDialog.form.type.options.tv',
       icon: FileVideo,
     },
-    {
-      value: 'Animation',
-      label: 'component.libraryManageDialog.form.type.options.anime',
-      icon: FileVideo,
-    },
+    // TODO: Add scan algorithm for tv shows and anime
+    // {
+    //   value: 'Movie',
+    //   label: 'component.libraryManageDialog.form.type.options.movie',
+    //   icon: MonitorPlay,
+    // },
+    // {
+    //   value: 'Animation',
+    //   label: 'component.libraryManageDialog.form.type.options.anime',
+    //   icon: FileVideo,
+    // },
   ]
 
   const onSubmit = async (data: LibraryDto) => {

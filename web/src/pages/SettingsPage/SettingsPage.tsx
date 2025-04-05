@@ -131,7 +131,7 @@ export default function SettingsPage() {
                     <div className='space-y-0.5'>
                       <Label htmlFor='analytics'>Usage analytics</Label>
                       <p className='text-sm text-muted-foreground'>
-                        Help improve StreamHub by sharing anonymous usage data
+                        Help improve Cirno by sharing anonymous usage data
                       </p>
                     </div>
                     <Switch
@@ -195,7 +195,7 @@ export default function SettingsPage() {
             <TabsContent value='about' className='animate-fade-in space-y-6'>
               <Card>
                 <CardHeader>
-                  <CardTitle>About StreamHub</CardTitle>
+                  <CardTitle>About Cirno</CardTitle>
                   <CardDescription>
                     Information about the application
                   </CardDescription>

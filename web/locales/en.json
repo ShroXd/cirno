@@ -157,7 +157,7 @@
       },
       "general": {
         "title": "General",
-        "description": "Customize how StreamHub looks",
+        "description": "Customize how Cirno looks",
         "theme": {
           "title": "Theme",
           "light": "Light",
@@ -178,7 +178,7 @@
       },
       "behavior": {
         "title": "Behavior",
-        "description": "Control how StreamHub behaves",
+        "description": "Control how Cirno behaves",
         "autoplay": "Autoplay next episode",
         "autoplay_description": "Automatically play the next episode when the current one ends",
         "notifications": "Notifications",
