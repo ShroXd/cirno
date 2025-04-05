@@ -1,130 +1,74 @@
 import { useEffect, useRef } from 'react'
 
-import Hls from 'hls.js'
-import Plyr, { APITypes, PlyrInstance, PlyrProps } from 'plyr-react'
+import Plyr, { APITypes, PlyrProps } from 'plyr-react'
 import 'plyr-react/plyr.css'
+import videojs from 'video.js'
+import 'video.js/dist/video-js.css'
 
 import './style.css'
 
-// Key - segment
-// Value - timer and retry count
-type RetryTimers = Record<string, { timer: NodeJS.Timeout; count: number }>
-
 const PlyrPlayer = () => {
   const ref = useRef<APITypes | null>(null)
-  const hlsRef = useRef<Hls | null>(null)
-  const retryTimersRef = useRef<RetryTimers>({})
-
-  useEffect(
-    () => () => {
-      Object.values(retryTimersRef.current).forEach(({ timer }) =>
-        clearTimeout(timer)
-      )
-      if (hlsRef.current) {
-        hlsRef.current.destroy()
-      }
-    },
-    []
-  )
+  const playerRef = useRef<any>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
 
   useEffect(() => {
-    const retrySegmentLoad = (segmentUrl: string, onSuccess: () => void) => {
-      const key = segmentUrl.split('/').pop() || segmentUrl
-
-      if (retryTimersRef.current[key]) {
-        clearTimeout(retryTimersRef.current[key].timer)
+    return () => {
+      const player = playerRef.current
+      if (player && !player.isDisposed()) {
+        player.dispose()
+        playerRef.current = null
       }
-
-      const retryCount = (retryTimersRef.current[key]?.count || 0) + 1
-
-      // delay = 1s * 1.3^retryCount
-      const delay = Math.min(
-        1000 * Math.pow(1.3, Math.min(retryCount - 1, 10)),
-        5000
-      )
-
-      const timer = setTimeout(() => {
-        fetch(segmentUrl, { method: 'HEAD' })
-          .then(response => {
-            if (response.ok) {
-              delete retryTimersRef.current[key]
-              onSuccess()
-            } else {
-              retrySegmentLoad(segmentUrl, onSuccess)
-            }
-          })
-          .catch(() => {
-            retrySegmentLoad(segmentUrl, onSuccess)
-          })
-      }, delay)
-
-      retryTimersRef.current[key] = { timer, count: retryCount }
     }
+  }, [])
 
-    const loadVideo = async () => {
+  useEffect(() => {
+    const loadVideo = () => {
       const video = document.getElementById('plyr') as HTMLVideoElement
-      const hls = new Hls({
-        // Configure HLS.js to handle dynamically generated segments
-        maxBufferLength: 30,
-        maxMaxBufferLength: 60,
-        enableWorker: true,
-        lowLatencyMode: true,
-        // Set minimal error recovery as we'll handle it ourselves
-        maxLoadingDelay: 1,
-        fragLoadingMaxRetry: 2,
-        fragLoadingRetryDelay: 500,
-        manifestLoadingMaxRetry: 1,
-        levelLoadingMaxRetry: 1,
+      videoRef.current = video
+
+      // Initialize video.js
+      const player = videojs(video, {
+        autoplay: true,
+        controls: false, // Let Plyr handle the controls
+        sources: [{ src: '/hls/playlist.m3u8', type: 'application/x-mpegURL' }],
+        html5: {
+          hls: {
+            overrideNative: true,
+            maxBufferLength: 30,
+            maxMaxBufferLength: 60,
+            enableLowInitialPlaylist: true,
+            smoothQualityChange: true,
+            handleManifestRedirects: true,
+          },
+        },
       })
 
-      hlsRef.current = hls
+      playerRef.current = player
 
-      hls.loadSource('/hls/playlist.m3u8')
-      hls.attachMedia(video)
-
+      // Connect video.js to Plyr
       // @ts-ignore
       ref.current!.plyr.media = video
 
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        ;(ref.current!.plyr as PlyrInstance).play()
+      player.ready(() => {
+        player.play()
       })
 
-      hls.on(Hls.Events.ERROR, (_event, data) => {
-        // Hls segments are generated dynamically, use custom retry logic
-        if (data.response && data.response.code === 404) {
-          data.fatal = false
+      player.on('error', () => {
+        // Handle errors
+        const error = player.error()
+        console.error('Video.js error:', error)
 
-          if (
-            data.type === Hls.ErrorTypes.NETWORK_ERROR &&
-            data.details &&
-            (data.details === Hls.ErrorDetails.FRAG_LOAD_ERROR ||
-              data.details === Hls.ErrorDetails.FRAG_LOAD_TIMEOUT)
-          ) {
-            const segmentUrl = data.frag?.url
-            if (segmentUrl) {
-              retrySegmentLoad(segmentUrl, () => {
-                if (hlsRef.current) {
-                  hlsRef.current.startLoad()
-                }
-              })
-            }
-          }
-          return
-        }
-
-        if (data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              hls.startLoad()
-              break
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              hls.recoverMediaError()
-              break
-            default:
-              hls.destroy()
-              loadVideo()
-              break
-          }
+        // Simple retry logic
+        if (error && error.code === 4) {
+          setTimeout(() => {
+            player.src({
+              src: '/hls/playlist.m3u8',
+              type: 'application/x-mpegURL',
+            })
+            player.load()
+            player.play()
+          }, 1000)
         }
       })
     }
