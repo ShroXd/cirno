@@ -207,7 +207,7 @@ export default function AppSidebar() {
       <Sidebar>
         <SidebarHeader className='p-4'>
           <Link to='/' className='flex items-center gap-2'>
-            <Film className='h-6 w-6 text-primary' />
+            <img src='/cirno_logo.png' alt='Logo' className='mr-2 h-10 w-10' />
             <span className='text-xl font-bold'>Cirno</span>
           </Link>
         </SidebarHeader>

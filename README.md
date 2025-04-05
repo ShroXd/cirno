@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/images/logo.svg" width="240" alt="Cirno Logo">
+<img src="./web/public/cirno_logo.png" width="100" alt="Cirno Logo">
 
 # Cirno
 
